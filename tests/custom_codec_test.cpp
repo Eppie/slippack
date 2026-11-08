@@ -9,7 +9,7 @@ using namespace slpz_custom;
 int main(int argc, char** argv) {
   std::mt19937 random(716018);
   size_t checks = 0;
-  std::array<size_t, 5> packet_modes{};
+  std::array<size_t, 6> packet_modes{};
   for (unsigned n : {0, 1, 2, 3, 7, 15, 31, 255, 1024, 4096, 16384, 100000}) {
     for (unsigned pattern = 0; pattern < 8; ++pattern) {
       Bytes input(n);
@@ -55,6 +55,14 @@ int main(int argc, char** argv) {
         auto packed = encode_planes(planes, n, profiles);
         require(decode_planes(packed, narrow(planes.size())) == planes, "plane roundtrip mismatch");
         ++checks;
+        if (argc > 1 && planes.size() <= 65535) {
+          std::filesystem::create_directories(argv[1]);
+          std::ofstream file(std::filesystem::path(argv[1]) / std::to_string(checks),
+                             std::ios::binary);
+          uint8_t prefix[4] = {uint8_t(planes.size()), uint8_t(planes.size() >> 8), 1, 0};
+          file.write(reinterpret_cast<const char*>(prefix), 4);
+          file.write(reinterpret_cast<const char*>(packed.data()), packed.size());
+        }
       }
     }
   }
@@ -73,10 +81,75 @@ int main(int argc, char** argv) {
   Reader framing{encoded_channel};
   unsigned packed_size = framing.var();
   require(framing.var() == field_data.size(), "semantic channel size");
-  require(framing.take(packed_size)[0] == 2, "semantic model did not win");
+  require(framing.take(packed_size)[0] == 4, "context model did not win");
   Reader decode_channel{encoded_channel};
   require(unchannel(decode_channel, field_data.size(), field_contexts) == field_data,
           "semantic model roundtrip");
+  // The version-10 semantic channel remains readable.
+  auto legacy_semantic = ans_candidate(field_data, field_contexts);
+  Bytes legacy_framed;
+  varint(legacy_framed, narrow(legacy_semantic.size()));
+  varint(legacy_framed, narrow(field_data.size()));
+  append(legacy_framed, legacy_semantic);
+  Reader legacy_reader{legacy_framed};
+  require(unchannel(legacy_reader, field_data.size(), field_contexts) == field_data,
+          "legacy semantic channel");
+  legacy_reader.done();
+  ++checks;
+  // Related planes share exception locations, including odd lengths and
+  // references more than one plane back. Check the mask coder directly so
+  // coverage does not depend on a cost heuristic selecting it.
+  for (unsigned count : {1u, 3u, 7u, 9u, 31u, 127u, 1000u, 4097u}) {
+    Bytes data(count * 8),
+        labels{FloatHigh, FloatLow, Controller, FloatLow, Discrete, FloatLow, Generic, FloatLow};
+    for (unsigned j = 0; j < 8; ++j)
+      for (unsigned i = 0; i < count; ++i) {
+        bool present = (i % 37 < 11) || (i % 101 == j);
+        data[j * count + i] = present ? uint8_t(1 + random() % 255) : 0;
+      }
+    auto packed = masked_encode(data, count, labels, 8);
+    Reader r{packed};
+    require(masked_decode(r, count, labels) == data, "shared mask roundtrip");
+    r.done();
+    ++checks;
+    for (size_t cut : {size_t(0), packed.size() / 2, packed.size() - 1}) {
+      try {
+        Reader bad{View(packed).first(cut)};
+        (void)masked_decode(bad, count, labels);
+        throw std::logic_error("accepted mask truncation");
+      } catch (const Error&) {
+      }
+      ++checks;
+    }
+  }
+  // Exhaust all eight-lane masks, including a nonzero dominant value.
+  for (unsigned bits = 0; bits < 256; ++bits) {
+    Bytes plane(8, 93), mask(1, 0), values;
+    for (unsigned k = 0; k < 8; ++k)
+      if (bits & (1u << k)) plane[k] = uint8_t(k + 17);
+    extract_exceptions(plane, 93, mask, values);
+    require(mask[0] == bits, "SIMD mask extraction");
+    require(values.size() == size_t(std::popcount(bits)), "SIMD compact count");
+    values.resize(values.size() + 8);
+    Bytes restored(8), base{93, 0};
+    restore_exceptions(mask, values, 8, base, restored);
+    require(restored == plane, "SIMD scatter");
+    ++checks;
+  }
+  // Every lookup in the product model must return a positive-frequency
+  // symbol whose cumulative interval contains that slot.
+  for (unsigned rep = 0; rep < 128; ++rep) {
+    std::array<uint16_t, 256> p;
+    for (auto& x : p) x = random() % 4097;
+    PresenceTable m;
+    m.build(random() % 512, p);
+    for (unsigned slot = 0; slot < 4096; ++slot) {
+      unsigned symbol = m.symbol(slot);
+      require(m.freq[symbol] && slot >= m.start[symbol] && slot < m.start[symbol] + m.freq[symbol],
+              "presence CDF");
+    }
+    ++checks;
+  }
   auto field_planes = encode_planes(field_data, 8192, profiles);
   require(decode_planes(field_planes, narrow(field_data.size())) == field_data,
           "distinct field distributions roundtrip");

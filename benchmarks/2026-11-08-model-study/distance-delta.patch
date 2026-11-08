@@ -1,0 +1,81 @@
+--- before/custom_codec.h
++++ after/custom_codec.h
+@@ -381,12 +381,13 @@
+   for (auto p : profiles) require(p < ProfileCount, "custom profile");
+   Bytes literals, residuals, contexts, litlengths, lengths, distances;
+   std::array<uint32_t,256> raw_hist{},predicted_hist{};
+-  BitWriter extra;
++  BitWriter extra,delta_extra;Bytes delta_distances;
++  auto extra_number=[&](uint32_t n){if(n>=16){unsigned k=31-std::countl_zero(n);delta_extra.put(n-(1u<<k),k);}};
+   Matcher matcher(input, depth);
+   std::array<uint32_t, 4> recent{1, 2, 3, 4};
+   uint32_t last = 0, matches = 0;
+   auto literal_run = [&](uint32_t end) {
+-    number(litlengths, extra, end - last);
++    number(litlengths, extra, end - last);extra_number(end-last);
+     for (uint32_t p = last; p < end; ++p) {
+       literals.push_back(input[p]);
+       residuals.push_back(input[p] ^ (p >= recent[0] ? input[p - recent[0]] : 0));
+@@ -409,19 +410,21 @@
+       }
+     }
+     literal_run(i);
+-    number(lengths, extra, m.length - 3);
++    number(lengths, extra, m.length - 3);extra_number(m.length-3);
+     unsigned rep = 4;
+     for (unsigned k = 0; k < 4; ++k)
+       if (recent[k] == m.distance) {
+         rep = k;
+         break;
+       }
+-    if (rep < 4)
+-      distances.push_back(uint8_t(rep));
++    if (rep < 4){
++      distances.push_back(uint8_t(rep));delta_distances.push_back(uint8_t(rep));}
+     else {
+       unsigned k = 31 - std::countl_zero(m.distance);
+       distances.push_back(uint8_t(k + 4));
+       extra.put(m.distance - (1u << k), k);
++      int32_t diff=int32_t(m.distance)-int32_t(recent[0]);uint32_t delta=(diff>=0?uint32_t(diff)*2:uint32_t(-int64_t(diff))*2-1)+1;
++      unsigned dk=31-std::countl_zero(delta);delta_distances.push_back(uint8_t(dk+4));delta_extra.put(delta-(1u<<dk),dk);
+     }
+     move_recent(recent, m.distance);
+     ++matches;
+@@ -431,14 +434,15 @@
+     last = i;
+   }
+   literal_run(narrow(input.size()));
+-  extra.finish();
+-  Bytes payload;
++  extra.finish();delta_extra.finish();Bytes ordinary_dist,delta_dist;
++  channel(ordinary_dist,distances);channel(delta_dist,delta_distances);
++  bool delta_mode=delta_dist.size()+delta_extra.data.size()+5<ordinary_dist.size()+extra.data.size();
++  Bytes payload;if(delta_mode)varint(payload,UINT32_MAX);
+   varint(payload, matches);
+   channel(payload, litlengths);
+   channel(payload, lengths);
+-  channel(payload, distances);
+-  varint(payload, narrow(extra.data.size()));
+-  append(payload, extra.data);
++  append(payload,delta_mode?delta_dist:ordinary_dist);auto& selected_extra=delta_mode?delta_extra.data:extra.data;
++  varint(payload,narrow(selected_extra.size()));append(payload,selected_extra);
+   // LZ literals use the semantic class at their original plane position.
+   // RNG side streams have their own independent class/model.
+   Bytes raw_literals, predicted_literals;
+@@ -452,7 +456,7 @@
+   return payload;
+ }
+ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t stride = 0) {
+-  uint32_t matches = r.var();
++  uint32_t matches = r.var();bool delta_mode=matches==UINT32_MAX;if(delta_mode)matches=r.var();
+   require(matches <= n / 3, "custom match count");
+   auto ll = unchannel(r, size_t(matches) + 1), ml = unchannel(r, matches),
+        ds = unchannel(r, matches);
+@@ -484,6 +488,7 @@
+       unsigned c = dr.byte();
+       require(c <= 24, "custom distance code");
+       distance = c < 4 ? recent[c] : (1u << (c - 4)) + bits.get(c - 4);
++      if(delta_mode&&c>=4){uint32_t zz=distance-1;int64_t diff=int64_t(zz>>1)^-int64_t(zz&1),d=int64_t(recent[0])+diff;require(d>0&&uint64_t(d)<=pos&&d<=(1u<<20),"custom delta distance");distance=uint32_t(d);}
+       require(distance && distance <= pos, "custom distance");
+       move_recent(recent, distance);
+       pos += length;

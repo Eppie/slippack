@@ -71,7 +71,8 @@ namespace fs = std::filesystem;
 // ── container constants ─────────────────────────────────────────────────────
 constexpr uint32_t kMagic = 0x5A504C53;  // "SLPZ" little-endian
 constexpr uint8_t kVersion = 9;
-constexpr uint8_t kCustomVersion = 10;
+constexpr uint8_t kTunedVersion = 10;
+constexpr uint8_t kCustomVersion = 11;
 static bool g_custom = false, g_tuned = false;
 constexpr uint8_t kModeRaw = 0;    // whole file = one zstd blob
 constexpr uint8_t kModeSplit = 1;  // parsed event streams
@@ -1765,7 +1766,7 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
 
   Buf out;
   out.put_u32(kMagic);
-  out.put_u8(g_tuned ? kCustomVersion : kVersion);
+  out.put_u8(g_custom ? kCustomVersion : g_tuned ? kTunedVersion : kVersion);
   out.put_u8(g_custom ? 1 : 0);  // flags
   out.put_u32((uint32_t)pools.size());
   for (auto& pl : pools) {
@@ -2165,9 +2166,9 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
   Reader r{arc.data(), arc.data() + arc.size()};
   if (r.u32() != kMagic) die("not a slpz archive");
   uint8_t version = r.u8(), flags = r.u8();
-  if (version != kVersion && version != kCustomVersion) die("unsupported slpz version");
+  if (version != kVersion && version != kTunedVersion && version != kCustomVersion) die("unsupported slpz version");
   if (flags & ~1u || (version == kVersion && flags)) die("unsupported slpz flags");
-  g_tuned = version == kCustomVersion;
+  g_tuned = version != kVersion;
   g_custom = g_tuned && (flags & 1);
   uint32_t nPools = r.u32();
   std::vector<DecPool> pools(nPools);

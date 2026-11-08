@@ -6,12 +6,17 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <span>
 #include <stdexcept>
 #include <vector>
+#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#include <arm_neon.h>
+#endif
 
 namespace slpz_custom {
 using Bytes = std::vector<uint8_t>;
@@ -116,6 +121,9 @@ struct Model {
   }
 };
 
+#include "mask_codec.h"
+#include "static_context.h"
+
 // Context IDs are derived from the reconstructed plane layout, never stored
 // once per literal. A model is serialized only when its actual size wins.
 inline Bytes ans_candidate(View input, View contexts) {
@@ -161,11 +169,14 @@ inline void channel(Bytes& out, View input, View contexts = {}) {
   Bytes best{0};
   append(best, input);
   if (!input.empty()) {
-    auto candidate = ans_candidate(input, {});
-    if (candidate.size() < best.size()) best = std::move(candidate);
-    if (!contexts.empty() && input.size() >= 2048) {
-      auto candidate2 = ans_candidate(input, contexts);
-      if (candidate2.size() < best.size()) best = std::move(candidate2);
+    auto candidate =
+        input.size() >= 2048 ? context_encode(input, contexts) : ans_candidate(input, {});
+    if (candidate.size() + (input.size() >= 2048) < best.size()) {
+      if (input.size() >= 2048) {
+        best = Bytes{4};
+        append(best, candidate);
+      } else
+        best = std::move(candidate);
     }
   }
   varint(out, narrow(best.size()));
@@ -181,6 +192,11 @@ inline Bytes unchannel(Reader& outer, size_t limit, View contexts = {}) {
     auto raw = r.take(n);
     r.done();
     return Bytes(raw.begin(), raw.end());
+  }
+  if (mode == 4) {
+    auto output = context_decode(r, n, contexts);
+    r.done();
+    return output;
   }
   require(mode == 1 || mode == 2, "custom channel mode");
   unsigned nc = mode == 1 ? 1 : ProfileCount;
@@ -286,22 +302,34 @@ inline uint8_t context(View profiles, uint32_t stride, size_t position, uint8_t 
   return p == Rng && (previous & 128) ? uint8_t(RngContinuation) : p;
 }
 
+constexpr int kMatchByteCost = 6;
 struct Match {
   uint32_t length = 0, distance = 0;
   int score = 0;
 };
 struct Matcher {
   View data;
-  std::vector<uint32_t> head, previous;
-  unsigned depth;
+  std::vector<uint32_t> head;
+  std::unique_ptr<uint32_t[]> previous;
+  std::array<uint32_t, 4096> short_head;
+  unsigned depth, hash_shift;
   explicit Matcher(View v, unsigned search)
-      : data(v), head(65536, UINT32_MAX), previous(v.size(), UINT32_MAX), depth(search) {}
+      : data(v),
+        head(std::bit_ceil(std::clamp<size_t>(v.size() * 2, 64, 65536)), UINT32_MAX),
+        previous(new uint32_t[v.size()]),
+        depth(search) {
+    hash_shift = 32 - std::countr_zero(head.size());
+    short_head.fill(UINT32_MAX);
+  }
   unsigned hash(size_t i) const {
-    uint32_t x = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
-    return (x * 2654435761u) >> 16;
+    uint32_t x;
+    std::memcpy(&x, data.data() + i, 4);
+    return (x * 2654435761u) >> hash_shift;
   }
   void insert(uint32_t i) {
-    if (size_t(i) + 3 > data.size()) return;
+    if (size_t(i) + 4 > data.size()) return;
+    uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
+    short_head[(key * 2654435761u) >> 20] = i;
     unsigned h = hash(i);
     previous[i] = head[h];
     head[h] = i;
@@ -312,7 +340,10 @@ struct Matcher {
       uint64_t x, y;
       std::memcpy(&x, data.data() + a + n, 8);
       std::memcpy(&y, data.data() + b + n, 8);
-      if (x != y) break;
+      if (x != y)
+        return n + (std::endian::native == std::endian::little ? std::countr_zero(x ^ y)
+                                                               : std::countl_zero(x ^ y)) /
+                       8;
       n += 8;
     }
     while (n < max && data[a + n] == data[b + n]) ++n;
@@ -320,17 +351,31 @@ struct Matcher {
   }
   Match find(uint32_t i, const std::array<uint32_t, 4>& recent) const {
     Match best;
-    if (size_t(i) + 3 > data.size()) return best;
+    if (size_t(i) + 4 > data.size()) return best;
+    uint32_t prefix;
+    std::memcpy(&prefix, data.data() + i, 4);
     auto consider = [&](uint32_t pos, bool repeat) {
       if (pos >= i || i - pos > (1u << 20)) return;
-      uint32_t n = length(i, pos);
-      if (n < 3) return;
+      uint32_t other;
+      std::memcpy(&other, data.data() + pos, 4);
+      constexpr uint32_t mask =
+          std::endian::native == std::endian::little ? 0xffffffu : 0xffffff00u;
+      if ((prefix ^ other) & mask) return;
       int cost = repeat ? 3 : int(32 - std::countl_zero(i - pos)) + 7;
-      int score = int(std::min(n, 1u << 27)) * 5 - cost;
+      uint32_t need = std::max(3, (best.score + cost) / kMatchByteCost + 1);
+      if (need > data.size() - i || data[i + need - 1] != data[pos + need - 1]) return;
+      uint32_t n = length(i, pos);
+      if (n < need) return;
+      int score = int(std::min(n, 1u << 27)) * kMatchByteCost - cost;
       if (score > best.score) best = {n, i - pos, score};
     };
-    for (auto distance : recent)
+    for (auto distance : recent) {
       if (distance <= i) consider(i - distance, true);
+      if (best.length >= 128) break;
+    }
+    uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
+    auto short_pos = short_head[(key * 2654435761u) >> 20];
+    if (short_pos < i && i - short_pos < 1024) consider(short_pos, false);
     if (best.length >= 128) return best;
     uint32_t pos = head[hash(i)];
     for (unsigned d = 0; d < depth && pos != UINT32_MAX; ++d) {
@@ -358,6 +403,13 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
           "custom field shape");
   for (auto p : profiles) require(p < ProfileCount, "custom profile");
   Bytes literals, residuals, contexts, litlengths, lengths, distances;
+  literals.reserve(input.size());
+  residuals.reserve(input.size());
+  contexts.reserve(input.size());
+  litlengths.reserve(input.size() / 8 + 1);
+  lengths.reserve(input.size() / 8);
+  distances.reserve(input.size() / 8);
+  std::array<uint32_t, 256> raw_hist{}, predicted_hist{};
   BitWriter extra;
   Matcher matcher(input, depth);
   std::array<uint32_t, 4> recent{1, 2, 3, 4};
@@ -367,19 +419,25 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
     for (uint32_t p = last; p < end; ++p) {
       literals.push_back(input[p]);
       residuals.push_back(input[p] ^ (p >= recent[0] ? input[p - recent[0]] : 0));
+      ++raw_hist[literals.back()];
+      ++predicted_hist[residuals.back()];
       contexts.push_back(context(profiles, stride, p, 0));
     }
   };
+  uint32_t misses = 0;
   for (uint32_t i = 0; size_t(i) + 3 <= input.size();) {
     Match m = matcher.find(i, recent);
     matcher.insert(i);
     if (m.length < 3) {
-      ++i;
+      ++misses;
+      unsigned step = depth < 24 ? std::min(4u, 1 + (misses >> 6)) : 1;
+      i += std::min<uint32_t>(step, narrow(input.size() - i));
       continue;
     }
+    misses = 0;
     if (depth >= 4 && m.length < 128) {
       auto next = matcher.find(i + 1, recent);
-      if (next.score > m.score + 5) {
+      if (next.score > m.score + kMatchByteCost) {
         ++i;
         continue;
       }
@@ -402,7 +460,10 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
     move_recent(recent, m.distance);
     ++matches;
     uint32_t end = i + m.length;
-    for (uint32_t p = i + 1; p < end; ++p) matcher.insert(p);
+    for (uint32_t p = i + 1; p < end; ++p) {
+      matcher.insert(p);
+      if (m.length >= 64 && p == i + 16) p = end - 17;
+    }
     i = end;
     last = i;
   }
@@ -419,9 +480,11 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
   // RNG side streams have their own independent class/model.
   Bytes raw_literals, predicted_literals;
   auto literal_contexts = profiles.empty() ? View{} : View(contexts);
-  channel(raw_literals, literals, literal_contexts);
-  if (depth >= 4) channel(predicted_literals, residuals, literal_contexts);
-  bool predict = !predicted_literals.empty() && predicted_literals.size() < raw_literals.size();
+  bool favor_prediction = depth >= 4 && context_cost(predicted_hist) < context_cost(raw_hist);
+  if (!favor_prediction || depth >= 24) channel(raw_literals, literals, literal_contexts);
+  if (favor_prediction || depth >= 24) channel(predicted_literals, residuals, literal_contexts);
+  bool predict = !predicted_literals.empty() &&
+                 (raw_literals.empty() || predicted_literals.size() < raw_literals.size());
   payload.push_back(predict ? 1 : 0);
   append(payload, predict ? View(predicted_literals) : View(raw_literals));
   return payload;
@@ -556,7 +619,12 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
     channel(b, values);
     choose(std::move(b));
   }
-  if (input.size() >= 16) {
+  if (profile == Rng && input.size() >= 512) {
+    Bytes b{5};
+    channel(b, input);
+    choose(std::move(b));
+  }
+  if (depth && input.size() >= 16) {
     Bytes p{uint8_t(profile)};
     Bytes b{4};
     append(b, lz_encode(input, p, 0, depth));
@@ -603,6 +671,9 @@ inline Bytes decode(View packed, uint32_t n, Profile profile = Generic) {
     }
     l.done();
     require(output.size() == n, "custom run total");
+  } else if (mode == 5) {
+    output = unchannel(r, n);
+    require(output.size() == n, "custom direct size");
   } else if (mode == 4) {
     Bytes p{uint8_t(profile)};
     output = lz_decode(r, n, p);
@@ -612,11 +683,183 @@ inline Bytes decode(View packed, uint32_t n, Profile profile = Generic) {
   return output;
 }
 
+inline uint8_t dominant_byte(View input) {
+  size_t zeros = 0, i = 0;
+#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+  for (; i + 16 <= input.size(); i += 16)
+    zeros += vaddvq_u8(vshrq_n_u8(vceqq_u8(vld1q_u8(input.data() + i), vdupq_n_u8(0)), 7));
+#endif
+  for (; i < input.size(); ++i) zeros += input[i] == 0;
+  if (zeros * 2 >= input.size()) return 0;
+  std::array<uint32_t, 256> h{};
+  for (auto b : input) ++h[b];
+  return uint8_t(std::max_element(h.begin(), h.end()) - h.begin());
+}
+inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes& out) {
+  size_t width = (size_t(count) + 7) / 8, v = 0;
+#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+  struct UnpackTable {
+    std::array<std::array<uint8_t, 8>, 256> indexes;
+    std::array<uint8_t, 256> counts{};
+    UnpackTable() {
+      for (unsigned m = 0; m < 256; ++m) {
+        indexes[m].fill(255);
+        for (unsigned k = 0; k < 8; ++k)
+          if (m & (1u << k)) indexes[m][k] = counts[m]++;
+      }
+    }
+  };
+  static const UnpackTable table;
+#endif
+  for (size_t j = 0; j < bases.size() / 2; ++j) {
+    size_t i = 0;
+    uint8_t base = bases[j * 2];
+#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+    auto constant = vdup_n_u8(base), missing = vdup_n_u8(255);
+    for (; i + 8 <= count; i += 8) {
+      unsigned bits = masks[j * width + i / 8];
+      auto ix = vld1_u8(table.indexes[bits].data()),
+           expanded = vtbl1_u8(vld1_u8(values.data() + v), ix);
+      auto merged = vbsl_u8(vceq_u8(ix, missing), constant, expanded);
+      vst1_u8(out.data() + j * count + i, merged);
+      v += table.counts[bits];
+    }
+#endif
+    for (; i < count; ++i)
+      out[j * count + i] = (masks[j * width + i / 8] >> (i % 8)) & 1 ? values[v++] : base;
+  }
+}
+
+inline void extract_exceptions(View plane, uint8_t base, Bytes& mask, Bytes& values) {
+  size_t start = values.size(), used = start, i = 0;
+  values.resize(start + plane.size() + 8);
+#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+  struct PackTable {
+    std::array<std::array<uint8_t, 8>, 256> indexes;
+    std::array<uint8_t, 256> counts{};
+    PackTable() {
+      for (unsigned m = 0; m < 256; ++m) {
+        indexes[m].fill(255);
+        for (unsigned k = 0; k < 8; ++k)
+          if (m & (1u << k)) indexes[m][counts[m]++] = uint8_t(k);
+      }
+    }
+  };
+  static const PackTable table;
+  const uint8_t weights_data[8] = {1, 2, 4, 8, 16, 32, 64, 128};
+  auto weights = vld1_u8(weights_data), constant = vdup_n_u8(base);
+  for (; i + 8 <= plane.size(); i += 8) {
+    auto v = vld1_u8(plane.data() + i);
+    unsigned bits = vaddv_u8(vand_u8(vmvn_u8(vceq_u8(v, constant)), weights));
+    mask[i / 8] = uint8_t(bits);
+    auto packed = vtbl1_u8(v, vld1_u8(table.indexes[bits].data()));
+    vst1_u8(values.data() + used, packed);
+    used += table.counts[bits];
+  }
+#endif
+  for (; i < plane.size(); ++i)
+    if (plane[i] != base) {
+      mask[i / 8] |= 1u << (i % 8);
+      values[used++] = plane[i];
+    }
+  values.resize(used);
+}
+
+// Separate presence masks from exception values so neighboring byte planes
+// can share the locations at which a float or controller field changed.
+inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned depth) {
+  Bytes bases, masks, original, values, contexts, refs;
+  size_t width = (size_t(count) + 7) / 8;
+  values.reserve(rich.size() + 8);
+  contexts.reserve(rich.size());
+  masks.reserve(width * profiles.size());
+  original.reserve(width * profiles.size());
+  for (size_t j = 0; j < profiles.size(); ++j) {
+    auto plane = rich.subspan(j * count, count);
+    uint8_t base = dominant_byte(plane);
+    bases.push_back(base);
+    Bytes mask(width, 0);
+    size_t start = values.size();
+    extract_exceptions(plane, base, mask, values);
+    contexts.insert(contexts.end(), values.size() - start, profiles[j]);
+    unsigned best = 0;
+    for (auto v : mask) best += std::popcount(v);
+    unsigned ref = 0;
+    for (unsigned back = 1; back <= std::min<size_t>(j, 8); ++back) {
+      unsigned delta = 0;
+      for (size_t i = 0; i < width; ++i)
+        delta += std::popcount(uint8_t(mask[i] ^ original[(j - back) * width + i]));
+      if (delta < best) {
+        best = delta;
+        ref = back;
+      }
+    }
+    bases.push_back(ref);
+    refs.push_back(ref);
+    for (size_t i = 0; i < width; ++i)
+      masks.push_back(mask[i] ^ (ref ? original[(j - ref) * width + i] : 0));
+    append(original, mask);
+  }
+  Bytes m;
+  if (count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4)
+    m = encode(masks, Generic, depth);
+  auto ma = encode_presence(original, count, profiles, refs);
+  bool binary = m.empty() || ma.size() < m.size();
+  if (binary) m = std::move(ma);
+  Bytes out = bases;
+  out.push_back(binary ? 2 : 0);
+  varint(out, narrow(m.size()));
+  append(out, m);
+  Bytes a = lz_encode(values, contexts, 1, depth);
+  out.push_back(0);
+  append(out, a);
+  return out;
+}
+inline Bytes masked_decode(Reader& r, uint32_t count, View profiles) {
+  auto bases = r.take(profiles.size() * 2);
+  size_t width = (size_t(count) + 7) / 8;
+  unsigned binary = r.byte();
+  require(binary == 0 || binary == 2, "mask coder");
+  auto data = r.take(r.var());
+  Bytes refs;
+  for (size_t j = 0; j < profiles.size(); ++j) {
+    require(bases[j * 2 + 1] <= j, "mask reference");
+    refs.push_back(bases[j * 2 + 1]);
+  }
+  Bytes mask;
+  if (binary) {
+    Reader m{data};
+    mask = decode_presence(m, count, profiles, refs);
+    m.done();
+  } else
+    mask = decode(data, narrow(width * profiles.size()));
+  Bytes contexts;
+  size_t total = 0;
+  for (size_t j = 0; j < profiles.size(); ++j) {
+    if (!binary && refs[j])
+      for (size_t i = 0; i < width; ++i) mask[j * width + i] ^= mask[(j - refs[j]) * width + i];
+    if (count % 8) require(!(mask[j * width + width - 1] >> (count % 8)), "mask padding");
+    unsigned nonzero = 0;
+    for (size_t i = 0; i < width; ++i) nonzero += std::popcount(mask[j * width + i]);
+    total += nonzero;
+    contexts.insert(contexts.end(), nonzero, profiles[j]);
+  }
+  unsigned mode = r.byte();
+  require(mode <= 1, "mask value coder");
+  Bytes values = mode ? unchannel(r, total, contexts) : lz_decode(r, narrow(total), contexts, 1);
+  require(values.size() == total, "mask values");
+  Bytes out(size_t(count) * profiles.size());
+  values.resize(total + 8);
+  restore_exceptions(mask, values, count, bases, out);
+  return out;
+}
+
 // Preserve semantic plane boundaries. Very cheap planes get explicit modes;
 // remaining planes share an LZ dictionary with field-conditioned literals.
 inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned depth = 8) {
   require(uint64_t(count) * profiles.size() == data.size(), "custom plane dimensions");
   Bytes result;
+  varint(result, 65536);
   varint(result, narrow(profiles.size()));
   varint(result, count);
   Bytes rich, rich_profiles;
@@ -633,7 +876,7 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
       }
       uint32_t max = *std::max_element(counts, counts + 256);
       if (max == count || count - max <= count / 128 || runs <= count / 128)
-        special = encode(plane, Profile(profiles[j]), depth);
+        special = encode(plane, Profile(profiles[j]), 0);
     }
     if (!special.empty() && special[0] >= 1 && special[0] <= 3) {
       result.push_back(1);
@@ -646,12 +889,29 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
       rich_profiles.push_back(profiles[j]);
     }
   }
-  if (!rich.empty()) append(result, lz_encode(rich, rich_profiles, count, depth));
+  if (!rich.empty()) {
+    Bytes winner;
+    uint8_t mode = 0;
+    bool mask_only = rich.size() >= 32768 &&
+                     std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4;
+    if (!mask_only) winner = lz_encode(rich, rich_profiles, count, depth);
+
+    auto a = masked_encode(rich, count, rich_profiles, depth);
+    if (winner.empty() || a.size() < winner.size()) {
+      winner = std::move(a);
+      mode = 3;
+    }
+    result.push_back(mode);
+    append(result, winner);
+  }
   return result;
 }
 inline Bytes decode_planes(View packed, uint32_t expected) {
   Reader r{packed};
-  uint32_t planes = r.var(), count = r.var();
+  uint32_t planes = r.var();
+  bool extended = planes == 65536;
+  if (extended) planes = r.var();
+  uint32_t count = r.var();
   require(uint64_t(planes) * count == expected && planes <= 65535, "custom plane dimensions");
   Bytes output(expected), profiles;
   std::vector<uint32_t> indexes;
@@ -670,7 +930,14 @@ inline Bytes decode_planes(View packed, uint32_t expected) {
     }
   }
   if (count && !profiles.empty()) {
-    auto rich = lz_decode(r, narrow(uint64_t(count) * profiles.size()), profiles, count);
+    uint32_t n = narrow(uint64_t(count) * profiles.size());
+    unsigned mode = extended ? r.byte() : 0;
+    require(mode == 0 || mode == 3, "custom plane coder");
+    Bytes rich;
+    if (mode == 0)
+      rich = lz_decode(r, n, profiles, count);
+    else if (mode == 3)
+      rich = masked_decode(r, count, profiles);
     for (size_t j = 0; j < indexes.size(); ++j)
       std::copy_n(rich.data() + j * count, count, output.data() + size_t(indexes[j]) * count);
   }

@@ -1,0 +1,2021 @@
+{
+  "adaptive-sample": {
+    "files": 140,
+    "raw_bytes": 344239004,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "e7733b4243860138618c76e529ccee4832c47a0841ba44ed523e4de30e7cd092",
+    "input_list_sha256": "762284612cec6019f9d2fb0a3878d020beb2c3ece6053e3515c6e42468480199",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 22436101,
+        "encode": 0.5280595419753809,
+        "decode": 0.11674458300694823,
+        "samples": {
+          "encode": [
+            0.5280595419753809
+          ],
+          "decode": [
+            0.11674458300694823
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 21577020,
+        "encode": 0.25777337499312125,
+        "decode": 0.10288649998256005,
+        "samples": {
+          "encode": [
+            0.25777337499312125
+          ],
+          "decode": [
+            0.10288649998256005
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 21507480,
+        "encode": 1.1520919159811456,
+        "decode": 0.3466515000036452,
+        "samples": {
+          "encode": [
+            1.1520919159811456
+          ],
+          "decode": [
+            0.3466515000036452
+          ]
+        }
+      }
+    ]
+  },
+  "adaptive-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "e7733b4243860138618c76e529ccee4832c47a0841ba44ed523e4de30e7cd092",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.46242241698200814,
+        "decode": 0.10152645799098536,
+        "samples": {
+          "encode": [
+            0.46242241698200814
+          ],
+          "decode": [
+            0.10152645799098536
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.24979691600310616,
+        "decode": 0.10205958300502971,
+        "samples": {
+          "encode": [
+            0.24979691600310616
+          ],
+          "decode": [
+            0.10205958300502971
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18686755,
+        "encode": 1.0239848339988384,
+        "decode": 0.2860979170072824,
+        "samples": {
+          "encode": [
+            1.0239848339988384
+          ],
+          "decode": [
+            0.2860979170072824
+          ]
+        }
+      }
+    ]
+  },
+  "static-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "3498fe8d539a31bd233fd3858dcb4a92656d76762fcbfe4f6195c29b194a8b56",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4817655420047231,
+        "decode": 0.1086251669912599,
+        "samples": {
+          "encode": [
+            0.4817655420047231
+          ],
+          "decode": [
+            0.1086251669912599
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2593415410083253,
+        "decode": 0.09716833400307223,
+        "samples": {
+          "encode": [
+            0.2593415410083253
+          ],
+          "decode": [
+            0.09716833400307223
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 19754211,
+        "encode": 0.3749227080261335,
+        "decode": 0.08063779200892895,
+        "samples": {
+          "encode": [
+            0.3749227080261335
+          ],
+          "decode": [
+            0.08063779200892895
+          ]
+        }
+      }
+    ]
+  },
+  "mask-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "25847b832388552bbcadb1a3e58257aeb233862211175cf31c32307d26dbf4bf",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.46816333301831037,
+        "decode": 0.10380912499385886,
+        "samples": {
+          "encode": [
+            0.46816333301831037
+          ],
+          "decode": [
+            0.10380912499385886
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.24502170900814235,
+        "decode": 0.09846408400335349,
+        "samples": {
+          "encode": [
+            0.24502170900814235
+          ],
+          "decode": [
+            0.09846408400335349
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18737871,
+        "encode": 0.49741062498651445,
+        "decode": 0.07460449999780394,
+        "samples": {
+          "encode": [
+            0.49741062498651445
+          ],
+          "decode": [
+            0.07460449999780394
+          ]
+        }
+      }
+    ]
+  },
+  "mask-ans-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "d2e32895bd7e9cee64355bc6c9ae301cf22a91d1e21320837c4432bb4029429c",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4683234579861164,
+        "decode": 0.09914533398114145,
+        "samples": {
+          "encode": [
+            0.4683234579861164
+          ],
+          "decode": [
+            0.09914533398114145
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2536460419942159,
+        "decode": 0.10263566701905802,
+        "samples": {
+          "encode": [
+            0.2536460419942159
+          ],
+          "decode": [
+            0.10263566701905802
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18339727,
+        "encode": 0.5081087920116261,
+        "decode": 0.09351895897998475,
+        "samples": {
+          "encode": [
+            0.5081087920116261
+          ],
+          "decode": [
+            0.09351895897998475
+          ]
+        }
+      }
+    ]
+  },
+  "mask-ref-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "9c4172bfac67cfea0460bac19f45b32beebc44112be62fbd0178764d8d7a9553",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4650212920096237,
+        "decode": 0.0991957500227727,
+        "samples": {
+          "encode": [
+            0.4650212920096237
+          ],
+          "decode": [
+            0.0991957500227727
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2545311660214793,
+        "decode": 0.09355866702389903,
+        "samples": {
+          "encode": [
+            0.2545311660214793
+          ],
+          "decode": [
+            0.09355866702389903
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18089324,
+        "encode": 0.5048337919870391,
+        "decode": 0.09205829098937102,
+        "samples": {
+          "encode": [
+            0.5048337919870391
+          ],
+          "decode": [
+            0.09205829098937102
+          ]
+        }
+      }
+    ]
+  },
+  "mask-mi-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "0cd9c5700dc4fb859047a790e805ad85767e9c267c3c41e62c6fb3eacad488b2",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4770525830099359,
+        "decode": 0.09782129200175405,
+        "samples": {
+          "encode": [
+            0.4770525830099359
+          ],
+          "decode": [
+            0.09782129200175405
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.24344354099594057,
+        "decode": 0.09832066600210965,
+        "samples": {
+          "encode": [
+            0.24344354099594057
+          ],
+          "decode": [
+            0.09832066600210965
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18198520,
+        "encode": 0.4930165839905385,
+        "decode": 0.08760975001496263,
+        "samples": {
+          "encode": [
+            0.4930165839905385
+          ],
+          "decode": [
+            0.08760975001496263
+          ]
+        }
+      }
+    ]
+  },
+  "direct-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "fc5e530d40e96b0bc3fd352949606b05997a4161ab90ce9cf439f9d065ca0d7d",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.47762566700112075,
+        "decode": 0.10130712497630157,
+        "samples": {
+          "encode": [
+            0.47762566700112075
+          ],
+          "decode": [
+            0.10130712497630157
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2557006249844562,
+        "decode": 0.09723520799889229,
+        "samples": {
+          "encode": [
+            0.2557006249844562
+          ],
+          "decode": [
+            0.09723520799889229
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18046722,
+        "encode": 0.5558380840229802,
+        "decode": 0.08692991701536812,
+        "samples": {
+          "encode": [
+            0.5558380840229802
+          ],
+          "decode": [
+            0.08692991701536812
+          ]
+        }
+      }
+    ]
+  },
+  "mask-profile-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "c60e20940da75071704a0ddc2b4f8e3cba77e268310673cf7bf09c2a9fcb2ddc",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.46633937500882894,
+        "decode": 0.10142333401017822,
+        "samples": {
+          "encode": [
+            0.46633937500882894
+          ],
+          "decode": [
+            0.10142333401017822
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2462643329927232,
+        "decode": 0.1008799159899354,
+        "samples": {
+          "encode": [
+            0.2462643329927232
+          ],
+          "decode": [
+            0.1008799159899354
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18079251,
+        "encode": 0.41976404198794626,
+        "decode": 0.09028062500874512,
+        "samples": {
+          "encode": [
+            0.41976404198794626
+          ],
+          "decode": [
+            0.09028062500874512
+          ]
+        }
+      }
+    ]
+  },
+  "fast-mask-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "1df9f1173953290d2b6af7bf7f4d0b3ea2263db43eb81de320a4416c6a3261e9",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4574470410007052,
+        "decode": 0.10452008299762383,
+        "samples": {
+          "encode": [
+            0.4574470410007052
+          ],
+          "decode": [
+            0.10452008299762383
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.245124000008218,
+        "decode": 0.09340837501804344,
+        "samples": {
+          "encode": [
+            0.245124000008218
+          ],
+          "decode": [
+            0.09340837501804344
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18074447,
+        "encode": 0.33884020798723213,
+        "decode": 0.09121662500547245,
+        "samples": {
+          "encode": [
+            0.33884020798723213
+          ],
+          "decode": [
+            0.09121662500547245
+          ]
+        }
+      }
+    ]
+  },
+  "reciprocal-mask-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "2fd5d10bc69a4d0cdf1c25c41db3a946e3394fff647f18cb9130621bb5e25acd",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.45848999998997897,
+        "decode": 0.10445304197492078,
+        "samples": {
+          "encode": [
+            0.45848999998997897
+          ],
+          "decode": [
+            0.10445304197492078
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.25374087499221787,
+        "decode": 0.09957141597988084,
+        "samples": {
+          "encode": [
+            0.25374087499221787
+          ],
+          "decode": [
+            0.09957141597988084
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18018385,
+        "encode": 0.34492154099280015,
+        "decode": 0.09124545898521319,
+        "samples": {
+          "encode": [
+            0.34492154099280015
+          ],
+          "decode": [
+            0.09124545898521319
+          ]
+        }
+      }
+    ]
+  },
+  "hash4-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "cf27ee44c0d01c13d6d54f15ae908bf8dd75cb0fbce32d24f312b27fbaadf366",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.46921379200648516,
+        "decode": 0.10241695799049921,
+        "samples": {
+          "encode": [
+            0.46921379200648516
+          ],
+          "decode": [
+            0.10241695799049921
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2658159999991767,
+        "decode": 0.09757825001724996,
+        "samples": {
+          "encode": [
+            0.2658159999991767
+          ],
+          "decode": [
+            0.09757825001724996
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 18069361,
+        "encode": 0.32341324997833,
+        "decode": 0.09688154101604596,
+        "samples": {
+          "encode": [
+            0.32341324997833
+          ],
+          "decode": [
+            0.09688154101604596
+          ]
+        }
+      }
+    ]
+  },
+  "fast-context-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "891f478bdfdb8c419be50644ffb5aabf4191693a2c466f18648ad1b9a620d9e5",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4646902090171352,
+        "decode": 0.10251875000540167,
+        "samples": {
+          "encode": [
+            0.46106708399020135,
+            0.47474674999830313,
+            0.4646902090171352
+          ],
+          "decode": [
+            0.10485787500510924,
+            0.10197033299482428,
+            0.10251875000540167
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.26073708300828,
+        "decode": 0.09510429200599901,
+        "samples": {
+          "encode": [
+            0.2620657079969533,
+            0.25289000000339,
+            0.26073708300828
+          ],
+          "decode": [
+            0.09510429200599901,
+            0.09508299999288283,
+            0.09715899999719113
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17880154,
+        "encode": 0.3449063330190256,
+        "decode": 0.09627158398507163,
+        "samples": {
+          "encode": [
+            0.34846358399954624,
+            0.3298326669901144,
+            0.3449063330190256
+          ],
+          "decode": [
+            0.09945933299604803,
+            0.08952275000046939,
+            0.09627158398507163
+          ]
+        }
+      }
+    ]
+  },
+  "nibble-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "e2181066b2a036f1cd8b46268894bb10e051a7743b0651a246ea75c09dc529ce",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.45725708300597034,
+        "decode": 0.10720970798865892,
+        "samples": {
+          "encode": [
+            0.45725708300597034
+          ],
+          "decode": [
+            0.10720970798865892
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.27061974999378435,
+        "decode": 0.09920670799328946,
+        "samples": {
+          "encode": [
+            0.27061974999378435
+          ],
+          "decode": [
+            0.09920670799328946
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17881173,
+        "encode": 0.3702377910085488,
+        "decode": 0.09398254100233316,
+        "samples": {
+          "encode": [
+            0.3702377910085488
+          ],
+          "decode": [
+            0.09398254100233316
+          ]
+        }
+      }
+    ]
+  },
+  "quad-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "e9fa193672331c92706f832d544cca27302f500ba6076380e86f9af4d04515d2",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4769182079762686,
+        "decode": 0.10028675000648946,
+        "samples": {
+          "encode": [
+            0.4769182079762686
+          ],
+          "decode": [
+            0.10028675000648946
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.24851449998095632,
+        "decode": 0.09890654101036489,
+        "samples": {
+          "encode": [
+            0.24851449998095632
+          ],
+          "decode": [
+            0.09890654101036489
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17880372,
+        "encode": 0.33911258401349187,
+        "decode": 0.08877520801615901,
+        "samples": {
+          "encode": [
+            0.33911258401349187
+          ],
+          "decode": [
+            0.08877520801615901
+          ]
+        }
+      }
+    ]
+  },
+  "one-model-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "b87df6f9f5d83f1dae02c50f3413bd59f0cb091ec83ebb4235c8e11696c94717",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.48973724999814294,
+        "decode": 0.10988224999164231,
+        "samples": {
+          "encode": [
+            0.48973724999814294
+          ],
+          "decode": [
+            0.10988224999164231
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2584977080114186,
+        "decode": 0.10107383300783113,
+        "samples": {
+          "encode": [
+            0.2584977080114186
+          ],
+          "decode": [
+            0.10107383300783113
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17882785,
+        "encode": 0.3112283750087954,
+        "decode": 0.0925497499993071,
+        "samples": {
+          "encode": [
+            0.3112283750087954
+          ],
+          "decode": [
+            0.0925497499993071
+          ]
+        }
+      }
+    ]
+  },
+  "cached-cost-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "2219b1aa17ca3c8e25533bb75aae48155c0fbb9efbe0a77e4ce0233fcfef65ee",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4621280000137631,
+        "decode": 0.10621333299786784,
+        "samples": {
+          "encode": [
+            0.4621280000137631,
+            0.46157512499485165,
+            0.5292242499999702
+          ],
+          "decode": [
+            0.10412350000115111,
+            0.10621333299786784,
+            0.10725237498991191
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2573442499851808,
+        "decode": 0.10409733300912194,
+        "samples": {
+          "encode": [
+            0.2545134169922676,
+            0.2573442499851808,
+            0.3030094589921646
+          ],
+          "decode": [
+            0.10123387500061654,
+            0.10409733300912194,
+            0.10939574998337775
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17882785,
+        "encode": 0.3046189580054488,
+        "decode": 0.09085120802046731,
+        "samples": {
+          "encode": [
+            0.29863504102104343,
+            0.3046189580054488,
+            0.3298544999852311
+          ],
+          "decode": [
+            0.09085120802046731,
+            0.08919462497578934,
+            0.09233791701262817
+          ]
+        }
+      }
+    ]
+  },
+  "literal-selection-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "22bb0d7feb84943e34939a27db88c2c1377f59506121bf8e9c4f5c5abdfd129c",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4778705000062473,
+        "decode": 0.11291941700619645,
+        "samples": {
+          "encode": [
+            0.4778705000062473
+          ],
+          "decode": [
+            0.11291941700619645
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2486820420017466,
+        "decode": 0.09800837500370108,
+        "samples": {
+          "encode": [
+            0.2486820420017466
+          ],
+          "decode": [
+            0.09800837500370108
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17882833,
+        "encode": 0.3027966250083409,
+        "decode": 0.08414045799872838,
+        "samples": {
+          "encode": [
+            0.3027966250083409
+          ],
+          "decode": [
+            0.08414045799872838
+          ]
+        }
+      }
+    ]
+  },
+  "small-hash-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "6aae8b1392249cf8157bec667ef3ee9e0ee53c86c66da56d2e76bcf5c9ca42f1",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.5252183749980759,
+        "decode": 0.11229050002293661,
+        "samples": {
+          "encode": [
+            0.5252183749980759
+          ],
+          "decode": [
+            0.11229050002293661
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2702362080162857,
+        "decode": 0.11065104199224152,
+        "samples": {
+          "encode": [
+            0.2702362080162857
+          ],
+          "decode": [
+            0.11065104199224152
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17882844,
+        "encode": 0.38056012499146163,
+        "decode": 0.09989237500121817,
+        "samples": {
+          "encode": [
+            0.38056012499146163
+          ],
+          "decode": [
+            0.09989237500121817
+          ]
+        }
+      }
+    ]
+  },
+  "fast-matcher-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "6a80ba3f1ee7eee40619c5726d69476fc0dea4bdfeaaa642d826b5b6006561e2",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4767515420098789,
+        "decode": 0.10231262500747107,
+        "samples": {
+          "encode": [
+            0.4767515420098789,
+            0.4719465840025805,
+            0.4805110410088673
+          ],
+          "decode": [
+            0.10231262500747107,
+            0.1023412499926053,
+            0.10071500000776723
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.25804662497830577,
+        "decode": 0.1001662919879891,
+        "samples": {
+          "encode": [
+            0.2758130000147503,
+            0.25804662497830577,
+            0.25500429200474173
+          ],
+          "decode": [
+            0.1001662919879891,
+            0.10102712499792688,
+            0.0995998750149738
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17945311,
+        "encode": 0.25892791702062823,
+        "decode": 0.08730591699713841,
+        "samples": {
+          "encode": [
+            0.2578526670113206,
+            0.25892791702062823,
+            0.2675904579809867
+          ],
+          "decode": [
+            0.09679837501607835,
+            0.08730591699713841,
+            0.0863558330165688
+          ]
+        }
+      }
+    ]
+  },
+  "pruned-match-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "707d16f68140432c2b98a2c6d545829c9e544c1c20be400d8ac7825391400c12",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4735749580140691,
+        "decode": 0.10372641700087115,
+        "samples": {
+          "encode": [
+            0.4684959159931168,
+            0.48345479200361297,
+            0.4735749580140691
+          ],
+          "decode": [
+            0.10372641700087115,
+            0.10585337498923764,
+            0.10176254197722301
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.25210649997461587,
+        "decode": 0.09858166699996218,
+        "samples": {
+          "encode": [
+            0.26171070800046436,
+            0.25210649997461587,
+            0.24703833399689756
+          ],
+          "decode": [
+            0.1041256659955252,
+            0.09671558300033212,
+            0.09858166699996218
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17945311,
+        "encode": 0.26128045801306143,
+        "decode": 0.09028020800906233,
+        "samples": {
+          "encode": [
+            0.2803152079868596,
+            0.26128045801306143,
+            0.25964033300988376
+          ],
+          "decode": [
+            0.09028020800906233,
+            0.08704258300713263,
+            0.09064924999256618
+          ]
+        }
+      }
+    ]
+  },
+  "delta-distance-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "c3644cc56e7e480699be44a43d7836cb6b10e6699958e95265dfc66668700ea3",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.5344172499899287,
+        "decode": 0.10730254199006595,
+        "samples": {
+          "encode": [
+            0.5344172499899287
+          ],
+          "decode": [
+            0.10730254199006595
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.30302554098307155,
+        "decode": 0.11135808299877681,
+        "samples": {
+          "encode": [
+            0.30302554098307155
+          ],
+          "decode": [
+            0.11135808299877681
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17944642,
+        "encode": 0.27461420799954794,
+        "decode": 0.09305816699634306,
+        "samples": {
+          "encode": [
+            0.27461420799954794
+          ],
+          "decode": [
+            0.09305816699634306
+          ]
+        }
+      }
+    ]
+  },
+  "reserve-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 5,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "1767b3361117fcf862fb96099d99d7036e0182890de402f8d85613b805be498b",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4853546660160646,
+        "decode": 0.10617437498876825,
+        "samples": {
+          "encode": [
+            0.4853546660160646,
+            0.5092106249940116,
+            0.5007315830152947,
+            0.48080429100082256,
+            0.47351579199312255
+          ],
+          "decode": [
+            0.10868870801641606,
+            0.10593512500054203,
+            0.10136166602023877,
+            0.10617437498876825,
+            0.10748299999977462
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2672472920094151,
+        "decode": 0.09974441601661965,
+        "samples": {
+          "encode": [
+            0.27080095798010007,
+            0.2762315409781877,
+            0.2672472920094151,
+            0.2564581249898765,
+            0.259840874990914
+          ],
+          "decode": [
+            0.09908212500158697,
+            0.10233116598101333,
+            0.10253770899726078,
+            0.09974441601661965,
+            0.09753075000480749
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17945311,
+        "encode": 0.2599677919934038,
+        "decode": 0.08594116699532606,
+        "samples": {
+          "encode": [
+            0.26289974999963306,
+            0.2599677919934038,
+            0.2541324580088258,
+            0.2610422080033459,
+            0.253439583000727
+          ],
+          "decode": [
+            0.11528412500047125,
+            0.08462220799992792,
+            0.09391404202324338,
+            0.08594116699532606,
+            0.0852753329963889
+          ]
+        }
+      }
+    ]
+  },
+  "skipping-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "49719b9985aa8b5eda5ec9600fd86a40e31d279de16e872453d9fcb2506ebfa8",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.5147117919987068,
+        "decode": 0.10904412501258776,
+        "samples": {
+          "encode": [
+            0.48411712498636916,
+            0.5414424589835107,
+            0.5147117919987068
+          ],
+          "decode": [
+            0.1395929169957526,
+            0.10617025001556613,
+            0.10904412501258776
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.25633683300111443,
+        "decode": 0.09826220900868066,
+        "samples": {
+          "encode": [
+            0.25633683300111443,
+            0.26401654101209715,
+            0.25151112501043826
+          ],
+          "decode": [
+            0.09773962499457411,
+            0.10651283399784006,
+            0.09826220900868066
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17964899,
+        "encode": 0.25386654198518954,
+        "decode": 0.08903199998894706,
+        "samples": {
+          "encode": [
+            0.25386654198518954,
+            0.25666474999161437,
+            0.2516817499999888
+          ],
+          "decode": [
+            0.08903199998894706,
+            0.09176033301628195,
+            0.08689804200548679
+          ]
+        }
+      }
+    ]
+  },
+  "selected-mask-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 5,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "1e33e10f1f6804f7bfdc7007b8166472271fc3281170f909b3062976f2f24b8a",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.49526795899146236,
+        "decode": 0.10791520800557919,
+        "samples": {
+          "encode": [
+            0.49526795899146236,
+            0.49697837501298636,
+            0.49595083299209364,
+            0.47836016697692685,
+            0.46049841700005345
+          ],
+          "decode": [
+            0.10198199999285862,
+            0.11778966701240279,
+            0.10791520800557919,
+            0.1057794580119662,
+            0.10850483301328495
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2581419170019217,
+        "decode": 0.10430633299984038,
+        "samples": {
+          "encode": [
+            0.2904510000080336,
+            0.2581419170019217,
+            0.26531220800825395,
+            0.25651824998203665,
+            0.24731912498828024
+          ],
+          "decode": [
+            0.11798408400500193,
+            0.10718329099472612,
+            0.10430633299984038,
+            0.09771700002602302,
+            0.1039973330043722
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17964899,
+        "encode": 0.24800216700532474,
+        "decode": 0.09710795897990465,
+        "samples": {
+          "encode": [
+            0.24800216700532474,
+            0.2549905000196304,
+            0.256201542011695,
+            0.24087062501348555,
+            0.24627858301391825
+          ],
+          "decode": [
+            0.10191545801353641,
+            0.0857835829956457,
+            0.10084579099202529,
+            0.08700741600478068,
+            0.09710795897990465
+          ]
+        }
+      }
+    ]
+  },
+  "selected-eight-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "01a99aa3a3d66d49a10692615bc90ecd49397e9b7f9b3cb2691aac768afffc54",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.48053670799708925,
+        "decode": 0.10705979200429283,
+        "samples": {
+          "encode": [
+            0.48053670799708925,
+            0.48559324999223463,
+            0.4660071670077741
+          ],
+          "decode": [
+            0.1097203750105109,
+            0.10705979200429283,
+            0.10023529198952019
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.2581910000008065,
+        "decode": 0.10019629198359326,
+        "samples": {
+          "encode": [
+            0.24921529099810869,
+            0.2816683749842923,
+            0.2581910000008065
+          ],
+          "decode": [
+            0.09872683300636709,
+            0.10354187502525747,
+            0.10019629198359326
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17902407,
+        "encode": 0.24892366700805724,
+        "decode": 0.08778508301475085,
+        "samples": {
+          "encode": [
+            0.24892366700805724,
+            0.24991612500161864,
+            0.2474852919986006
+          ],
+          "decode": [
+            0.08552245798637159,
+            0.0882547500077635,
+            0.08778508301475085
+          ]
+        }
+      }
+    ]
+  },
+  "field-depth-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "cd0bb2eda04c1a7adcf94116542fef61caa1d4547559ecf54a05635499f3b43d",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.45798258399008773,
+        "decode": 0.10668945798533969,
+        "samples": {
+          "encode": [
+            0.46829741599503905,
+            0.45798258399008773,
+            0.4542666249908507
+          ],
+          "decode": [
+            0.09901070798514411,
+            0.10668945798533969,
+            0.12464737499249168
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.25805979198776186,
+        "decode": 0.10295441598282196,
+        "samples": {
+          "encode": [
+            0.2830308749980759,
+            0.247124374989653,
+            0.25805979198776186
+          ],
+          "decode": [
+            0.10436008300166577,
+            0.09539966599550098,
+            0.10295441598282196
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17983587,
+        "encode": 0.24743633301113732,
+        "decode": 0.08831308298977092,
+        "samples": {
+          "encode": [
+            0.24743633301113732,
+            0.24805545900017023,
+            0.24667145797866397
+          ],
+          "decode": [
+            0.08856829200522043,
+            0.08831308298977092,
+            0.08475308300694451
+          ]
+        }
+      }
+    ]
+  },
+  "above-values-mixed": {
+    "files": 103,
+    "raw_bytes": 297658164,
+    "threads": 16,
+    "level": 3,
+    "repeats": 1,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "9c7b62e368e46c5d6e410ef1ae60e4eddd97f5077efd3c6d677e27f747bd6610",
+    "input_list_sha256": "51352098caf0901b3890c65c4f31f144bc9d05cd1b0ee4a36cbe6f23c1620dfc",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 20210993,
+        "encode": 0.4780293340154458,
+        "decode": 0.10093995800707489,
+        "samples": {
+          "encode": [
+            0.4780293340154458
+          ],
+          "decode": [
+            0.10093995800707489
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 17998650,
+        "encode": 0.24680383398663253,
+        "decode": 0.0943343749968335,
+        "samples": {
+          "encode": [
+            0.24680383398663253
+          ],
+          "decode": [
+            0.0943343749968335
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 17942041,
+        "encode": 0.24724479200085625,
+        "decode": 0.08796754101058468,
+        "samples": {
+          "encode": [
+            0.24724479200085625
+          ],
+          "decode": [
+            0.08796754101058468
+          ]
+        }
+      }
+    ]
+  },
+  "reserve-holdout": {
+    "files": 279,
+    "raw_bytes": 667664551,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "1767b3361117fcf862fb96099d99d7036e0182890de402f8d85613b805be498b",
+    "input_list_sha256": "09eb03658576148e6037d431534a264a71ab15b8c5ddd1a8f479298115a6aa86",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 41291606,
+        "encode": 1.0293553750088904,
+        "decode": 0.20204274999559857,
+        "samples": {
+          "encode": [
+            1.027109874994494,
+            1.0293553750088904,
+            1.0633151659858413
+          ],
+          "decode": [
+            0.20204274999559857,
+            0.19723004099796526,
+            0.2147476249956526
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 39575172,
+        "encode": 0.48259395800414495,
+        "decode": 0.19813133400748484,
+        "samples": {
+          "encode": [
+            0.48259395800414495,
+            0.47530933300731704,
+            0.4875143750105053
+          ],
+          "decode": [
+            0.19796683298773132,
+            0.2067414580087643,
+            0.19813133400748484
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 38175704,
+        "encode": 0.5077218750084285,
+        "decode": 0.1742444580013398,
+        "samples": {
+          "encode": [
+            0.5077218750084285,
+            0.5158705409849063,
+            0.49076858401531354
+          ],
+          "decode": [
+            0.17596058300114237,
+            0.17020804199273698,
+            0.1742444580013398
+          ]
+        }
+      }
+    ]
+  },
+  "selected-mask-holdout": {
+    "files": 279,
+    "raw_bytes": 667664551,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "1e33e10f1f6804f7bfdc7007b8166472271fc3281170f909b3062976f2f24b8a",
+    "input_list_sha256": "09eb03658576148e6037d431534a264a71ab15b8c5ddd1a8f479298115a6aa86",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 41291606,
+        "encode": 1.0110531249956694,
+        "decode": 0.20005920898984186,
+        "samples": {
+          "encode": [
+            1.0110531249956694,
+            0.9821533749927767,
+            1.0246078330092132
+          ],
+          "decode": [
+            0.2022938330192119,
+            0.20005920898984186,
+            0.19406287500169128
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 39575172,
+        "encode": 0.479303833009908,
+        "decode": 0.20531570899765939,
+        "samples": {
+          "encode": [
+            0.5347292920050677,
+            0.479303833009908,
+            0.47478645798400976
+          ],
+          "decode": [
+            0.20585116700385697,
+            0.18798779201461002,
+            0.20531570899765939
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 38235298,
+        "encode": 0.49021441699005663,
+        "decode": 0.17261400001007132,
+        "samples": {
+          "encode": [
+            0.49021441699005663,
+            0.5025076250021812,
+            0.48085683400859125
+          ],
+          "decode": [
+            0.1851077500032261,
+            0.17261400001007132,
+            0.16820700000971556
+          ]
+        }
+      }
+    ]
+  },
+  "selected-eight-holdout": {
+    "files": 279,
+    "raw_bytes": 667664551,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "01a99aa3a3d66d49a10692615bc90ecd49397e9b7f9b3cb2691aac768afffc54",
+    "input_list_sha256": "09eb03658576148e6037d431534a264a71ab15b8c5ddd1a8f479298115a6aa86",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 41291606,
+        "encode": 1.0011093329812866,
+        "decode": 0.20239795799716376,
+        "samples": {
+          "encode": [
+            0.9732955420040525,
+            1.0011093329812866,
+            1.0016059589979704
+          ],
+          "decode": [
+            0.20151391698163934,
+            0.20625225000549108,
+            0.20239795799716376
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 39575172,
+        "encode": 0.4745790000015404,
+        "decode": 0.19770579098258168,
+        "samples": {
+          "encode": [
+            0.4745790000015404,
+            0.4762975000194274,
+            0.4679443339991849
+          ],
+          "decode": [
+            0.20540433301357552,
+            0.19770579098258168,
+            0.1917685829976108
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 38096827,
+        "encode": 0.49838020800962113,
+        "decode": 0.17082141700666398,
+        "samples": {
+          "encode": [
+            0.49791725000250153,
+            0.49838020800962113,
+            0.5006148340180516
+          ],
+          "decode": [
+            0.17188087501563132,
+            0.17082141700666398,
+            0.17017479200148955
+          ]
+        }
+      }
+    ]
+  },
+  "simd-pack-holdout": {
+    "files": 279,
+    "raw_bytes": 667664551,
+    "threads": 16,
+    "level": 3,
+    "repeats": 3,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "ca602c9e87989706df81b0cd17b873873510c511c8dfd44bcb83556aabb5ac0a",
+    "input_list_sha256": "09eb03658576148e6037d431534a264a71ab15b8c5ddd1a8f479298115a6aa86",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 41291606,
+        "encode": 0.9998252500081435,
+        "decode": 0.19859804198495112,
+        "samples": {
+          "encode": [
+            1.058869667002,
+            0.9733783330011647,
+            0.9998252500081435
+          ],
+          "decode": [
+            0.20943445799639449,
+            0.19350104199838825,
+            0.19859804198495112
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 39575172,
+        "encode": 0.49897475002217107,
+        "decode": 0.20668787497561425,
+        "samples": {
+          "encode": [
+            0.5699696249794215,
+            0.49897475002217107,
+            0.47661995800444856
+          ],
+          "decode": [
+            0.20668787497561425,
+            0.2296544580021873,
+            0.20017970897606574
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 38096827,
+        "encode": 0.47279887498007156,
+        "decode": 0.17054200000711717,
+        "samples": {
+          "encode": [
+            0.5610984159866348,
+            0.46194287500111386,
+            0.47279887498007156
+          ],
+          "decode": [
+            0.21858312500989996,
+            0.16719799998099916,
+            0.17054200000711717
+          ]
+        }
+      }
+    ]
+  },
+  "simd-both-holdout": {
+    "files": 279,
+    "raw_bytes": 667664551,
+    "threads": 16,
+    "level": 3,
+    "repeats": 5,
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "decode_includes_disk_writes": false,
+    "binary_sha256": "034f601da68ca96f104ae17211a79629b8f4670b60b2516cad469b57a7d81a1b",
+    "input_list_sha256": "09eb03658576148e6037d431534a264a71ab15b8c5ddd1a8f479298115a6aa86",
+    "rows": [
+      {
+        "codec": "legacy",
+        "bytes": 41291606,
+        "encode": 0.9697487079829443,
+        "decode": 0.1943316670076456,
+        "samples": {
+          "encode": [
+            0.9697487079829443,
+            0.9459104589768685,
+            0.9453107910230756,
+            0.9970700000121724,
+            1.0305412500165403
+          ],
+          "decode": [
+            0.188668749993667,
+            0.1943316670076456,
+            0.18710387498140335,
+            0.20149841700913385,
+            0.19709391598007642
+          ]
+        }
+      },
+      {
+        "codec": "tuned",
+        "bytes": 39575172,
+        "encode": 0.4647075000102632,
+        "decode": 0.18586029097787105,
+        "samples": {
+          "encode": [
+            0.4647075000102632,
+            0.458742999995593,
+            0.45896866600378416,
+            0.5078816250024829,
+            0.4783168750000186
+          ],
+          "decode": [
+            0.18583949998719618,
+            0.18312745899311267,
+            0.18586029097787105,
+            0.20875370799330994,
+            0.20697674999246374
+          ]
+        }
+      },
+      {
+        "codec": "custom",
+        "bytes": 38096827,
+        "encode": 0.45383862499147654,
+        "decode": 0.15747791700414382,
+        "samples": {
+          "encode": [
+            0.45383862499147654,
+            0.45408550000865944,
+            0.4538278330001049,
+            0.4940066669951193,
+            0.4536915000062436
+          ],
+          "decode": [
+            0.15582679098588414,
+            0.15386337498784997,
+            0.16612366598565131,
+            0.1966102920123376,
+            0.15747791700414382
+          ]
+        }
+      }
+    ]
+  }
+}

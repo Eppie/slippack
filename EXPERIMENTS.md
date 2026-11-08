@@ -240,3 +240,45 @@ where position-only extrapolation did little. The custom backend is a useful
 decode-speed tradeoff, but has not matched tuned LZMA's compression ratio.
 Full results, input lists, and reproduction commands are in
 `benchmarks/2026-11-08/`; the format is documented in `CUSTOM_FORMAT.md`.
+
+## 2026-11-08 — shared-mask custom backend (container v11)
+
+The custom backend now beats the tuned **level-3** LZMA baseline on archive
+size, compression time, and decompression time across all three measured sets.
+It retains the same upstream parsing, dictionaries, transforms, and motion/
+input predictors. The main new information model separates the locations of
+exceptions from their values, sharing presence information across related
+float planes. Static previous-byte context trees and a two-bit presence rANS
+coder avoid the cost of the initial adaptive-bit prototype.
+
+The ratio improvement alone was insufficient: match-finder pruning, word
+comparisons, bounded skipping, fewer coding trials, and ARM NEON exception
+packing/scattering were needed to meet the encode-speed target. Scalar and
+native archives are byte-identical. No external payload compressor is called.
+
+Nine warmed repetitions, M4 Max, 16 threads, relative to tuned LZMA at level 3:
+
+| Dataset | Smaller | Less encode time | Less decode time |
+|---|---:|---:|---:|
+| Summit sample, 140 files | 2.66% | 7.01% | 17.19% |
+| GOML + Bair mixed, 103 files | 0.53% | 4.41% | 11.53% |
+| Additional Summit, 279 files | 3.74% | 4.04% | 17.69% |
+
+All 522 files (521 replays plus a provenance TSV), totaling 1,309,561,719
+source bytes, passed decoded hash checks. Validation also includes 3,430
+standalone checks under ASan/UBSan and with SIMD disabled, all-backend archive
+roundtrips at levels 1/3/9, v9/v10 compatibility, and 80,004 sanitizer-backed
+fuzz executions in 61 seconds without findings. The additional 279 files
+were initially held out, then used to diagnose and validate speed fixes.
+
+This is not a win over every LZMA preset. On mixed at level 9, custom is 4.78%
+larger than tuned LZMA, while LZMA takes about 4.6 times as long to encode.
+The default remains legacy; `--codec custom` opts into v11. The new reader
+retains v9 and v10 support, and older readers reject v11 cleanly.
+
+Full timings, hashes, file lists, and validation evidence are in
+`benchmarks/2026-11-08-v11/`. Intermediate results and promising-but-rejected
+source experiments are retained in `benchmarks/2026-11-08-model-study/`.
+The adaptive model, larger presence symbols, distance deltas, and cross-plane
+value prediction remain possible research directions rather than universal
+negative conclusions.

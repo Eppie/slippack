@@ -53,7 +53,8 @@ stopped). `edges (cov)` and `features` are libFuzzer's coverage counters.
 ## Custom codec target
 
 The independent custom codec target covers malformed packet/plane decoding and
-arbitrary-input encode/decode identities. It links no compression libraries.
+arbitrary-input packet and plane encode/decode identities, including shared
+presence masks. It links no compression libraries.
 From the `slpz` directory, with a clang installation containing libFuzzer:
 
 ```sh

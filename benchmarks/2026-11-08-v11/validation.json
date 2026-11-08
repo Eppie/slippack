@@ -1,0 +1,19 @@
+{
+  "v10-custom": "140 file hashes matched",
+  "v10-tuned": "140 file hashes matched",
+  "v9-original": "419 file hashes matched",
+  "old-reader-new-legacy": "140 file hashes matched",
+  "scalar-native": "byte-identical archives; each reader checked both archives against 140 source hashes",
+  "old-reader-v11": "clean version rejection",
+  "fuzz": {
+    "runs": 80004,
+    "seconds": 61,
+    "peak_rss_mb": 610,
+    "result": "no findings; smoke run, not sustained campaign"
+  },
+  "standalone-asan-ubsan": "3430 checks passed",
+  "standalone-scalar": "3430 checks passed",
+  "archive-integration": "all three backends at levels 1,3,9; seven fixtures; hashes and extraction passed",
+  "binary_sha256": "e33d6fe71eed73eb480740127c51b75042458de2866f11458a4f54219b58c832",
+  "external-encoder-tripwires": "mixed custom archive byte-identical with zstd/LZMA/brotli encode calls replaced by fatal errors"
+}
