@@ -1,0 +1,35 @@
+# libFuzzer dictionary for the Slippi .slp format. Helps the mutator satisfy
+# the magic check and build valid event/command structures so it reaches the
+# transform/pack code instead of bouncing off parse_slp's early rejects.
+# Passed via -dict=slp.dict (run.sh does this automatically).
+
+# UBJSON header: "{U\x03raw[$U#l" (parse_slp memcmps the first 11 bytes)
+header="{U\x03raw[$U#l"
+raw_open="[$U#l"
+ubjson_obj="{U"
+
+# metadata trailer
+metadata="U\x08metadata"
+raw_key="U\x03raw"
+
+# event command bytes (payload-sizes event 0x35 declares the rest)
+cmd_payloads="\x35"
+cmd_game_start="\x36"
+cmd_pre_frame="\x37"
+cmd_post_frame="\x38"
+cmd_game_end="\x39"
+cmd_frame_start="\x3a"
+cmd_item_update="\x3b"
+cmd_frame_bookend="\x3c"
+cmd_gecko="\x3d"
+cmd_message_split="\x10"
+
+# common command pairs (a payloads-event entry is <cmd><u16 size>)
+ev_pre="\x37\x00\x40"
+ev_post="\x38\x00\x34"
+ev_item="\x3b\x00\x2a"
+ev_frame_start="\x3a\x00\x08"
+
+# frame index sentinels (-123 = first frame, appears as BE int32)
+frame_neg123="\xff\xff\xff\x85"
+zero32="\x00\x00\x00\x00"

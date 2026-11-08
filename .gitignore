@@ -18,6 +18,8 @@
 /fuzz/runs/
 /fuzz/logs/
 /fuzz/corpus/
+/fuzz/corpus_parse/
+/fuzz/corpus_rt/
 /fuzz/seeds/
 /fuzz/seed_corpus/
 
