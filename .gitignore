@@ -1,0 +1,27 @@
+# Executables and compiler output
+/slpz
+/slpz.prev
+/slpz-custom
+/build/
+*.o
+*.dSYM/
+
+# Replay data and generated benchmark artifacts
+*.slp
+*.slpz
+/benchmarks/work/
+
+# Fuzzer output and generated corpora
+/fuzz/slpz_fuzz_parse
+/fuzz/slpz_fuzz_roundtrip
+/fuzz/slpz_fuzz_roundtrip_fast
+/fuzz/runs/
+/fuzz/logs/
+/fuzz/corpus/
+/fuzz/seeds/
+/fuzz/seed_corpus/
+
+# Local caches
+.DS_Store
+__pycache__/
+*.pyc
