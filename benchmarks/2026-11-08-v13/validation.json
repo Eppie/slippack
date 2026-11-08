@@ -1,0 +1,30 @@
+{
+  "v10-custom": "140 file hashes matched",
+  "v10-tuned": "140 file hashes matched",
+  "v9-original": "419 file hashes matched",
+  "old-reader-new-legacy": "140 freshly encoded v9 file hashes matched",
+  "scalar-native": "byte-identical archives; each reader checked both archives against 140 source hashes",
+  "old-reader-v13": "clean version rejection",
+  "v11-custom": "140 file hashes matched",
+  "v12-custom-and-tuned": "140 file hashes each matched",
+  "v9-v11-v12-readers": "clean v13 rejection",
+  "no-external-encoder": "fatal zstd/LZMA/brotli encoder tripwires; byte-identical mixed custom archive",
+  "standalone-asan-ubsan": "3430 checks passed",
+  "record-native": "111292 checks passed, including all dictionary transforms and malformed metadata",
+  "predictor-scalar": "2118231 checks passed",
+  "predictor-asan-ubsan": "2118231 checks passed",
+  "archive-integration": "all three backends at levels 1,3,7,9; nine fixtures including 28/51/84-byte post-frame records; hashes and extraction passed",
+  "binary_sha256": "411e07cf820b94941938261107605468e6d43e7cb8a3da889bc42347df73083b",
+  "custom-fuzz": {
+    "runs": 45248,
+    "seconds": 61,
+    "peak_rss_mb": 533,
+    "result": "ASan/UBSan; no findings in short smoke run"
+  },
+  "predictor-fuzz": {
+    "runs": 55212,
+    "seconds": 61,
+    "peak_rss_mb": 455,
+    "result": "ASan/UBSan; no findings in short smoke run"
+  }
+}

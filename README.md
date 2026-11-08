@@ -37,14 +37,15 @@ An opt-in custom codec is available on the `custom-codec` branch:
 ```
 
 `--codec legacy` is the unchanged default and writes v9. `--codec custom`
-writes v12 using only our own payload compression: field-conditioned rANS,
+writes v13 using only our own payload compression: field-conditioned rANS,
 shared presence masks, constant/sparse/repeat modes, and a lazy LZ parser with recent-distance and
 literal prediction. It also enables lossless velocity and controller-input
-predictors. Levels 1–2 use a shallow greedy match search, 3–8 use lazy search,
-and 9+ search more deeply. Unknown data retains a reversible raw fallback.
+predictors, including a position fallback for older replays without velocity
+fields. Levels 1–2 use two search candidates; 3–5 use four with lazy parsing,
+6–8 use eight, and 9+ use 24. Level 7 is the more compact middle-tier option. Unknown data retains a reversible raw fallback.
 
 `--codec tuned` is a comparison backend: the same new semantic predictors,
-with existing entropy codecs and block-sized LZMA dictionaries. It writes v12
+with existing entropy codecs and block-sized LZMA dictionaries. It writes v13
 with the legacy entropy backend flag. Both use the same sorted, compressed
 field dictionaries and semantic predictors to keep codec comparisons fair.
 
@@ -52,13 +53,13 @@ The CLI still links zstd, LZMA, and Brotli to read old archives and provide the
 legacy/tuned backends. The custom payload codec itself is independent of those
 libraries; its standalone test and fuzzer build without them.
 
-The custom backend is experimental. The v12 dictionary work cuts archive
-size by roughly 9–10% relative to v11 across the three measured replay sets.
-Against the equally improved tuned backend, custom is smaller on both Summit
-sets and slightly larger on the mixed set. See `benchmarks/2026-11-08-v12/`
-for timings, limitations, and reproducible comparisons; `CUSTOM_FORMAT.md`
-documents the representation. Existing v9/v10/v11 archives remain readable;
-older binaries reject v12 archives.
+The custom backend is experimental. V13 moves the measured size/speed frontier
+beyond v12: on three replay sets, archives are 4.2–7.2% smaller, encoding takes
+3.8–7.9% less time, and decoding takes 5.0–13.4% less time. These are paired
+level-3 measurements on an M4 Max with 16 threads and nine warmed repetitions.
+See `benchmarks/2026-11-08-v13/` for the full preset curve, timings, and limits;
+`CUSTOM_FORMAT.md` documents the representation. Existing v9/v10/v11/v12
+archives remain readable; older binaries reject v13 archives.
 
 For legacy/tuned, `-l` selects the entropy stage (≤2: brotli q5; 3-8: LZMA fast/nice=128/8MB;
 ≥9: LZMA BT4/nice273 — all raced against zstd(level) per group, smaller wins).

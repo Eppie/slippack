@@ -8,8 +8,8 @@ import tempfile
 
 binary = Path(__file__).resolve().parents[1] / 'slpz'
 
-def replay():
-    sizes = {0x37: 66, 0x38: 84, 0x3A: 12}
+def replay(post_size=84):
+    sizes = {0x37: 66, 0x38: post_size, 0x3A: 12}
     raw = bytearray([0x35, 1 + 3 * len(sizes)])
     for cmd, size in sizes.items():
         raw += bytes([cmd]) + struct.pack('>H', size)
@@ -39,7 +39,7 @@ def replay():
             # Preserve infinities, signed zero, and distinct NaN payloads.
             if frame in (30,31,32,33):
                 struct.pack_into('>I', post, 9, [0x7fc01234,0x7f800000,0x80000000,0xffc05678][frame-30])
-            raw += bytes([0x37]) + pre + bytes([0x38]) + post
+            raw += bytes([0x37]) + pre + bytes([0x38]) + post[:post_size]
             previous[player] = bytes(post)
     return b'{U\x03raw[$U#l' + struct.pack('>I', len(raw)) + raw + b'metadata verbatim'
 
@@ -48,21 +48,21 @@ with tempfile.TemporaryDirectory(prefix='slpz-integration-') as work:
     good = replay()
     fixtures = {'valid.slp': good, 'empty.slp': b'', 'garbage.slp': bytes(range(256))*3,
                 'truncated.slp': good[:-77], 'in-progress.slp': good[:11]+bytes(4)+good[15:],
-                'tiny.slp': b'\x00', 'nested/another.slp': good}
+                'tiny.slp': b'\x00', 'nested/another.slp': good, 'old-format.slp': replay(51), 'short-post.slp': replay(28)}
     for name, data in fixtures.items():
         target = work/name; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
     (work/'list.txt').write_text('\n'.join(fixtures)+'\n')
     expected = sorted(hashlib.sha1(data).hexdigest()+'  '+name for name,data in fixtures.items())
     for codec in ('legacy','tuned','custom'):
-        for level in (1,3,9):
+        for level in (1,3,7,9):
             archive = work/f'{codec}-{level}.slpz'
             subprocess.run([str(binary),'c','--codec',codec,'-l',str(level),'-T','2','-o',str(archive),'@list.txt'],cwd=work,capture_output=True,check=True)
             header = archive.read_bytes()[:6]
             assert header[:4] == b'SLPZ'
-            assert header[4:] == (b'\x09\x00' if codec=='legacy' else b'\x0c\x01' if codec=='custom' else b'\x0c\x00')
+            assert header[4:] == (b'\x09\x00' if codec=='legacy' else b'\x0d\x01' if codec=='custom' else b'\x0d\x00')
             result = subprocess.run([str(binary),'hash',str(archive),'-T','2'],capture_output=True,text=True,check=True)
             assert sorted(result.stdout.splitlines()) == expected
             out = work/f'out-{codec}-{level}'
             subprocess.run([str(binary),'x',str(archive),'-d',str(out),'-T','2'],capture_output=True,check=True)
             assert all((out/name).read_bytes()==data for name,data in fixtures.items())
-    print('archive integration: 9 codec/level combinations, 7 fixtures, hashes and extraction passed')
+    print('archive integration: 12 codec/level combinations, 9 fixtures, hashes and extraction passed')

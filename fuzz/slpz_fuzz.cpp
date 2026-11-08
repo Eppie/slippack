@@ -16,7 +16,7 @@
 #include <string>
 
 #ifndef FUZZ_TARGET
-#error "define FUZZ_TARGET=1 (parse), 2 (roundtrip), or 3 (dictionary records)"
+#error "define FUZZ_TARGET=1 (parse), 2 (roundtrip), 3 (dictionary records), or 4 (predictor records)"
 #endif
 
 // ── Target 1: parse_slp ─────────────────────────────────────────────────────
@@ -153,6 +153,36 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   Reader scanner{packed.data(), packed.data() + packed.size()};
   auto span = skip_packed(scanner, width);
   if (scanner.fail || span.size() != packed.size()) abort();
+  return 0;
+}
+#endif
+
+// Target 4: numeric predictors composed with real custom record packets.
+// Both the older XOR predictor and v13's signed residuals are exercised.
+#if FUZZ_TARGET == 4
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t length) {
+  if (length < 4) return 0;
+  g_tuned = g_custom = true;
+  g_v13_predictors = data[2] & 1;
+  const uint32_t widths[] = {28, 29, 51, 59, 71, 72, 76, 84};
+  uint32_t width = widths[data[1] & 7], count = 1 + data[0];
+  Buf original;
+  original.resize(size_t(width) * count);
+  for (size_t i = 0; i < original.size(); ++i) original[i] = data[3 + i % (length - 3)];
+  auto records = original;
+  motion_predict(records.data(), count, width, false);
+  Zctx z;
+  Buf packed;
+  pack_records(z, records, count, width, 3, packed, nullptr, true, 0x38);
+  Reader r{packed.data(), packed.data() + packed.size()};
+  std::vector<uint8_t> restored;
+  unpack_records(z, r, count, width, restored);
+  if (r.fail || r.p != r.end || restored != records) abort();
+  motion_predict(restored.data(), count, width, true);
+  if (restored != original) abort();
+  input_predict(restored.data(), count, width, false);
+  input_predict(restored.data(), count, width, true);
+  if (restored != original) abort();
   return 0;
 }
 #endif

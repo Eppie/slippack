@@ -1,21 +1,22 @@
-# SLPZ v12 custom codec
+# SLPZ v13 custom codec
 
 The default writer still emits v9 (`--codec legacy`). Both `--codec tuned`
-and `--codec custom` emit v12; header flag bit 0 selects the custom payload
+and `--codec custom` emit v13; header flag bit 0 selects the custom payload
 coder. Tuned uses the existing compression libraries. The reader supports
-v9, v10 (including the first custom backend), v11, and v12. The CLI still
+v9, v10 (including the first custom backend), v11, v12, and v13. The CLI still
 links the old libraries for compatibility; the standalone custom codec does
 not link a compression library.
 
 ## Container and predictors
 
 The v9 directory and framing are retained. Header flag bit 0 selects custom
-payload compression in v10–v12. Codec ID 6 identifies tagged custom frames;
+payload compression in v10–v13. Codec ID 6 identifies tagged custom frames;
 implicit frames use the backend from the header. Unknown versions or header
-flag bits are rejected. Older readers reject v12 before reading its payload.
+flag bits are rejected. Older readers reject v13 before reading its payload.
 Container words are little-endian; source SLP numeric fields are big-endian.
 
-The v10 predictors are unchanged, and are identical for tuned and custom:
+The v10–v12 predictor representation below remains readable. Tuned and custom
+share the same predictors in each version; v13's changes follow this section:
 
 - Stream flag bit 4: post-frame velocity prediction for grouped 0x38 records
   at least 72 bytes long. Predict x/y from the previous position plus current
@@ -33,6 +34,47 @@ These follow pre/post cross-prediction during encoding and are reversed
 before it during decoding. Unsupported record sizes skip these predictors.
 Signed zero, infinities, and NaN payload bits are retained. Fast-math builds
 are rejected and the CLI establishes nearest/even rounding for its workers.
+
+## Numeric predictors (v13)
+
+Stream flag bit 4 now applies to grouped post-frame (0x38) records at least
+29 bytes long. V10–v12 retain the old 72-byte minimum and XOR residuals.
+V13 chooses the position prediction from fields available in the record:
+
+- At 72 bytes or more, use the same velocity-based binary32 prediction as
+  before, with separately rounded additions and non-finite predictions zeroed.
+- At 29–71 bytes, use the previous position's exact 32-bit pattern, initially
+  zero. This fallback performs no floating-point arithmetic and retains NaN
+  payloads and signed zeros.
+
+For each x/y position, encode the unsigned modular difference between its
+32-bit pattern and the predicted pattern. Zigzag the resulting signed bit
+pattern: `(difference << 1) ^ (0u - (difference >> 31))`. Decode the difference
+with `(code >> 1) ^ (0u - (code & 1))`, then add the predicted pattern modulo
+2^32. This is a bijection for every 32-bit input, including exceptional floats.
+
+The 4-byte fields at offsets 21, 25, 60, and 64 use the same difference/zigzag
+mapping against the previous actual field value, initially zero, whenever the
+whole field exists. Encoding computes positions before transforming those
+fields; decoding restores the fields before computing the position prediction
+because the velocity predictor reads offsets 60/64. State resets per group.
+
+Input prediction is unchanged. The implementation specializes encoding and
+decoding outside the record loop, including separate old/new position paths.
+This removes per-record direction branches without changing old semantics.
+
+## RNG acceleration (all readable versions)
+
+RNG framing, group ordering, the 4096-step search cap, and raw-seed exceptions
+are unchanged. A table maps the low 13 bits of each generator state to its
+phase in the 8192-state low-bit cycle. Phase subtraction identifies at most
+one candidate in the allowed window; the encoder verifies the full 32-bit
+state using a precomputed affine jump before accepting it. The decoder uses
+the same affine jump instead of walking every intermediate RNG state.
+Ordinary step counts exceeding 4096 are rejected; the existing exception code
+4097 still carries a raw state. Tests check the full low-bit cycle, every step
+through and beyond the cap for random seeds, and unrelated/aliased states
+against the original scalar stepper.
 
 ## Field dictionaries (v12)
 
@@ -127,6 +169,9 @@ Exception values are concatenated in plane/sample order. Their contexts are
 their plane profiles, derivable from the decoded masks. Reconstruction fills
 each plane with its dominant byte and scatters the exceptions into set bits.
 
+The presence coder processes four two-bit symbols per mask byte, reusing
+neighbor-byte loads. This preserves the exact v11/v12 representation.
+
 The ARM implementation packs/scatters eight values with NEON lookup tables.
 The scalar implementation produces and accepts exactly the same format.
 Temporary vector-load padding is in memory only, never part of the payload.
@@ -196,7 +241,8 @@ The encoder now uses a four-byte chain plus a small three-byte lookup, a
 1 MiB window, lazy parsing, and distance-sensitive match scoring. It rejects
 candidates that cannot beat the current match before comparing full strings.
 Long matches avoid redundant dictionary insertion; sustained misses permit
-bounded skipping at fast levels. Literal prediction uses an entropy estimate
+bounded skipping at fast levels. The CLI searches 2 candidates at levels 1–2,
+4 at levels 3–5, 8 at levels 6–8, and 24 at level 9 or above. Literal prediction uses an entropy estimate
 at fast levels and actual encoded-size trials at high levels. These are
 encoder policies, not format requirements.
 
@@ -216,6 +262,8 @@ have a dummy single-symbol distribution.
 Mode 4 begins with a class count of 1 or 8. For each class it stores a leaf
 count (1..16). Each leaf is an inclusive upper bound byte for the previous
 symbol, then a probability model. Leaves cover 0..255 in increasing order.
+LZ decoding builds per-literal semantic labels only when the serialized
+channel actually uses them; raw and single-class channels do not need them.
 The preceding decoded channel byte selects a leaf. History is zero initially
 and when semantic class changes. With one class, semantic labels are ignored.
 
@@ -234,7 +282,9 @@ roundtrip verification uses external hashes.
 
 `make check` covers the original self-test, standalone custom packets/models,
 shared masks, CDFs, truncation/mutation handling, and archive roundtrips and
-extraction for all backends at levels 1/3/9. Record-codec tests additionally
+extraction for all backends at levels 1/3/7/9. Predictor tests compare RNG tables with the scalar oracle
+and verify old/new numeric predictors on arbitrary float bit patterns and
+record-size boundaries. Record-codec tests additionally
 force all dictionary transforms and cover vector boundaries, malformed
 metadata, field resets, and arithmetic wraparound. Standalone custom tests and fuzzing
 link no compression libraries. See `fuzz/README.md`.

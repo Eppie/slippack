@@ -73,7 +73,9 @@ constexpr uint32_t kMagic = 0x5A504C53;  // "SLPZ" little-endian
 constexpr uint8_t kVersion = 9;
 constexpr uint8_t kTunedVersion = 10;
 constexpr uint8_t kPreviousCustomVersion = 11;
-constexpr uint8_t kCustomVersion = 12;
+constexpr uint8_t kDictionaryVersion = 12;
+constexpr uint8_t kCustomVersion = 13;
+static bool g_v13_predictors = true;
 static bool g_custom = false, g_tuned = false;
 constexpr uint8_t kModeRaw = 0;    // whole file = one zstd blob
 constexpr uint8_t kModeSplit = 1;  // parsed event streams
@@ -184,10 +186,15 @@ static void write_file(const fs::path& path, std::span<const uint8_t> data) {
 
 // v10 custom frames are self-describing; semantic labels are part of the
 // payload. The legacy v9 framing and codec IDs remain unchanged.
+// The middle tier spends less time searching after v13's predictors have
+// removed more redundancy. Levels 6-8 retain the eight-candidate size option.
+static unsigned custom_depth(int level) {
+  return level >= 9 ? 24 : level >= 6 ? 8 : level >= 3 ? 4 : 2;
+}
 static size_t custom_frame(std::span<const uint8_t> in, Buf& out,
                            slpz_custom::Profile profile = slpz_custom::Generic, int level = 3) {
   try {
-    auto packed = slpz_custom::encode(in, profile, level >= 9 ? 24 : level <= 2 ? 2 : 8);
+    auto packed = slpz_custom::encode(in, profile, custom_depth(level));
     out.put_u32((uint32_t)packed.size() + 1);
     out.put_u32((uint32_t)in.size());
     out.put_u8(profile);
@@ -201,9 +208,7 @@ static void custom_planes_frame(std::span<const uint8_t> in, uint32_t count,
                                 std::span<const uint8_t> profiles, int level, Buf& out) {
   try {
     auto packed = slpz_custom::encode_planes(in, count, profiles,
-                                             level >= 9   ? 24
-                                             : level <= 2 ? 2
-                                                          : 8);
+                                             custom_depth(level));
     out.put_u32((uint32_t)packed.size());
     out.put_u32((uint32_t)in.size());
     out.put_bytes(packed.data(), packed.size());
@@ -266,13 +271,40 @@ static uint32_t seed_offset_for(uint8_t cmd, uint32_t recSize) {
   return 0;
 }
 
-// steps from a to b, or UINT32_MAX if > kSeedCap
-static uint32_t lcg_distance(uint32_t a, uint32_t b) {
-  for (uint32_t k = 0; k <= kSeedCap; k++) {
-    if (a == b) return k;
-    a = lcg_next(a);
+struct LcgTables {
+  std::array<uint16_t, 8192> phase{};
+  struct Jump { uint32_t multiply, add; };
+  std::array<Jump, kSeedCap + 1> jumps{};
+  LcgTables() {
+    uint32_t seed = 0;
+    for (unsigned i = 0; i < phase.size(); ++i) {
+      phase[seed & 8191] = uint16_t(i);
+      seed = lcg_next(seed);
+    }
+    jumps[0] = {1, 0};
+    for (unsigned k = 1; k < jumps.size(); ++k)
+      jumps[k] = {jumps[k - 1].multiply * 214013u, lcg_next(jumps[k - 1].add)};
   }
-  return UINT32_MAX;
+};
+static const LcgTables& lcg_tables() {
+  static const LcgTables tables;
+  return tables;
+}
+static uint32_t lcg_advance(uint32_t seed, uint32_t steps) {
+  if (steps > kSeedCap) die("corrupt archive (seed step count)");
+  if (!steps) return seed;
+  const auto& jump = lcg_tables().jumps[steps];
+  return jump.multiply * seed + jump.add;
+}
+// Low 13 bits visit all 8192 states, so they identify at most one candidate
+// in the 0..4096 search window. Verify the full state before accepting it.
+static uint32_t lcg_distance(uint32_t a, uint32_t b) {
+  if (a == b) return 0;
+  const auto& table = lcg_tables();
+  uint32_t k = (uint32_t(table.phase[b & 8191]) - table.phase[a & 8191]) & 8191;
+  if (k > kSeedCap) return UINT32_MAX;
+  const auto& jump = table.jumps[k];
+  return jump.multiply * a + jump.add == b ? k : UINT32_MAX;
 }
 
 // ── zstd wrappers (contexts reused per worker thread) ───────────────────────
@@ -1337,16 +1369,17 @@ static uint32_t cross_pred_xor(uint8_t* pre, uint32_t preCount, uint32_t preSize
                                const uint8_t* post, uint32_t postCount,
                                uint32_t postSize, bool probe, uint32_t probeMax,
                                uint32_t* pairsOut) {
-  static thread_local std::vector<int32_t> keyIdx;
-  static thread_local std::vector<uint32_t> occ;
-  keyIdx.assign(65536, -1);
-  occ.assign(65536, 0);
+  static thread_local std::vector<int32_t> keyIdx(65536, -1);
+  static thread_local std::vector<uint32_t> occ(65536, 0);
+  std::vector<uint16_t> keys;
   std::vector<std::vector<const uint8_t*>> lists;
   for (uint32_t i = 0; i < postCount; i++) {
     const uint8_t* q = post + (size_t)i * postSize;
     uint16_t k = (uint16_t)(q[4] << 8 | q[5]);
     if (keyIdx[k] < 0) {
       keyIdx[k] = (int32_t)lists.size();
+      occ[k] = 0;
+      keys.push_back(k);
       lists.emplace_back();
     }
     lists[(size_t)keyIdx[k]].push_back(q);
@@ -1356,8 +1389,9 @@ static uint32_t cross_pred_xor(uint8_t* pre, uint32_t preCount, uint32_t preSize
   for (uint32_t i = 0; i < limit; i++) {
     uint8_t* p = pre + (size_t)i * preSize;
     uint16_t k = (uint16_t)(p[4] << 8 | p[5]);
+    if (keyIdx[k] < 0) continue;
     uint32_t o = occ[k]++;
-    if (o == 0 || keyIdx[k] < 0) continue;
+    if (o == 0) continue;
     auto& L = lists[(size_t)keyIdx[k]];
     if (o - 1 >= L.size()) continue;
     const uint8_t* q = L[o - 1];
@@ -1369,6 +1403,7 @@ static uint32_t cross_pred_xor(uint8_t* pre, uint32_t preCount, uint32_t preSize
     for (uint32_t b = 0; b < kLenA; b++) p[kPreA + b] ^= q[kPostA + b];
     for (uint32_t b = 0; b < kLenB; b++) p[kPreB + b] ^= q[kPostB + b];
   }
+  for (auto k : keys) keyIdx[k] = -1;
   if (pairsOut) *pairsOut = pairs;
   return hits;
 }
@@ -1693,7 +1728,7 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
     }
     if (g_tuned && grouped) {
       if (st.cmd == 0x37 && st.recSize >= 59) flags |= 32;
-      if (st.cmd == 0x38 && st.recSize >= 72) flags |= 16;
+      if (st.cmd == 0x38 && st.recSize >= (g_v13_predictors ? 29u : 72u)) flags |= 16;
     }
     if (seedOff && fold_seeds(st, seedOff, seedStream,
                               grouped ? selector.data() : nullptr))
@@ -1728,7 +1763,7 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
   }
 }
 
-// v10 predictors use IEEE binary32 round-to-nearest operations. Volatile
+// Position predictors use IEEE binary32 round-to-nearest operations. Volatile
 // intermediates prevent contraction/excess precision; non-finite predictions
 // use zero so NaN payload bits remain literal and reconstruct exactly.
 static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4);
@@ -1741,35 +1776,79 @@ static float read_float(const uint8_t* p) {
   memcpy(&f, &u, 4);
   return f;
 }
-static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (size < 72) return;
+template<bool inverse, bool modern>
+static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
+  if (size < (modern ? 29u : 72u)) return;
   float prev[2] = {};
+  // Percent, shield, and attack velocity fields use first differences of
+  // their unsigned bit patterns. Skip fields absent in older record sizes.
+  constexpr unsigned offsets[] = {21, 25, 60, 64};
+  uint32_t last[4] = {};
+  auto transform = [&](uint8_t* r) {
+    for (unsigned k = 0; k < 4; ++k) {
+      unsigned o = offsets[k];
+      if (o + 4 > size) continue;
+      uint32_t v = be32(r + o), actual, encoded;
+      if (inverse) actual = last[k] + ((v >> 1) ^ (0u - (v & 1)));
+      else actual = v;
+      uint32_t delta = v - last[k];
+      encoded = inverse ? actual : (delta << 1) ^ (0u - (delta >> 31));
+      last[k] = actual;
+      r[o] = uint8_t(encoded >> 24);
+      r[o + 1] = uint8_t(encoded >> 16);
+      r[o + 2] = uint8_t(encoded >> 8);
+      r[o + 3] = uint8_t(encoded);
+    }
+  };
   for (uint32_t i = 0; i < count; i++) {
     uint8_t* r = data + (size_t)i * size;
+    if constexpr (inverse && modern) transform(r);
     float pred[2] = {};
-    {
+    if (size >= 72) {
       volatile float vx = read_float(r + (r[46] ? 52 : 68)) + read_float(r + 60);
       volatile float x = prev[0] + vx;
       pred[0] = std::isfinite(x) ? x : 0.f;
       volatile float vy = read_float(r + 56) + read_float(r + 64);
       volatile float y = prev[1] + vy;
       pred[1] = std::isfinite(y) ? y : 0.f;
+    } else {
+      // Older records lack velocity. Predict the previous position's exact
+      // bits, including signed zero and nonfinite payloads, without arithmetic.
+      memcpy(pred, prev, sizeof(pred));
     }
     for (uint32_t j = 0; j < 2; j++) {
       uint8_t* f = r + 9 + 4 * j;
       uint32_t pb;
       memcpy(&pb, pred + j, 4);
-      uint32_t v = be32(f), decoded = inverse ? v ^ pb : v;
-      uint32_t residual = v ^ pb;
+      uint32_t v = be32(f), decoded, residual;
+      if constexpr (modern) {
+        decoded = inverse ? pb + ((v >> 1) ^ (0u - (v & 1))) : v;
+        uint32_t delta = v - pb;
+        residual = inverse ? decoded : (delta << 1) ^ (0u - (delta >> 31));
+      } else {
+        decoded = inverse ? v ^ pb : v;
+        residual = v ^ pb;
+      }
       f[0] = (uint8_t)(residual >> 24);
       f[1] = (uint8_t)(residual >> 16);
       f[2] = (uint8_t)(residual >> 8);
       f[3] = (uint8_t)residual;
       memcpy(prev + j, &decoded, 4);
     }
+    if constexpr (!inverse && modern) transform(r);
   }
 }
-static void input_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
+static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
+  if (g_v13_predictors) {
+    if (inverse) motion_predict_impl<true, true>(data, count, size);
+    else motion_predict_impl<false, true>(data, count, size);
+  } else {
+    if (inverse) motion_predict_impl<true, false>(data, count, size);
+    else motion_predict_impl<false, false>(data, count, size);
+  }
+}
+template<bool inverse>
+static void input_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
   if (size < 59) return;
   uint32_t table[4][256] = {};
   const uint32_t offsets[4] = {24, 28, 32, 36}, raw[4] = {58, 63, 64, 65};
@@ -1791,6 +1870,10 @@ static void input_predict(uint8_t* data, uint32_t count, uint32_t size, bool inv
       memcpy(r + offsets[j], &v, 4);
     }
   }
+}
+static void input_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
+  if (inverse) input_predict_impl<true>(data, count, size);
+  else input_predict_impl<false>(data, count, size);
 }
 static void run_pack_task(Zctx& z, PackTask& t, int level) {
   Buf& out = t.fp->pieces[t.piece];
@@ -2211,7 +2294,7 @@ static void run_dec_task(Zctx& z, DecTask& t) {
       Reader r{sp.data(), sp.data() + sp.size()};
       unpack_records(z, r, st.gCounts[t.idx], st.recSize, st.recs[t.idx]);
       if (st.flags & 16) {
-        if (!g_tuned || st.cmd != 0x38 || !(st.flags & 1) || st.recSize < 72)
+        if (!g_tuned || st.cmd != 0x38 || !(st.flags & 1) || st.recSize < (g_v13_predictors ? 29u : 72u))
           die("corrupt motion predictor flag");
         motion_predict(st.recs[t.idx].data(), st.gCounts[t.idx], st.recSize, true);
       }
@@ -2309,7 +2392,7 @@ static void assemble_decompress(DecPlan& dp, std::vector<DecPool>& pools) {
           if (cur[g] + 4 > st.seedStream.size()) fail = true;
           else { memcpy(&seed, st.seedStream.data() + cur[g], 4); cur[g] += 4; }
         } else {
-          for (uint32_t t = 0; t < k; t++) seed = lcg_next(seed);
+          seed = lcg_advance(seed, k);
         }
         if (fail) die("corrupt archive (seed stream)");
         uint8_t* rec = st.records.data() + (size_t)i * st.recSize;
@@ -2359,8 +2442,9 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
   Reader r{arc.data(), arc.data() + arc.size()};
   if (r.u32() != kMagic) die("not a slpz archive");
   uint8_t version = r.u8(), flags = r.u8();
-  if (version != kVersion && version != kTunedVersion && version != kPreviousCustomVersion && version != kCustomVersion) die("unsupported slpz version");
+  if (version != kVersion && version != kTunedVersion && version != kPreviousCustomVersion && version != kDictionaryVersion && version != kCustomVersion) die("unsupported slpz version");
   if (flags & ~1u || (version == kVersion && flags)) die("unsupported slpz flags");
+  g_v13_predictors = version >= 13;
   g_tuned = version != kVersion;
   g_custom = g_tuned && (flags & 1);
   uint32_t nPools = r.u32();

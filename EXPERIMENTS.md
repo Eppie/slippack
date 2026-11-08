@@ -323,3 +323,47 @@ where they did not help. Selected patches are retained for another look.
 See `benchmarks/2026-11-08-v12/` for exact samples, qualifications, input lists,
 validation, and reproduction. Custom and tuned now write v12; legacy remains
 the default v9 writer. Readers retain all prior versions.
+
+## 2026-11-08 — numeric residuals and RNG jumps (container v13)
+
+The older 51-byte post-frame record was the main remaining opportunity:
+129/140 Summit sample files and 51/102 mixed replays lack velocity fields,
+so the existing motion predictor never ran on them. V13 uses exact previous
+position bits as the fallback and encodes signed modular bit differences with
+zigzag mapping. Newer records retain velocity prediction, using the same
+signed-residual mapping. Selected numeric fields (offsets 21/25/60/64, when
+present) also use first differences. Arbitrary float bits remain reversible.
+
+Two independent speed changes replace linear RNG walks with a low-bit phase
+lookup plus verified affine jumps, and reduce repeated mask-neighbor loads.
+Direction-specialized predictors, sparse clearing of entity lookup state,
+fast stride-one context indexing, and skipping unused semantic labels remove
+more overhead. The middle search tier now uses four candidates (levels 3–5);
+levels 6–8 retain eight and level 9+ retains 24. The new predictors leave room
+to reduce search work while keeping the archive smaller than v12.
+
+Nine warmed repetitions, level 3, M4 Max, 16 threads, versus custom v12:
+
+| Dataset | Smaller | Less encode time | Less decode time |
+|---|---:|---:|---:|
+| Summit sample, 140 files | 6.63% | 6.70% | 5.03% |
+| GOML + Bair mixed, 103 files | 4.19% | 3.79% | 5.24% |
+| Additional Summit, 279 files | 7.23% | 7.95% | 13.35% |
+
+Every measured level-3 point improves all three medians. Desktop load was
+higher than during the previous report: comparisons use v12 rerun alongside
+v13, not historical absolute timings. No compilation or fuzzing ran alongside
+these final timing rounds. All sets have been used during this research;
+none is presented as an unseen test set.
+
+Unconditional numeric prediction was worse; field-by-field trials retained
+only consistent improvements. Second differences did not beat first ones in
+that sweep. Larger match hash tables added setup cost for negligible gains.
+Byte-entropy and run-based presence encodings were faster in an offline probe
+but generally larger than the existing two-bit conditional model. Those
+results are implementation-specific, not proof that the ideas cannot help.
+
+See `benchmarks/2026-11-08-v13/` for exact samples, additional presets, the
+Pareto plots, validation, and reproduction. V13 reads v9–v12; older readers
+reject v13. Legacy remains the v9 default. No external payload compressor is
+used by custom encoding.

@@ -55,18 +55,23 @@ inline Bytes encode_presence(View masks, uint32_t count, View profiles, View ref
   for (size_t j = 0; j < planes; ++j) {
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned history = 0, cls = profiles[j] == FloatLow ? 128 : 0;
-    for (size_t i = 0; i < count; i += 2) {
-      unsigned above = refs[j] ? above4(masks, src, i, width) : 0,
-               s = (masks[j * width + i / 8] >> (i & 7)) & 3,
-               key = history | (above << 4) | (cls << 1);
-      trace.push_back(key | (s << 9));
-      for (unsigned k = 0; k < 2; ++k) {
-        unsigned bit = (s >> k) & 1, c = cls + (history & 15) + (above & 7) * 16;
-        ++hist[c][bit];
-        history = history * 2 + bit;
-        above >>= 1;
+    for (size_t byte = 0; byte < width; ++byte) {
+      unsigned above = refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) |
+          (unsigned(masks[src + byte]) << 1) |
+          (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0)) : 0;
+      unsigned current = masks[j * width + byte];
+      unsigned pairs = std::min<size_t>(4, (count - byte * 8 + 1) / 2);
+      for (unsigned k = 0; k < pairs; ++k) {
+        unsigned s = current & 3;
+        unsigned key = history | ((above & 15) << 4) | (cls << 1);
+        trace.push_back(key | (s << 9));
+        ++hist[cls + history + (above & 7) * 16][s & 1];
+        history = ((history << 1) | (s & 1)) & 15;
+        ++hist[cls + history + ((above >> 1) & 7) * 16][s >> 1];
+        history = ((history << 1) | (s >> 1)) & 15;
+        above >>= 2;
+        current >>= 2;
       }
-      history &= 15;
     }
   }
   std::array<std::array<uint16_t, 256>, 2> candidates{};
@@ -131,20 +136,25 @@ inline Bytes decode_presence(Reader& r, uint32_t count, View profiles, View refs
   for (size_t j = 0; j < planes; ++j) {
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned history = 0, cls = split && profiles[j] == FloatLow ? 256 : 0;
-    for (size_t i = 0; i < count; i += 2) {
-      unsigned above = refs[j] ? above4(masks, src, i, width) : 0,
-               key = history | (above << 4) | cls;
-      if (!used[key]) {
-        used[key] = 1;
-        tables[key].build(key, probs);
+    for (size_t byte = 0; byte < width; ++byte) {
+      unsigned above = refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) |
+          (unsigned(masks[src + byte]) << 1) |
+          (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0)) : 0;
+      unsigned value = 0;
+      unsigned pairs = std::min<size_t>(4, (count - byte * 8 + 1) / 2);
+      for (unsigned k = 0; k < pairs; ++k) {
+        unsigned key = history | ((above & 15) << 4) | cls;
+        if (!used[key]) {used[key] = 1; tables[key].build(key, probs);}
+        auto& m = tables[key];
+        uint32_t &x = state[t++ & 3], slot = x & 4095;
+        unsigned s = m.symbol(slot);
+        x = m.freq[s] * (x >> 12) + slot - m.start[s];
+        while (x < (1u << 23)) x = (x << 8) | r.byte();
+        value |= s << (k * 2);
+        history = ((history << 2) | reverse2(s)) & 15;
+        above >>= 2;
       }
-      auto& m = tables[key];
-      uint32_t &x = state[t++ & 3], slot = x & 4095;
-      unsigned s = m.symbol(slot);
-      x = m.freq[s] * (x >> 12) + slot - m.start[s];
-      while (x < (1u << 23)) x = (x << 8) | r.byte();
-      masks[j * width + i / 8] |= s << (i & 7);
-      history = ((history << 2) | reverse2(s)) & 15;
+      masks[j * width + byte] = uint8_t(value);
     }
   }
   for (auto x : state) require(x == (1u << 23), "presence terminal state");

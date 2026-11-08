@@ -298,7 +298,7 @@ inline uint32_t unnumber(Reader& codes, BitReader& bits) {
   return (1u << k) + bits.get(k);
 }
 inline uint8_t context(View profiles, uint32_t stride, size_t position, uint8_t previous) {
-  uint8_t p = profiles.empty() ? uint8_t(Generic) : profiles[stride ? position / stride : 0];
+  uint8_t p = profiles.empty() ? uint8_t(Generic) : profiles[stride == 1 ? position : stride ? position / stride : 0];
   return p == Rng && (previous & 128) ? uint8_t(RngContinuation) : p;
 }
 
@@ -497,6 +497,14 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
   require(ll.size() == size_t(matches) + 1 && ml.size() == matches && ds.size() == matches,
           "custom token counts");
   auto extra = r.take(r.var());
+  uint8_t predict = r.byte();
+  require(predict <= 1, "custom literal predictor");
+  Reader peek = r;
+  auto literal_packed = peek.var();
+  peek.var();
+  Reader header{peek.take(literal_packed)};
+  unsigned literal_mode = header.byte();
+  bool needs_contexts = literal_mode == 2 || (literal_mode == 4 && header.byte() != 1);
   Reader lr{ll}, mr{ml}, dr{ds};
   BitReader bits{{extra}};
   struct Token {
@@ -510,7 +518,7 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
   for (uint32_t i = 0; i <= matches; ++i) {
     uint32_t lit = unnumber(lr, bits);
     require(lit <= n - pos, "custom literal length");
-    if (!profiles.empty())
+    if (needs_contexts && !profiles.empty())
       for (uint32_t j = 0; j < lit; ++j) contexts.push_back(context(profiles, stride, pos + j, 0));
     pos += lit;
     total_literals += lit;
@@ -533,8 +541,6 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
   lr.done();
   mr.done();
   dr.done();
-  uint8_t predict = r.byte();
-  require(predict <= 1, "custom literal predictor");
   auto literals = unchannel(r, total_literals, contexts);
   require(literals.size() == total_literals, "custom literal count");
   Bytes output(n);

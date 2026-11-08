@@ -88,3 +88,21 @@ mkdir -p build/dictionary-corpus
 ./build/dictionary_fuzz build/dictionary-corpus -max_len=1028 \
   -max_total_time=60 -rss_limit_mb=2048 -artifact_prefix=build/
 ```
+
+## Numeric-predictor target (v13)
+
+Build `fuzz/slpz_fuzz.cpp` with `-DFUZZ_TARGET=4` using the same libraries and
+sanitizers as target 3. It composes old/new numeric prediction, custom record
+packing, and inverse prediction, across record lengths 28/29/51/59/71/72/76/84.
+The input also exercises the controller predictor. Counts are bounded to
+1–256 records, and arbitrary bit patterns include non-finite float values.
+
+```sh
+clang++ -std=c++20 -O1 -g -fsanitize=fuzzer,address,undefined \
+  -fno-omit-frame-pointer -DFUZZ_TARGET=4 -I/opt/homebrew/include \
+  fuzz/slpz_fuzz.cpp -L/opt/homebrew/lib -lzstd -llzma -lbrotlienc \
+  -lbrotlidec -o build/predictor_fuzz
+mkdir -p build/predictor-corpus
+./build/predictor_fuzz build/predictor-corpus -max_len=1028 \
+  -max_total_time=60 -rss_limit_mb=2048 -artifact_prefix=build/
+```
