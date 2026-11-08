@@ -48,8 +48,19 @@ inline Bytes context_encode(View input, View contexts) {
   unsigned active = 0;
   for (unsigned c = 0; c < nc; ++c)
     if (counts[c]) ids[c] = active++;
-  std::vector<std::array<uint32_t, 256>> h(active * 256);
-  std::vector<uint32_t> prior_counts(active * 256, 0);
+  // Only these boundaries are candidates for tree splits. Aggregate history
+  // directly into their intervals instead of constructing 256 histograms.
+  constexpr unsigned edges[] = {0, 1, 2, 4, 8, 16, 32, 64, 96, 128,
+                                160, 192, 224, 240, 248, 252, 254, 255, 256};
+  constexpr unsigned bins = std::size(edges) - 1;
+  static const auto bucket = [=] {
+    std::array<uint8_t, 256> out{};
+    for (unsigned b = 0; b < bins; ++b)
+      for (unsigned p = edges[b]; p < edges[b + 1]; ++p) out[p] = uint8_t(b);
+    return out;
+  }();
+  std::vector<std::array<uint32_t, 256>> h(active * bins);
+  std::vector<uint32_t> prior_counts(active * bins, 0);
   uint8_t previous = 0, pc = 255;
   for (size_t i = 0; i < input.size(); ++i) {
     unsigned c = contexts.empty() ? 0 : contexts[i];
@@ -57,8 +68,8 @@ inline Bytes context_encode(View input, View contexts) {
       previous = 0;
       pc = c;
     }
-    h[ids[c] * 256 + previous][input[i]]++;
-    prior_counts[ids[c] * 256 + previous]++;
+    h[ids[c] * bins + bucket[previous]][input[i]]++;
+    prior_counts[ids[c] * bins + bucket[previous]]++;
     previous = input[i];
   }
   std::vector<Model> models;
@@ -66,10 +77,11 @@ inline Bytes context_encode(View input, View contexts) {
   Bytes out{uint8_t(nc)};
   for (unsigned c = 0; c < nc; ++c) {
     ContextTree root;
+    root.end = bins;
     if (counts[c])
-      for (unsigned p = 0; p < 256; ++p)
-        if (prior_counts[ids[c] * 256 + p])
-          for (unsigned b = 0; b < 256; ++b) root.hist[b] += h[ids[c] * 256 + p][b];
+      for (unsigned p = 0; p < bins; ++p)
+        if (prior_counts[ids[c] * bins + p])
+          for (unsigned b = 0; b < 256; ++b) root.hist[b] += h[ids[c] * bins + p][b];
     root.cost = context_cost(root.hist);
     std::vector<ContextTree> leaves{root};
     for (size_t k = 0; counts[c] && k < leaves.size(); ++k) {
@@ -79,22 +91,13 @@ inline Bytes context_encode(View input, View contexts) {
       ContextTree left, right, bestleft, bestright;
       right = cur;
       left.begin = cur.begin;
-      bool dirty = false;
       for (unsigned p = cur.begin; p + 1 < cur.end; ++p) {
-        if (prior_counts[ids[c] * 256 + p]) {
-          dirty = true;
-          for (unsigned b = 0; b < 256; ++b) {
-            left.hist[b] += h[ids[c] * 256 + p][b];
-            right.hist[b] -= h[ids[c] * 256 + p][b];
-          }
+        if (!prior_counts[ids[c] * bins + p]) continue;
+        for (unsigned b = 0; b < 256; ++b) {
+          left.hist[b] += h[ids[c] * bins + p][b];
+          right.hist[b] -= h[ids[c] * bins + p][b];
         }
         unsigned s = p + 1;
-        if (s != 1 && s != 2 && s != 4 && s != 8 && s != 16 && s != 32 && s != 64 && s != 96 &&
-            s != 128 && s != 160 && s != 192 && s != 224 && s != 240 && s != 248 && s != 252 &&
-            s != 254 && s != 255)
-          continue;
-        if (!dirty) continue;
-        dirty = false;
         double lc = context_cost(left.hist), rc = context_cost(right.hist),
                gain = cur.cost - lc - rc;
         if (gain > saving) {
@@ -116,11 +119,11 @@ inline Bytes context_encode(View input, View contexts) {
     }
     out.push_back(uint8_t(leaves.size()));
     for (auto& leaf : leaves) {
-      out.push_back(uint8_t(leaf.end - 1));
+      out.push_back(uint8_t(edges[leaf.end] - 1));
       Model m;
       m.hist = leaf.hist;
       m.normalize();
-      for (unsigned p = leaf.begin; p < leaf.end; ++p) map[c * 256 + p] = uint16_t(models.size());
+      for (unsigned p = edges[leaf.begin]; p < edges[leaf.end]; ++p) map[c * 256 + p] = uint16_t(models.size());
       unsigned used = 0;
       for (auto f : m.freq) used += f != 0;
       varint(out, used);

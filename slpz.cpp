@@ -1272,6 +1272,10 @@ static bool parse_slp(std::span<const uint8_t> file, ParsedSlp& out) {
     p += 1 + sz;
   }
   out.tail = std::span<const uint8_t>(p, (size_t)(end - p));
+  // The original declaration table is already preserved in payloadsEvent.
+  // An unused declaration needs no stream packet, selectors, or plane models.
+  // Keep zero-width streams when actual command-only events were observed.
+  std::erase_if(out.streams, [](const EventStream& st) { return st.count == 0; });
   return true;
 }
 

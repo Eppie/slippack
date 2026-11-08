@@ -98,7 +98,9 @@ struct Model {
     int sum = 0;
     for (unsigned s = 0; s < 256; ++s)
       if (hist[s]) {
-        freq[s] = uint16_t(std::max<uint64_t>(1, uint64_t(hist[s]) * 4096 / total));
+        // Nearest rounding avoids systematically moving every fractional
+        // frequency into the most common symbol during sum correction.
+        freq[s] = uint16_t(std::max<uint64_t>(1, (uint64_t(hist[s]) * 4096 + total / 2) / total));
         sum += freq[s];
       }
     while (sum != 4096) {
@@ -913,8 +915,11 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
   if (!rich.empty()) {
     Bytes winner;
     uint8_t mode = 0;
+    // Large float/controller packets favor the shared presence representation.
+    // Retain the direct trial for controller packets at the deepest preset.
     bool mask_only = rich.size() >= 32768 &&
-                     std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4;
+                     (std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4 ||
+                      (depth < 24 && std::count(rich_profiles.begin(), rich_profiles.end(), Controller) >= 4));
     if (!mask_only) winner = lz_encode(rich, rich_profiles, count, depth);
 
     auto a = masked_encode(rich, count, rich_profiles, depth);

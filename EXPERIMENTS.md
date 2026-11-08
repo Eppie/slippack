@@ -367,3 +367,41 @@ See `benchmarks/2026-11-08-v13/` for exact samples, additional presets, the
 Pareto plots, validation, and reproduction. V13 reads v9–v12; older readers
 reject v13. Legacy remains the v9 default. No external payload compressor is
 used by custom encoding.
+
+## 2026-11-08 — v13 follow-up: empty streams and redundant modeling
+
+The parser created a stream for every declared event type, even when no such
+event occurred. Those zero-count streams emitted selectors and plane metadata.
+Wide unused declarations contributed 1,450,260 bytes on mixed. Dropping the
+unused streams while preserving the original declaration table fixes this for
+all backends, without a format change. Actual zero-width events are retained.
+
+The encoder also tried direct LZ before masked encoding for controller packets;
+masked encoding won all 193 mixed and 248 sample large-packet comparisons with
+at least four controller planes. Levels below 9 now skip the losing trial.
+Level 9 retains the comparison. Static context construction uses 18 history
+intervals rather than 256 histograms, with identical split decisions. Nearest
+frequency rounding saves another 8–9 KB on sample/mixed. Mask decoding checks
+the common all-zero/all-one pairs first; branchless and unrolled alternatives
+were slower in the exploratory runs.
+
+Nine warmed level-3 repetitions, 16 threads, relative to `c03652c`:
+
+| Dataset | Smaller | Less encode time | Less decode time |
+|---|---:|---:|---:|
+| Summit sample, 140 files | 1.86% | 14.18% | 2.86% |
+| Mixed, 103 files | 9.37% | 12.66% | 3.78% |
+| Additional Summit, 279 files | 1.94% | 16.16% | 9.40% |
+
+Combined bytes fall from 65,307,402 to 62,898,815. Single-thread mixed confirms
+12.79% less encode time and 10.21% less decode time. Some other preset medians
+regress slightly: level-1 decode by 1.44%, level-9 encode by 0.29%.
+
+The equally updated tuned backend now loses narrowly on mixed at level 9:
+custom 13,996,712 bytes versus tuned 14,021,253, with encode/decode medians
+0.34754/0.09410 seconds versus 1.77623/0.11542. That is 0.175% smaller,
+80.43% less encode time, and 18.47% less decode time. This closes the previously
+reported gap on that set, not every possible input or compressor.
+
+See `benchmarks/2026-11-08-v13-round2/` for timing samples, rejected trials,
+validation, and reproduction. Output remains v13; old v13 readers accept it.

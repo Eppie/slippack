@@ -83,6 +83,13 @@ extern "C" int LLVMFuzzerInitialize(int*, char***) {
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   auto files = split(data, size);
+  static const std::string codec = [] {
+    const char* e = getenv("SLPZ_FUZZ_CODEC");
+    return std::string(e ? e : "legacy");
+  }();
+  if (codec != "legacy" && codec != "tuned" && codec != "custom") abort();
+  g_custom = codec == "custom";
+  g_tuned = codec != "legacy";
   memfs_clear();  // drop the prior iteration's blobs; the FS never grows
   std::vector<fs::path> inputs;
   for (size_t i = 0; i < files.size(); i++) {

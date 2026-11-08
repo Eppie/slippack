@@ -44,7 +44,11 @@ struct PresenceTable {
     require(sum == 4096, "presence table");
   }
   unsigned symbol(unsigned slot) const {
-    return slot < start[2] ? (slot < start[1] ? 0 : 1) : (slot < start[3] ? 2 : 3);
+    // Unchanged/changed pairs dominate these masks. Test both extremes first;
+    // the two mixed pairs need the remaining comparison only occasionally.
+    if (slot < start[1]) return 0;
+    if (slot >= start[3]) return 3;
+    return slot < start[2] ? 1 : 2;
   }
 };
 inline Bytes encode_presence(View masks, uint32_t count, View profiles, View refs) {

@@ -52,6 +52,11 @@ stopped). `edges (cov)` and `features` are libFuzzer's coverage counters.
 
 ## Custom codec target
 
+The full archive roundtrip target (`FUZZ_TARGET=2`) accepts
+`SLPZ_FUZZ_CODEC=legacy|tuned|custom`, defaulting to legacy. Use custom to
+exercise parsing, unused declarations, pooling, and the custom payload codec
+together. The standalone target below focuses on payload models and packets.
+
 The independent custom codec target covers malformed packet/plane decoding and
 arbitrary-input packet and plane encode/decode identities, including shared
 presence masks. It links no compression libraries.

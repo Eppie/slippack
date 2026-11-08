@@ -8,8 +8,10 @@ import tempfile
 
 binary = Path(__file__).resolve().parents[1] / 'slpz'
 
-def replay(post_size=84):
+def replay(post_size=84, unused=False):
     sizes = {0x37: 66, 0x38: post_size, 0x3A: 12}
+    if unused:
+        sizes.update({0x3D: 65535, 0x40: 4096})
     raw = bytearray([0x35, 1 + 3 * len(sizes)])
     for cmd, size in sizes.items():
         raw += bytes([cmd]) + struct.pack('>H', size)
@@ -46,9 +48,17 @@ def replay(post_size=84):
 with tempfile.TemporaryDirectory(prefix='slpz-integration-') as work:
     work = Path(work)
     good = replay()
+    # Large unused declarations are retained verbatim but require no empty
+    # record packets. A zero-width declaration with events must remain active.
+    def wrap(raw):
+        return b'{U\x03raw[$U#l' + struct.pack('>I', len(raw)) + raw
+    declared_only = wrap(bytes([0x35, 4, 0x3D, 255, 255]))
+    command_only = wrap(bytes([0x35, 4, 0x41, 0, 0]) + bytes([0x41]) * 129)
     fixtures = {'valid.slp': good, 'empty.slp': b'', 'garbage.slp': bytes(range(256))*3,
                 'truncated.slp': good[:-77], 'in-progress.slp': good[:11]+bytes(4)+good[15:],
-                'tiny.slp': b'\x00', 'nested/another.slp': good, 'old-format.slp': replay(51), 'short-post.slp': replay(28)}
+                'tiny.slp': b'\x00', 'nested/another.slp': good, 'old-format.slp': replay(51),
+                'short-post.slp': replay(28), 'unused-types.slp': replay(unused=True),
+                'declared-only.slp': declared_only, 'command-only.slp': command_only}
     for name, data in fixtures.items():
         target = work/name; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
     (work/'list.txt').write_text('\n'.join(fixtures)+'\n')
@@ -65,4 +75,8 @@ with tempfile.TemporaryDirectory(prefix='slpz-integration-') as work:
             out = work/f'out-{codec}-{level}'
             subprocess.run([str(binary),'x',str(archive),'-d',str(out),'-T','2'],capture_output=True,check=True)
             assert all((out/name).read_bytes()==data for name,data in fixtures.items())
-    print('archive integration: 12 codec/level combinations, 9 fixtures, hashes and extraction passed')
+        archive = work/f'{codec}-declaration.slpz'
+        subprocess.run([str(binary),'c','--codec',codec,'-l','3','-T','2','-o',str(archive),
+                        'declared-only.slp'],cwd=work,capture_output=True,check=True)
+        assert archive.stat().st_size < 512, 'unused declaration expanded into empty plane descriptors'
+    print('archive integration: 12 codec/level combinations, 12 fixtures, hashes and extraction passed')

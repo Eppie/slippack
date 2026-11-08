@@ -15,6 +15,12 @@ implicit frames use the backend from the header. Unknown versions or header
 flag bits are rejected. Older readers reject v13 before reading its payload.
 Container words are little-endian; source SLP numeric fields are big-endian.
 
+The encoder omits stream packets for declared commands with no parsed events.
+The original payload declaration table remains verbatim, so reconstruction
+retains those declarations without storing empty selectors and plane models.
+Streams containing actual zero-width events remain present. This is compatible
+with existing readers and changes neither the container version nor framing.
+
 The v10–v12 predictor representation below remains readable. Tuned and custom
 share the same predictors in each version; v13's changes follow this section:
 
@@ -171,6 +177,8 @@ each plane with its dominant byte and scatters the exceptions into set bits.
 
 The presence coder processes four two-bit symbols per mask byte, reusing
 neighbor-byte loads. This preserves the exact v11/v12 representation.
+Decoding checks the all-zero/all-one pairs before the two mixed pairs; this
+changes only the lookup order, not probabilities, state transitions, or bytes.
 
 The ARM implementation packs/scatters eight values with NEON lookup tables.
 The scalar implementation produces and accepts exactly the same format.
@@ -266,6 +274,19 @@ LZ decoding builds per-literal semantic labels only when the serialized
 channel actually uses them; raw and single-class channels do not need them.
 The preceding decoded channel byte selects a leaf. History is zero initially
 and when semantic class changes. With one class, semantic labels are ignored.
+
+Tree construction aggregates the 256 possible history bytes into the 18
+intervals defined by its candidate split boundaries. This produces the same
+histograms and split decisions with less temporary storage and scanning.
+Frequency normalization rounds scaled counts to the nearest integer before
+correcting the total to 4096, retaining at least one count per used symbol.
+The decoder continues to read the serialized frequencies directly.
+
+For packets of at least 32 KiB with at least four controller planes, levels
+below 9 skip the direct-LZ trial and use the shared-mask candidate. Level 9+
+retains both trials for controller packets. This selection policy, like the
+existing float-plane shortcut, is an encoder heuristic rather than a format
+requirement; other distributions can favor the direct trial.
 
 The encoder merges classes and splits context ranges only when estimated
 entropy savings justify table costs. It uses these tables for literals and

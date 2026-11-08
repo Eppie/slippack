@@ -53,13 +53,17 @@ The CLI still links zstd, LZMA, and Brotli to read old archives and provide the
 legacy/tuned backends. The custom payload codec itself is independent of those
 libraries; its standalone test and fuzzer build without them.
 
-The custom backend is experimental. V13 moves the measured size/speed frontier
-beyond v12: on three replay sets, archives are 4.2–7.2% smaller, encoding takes
-3.8–7.9% less time, and decoding takes 5.0–13.4% less time. These are paired
-level-3 measurements on an M4 Max with 16 threads and nine warmed repetitions.
-See `benchmarks/2026-11-08-v13/` for the full preset curve, timings, and limits;
-`CUSTOM_FORMAT.md` documents the representation. Existing v9/v10/v11/v12
-archives remain readable; older binaries reject v13 archives.
+The custom backend is experimental. A follow-up to the initial v13 release
+removes redundant empty streams and avoids unnecessary modeling work. Across
+three replay sets it makes archives another 1.9–9.4% smaller, takes 12.7–16.2%
+less compression time, and takes 2.9–9.4% less decompression time. These are
+paired level-3 measurements on an M4 Max with 16 threads and nine warmed runs.
+On mixed at level 9, custom narrowly beats the equally updated tuned backend
+on size, with lower compression/decompression times. Some other preset timing
+medians regress slightly; see `benchmarks/2026-11-08-v13-round2/` for results
+and limits. The format remains v13 and the previous v13 reader accepts these
+archives. V9/v10/v11/v12 remain readable; pre-v13 binaries reject v13 archives.
+`CUSTOM_FORMAT.md` documents the representation and encoder policies.
 
 For legacy/tuned, `-l` selects the entropy stage (≤2: brotli q5; 3-8: LZMA fast/nice=128/8MB;
 ≥9: LZMA BT4/nice273 — all raced against zstd(level) per group, smaller wins).
