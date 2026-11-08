@@ -405,3 +405,39 @@ reported gap on that set, not every possible input or compressor.
 
 See `benchmarks/2026-11-08-v13-round2/` for timing samples, rejected trials,
 validation, and reproduction. Output remains v13; old v13 readers accept it.
+
+## 2026-11-08 — v14: a further 10% in all three aggregate categories
+
+Against the preceding custom codec (`5c1659d`, code at `22e61aa`), level 3,
+16 threads, nine warmed randomized repetitions:
+
+| Dataset | Smaller | Less encode time | Less decode time |
+|---|---:|---:|---:|
+| Summit sample (140) | 10.66% | 9.71% | 15.25% |
+| Mixed (103) | 6.38% | 3.89% | 13.69% |
+| Additional Summit (279) | 11.92% | 14.98% | 13.55% |
+| Combined | **10.32%** | **11.45%** | **13.99%** |
+
+The aggregate sums archive sizes and dataset timing medians. Combined bytes
+fall from 62,898,815 to 56,405,346. This meets the requested 10% improvement in
+each category across the corpus, not independently on every dataset. At one
+thread on mixed, encode improves 8.67% and decode is essentially flat (0.36%).
+
+Old post-frame records benefit from quadratic position extrapolation; records
+with explicit velocity keep that predictor. Raw-controller-indexed last-value
+tables now use numeric bit residuals. Dictionaries with one varying byte and
+large alphabets were a productive revisit of the constant-field idea: keep
+useful constant/small-alphabet dictionaries, skip the low-value large ones.
+Direct dictionary construction, shorter transform probes, rectangular vector
+transpose tiles, and avoiding unnecessary final allocator/thread work supply
+the speed gains. The entropy coder is unchanged and remains fully custom.
+
+Higher-order and adaptive motion predictors, replacing modern velocity
+prediction, per-plane value coding, mask lookup tables, four-section mask
+interleaving, and several copy/lookup optimizations did not win. Two-axis input
+caches saved additional bytes but were not integrated or speed-validated.
+
+New custom/tuned output is v14; v9–v13 remain readable. Tests, 522 file hashes,
+scalar/native equivalence, legacy compatibility, external-encoder tripwires,
+and short ASan/UBSan predictor/archive fuzz runs all pass. Full evidence,
+limits, rejected trials, and reproduction are in `benchmarks/2026-11-08-v14/`.

@@ -165,12 +165,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 #endif
 
 // Target 4: numeric predictors composed with real custom record packets.
-// Both the older XOR predictor and v13's signed residuals are exercised.
+// Exercise the v10 XOR, v13 numeric, and v14 quadratic/input predictors.
 #if FUZZ_TARGET == 4
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t length) {
   if (length < 4) return 0;
   g_tuned = g_custom = true;
   g_v13_predictors = data[2] & 1;
+  g_v14_predictors = g_v13_predictors && (data[2] & 2);
   const uint32_t widths[] = {28, 29, 51, 59, 71, 72, 76, 84};
   uint32_t width = widths[data[1] & 7], count = 1 + data[0];
   Buf original;

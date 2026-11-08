@@ -1,0 +1,27 @@
+{
+  "baseline_commit": "5c1659d",
+  "baseline_code_commit": "22e61aa",
+  "threads": 16,
+  "level": 3,
+  "repeats": 9,
+  "files": 522,
+  "raw_bytes": 1309561719,
+  "aggregate_method": "Sum archive sizes and dataset timing medians; reduction = 100 * (1 - current / previous). Timings are end-to-end, warm input cache, decode without output writes.",
+  "totals": {
+    "previous_custom": {
+      "bytes": 62898815,
+      "encode": 0.9644629999820609,
+      "decode": 0.33293191602570005
+    },
+    "custom": {
+      "bytes": 56405346,
+      "encode": 0.8540572909987532,
+      "decode": 0.28634720799163915
+    }
+  },
+  "reduction_percent": {
+    "bytes": 10.32367461930721,
+    "encode": 11.447376310481715,
+    "decode": 13.992262619383379
+  }
+}

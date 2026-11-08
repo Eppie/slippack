@@ -37,7 +37,7 @@ An opt-in custom codec is available on the `custom-codec` branch:
 ```
 
 `--codec legacy` is the unchanged default and writes v9. `--codec custom`
-writes v13 using only our own payload compression: field-conditioned rANS,
+writes v14 using only our own payload compression: field-conditioned rANS,
 shared presence masks, constant/sparse/repeat modes, and a lazy LZ parser with recent-distance and
 literal prediction. It also enables lossless velocity and controller-input
 predictors, including a position fallback for older replays without velocity
@@ -45,7 +45,7 @@ fields. Levels 1–2 use two search candidates; 3–5 use four with lazy parsing
 6–8 use eight, and 9+ use 24. Level 7 is the more compact middle-tier option. Unknown data retains a reversible raw fallback.
 
 `--codec tuned` is a comparison backend: the same new semantic predictors,
-with existing entropy codecs and block-sized LZMA dictionaries. It writes v13
+with existing entropy codecs and block-sized LZMA dictionaries. It writes v14
 with the legacy entropy backend flag. Both use the same sorted, compressed
 field dictionaries and semantic predictors to keep codec comparisons fair.
 
@@ -53,17 +53,18 @@ The CLI still links zstd, LZMA, and Brotli to read old archives and provide the
 legacy/tuned backends. The custom payload codec itself is independent of those
 libraries; its standalone test and fuzzer build without them.
 
-The custom backend is experimental. A follow-up to the initial v13 release
-removes redundant empty streams and avoids unnecessary modeling work. Across
-three replay sets it makes archives another 1.9–9.4% smaller, takes 12.7–16.2%
-less compression time, and takes 2.9–9.4% less decompression time. These are
-paired level-3 measurements on an M4 Max with 16 threads and nine warmed runs.
-On mixed at level 9, custom narrowly beats the equally updated tuned backend
-on size, with lower compression/decompression times. Some other preset timing
-medians regress slightly; see `benchmarks/2026-11-08-v13-round2/` for results
-and limits. The format remains v13 and the previous v13 reader accepts these
-archives. V9/v10/v11/v12 remain readable; pre-v13 binaries reject v13 archives.
-`CUSTOM_FORMAT.md` documents the representation and encoder policies.
+The custom backend is experimental. V14 adds quadratic motion prediction for
+older replays, numeric controller residuals, and cheaper dictionary selection.
+It also reduces transform-probe work and vectorizes partial transpose tiles.
+On the combined 522-file benchmark, v14 saves another 10.3% in archive bytes,
+11.4% in compression time, and 14.0% in decompression time at level 3 with
+16 threads. The single-thread mixed decode improvement is only 0.4%. See `benchmarks/2026-11-08-v14/` for paired measurements against the preceding
+custom version, validation, and unsuccessful experiments. Size improvements
+vary by replay set; all benchmark sets have been examined during development.
+
+Custom/tuned v14 archives require the new reader. V9/v10/v11/v12/v13 remain
+readable; older readers reject v14 at the header. Legacy remains the v9 default.
+`CUSTOM_FORMAT.md` documents each version and the encoder policies.
 
 For legacy/tuned, `-l` selects the entropy stage (≤2: brotli q5; 3-8: LZMA fast/nice=128/8MB;
 ≥9: LZMA BT4/nice273 — all raced against zstd(level) per group, smaller wins).

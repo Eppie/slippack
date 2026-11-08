@@ -1,18 +1,18 @@
-# SLPZ v13 custom codec
+# SLPZ v14 custom codec
 
 The default writer still emits v9 (`--codec legacy`). Both `--codec tuned`
-and `--codec custom` emit v13; header flag bit 0 selects the custom payload
+and `--codec custom` emit v14; header flag bit 0 selects the custom payload
 coder. Tuned uses the existing compression libraries. The reader supports
-v9, v10 (including the first custom backend), v11, v12, and v13. The CLI still
+v9, v10 (including the first custom backend), v11, v12, v13, and v14. The CLI still
 links the old libraries for compatibility; the standalone custom codec does
 not link a compression library.
 
 ## Container and predictors
 
 The v9 directory and framing are retained. Header flag bit 0 selects custom
-payload compression in v10–v13. Codec ID 6 identifies tagged custom frames;
+payload compression in v10–v14. Codec ID 6 identifies tagged custom frames;
 implicit frames use the backend from the header. Unknown versions or header
-flag bits are rejected. Older readers reject v13 before reading its payload.
+flag bits are rejected. Pre-v14 readers reject v14 before reading its payload.
 Container words are little-endian; source SLP numeric fields are big-endian.
 
 The encoder omits stream packets for declared commands with no parsed events.
@@ -69,6 +69,32 @@ Input prediction is unchanged. The implementation specializes encoding and
 decoding outside the record loop, including separate old/new position paths.
 This removes per-record direction branches without changing old semantics.
 
+## Quadratic motion and numeric input residuals (v14)
+
+For post-frame records of 29–71 bytes, each axis maintains binary32 position,
+velocity, and acceleration, initially +0. The prediction is
+`position + (velocity + acceleration)`, with each addition separately rounded
+to nearest/even. Non-finite predictions become +0. After reconstructing the
+actual position bits, update `nextVelocity = actualPosition - position`, then
+`acceleration = nextVelocity - velocity`, then store the new velocity and
+position. Each subtraction also rounds separately. The operation order matters;
+reassociating the additions changes the format. V13 keeps its previous-position
+fallback, and records of at least 72 bytes retain v13's velocity-based predictor.
+
+The position difference/zigzag mapping and the extra post-frame fields are
+unchanged from v13. The NEON implementation computes the two axes in parallel;
+the scalar implementation follows exactly the same operation order.
+
+For pre-frame controller floats at offsets 24/28/32/36, the available raw bytes
+at 58/63/64/65 still index independent 256-entry last-value tables. V14 encodes
+the modular difference of the big-endian float bit patterns, then zigzags it,
+instead of XORing the patterns. Tables start at zero and retain actual values.
+Buttons and trigger prediction retain their existing XOR representation.
+Every 32-bit input, including signed zero and NaN payloads, remains lossless.
+
+These semantic changes require v14. Payload entropy coding is unchanged;
+readers retain the distinct v10–v12, v13, and v14 predictor paths.
+
 ## RNG acceleration (all readable versions)
 
 RNG framing, group ordering, the 4096-step search cap, and raw-seed exceptions
@@ -88,6 +114,18 @@ Tuned and custom now sort each dictionary by the original big-endian field
 byte sequence and remap its indexes. This improves both the value metadata
 and temporal index deltas. It is an encoder policy: the dictionary explicitly
 records the value assigned to every index.
+
+The current tuned/custom encoder skips candidate dictionaries with exactly
+one nonconstant byte and at least 128 distinct values in that byte. Constant
+planes already represent the fixed neighbours cheaply. Alphabet counts are
+cached by byte offset and stop at the threshold. Constant dictionaries and
+small one-byte alphabets avoid hashing every full record; dictionary values
+and first-occurrence indexes are otherwise unchanged. This is an encoder
+policy, not a new dictionary representation.
+
+Byte-transform selection probes up to three 256-byte windows for tuned/custom
+(first, middle, last), instead of the legacy 4096-byte windows. Explicit plane
+selectors carry every decision, so this also needs no new decoder semantics.
 
 Each record group begins with `u8 field_count`. The old representation is
 unchanged: each field has `u8 width, u16 offset, u8 value_count_minus_one`, then
@@ -304,7 +342,7 @@ roundtrip verification uses external hashes.
 `make check` covers the original self-test, standalone custom packets/models,
 shared masks, CDFs, truncation/mutation handling, and archive roundtrips and
 extraction for all backends at levels 1/3/7/9. Predictor tests compare RNG tables with the scalar oracle
-and verify old/new numeric predictors on arbitrary float bit patterns and
+and compare v14 quadratic/input residuals with independent scalar oracles on arbitrary float bit patterns and
 record-size boundaries. Record-codec tests additionally
 force all dictionary transforms and cover vector boundaries, malformed
 metadata, field resets, and arithmetic wraparound. Standalone custom tests and fuzzing

@@ -74,7 +74,9 @@ constexpr uint8_t kVersion = 9;
 constexpr uint8_t kTunedVersion = 10;
 constexpr uint8_t kPreviousCustomVersion = 11;
 constexpr uint8_t kDictionaryVersion = 12;
-constexpr uint8_t kCustomVersion = 13;
+constexpr uint8_t kNumericVersion = 13;
+constexpr uint8_t kCustomVersion = 14;
+static bool g_v14_predictors = true;
 static bool g_v13_predictors = true;
 static bool g_custom = false, g_tuned = false;
 constexpr uint8_t kModeRaw = 0;    // whole file = one zstd blob
@@ -561,11 +563,20 @@ static std::vector<uint8_t> z_decompress(Zctx& z, Reader& r) {
 
 // ── NEON kernels ────────────────────────────────────────────────────────────
 // 16x16 byte tile transpose: dst row k = column k of the 16 src rows.
+template<unsigned Rows = 16, unsigned Cols = 16>
 static inline void tile16(const uint8_t* src, size_t sStride,
                           uint8_t* dst, size_t dStride) {
 #if SLPZ_NEON
   uint8x16_t x[16];
-  for (int k = 0; k < 16; k++) x[k] = vld1q_u8(src + (size_t)k * sStride);
+  for (unsigned k = 0; k < 16; ++k) {
+    if (k >= Rows) x[k] = vdupq_n_u8(0);
+    else if constexpr (Cols == 16) x[k] = vld1q_u8(src + size_t(k) * sStride);
+    else {
+      uint8_t row[16] = {};
+      memcpy(row, src + size_t(k) * sStride, Cols);
+      x[k] = vld1q_u8(row);
+    }
+  }
   for (int k = 0; k < 16; k += 2) {
     uint8x16_t lo = vtrn1q_u8(x[k], x[k + 1]), hi = vtrn2q_u8(x[k], x[k + 1]);
     x[k] = lo; x[k + 1] = hi;
@@ -588,10 +599,17 @@ static inline void tile16(const uint8_t* src, size_t sStride,
       x[k] = vreinterpretq_u8_u64(vtrn1q_u64(a, b));
       x[k | 8] = vreinterpretq_u8_u64(vtrn2q_u64(a, b));
     }
-  for (int k = 0; k < 16; k++) vst1q_u8(dst + (size_t)k * dStride, x[k]);
+  for (unsigned k = 0; k < Cols; ++k) {
+    if constexpr (Rows == 16) vst1q_u8(dst + size_t(k) * dStride, x[k]);
+    else {
+      uint8_t row[16];
+      vst1q_u8(row, x[k]);
+      memcpy(dst + size_t(k) * dStride, row, Rows);
+    }
+  }
 #else
-  for (size_t i = 0; i < 16; i++)
-    for (size_t j = 0; j < 16; j++)
+  for (size_t i = 0; i < Rows; i++)
+    for (size_t j = 0; j < Cols; j++)
       dst[j * dStride + i] = src[i * sStride + j];
 #endif
 }
@@ -605,8 +623,32 @@ static void transpose_fwd(std::span<const uint8_t> recs, uint32_t count,
   for (uint32_t j = 0; j < jTiles; j += 16)
     for (uint32_t i = 0; i < iTiles; i += 16)
       tile16(in + (size_t)i * size + j, size, out.data() + (size_t)j * count + i, count);
+  // Keep incomplete record-width tiles in the vector path, without reading
+  // or writing outside the short edge of the source/destination.
+  auto tail = [&]<unsigned W>() {
+    for (unsigned i = 0; i < iTiles; i += 16)
+      tile16<16, W>(in + size_t(i) * size + jTiles, size,
+                     out.data() + size_t(jTiles) * count + i, count);
+  };
+  switch (size - jTiles) {
+    case 1: tail.operator()<1>(); break;
+    case 2: tail.operator()<2>(); break;
+    case 3: tail.operator()<3>(); break;
+    case 4: tail.operator()<4>(); break;
+    case 5: tail.operator()<5>(); break;
+    case 6: tail.operator()<6>(); break;
+    case 7: tail.operator()<7>(); break;
+    case 8: tail.operator()<8>(); break;
+    case 9: tail.operator()<9>(); break;
+    case 10: tail.operator()<10>(); break;
+    case 11: tail.operator()<11>(); break;
+    case 12: tail.operator()<12>(); break;
+    case 13: tail.operator()<13>(); break;
+    case 14: tail.operator()<14>(); break;
+    case 15: tail.operator()<15>(); break;
+  }
   for (uint32_t j = jTiles; j < size; j++)
-    for (uint32_t i = 0; i < count; i++)
+    for (uint32_t i = iTiles; i < count; i++)
       out[(size_t)j * count + i] = in[(size_t)i * size + j];
   for (uint32_t j = 0; j < jTiles; j++)
     for (uint32_t i = iTiles; i < count; i++)
@@ -621,8 +663,32 @@ static void transpose_rev(std::span<const uint8_t> planes, uint32_t count,
   for (uint32_t i = 0; i < iTiles; i += 16)
     for (uint32_t j = 0; j < jTiles; j += 16)
       tile16(in + (size_t)j * count + i, count, out + (size_t)i * size + j, size);
+  // Keep incomplete record-width tiles in the vector path, without reading
+  // or writing outside the short edge of the source/destination.
+  auto tail = [&]<unsigned W>() {
+    for (unsigned i = 0; i < iTiles; i += 16)
+      tile16<W, 16>(in + size_t(jTiles) * count + i, count,
+                     out + size_t(i) * size + jTiles, size);
+  };
+  switch (size - jTiles) {
+    case 1: tail.operator()<1>(); break;
+    case 2: tail.operator()<2>(); break;
+    case 3: tail.operator()<3>(); break;
+    case 4: tail.operator()<4>(); break;
+    case 5: tail.operator()<5>(); break;
+    case 6: tail.operator()<6>(); break;
+    case 7: tail.operator()<7>(); break;
+    case 8: tail.operator()<8>(); break;
+    case 9: tail.operator()<9>(); break;
+    case 10: tail.operator()<10>(); break;
+    case 11: tail.operator()<11>(); break;
+    case 12: tail.operator()<12>(); break;
+    case 13: tail.operator()<13>(); break;
+    case 14: tail.operator()<14>(); break;
+    case 15: tail.operator()<15>(); break;
+  }
   for (uint32_t j = jTiles; j < size; j++)
-    for (uint32_t i = 0; i < count; i++)
+    for (uint32_t i = iTiles; i < count; i++)
       out[(size_t)i * size + j] = in[(size_t)j * count + i];
   for (uint32_t j = 0; j < jTiles; j++)
     for (uint32_t i = iTiles; i < count; i++)
@@ -703,7 +769,7 @@ static uint8_t choose_transform(const uint8_t* plane, uint32_t count,
 
   uint32_t hist[3][256] = {};
   uint32_t m = 0;
-  const uint32_t kWin = 4096;
+  const uint32_t kWin = g_tuned ? 256 : 4096;
   uint32_t starts[3] = {0, count > 2 * kWin ? count / 2 : count,
                         count > 3 * kWin ? count - kWin : count};
   for (uint32_t s : starts) {
@@ -879,23 +945,67 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
   std::vector<DictField> fields;
   std::vector<uint8_t> widthAt(size, 0);  // field width at start offset
   if (count >= 64) {
-    std::vector<uint8_t> covered(size, 0);
+    std::vector<uint8_t> covered(size, 0), constant(size, 0);
+    std::vector<unsigned> alphabets(size, 0);
+    const unsigned limit = g_tuned ? 128 : 257;
+    if (g_tuned)
+      for (unsigned o = 0; o < size; ++o)
+        constant[o] = slpz_custom::is_constant({planes.data() + size_t(o) * count, count});
     Buf idxPlane;
     for (uint8_t width : {(uint8_t)4, (uint8_t)2}) {
       for (uint32_t w = 0; w + width <= size;) {
         bool free = true;
         for (uint32_t b = 0; b < width; b++) free = free && !covered[w + b];
         if (!free) { w++; continue; }
+        unsigned changing = 0, changingOffset = 0;
+        for (unsigned b = 0; b < width; ++b)
+          if (!constant[w + b]) { ++changing; changingOffset = w + b; }
+        // A large alphabet in one varying byte gains little from a dictionary:
+        // explicit constant planes already represent its fixed neighbours.
+        if (changing == 1 && g_tuned) {
+          if (!alphabets[changingOffset]) {
+            std::array<bool, 256> seen{};
+            unsigned distinct = 0;
+            for (unsigned i = 0; i < count; ++i) {
+              uint8_t v = planes[size_t(changingOffset) * count + i];
+              if (!seen[v]) {
+                seen[v] = true;
+                if (++distinct == limit) break;
+              }
+            }
+            alphabets[changingOffset] = distinct;
+          }
+          if (alphabets[changingOffset] >= limit) { ++w; continue; }
+        }
         U32Set set;
         idxPlane.clear();
         idxPlane.resize(count);
         bool ok = true;
-        for (uint32_t i = 0; i < count; i++) {
+        if (changing == 0) {
           uint32_t v = 0;
-          memcpy(&v, recs.data() + (size_t)i * size + w, width);
-          int id = set.find_or_insert(v);
-          if (id < 0) { ok = false; break; }
-          idxPlane[i] = (uint8_t)id;
+          memcpy(&v, recs.data() + w, width);
+          set.find_or_insert(v);  // every index is already zero
+        } else if (changing == 1) {
+          std::array<int16_t, 256> ids;
+          ids.fill(-1);
+          auto* plane = planes.data() + size_t(changingOffset) * count;
+          for (uint32_t i = 0; i < count; ++i) {
+            uint8_t b = plane[i];
+            if (ids[b] < 0) {
+              uint32_t v = 0;
+              memcpy(&v, recs.data() + size_t(i) * size + w, width);
+              ids[b] = set.find_or_insert(v);
+            }
+            idxPlane[i] = uint8_t(ids[b]);
+          }
+        } else {
+          for (uint32_t i = 0; i < count; i++) {
+            uint32_t v = 0;
+            memcpy(&v, recs.data() + (size_t)i * size + w, width);
+            int id = set.find_or_insert(v);
+            if (id < 0) { ok = false; break; }
+            idxPlane[i] = (uint8_t)id;
+          }
         }
         // The field count ships as one byte, so 255 is a hard ceiling. Records
         // wide enough to exceed it exist (cmd 0x10 is 516 bytes = up to 258
@@ -1521,6 +1631,8 @@ static std::vector<uint8_t> unpack_blob(Zctx& z, Reader& r) {
 // ── generic worker pool ─────────────────────────────────────────────────────
 template <typename Fn>
 static void parallel_for(size_t n, int threads, Fn work) {
+  if (!n) return;
+  threads = int(std::min<size_t>(n, threads));
   std::atomic<size_t> next{0};
   auto worker = [&] {
     Zctx z;
@@ -1780,10 +1892,10 @@ static float read_float(const uint8_t* p) {
   memcpy(&f, &u, 4);
   return f;
 }
-template<bool inverse, bool modern>
+template<bool inverse, bool modern, bool quadratic = false>
 static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
   if (size < (modern ? 29u : 72u)) return;
-  float prev[2] = {};
+  float prev[2] = {}, velocity[2] = {}, acceleration[2] = {};
   // Percent, shield, and attack velocity fields use first differences of
   // their unsigned bit patterns. Skip fields absent in older record sizes.
   constexpr unsigned offsets[] = {21, 25, 60, 64};
@@ -1804,6 +1916,41 @@ static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
       r[o + 3] = uint8_t(encoded);
     }
   };
+#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+  if constexpr (quadratic) {
+    if (size < 72) {
+      // The axes are independent; each lane follows the scalar binary32
+      // operation order. Residual arithmetic preserves all original bits.
+      auto position = vdup_n_f32(0), speed = vdup_n_f32(0), accel = vdup_n_f32(0);
+      auto zero = vdup_n_u32(0), one = vdup_n_u32(1);
+      auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
+      for (uint32_t i = 0; i < count; ++i) {
+        auto* r = data + size_t(i) * size;
+        if constexpr (inverse) transform(r);
+        auto pred = vreinterpret_u32_f32(vadd_f32(position, vadd_f32(speed, accel)));
+        pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
+        auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
+        uint32x2_t actual, code;
+        if constexpr (inverse) {
+          auto delta = veor_u32(vshr_n_u32(input, 1), vsub_u32(zero, vand_u32(input, one)));
+          actual = vadd_u32(pred, delta);
+          code = actual;
+        } else {
+          actual = input;
+          auto delta = vsub_u32(actual, pred);
+          code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(zero, vshr_n_u32(delta, 31)));
+        }
+        vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
+        auto current = vreinterpret_f32_u32(actual), nextSpeed = vsub_f32(current, position);
+        accel = vsub_f32(nextSpeed, speed);
+        speed = nextSpeed;
+        position = current;
+        if constexpr (!inverse) transform(r);
+      }
+      return;
+    }
+  }
+#endif
   for (uint32_t i = 0; i < count; i++) {
     uint8_t* r = data + (size_t)i * size;
     if constexpr (inverse && modern) transform(r);
@@ -1815,6 +1962,12 @@ static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
       volatile float vy = read_float(r + 56) + read_float(r + 64);
       volatile float y = prev[1] + vy;
       pred[1] = std::isfinite(y) ? y : 0.f;
+    } else if constexpr (quadratic) {
+      for (unsigned j = 0; j < 2; ++j) {
+        volatile float nextVelocity = velocity[j] + acceleration[j];
+        volatile float position = prev[j] + nextVelocity;
+        pred[j] = std::isfinite(position) ? position : 0.f;
+      }
     } else {
       // Older records lack velocity. Predict the previous position's exact
       // bits, including signed zero and nonfinite payloads, without arithmetic.
@@ -1837,13 +1990,26 @@ static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
       f[1] = (uint8_t)(residual >> 16);
       f[2] = (uint8_t)(residual >> 8);
       f[3] = (uint8_t)residual;
+      if constexpr (quadratic) {
+        if (size < 72) {
+          float position;
+          memcpy(&position, &decoded, 4);
+          volatile float nextVelocity = position - prev[j];
+          volatile float nextAcceleration = nextVelocity - velocity[j];
+          velocity[j] = nextVelocity;
+          acceleration[j] = nextAcceleration;
+        }
+      }
       memcpy(prev + j, &decoded, 4);
     }
     if constexpr (!inverse && modern) transform(r);
   }
 }
 static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (g_v13_predictors) {
+  if (g_v14_predictors) {
+    if (inverse) motion_predict_impl<true, true, true>(data, count, size);
+    else motion_predict_impl<false, true, true>(data, count, size);
+  } else if (g_v13_predictors) {
     if (inverse) motion_predict_impl<true, true>(data, count, size);
     else motion_predict_impl<false, true>(data, count, size);
   } else {
@@ -1851,7 +2017,7 @@ static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool in
     else motion_predict_impl<false, false>(data, count, size);
   }
 }
-template<bool inverse>
+template<bool inverse, bool numeric = false>
 static void input_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
   if (size < 59) return;
   uint32_t table[4][256] = {};
@@ -1865,6 +2031,18 @@ static void input_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
     for (uint32_t j = 0; j < 4; j++) r[40 + j] ^= pred[j];
     for (uint32_t j = 0; j < 4; j++) {
       if (raw[j] >= size) continue;
+      if constexpr (numeric) {
+        uint8_t* f = r + offsets[j];
+        uint8_t key = r[raw[j]];
+        uint32_t v = be32(f), prediction = table[j][key];
+        uint32_t actual = inverse ? prediction + ((v >> 1) ^ (0u - (v & 1))) : v;
+        uint32_t delta = v - prediction;
+        uint32_t code = inverse ? actual : (delta << 1) ^ (0u - (delta >> 31));
+        table[j][key] = actual;
+        f[0] = uint8_t(code >> 24); f[1] = uint8_t(code >> 16);
+        f[2] = uint8_t(code >> 8); f[3] = uint8_t(code);
+        continue;
+      }
       uint32_t v;
       memcpy(&v, r + offsets[j], 4);
       uint8_t key = r[raw[j]];
@@ -1876,8 +2054,13 @@ static void input_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
   }
 }
 static void input_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (inverse) input_predict_impl<true>(data, count, size);
-  else input_predict_impl<false>(data, count, size);
+  if (g_v14_predictors) {
+    if (inverse) input_predict_impl<true, true>(data, count, size);
+    else input_predict_impl<false, true>(data, count, size);
+  } else {
+    if (inverse) input_predict_impl<true>(data, count, size);
+    else input_predict_impl<false>(data, count, size);
+  }
 }
 static void run_pack_task(Zctx& z, PackTask& t, int level) {
   Buf& out = t.fp->pieces[t.piece];
@@ -2446,9 +2629,10 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
   Reader r{arc.data(), arc.data() + arc.size()};
   if (r.u32() != kMagic) die("not a slpz archive");
   uint8_t version = r.u8(), flags = r.u8();
-  if (version != kVersion && version != kTunedVersion && version != kPreviousCustomVersion && version != kDictionaryVersion && version != kCustomVersion) die("unsupported slpz version");
+  if (version != kVersion && version != kTunedVersion && version != kPreviousCustomVersion && version != kDictionaryVersion && version != kNumericVersion && version != kCustomVersion) die("unsupported slpz version");
   if (flags & ~1u || (version == kVersion && flags)) die("unsupported slpz flags");
-  g_v13_predictors = version >= 13;
+  g_v13_predictors = version >= kNumericVersion;
+  g_v14_predictors = version >= kCustomVersion;
   g_tuned = version != kVersion;
   g_custom = g_tuned && (flags & 1);
   uint32_t nPools = r.u32();
@@ -2618,11 +2802,12 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
       if (t.kind == DecTask::AssembleOnly) finish(*t.dp);
       else if (t.dp->pending.fetch_sub(1) == 1) finish(*t.dp);
     });
-    // Return freed wave buffers to the OS so RSS tracks the bounded live set.
+    // Return buffers between waves to keep memory bounded. The final wave
+    // needs no allocator-wide sweep; the CLI is about to exit.
 #if defined(__APPLE__)
-    malloc_zone_pressure_relief(nullptr, 0);
+    if (next < plans.size()) malloc_zone_pressure_relief(nullptr, 0);
 #else
-    malloc_trim(0);
+    if (next < plans.size()) malloc_trim(0);
 #endif
     if (getenv("SLPZ_TIMING")) {
 #if defined(__APPLE__)
@@ -2672,7 +2857,8 @@ static int cmd_selftest() {
     if (!ok) { fprintf(stderr, "FAIL %s (%zu,%zu)\n", what, a, b); fails++; }
   };
   for (uint32_t count : {1u, 5u, 15u, 16u, 17u, 100u, 1000u, 4097u}) {
-    for (uint32_t size : {1u, 2u, 15u, 16u, 33u, 63u, 517u}) {
+    for (uint32_t size : {1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 10u, 11u,
+                          12u, 13u, 14u, 15u, 16u, 33u, 51u, 63u, 66u, 71u, 84u, 517u}) {
       auto recs = rnd((size_t)count * size);
       Buf planes;
       transpose_fwd(recs, count, size, planes);

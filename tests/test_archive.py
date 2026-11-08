@@ -69,7 +69,7 @@ with tempfile.TemporaryDirectory(prefix='slpz-integration-') as work:
             subprocess.run([str(binary),'c','--codec',codec,'-l',str(level),'-T','2','-o',str(archive),'@list.txt'],cwd=work,capture_output=True,check=True)
             header = archive.read_bytes()[:6]
             assert header[:4] == b'SLPZ'
-            assert header[4:] == (b'\x09\x00' if codec=='legacy' else b'\x0d\x01' if codec=='custom' else b'\x0d\x00')
+            assert header[4:] == (b'\x09\x00' if codec=='legacy' else b'\x0e\x01' if codec=='custom' else b'\x0e\x00')
             result = subprocess.run([str(binary),'hash',str(archive),'-T','2'],capture_output=True,text=True,check=True)
             assert sorted(result.stdout.splitlines()) == expected
             out = work/f'out-{codec}-{level}'

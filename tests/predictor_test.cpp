@@ -46,8 +46,10 @@ int main() {
   }
   const uint32_t special[] = {0, 0x80000000, 0x7f800000, 0xff800000,
       0x7fc01234, 0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
-  for (bool modern : {false, true}) {
+  for (unsigned version : {10u, 13u, 14u}) {
+    bool modern = version >= 13;
     g_v13_predictors = modern;
+    g_v14_predictors = version >= 14;
     for (unsigned size : {28u, 29u, 51u, 59u, 71u, 72u, 76u, 84u, 100u}) {
       for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
         Buf original;
@@ -59,16 +61,55 @@ int main() {
               word(original.data() + size_t(i) * size + offset, special[(i + offset) % std::size(special)]);
         auto records = original;
         motion_predict(records.data(), count, size, false);
+        if (version == 14 && size >= 29 && size < 72) {
+          // Independent oracle: extrapolate from three original positions,
+          // rather than keeping the implementation's velocity/acceleration.
+          float positions[2][3] = {};
+          for (unsigned i = 0; i < count; ++i) {
+            for (unsigned j = 0; j < 2; ++j) {
+              auto& h = positions[j];
+              volatile float v0 = h[0] - h[1], v1 = h[1] - h[2];
+              volatile float acceleration = v0 - v1;
+              volatile float velocity = v0 + acceleration;
+              volatile float next = h[0] + velocity;
+              float prediction = std::isfinite(next) ? next : 0.f;
+              uint32_t bits;
+              memcpy(&bits, &prediction, 4);
+              size_t offset = size_t(i) * size + 9 + 4 * j;
+              uint32_t actual = be32(original.data() + offset), delta = actual - bits;
+              check(be32(records.data() + offset) ==
+                        ((delta << 1) ^ (0u - (delta >> 31))), "quadratic scalar oracle");
+              h[2] = h[1]; h[1] = h[0];
+              memcpy(&h[0], &actual, 4);
+            }
+          }
+        }
         if (size < (modern ? 29u : 72u)) check(records == original, "predictor eligibility");
         motion_predict(records.data(), count, size, true);
         check(records == original, "numeric predictor roundtrip");
         input_predict(records.data(), count, size, false);
+        if (version == 14 && size >= 59) {
+          uint32_t previous[4][256] = {};
+          const unsigned offsets[] = {24, 28, 32, 36}, raw[] = {58, 63, 64, 65};
+          for (unsigned i = 0; i < count; ++i)
+            for (unsigned j = 0; j < 4; ++j) {
+              if (raw[j] >= size) continue;
+              const auto* source = original.data() + size_t(i) * size;
+              uint32_t actual = be32(source + offsets[j]);
+              auto& last = previous[j][source[raw[j]]];
+              uint32_t delta = actual - last;
+              check(be32(records.data() + size_t(i) * size + offsets[j]) ==
+                        ((delta << 1) ^ (0u - (delta >> 31))), "numeric input oracle");
+              last = actual;
+            }
+        }
         input_predict(records.data(), count, size, true);
         check(records == original, "input predictor roundtrip");
       }
     }
   }
   g_v13_predictors = true;
+  g_v14_predictors = false;
   Buf old_records; old_records.resize(51 * 3);
   for (unsigned i = 0; i < 3; ++i) {
     word(old_records.data() + i * 51 + 9, 0x3f800000u + (i == 2));

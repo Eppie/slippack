@@ -1,0 +1,39 @@
+{
+  "v10-custom": "140 old-archive file hashes matched",
+  "v10-tuned": "140 old-archive file hashes matched",
+  "v11-custom": "140 old-archive file hashes matched",
+  "v12-custom": "140 old-archive file hashes matched",
+  "v12-tuned": "140 old-archive file hashes matched",
+  "v13-custom": "140 old-archive file hashes matched",
+  "v13-tuned": "140 old-archive file hashes matched",
+  "v13-latest": "140 old-archive file hashes matched",
+  "v9-original": "419 old-archive file hashes matched",
+  "old-v9-reader-new-legacy": "140 newly encoded file hashes matched",
+  "v14-sample": "all file hashes matched",
+  "v14-mixed": "all file hashes matched",
+  "v14-holdout": "all file hashes matched",
+  "old-v13-reader": "rejects v14 at header",
+  "scalar-native": "byte-identical archives, cross-verified against all 140 source hashes",
+  "no-external-encoder": "fatal zstd/LZMA/brotli encoder tripwires; byte-identical custom mixed archive",
+  "tests": "selftest (all 15 partial tile widths); 3430 payload, 111292 record, 2126359 predictor checks including independent quadratic and numeric input oracles; all passed",
+  "archive-integration": "12 backend/level combinations, 12 fixtures; exact hashes and extraction",
+  "binary_sha256": "21dea55a9f2682ad3453dd8d47f96090300f260759d5eb7c9e416d1f7fe94ace",
+  "source_sha256": {
+    "slpz.cpp": "71a9d2e735f6685d97418d106babb3fd08ff103600591e56d733803ec1e18541",
+    "custom_codec.h": "0eca619bc632acea4a89c9721f754333a4c37255fc9c3c79d20d337777e5ec51",
+    "static_context.h": "2ab2257aac7c55e467da3b7ba206f760399d7b273a8e146a5a0340c9e9819f82",
+    "mask_codec.h": "d8935c6a07c9e1be4a1c0ab809fc06540e8766c6532f4270e624edf39d53386c"
+  },
+  "predictor-fuzz": {
+    "runs": 69731,
+    "seconds": 61,
+    "peak_rss_mb": 458,
+    "result": "ASan/UBSan; no findings in short smoke run"
+  },
+  "archive-custom-fuzz": {
+    "runs": 195388,
+    "seconds": 61,
+    "peak_rss_mb": 380,
+    "result": "ASan/UBSan; no findings in short smoke run"
+  }
+}

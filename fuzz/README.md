@@ -94,10 +94,10 @@ mkdir -p build/dictionary-corpus
   -max_total_time=60 -rss_limit_mb=2048 -artifact_prefix=build/
 ```
 
-## Numeric-predictor target (v13)
+## Numeric-predictor target (v10/v13/v14)
 
 Build `fuzz/slpz_fuzz.cpp` with `-DFUZZ_TARGET=4` using the same libraries and
-sanitizers as target 3. It composes old/new numeric prediction, custom record
+sanitizers as target 3. It composes XOR, v13 numeric, and v14 quadratic/input prediction, custom record
 packing, and inverse prediction, across record lengths 28/29/51/59/71/72/76/84.
 The input also exercises the controller predictor. Counts are bounded to
 1–256 records, and arbitrary bit patterns include non-finite float values.
