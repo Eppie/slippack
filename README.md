@@ -26,7 +26,36 @@ make                          # needs homebrew libzstd + liblzma + brotli
 ./slpz t out.slpz                      # decode in memory, no writes
 ./slpz hash out.slpz                   # sha1 per file (shasum format), no writes
 ./slpz selftest                        # NEON kernels + codec roundtrips
+make check                            # also tests the custom codec + archive integration
 ```
+
+An opt-in custom codec is available on the `custom-codec` branch:
+
+```sh
+./slpz c --codec custom -l 3 -o out.slpz @listfile
+./slpz x out.slpz -d outdir             # backend detected from the archive
+```
+
+`--codec legacy` is the unchanged default and writes v9. `--codec custom`
+writes v10 using only our own payload compression: field-conditioned rANS,
+constant/sparse/repeat modes, and a lazy LZ parser with recent-distance and
+literal prediction. It also enables lossless velocity and controller-input
+predictors. Levels 1–2 use a shallow greedy match search, 3–8 use lazy search,
+and 9+ search more deeply. Unknown data retains a reversible raw fallback.
+
+`--codec tuned` is a comparison backend: the same new semantic predictors,
+with existing entropy codecs and block-sized LZMA dictionaries. It writes v10
+with the legacy entropy backend flag. This keeps codec comparisons fair.
+
+The CLI still links zstd, LZMA, and Brotli to read old archives and provide the
+legacy/tuned backends. The custom payload codec itself is independent of those
+libraries; its standalone test and fuzzer build without them.
+
+The custom backend is experimental. Current local measurements put it within
+roughly 8–11% of tuned LZMA's archive size with faster decoding, rather than
+showing an across-the-board win. See `benchmarks/2026-11-08/` for the recorded
+measurements and `CUSTOM_FORMAT.md` for the versioned format. Existing v9
+archives remain readable; older binaries reject v10 archives.
 
 `-l` selects the entropy stage (≤2: brotli q5; 3-8: LZMA fast/nice=128/8MB;
 ≥9: LZMA BT4/nice273 — all raced against zstd(level) per group, smaller wins).

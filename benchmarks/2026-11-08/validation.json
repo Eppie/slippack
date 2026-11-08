@@ -1,0 +1,17 @@
+{
+  "standalone_checks": 3013,
+  "archive_fixture_combinations": 9,
+  "fixtures_per_combination": 7,
+  "sanitizers": [
+    "ASan",
+    "UBSan"
+  ],
+  "fuzz_seconds": 31,
+  "fuzz_executions": 79333,
+  "fuzz_findings": 0,
+  "old_archive_files_verified": 419,
+  "old_reader_v9_roundtrip": true,
+  "old_reader_rejects_v10": true,
+  "new_replay_roundtrips": 242,
+  "provenance_files_roundtripped": 1
+}

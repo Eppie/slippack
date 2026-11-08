@@ -38,36 +38,41 @@
 #include <malloc.h>
 #include <openssl/sha.h>
 #endif
-#include <unistd.h>
 #include <brotli/decode.h>
 #include <brotli/encode.h>
 #include <lzma.h>
+#include <unistd.h>
 #include <zstd.h>
 
 #include <algorithm>
 #include <atomic>
+#include <cfenv>
 #include <chrono>
 #include <cmath>
-#include <mutex>
 #include <condition_variable>
-#include <deque>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <filesystem>
 #include <fstream>
+#include <mutex>
 #include <random>
 #include <span>
 #include <string>
 #include <thread>
 #include <vector>
 
+#include "custom_codec.h"
+
 namespace fs = std::filesystem;
 
 // ── container constants ─────────────────────────────────────────────────────
 constexpr uint32_t kMagic = 0x5A504C53;  // "SLPZ" little-endian
 constexpr uint8_t kVersion = 9;
+constexpr uint8_t kCustomVersion = 10;
+static bool g_custom = false, g_tuned = false;
 constexpr uint8_t kModeRaw = 0;    // whole file = one zstd blob
 constexpr uint8_t kModeSplit = 1;  // parsed event streams
 
@@ -175,6 +180,66 @@ static void write_file(const fs::path& path, std::span<const uint8_t> data) {
   ::close(fd);
 }
 
+// v10 custom frames are self-describing; semantic labels are part of the
+// payload. The legacy v9 framing and codec IDs remain unchanged.
+static size_t custom_frame(std::span<const uint8_t> in, Buf& out,
+                           slpz_custom::Profile profile = slpz_custom::Generic, int level = 3) {
+  try {
+    auto packed = slpz_custom::encode(in, profile, level >= 9 ? 24 : level <= 2 ? 2 : 8);
+    out.put_u32((uint32_t)packed.size() + 1);
+    out.put_u32((uint32_t)in.size());
+    out.put_u8(profile);
+    out.put_bytes(packed.data(), packed.size());
+    return packed.size() + 1;
+  } catch (const slpz_custom::Error& e) {
+    die(e.what());
+  }
+}
+static void custom_planes_frame(std::span<const uint8_t> in, uint32_t count,
+                                std::span<const uint8_t> profiles, int level, Buf& out) {
+  try {
+    auto packed = slpz_custom::encode_planes(in, count, profiles,
+                                             level >= 9   ? 24
+                                             : level <= 2 ? 2
+                                                          : 8);
+    out.put_u32((uint32_t)packed.size());
+    out.put_u32((uint32_t)in.size());
+    out.put_bytes(packed.data(), packed.size());
+  } catch (const slpz_custom::Error& e) {
+    die(e.what());
+  }
+}
+static std::vector<uint8_t> custom_unframe(Reader& r, bool planes = false) {
+  uint32_t comp = r.u32(), orig = r.u32();
+  auto packed = r.bytes(comp);
+  if (r.fail) die("corrupt custom frame");
+  try {
+    if (planes) return slpz_custom::decode_planes(packed, orig);
+    if (packed.empty() || packed[0] >= slpz_custom::ProfileCount) die("corrupt custom profile");
+    return slpz_custom::decode(packed.subspan(1), orig, slpz_custom::Profile(packed[0]));
+  } catch (const slpz_custom::Error& e) {
+    die(e.what());
+  }
+}
+static uint8_t field_profile(uint8_t cmd, uint32_t offset, bool dictionary) {
+  using namespace slpz_custom;
+  if (dictionary) return cmd == 0x37 && offset >= 24 ? Controller : Discrete;
+  if ((cmd == 0x37 || cmd == 0x38 || cmd == 0x3A || cmd == 0x3C) && offset < 4) return Counter;
+  if (cmd == 0x37) {
+    if (offset >= 24 && offset < 59) return Controller;
+    if (offset >= 63) return Controller;
+    for (uint32_t start : {12u, 16u, 20u, 59u})
+      if (offset >= start && offset < start + 4) return offset - start < 2 ? FloatHigh : FloatLow;
+    if (offset >= 6 && offset < 10) return Rng;
+  } else if (cmd == 0x38) {
+    for (uint32_t start :
+         {9u, 13u, 17u, 21u, 25u, 33u, 42u, 52u, 56u, 60u, 64u, 68u, 72u, 76u, 80u})
+      if (offset >= start && offset < start + 4) return offset - start < 2 ? FloatHigh : FloatLow;
+  } else if (cmd == 0x3A && offset >= 4 && offset < 8)
+    return Rng;
+  return Generic;
+}
+
 // ── stats (-v) ──────────────────────────────────────────────────────────────
 struct Stats {
   std::atomic<uint64_t> byCmd[256]{};
@@ -222,11 +287,19 @@ struct Zctx {
 // fast ≈ 10% smaller than zstd -3 at 76 MB/s/thread; normal ≈ zstd -19
 // quality at similar speed to zstd -12. pb=0 because planes are positionless
 // byte streams.
-enum : uint8_t { kLzmaFast = 1, kLzmaNormal = 2, kLzmaLite = 3, kBrotli = 4, kLzmaMax = 5 };
+enum : uint8_t {
+  kLzmaFast = 1,
+  kLzmaNormal = 2,
+  kLzmaLite = 3,
+  kBrotli = 4,
+  kLzmaMax = 5,
+  kCustom = 6
+};
 
 // planes codec per CLI level: brotli q5 measured +3.5% size vs LZMA fast but
 // 2.6x faster encode / 3.5x faster decode -> it is the speed tier
 static uint8_t codec_id_for_level(int level) {
+  if (g_custom) return kCustom;
   return level <= 2 ? kBrotli : level <= 8 ? kLzmaFast : kLzmaMax;
 }
 
@@ -289,11 +362,17 @@ static std::vector<uint8_t> fuzz_load_frame(Reader& r) {
 
 // frame layout mirrors z_compress: u32 compLen, u32 origLen, bytes
 static size_t lzma_compress_frame(std::span<const uint8_t> in, uint8_t id, Buf& out) {
+  if (g_custom) return custom_frame(in, out);
 #ifdef SLPZ_FUZZ_STUB_SLOW
   (void)id;
   return fuzz_store_frame(in, out);
 #endif
   lzma_options_lzma o = lzma_opts_for(id);
+  if (g_tuned) {
+    uint32_t size = 4096;
+    while (size < in.size() && size < o.dict_size) size *= 2;
+    o.dict_size = std::min(o.dict_size, size);
+  }
   lzma_filter filters[2] = {{LZMA_FILTER_LZMA2, &o}, {LZMA_VLI_UNKNOWN, nullptr}};
   size_t bound = lzma_stream_buffer_bound(in.size());
   size_t at = out.size();
@@ -319,8 +398,13 @@ static std::vector<uint8_t> codec_decompress_frame(Zctx& z, Reader& r, uint8_t i
 
 // small side-streams (order, seeds, selectors): u8 codec + frame,
 // zstd vs lzma-fast trial, smaller wins
-static void small_compress(Zctx& z, std::span<const uint8_t> in, int level,
-                           Buf& blob) {
+static void small_compress(Zctx& z, std::span<const uint8_t> in, int level, Buf& blob,
+                           slpz_custom::Profile profile = slpz_custom::Generic) {
+  if (g_custom) {
+    blob.put_u8(kCustom);
+    custom_frame(in, blob, profile, level);
+    return;
+  }
   Buf a, b;
   z_compress(z, in, level, a);
   if (in.size() >= 4096) lzma_compress_frame(in, kLzmaFast, b);
@@ -397,12 +481,16 @@ static std::vector<uint8_t> brotli_decompress_frame(Reader& r) {
 
 static void codec_compress_frame(Zctx& z, std::span<const uint8_t> in,
                                  uint8_t id, int level, Buf& out) {
-  if (id == kBrotli) brotli_compress_frame(in, out);
+  if (id == kCustom && g_custom)
+    custom_frame(in, out, slpz_custom::Generic, level);
+  else if (id == kBrotli)
+    brotli_compress_frame(in, out);
   else if (id == 0) z_compress(z, in, level, out);
   else lzma_compress_frame(in, id, out);
 }
 
 static std::vector<uint8_t> codec_decompress_frame(Zctx& z, Reader& r, uint8_t id) {
+  if (id == kCustom && g_custom) return custom_unframe(r);
   if (id == kBrotli) return brotli_decompress_frame(r);
   if (id == 0) return z_decompress(z, r);
   if (id == kLzmaFast || id == kLzmaNormal || id == kLzmaLite || id == kLzmaMax)
@@ -412,6 +500,7 @@ static std::vector<uint8_t> codec_decompress_frame(Zctx& z, Reader& r, uint8_t i
 
 // frame layout: u32 compLen, u32 origLen, bytes. Returns compressed size.
 static size_t z_compress(Zctx& z, std::span<const uint8_t> in, int level, Buf& out) {
+  if (g_custom) return custom_frame(in, out, slpz_custom::Generic, level);
   size_t bound = ZSTD_compressBound(in.size());
   size_t at = out.size();
   out.resize(at + 8 + bound);
@@ -426,6 +515,7 @@ static size_t z_compress(Zctx& z, std::span<const uint8_t> in, int level, Buf& o
 }
 
 static std::vector<uint8_t> z_decompress(Zctx& z, Reader& r) {
+  if (g_custom) return custom_unframe(r);
   uint32_t comp = r.u32(), orig = r.u32();
   auto src = r.bytes(comp);
   if (r.fail) die("corrupt archive (zstd frame header)");
@@ -658,9 +748,9 @@ struct DictField {
 // stage only sees planes that pay for it.
 constexpr float kCheapBits = 0.30f;
 
-static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
-                         uint32_t size, int level, Buf& blob,
-                         std::atomic<uint64_t>* stat, bool allowLzma = true) {
+static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count, uint32_t size,
+                         int level, Buf& blob, std::atomic<uint64_t>* stat, bool allowLzma = true,
+                         uint8_t cmd = 0) {
   size_t blobAt = blob.size();
   Buf planes;
   transpose_fwd(recs, count, size, planes);
@@ -739,6 +829,13 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
     blob.put_u8((uint8_t)(f.vals.size() - 1));
     for (uint32_t v : f.vals) blob.put_bytes(&v, f.width);
   }
+  std::vector<uint8_t> profiles;
+  if (g_custom) {
+    for (uint32_t offset = 0; offset < size;) {
+      profiles.push_back(field_profile(cmd, offset, widthAt[offset] != 0));
+      offset += widthAt[offset] ? widthAt[offset] : 1;
+    }
+  }
   size_t selAt = blob.size();
   blob.resize(selAt + nOut);
   size_t cheapBytes = 0;
@@ -755,6 +852,13 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
     blob[selAt + j] = t;
   }
 
+  if (g_custom) {
+    for (uint32_t j = 0; j < nOut; j++) blob[selAt + j] &= 3;
+    blob.put_u8(2);
+    custom_planes_frame(out, count, profiles, level, blob);
+    if (g_stats.enabled && stat) *stat += blob.size() - blobAt;
+    return;
+  }
   uint8_t altId = codec_id_for_level(level);
   size_t total = out.size();
   bool split = allowLzma && cheapBytes >= 4096 && total - cheapBytes >= 4096 &&
@@ -838,6 +942,8 @@ static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
       memcpy(out.data() + (size_t)j * count, srcb.data() + at, count);
       at += count;
     }
+  } else if (layout == 2 && g_custom) {
+    out = custom_unframe(r, true);
   } else {
     die("corrupt archive (layout id)");
   }
@@ -1116,6 +1222,22 @@ static void ppc_branch_xform(uint8_t* p, size_t nWords, bool inverse) {
 static void pack_blob(Zctx& z, std::span<const uint8_t> data, int level,
                       Buf& blob, std::atomic<uint64_t>& stat) {
   size_t before = blob.size();
+  if (g_custom) {
+    Buf flat, ppc;
+    custom_frame(data, flat, slpz_custom::Generic, level);
+    if (data.size() >= 65536) {
+      std::vector<uint8_t> xf(data.begin(), data.end());
+      ppc_branch_xform(xf.data(), xf.size() / 4, false);
+      custom_frame(xf, ppc, slpz_custom::Generic, level);
+    }
+    bool usePpc = !ppc.empty() && ppc.size() < flat.size();
+    blob.put_u8(usePpc ? 4 : 2);
+    blob.put_u8(kCustom);
+    const auto& winner = usePpc ? ppc : flat;
+    blob.put_bytes(winner.data(), winner.size());
+    if (g_stats.enabled) stat += blob.size() - before;
+    return;
+  }
   if (data.size() >= 65536) {
     // try flat zstd vs flat LZMA vs 4-byte-record planes; keep the smallest
     // (LZMA flat usually wins on the appended PPC/gecko code dumps)
@@ -1303,7 +1425,7 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
   {
     Buf& b = fp.live();
     size_t before = b.size();
-    small_compress(z, fp.slp.order, level, b);
+    small_compress(z, fp.slp.order, level, b, slpz_custom::Discrete);
     if (g_stats.enabled) {
       g_stats.order += b.size() - before;
       g_stats.misc += kSlpHeaderLen + 1 + fp.slp.payloadsEvent.size();
@@ -1382,6 +1504,10 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
         selector.put_u8((uint8_t)groupOf[(uint16_t)(rec[4] << 8 | rec[5])]);
       }
     }
+    if (g_tuned && grouped) {
+      if (st.cmd == 0x37 && st.recSize >= 59) flags |= 32;
+      if (st.cmd == 0x38 && st.recSize >= 72) flags |= 16;
+    }
     if (seedOff && fold_seeds(st, seedOff, seedStream,
                               grouped ? selector.data() : nullptr))
       flags |= 2;
@@ -1393,7 +1519,7 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
       b.put_u8(flags);
       if (flags & 2) {
         size_t before = b.size();
-        small_compress(z, seedStream, level, b);
+        small_compress(z, seedStream, level, b, slpz_custom::Rng);
         if (g_stats.enabled) g_stats.seeds += b.size() - before;
       }
     }
@@ -1405,7 +1531,7 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
     {
       Buf& b = fp.live();
       size_t before = b.size();
-      small_compress(z, selector, level, b);
+      small_compress(z, selector, level, b, slpz_custom::Discrete);
       if (g_stats.enabled) g_stats.selector += b.size() - before;
       b.put_u8((uint8_t)keys.size());
     }
@@ -1415,6 +1541,70 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
   }
 }
 
+// v10 predictors use IEEE binary32 round-to-nearest operations. Volatile
+// intermediates prevent contraction/excess precision; non-finite predictions
+// use zero so NaN payload bits remain literal and reconstruct exactly.
+static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4);
+#ifdef __FAST_MATH__
+#error SLPZ v10 predictors require IEEE floating-point semantics
+#endif
+static float read_float(const uint8_t* p) {
+  uint32_t u = be32(p);
+  float f;
+  memcpy(&f, &u, 4);
+  return f;
+}
+static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
+  if (size < 72) return;
+  float prev[2] = {};
+  for (uint32_t i = 0; i < count; i++) {
+    uint8_t* r = data + (size_t)i * size;
+    float pred[2] = {};
+    {
+      volatile float vx = read_float(r + (r[46] ? 52 : 68)) + read_float(r + 60);
+      volatile float x = prev[0] + vx;
+      pred[0] = std::isfinite(x) ? x : 0.f;
+      volatile float vy = read_float(r + 56) + read_float(r + 64);
+      volatile float y = prev[1] + vy;
+      pred[1] = std::isfinite(y) ? y : 0.f;
+    }
+    for (uint32_t j = 0; j < 2; j++) {
+      uint8_t* f = r + 9 + 4 * j;
+      uint32_t pb;
+      memcpy(&pb, pred + j, 4);
+      uint32_t v = be32(f), decoded = inverse ? v ^ pb : v;
+      uint32_t residual = v ^ pb;
+      f[0] = (uint8_t)(residual >> 24);
+      f[1] = (uint8_t)(residual >> 16);
+      f[2] = (uint8_t)(residual >> 8);
+      f[3] = (uint8_t)residual;
+      memcpy(prev + j, &decoded, 4);
+    }
+  }
+}
+static void input_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
+  if (size < 59) return;
+  uint32_t table[4][256] = {};
+  const uint32_t offsets[4] = {24, 28, 32, 36}, raw[4] = {58, 63, 64, 65};
+  for (uint32_t i = 0; i < count; i++) {
+    uint8_t* r = data + (size_t)i * size;
+    // Processed and physical button copies; float trigger vs max(L,R).
+    r[46] ^= r[48];
+    r[47] ^= r[49];
+    const uint8_t* pred = be32(r + 50) >= be32(r + 54) ? r + 50 : r + 54;
+    for (uint32_t j = 0; j < 4; j++) r[40 + j] ^= pred[j];
+    for (uint32_t j = 0; j < 4; j++) {
+      if (raw[j] >= size) continue;
+      uint32_t v;
+      memcpy(&v, r + offsets[j], 4);
+      uint8_t key = r[raw[j]];
+      uint32_t decoded = inverse ? v ^ table[j][key] : v;
+      v ^= table[j][key];
+      table[j][key] = decoded;
+      memcpy(r + offsets[j], &v, 4);
+    }
+  }
+}
 static void run_pack_task(Zctx& z, PackTask& t, int level) {
   Buf& out = t.fp->pieces[t.piece];
   switch (t.kind) {
@@ -1440,7 +1630,7 @@ static void run_pack_task(Zctx& z, PackTask& t, int level) {
     }
     case PackTask::Ungrouped: {
       auto& st = t.fp->slp.streams[t.stream];
-      pack_records(z, st.records, st.count, st.recSize, level, out, t.stat);
+      pack_records(z, st.records, st.count, st.recSize, level, out, t.stat, true, st.cmd);
       break;
     }
     case PackTask::Group: {
@@ -1454,7 +1644,9 @@ static void run_pack_task(Zctx& z, PackTask& t, int level) {
           group.put_bytes(st.records.data() + (size_t)i * st.recSize,
                           st.recSize);
       out.put_u32(cnt);
-      pack_records(z, group, cnt, st.recSize, level, out, t.stat);
+      if (g_tuned && st.cmd == 0x37) input_predict(group.data(), cnt, st.recSize, false);
+      if (g_tuned && st.cmd == 0x38) motion_predict(group.data(), cnt, st.recSize, false);
+      pack_records(z, group, cnt, st.recSize, level, out, t.stat, true, st.cmd);
       break;
     }
   }
@@ -1566,15 +1758,15 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
   parallel_for(pools.size(), threads, [&](Zctx& z, size_t i) {
     auto& pl = pools[i];
     pack_records(z, pl.records, pl.total, pl.recSize, level, pl.packed,
-                 g_stats.enabled ? &g_stats.byCmd[pl.cmd] : nullptr);
+                 g_stats.enabled ? &g_stats.byCmd[pl.cmd] : nullptr, true, pl.cmd);
     pl.records = Buf();
   });
   lap("pools");
 
   Buf out;
   out.put_u32(kMagic);
-  out.put_u8(kVersion);
-  out.put_u8(0);  // flags
+  out.put_u8(g_tuned ? kCustomVersion : kVersion);
+  out.put_u8(g_custom ? 1 : 0);  // flags
   out.put_u32((uint32_t)pools.size());
   for (auto& pl : pools) {
     out.put_u8(pl.cmd);
@@ -1710,6 +1902,8 @@ static std::span<const uint8_t> skip_packed(Reader& r, uint32_t size) {
     skip_frame(r);  // cheap bucket (zstd)
     r.u8();         // codec
     skip_frame(r);  // rich bucket
+  } else if (layout == 2 && g_custom) {
+    skip_frame(r);
   } else {
     r.fail = true;
   }
@@ -1722,7 +1916,7 @@ static void scan_blob(Reader& r, BlobPlan& bp) {
   if (bp.mode == 0) {
     skip_frame(r);
     bp.span = {start, (size_t)(r.p - start)};
-  } else if (bp.mode == 2) {
+  } else if (bp.mode == 2 || bp.mode == 4) {
     r.u8();
     skip_frame(r);
     bp.span = {start, (size_t)(r.p - start)};
@@ -1822,6 +2016,16 @@ static void run_dec_task(Zctx& z, DecTask& t) {
       auto& sp = st.spans[t.idx];
       Reader r{sp.data(), sp.data() + sp.size()};
       unpack_records(z, r, st.gCounts[t.idx], st.recSize, st.recs[t.idx]);
+      if (st.flags & 16) {
+        if (!g_tuned || st.cmd != 0x38 || !(st.flags & 1) || st.recSize < 72)
+          die("corrupt motion predictor flag");
+        motion_predict(st.recs[t.idx].data(), st.gCounts[t.idx], st.recSize, true);
+      }
+      if (st.flags & 32) {
+        if (!g_tuned || st.cmd != 0x37 || !(st.flags & 1) || st.recSize < 59)
+          die("corrupt input predictor flag");
+        input_predict(st.recs[t.idx].data(), st.gCounts[t.idx], st.recSize, true);
+      }
       break;
     }
     case DecTask::Pool: {
@@ -1960,8 +2164,11 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
   auto arc = read_file(arcPath);
   Reader r{arc.data(), arc.data() + arc.size()};
   if (r.u32() != kMagic) die("not a slpz archive");
-  if (r.u8() != kVersion) die("unsupported slpz version");
-  r.u8();
+  uint8_t version = r.u8(), flags = r.u8();
+  if (version != kVersion && version != kCustomVersion) die("unsupported slpz version");
+  if (flags & ~1u || (version == kVersion && flags)) die("unsupported slpz flags");
+  g_tuned = version == kCustomVersion;
+  g_custom = g_tuned && (flags & 1);
   uint32_t nPools = r.u32();
   std::vector<DecPool> pools(nPools);
   for (auto& pl : pools) {
@@ -2283,7 +2490,8 @@ static int cmd_selftest() {
 // ── CLI ─────────────────────────────────────────────────────────────────────
 static void usage() {
   die("usage:\n"
-      "  slpz c -o out.slpz [-l level] [-T threads] [-v] <file.slp...|@listfile>\n"
+      "  slpz c -o out.slpz [--codec legacy|tuned|custom] [-l level] [-T threads] [-v] "
+      "<file.slp...|@listfile>\n"
       "  slpz x archive.slpz -d outdir [-T threads]\n"
       "  slpz t archive.slpz [-T threads]\n"
       "  slpz hash archive.slpz [-T threads]   (sha1 per file, shasum format)\n"
@@ -2292,6 +2500,7 @@ static void usage() {
 
 #ifndef SLPZ_FUZZ  // fuzz harness (fuzz/slpz_fuzz.cpp) supplies its own entry
 int main(int argc, char** argv) {
+  if (std::fesetround(FE_TONEAREST)) die("cannot set IEEE rounding mode");
   if (argc < 2) usage();
   std::string mode = argv[1];
   if (mode == "selftest") return cmd_selftest();
@@ -2309,7 +2518,14 @@ int main(int argc, char** argv) {
     else if (a == "-d") dir = next();
     else if (a == "-l") level = std::stoi(next());
     else if (a == "-T") threads = std::stoi(next());
-    else if (a == "-v") g_stats.enabled = true;
+    else if (a == "--codec") {
+      auto codec = next();
+      if (codec != "legacy" && codec != "tuned" && codec != "custom")
+        die("codec must be legacy, tuned, or custom");
+      g_custom = codec == "custom";
+      g_tuned = codec != "legacy";
+    } else if (a == "-v")
+      g_stats.enabled = true;
     else if (a[0] == '@') {
       std::ifstream lf(a.substr(1));
       if (!lf) die("cannot open list file " + a.substr(1));

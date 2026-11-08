@@ -49,3 +49,23 @@ stopped). `edges (cov)` and `features` are libFuzzer's coverage counters.
 ## Reproduce a crash
 
     ./slpz_fuzz_parse runs/parse/artifacts/crash-<hash>       # replays that one input
+
+## Custom codec target
+
+The independent custom codec target covers malformed packet/plane decoding and
+arbitrary-input encode/decode identities. It links no compression libraries.
+From the `slpz` directory, with a clang installation containing libFuzzer:
+
+```sh
+make check
+./build/custom_codec_test build/custom-corpus
+clang++ -std=c++20 -O1 -g -fsanitize=fuzzer,address,undefined \
+  -fno-omit-frame-pointer fuzz/custom_codec_fuzz.cpp -o build/custom_codec_fuzz
+./build/custom_codec_fuzz build/custom-corpus -max_total_time=60 \
+  -max_len=65539 -rss_limit_mb=2048 -artifact_prefix=build/
+```
+
+On macOS, if Apple's clang lacks `libclang_rt.fuzzer_osx.a`, use Homebrew LLVM's
+`/opt/homebrew/opt/llvm/bin/clang++`. Generated seeds and artifacts stay under
+the ignored `build/` directory. A short successful run is a smoke test, not
+evidence of a sustained fuzzing campaign.

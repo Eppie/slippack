@@ -206,3 +206,37 @@ improved at once.
 Diminishing returns are now steep: this round bought 0.6-1.3% relative.
 Remaining mass is x/y position mantissas (true motion innovation) and the
 input streams — sequence-model territory.
+
+## 2026-11-08 — custom backend (container v10, opt-in)
+
+Implemented `--codec custom` with field-conditioned static rANS models,
+explicit constant/sparse/repeat packets, and a bounded lazy LZ parser.
+Three-byte matches, four recent-distance codes, bit-packed length/distance
+extras, and optional last-match literal prediction improve the initial generic
+custom prototype. Semantic model and literal prediction choices account for
+actual serialized size. Velocity and controller-input predictors remain
+bit-exact, including exceptional float values.
+
+`--codec tuned` provides the same new predictors with the existing entropy
+codecs and block-sized LZMA dictionaries. `--codec legacy` remains the default,
+writing the original v9 format. New binaries read both v9 and v10; the old
+binary cleanly rejects v10. Custom payload coding uses no external compressor,
+although the CLI retains the libraries for legacy compatibility.
+
+Five-run medians on the M4 Max, 16 threads, 242 replays plus one provenance
+file (641,897,168 input bytes) across Summit 11, GOML 2019, and Bair 2026:
+
+- Relative to tuned LZMA, custom is 7.8–11.1% larger, takes 6.1–9.8% more encode
+  time, and 20.5–24.9% less decode time.
+- Relative to the earlier generic custom LZ+rANS, archive sizes improve by
+  10.2% on Summit and 5.4% on the mixed sample.
+- All sample hashes match. Standalone tests exercise every packet mode and
+  force the semantic probability model to win on distinct field distributions.
+  ASan/UBSan checks and a 31-second, 79,333-execution fuzz smoke run passed.
+
+The velocity predictor disproves the earlier broad claim that post-frame
+compression necessarily requires sequence modeling: recorded velocities help
+where position-only extrapolation did little. The custom backend is a useful
+decode-speed tradeoff, but has not matched tuned LZMA's compression ratio.
+Full results, input lists, and reproduction commands are in
+`benchmarks/2026-11-08/`; the format is documented in `CUSTOM_FORMAT.md`.
