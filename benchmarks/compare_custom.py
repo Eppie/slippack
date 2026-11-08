@@ -21,6 +21,7 @@ p.add_argument('--root', type=Path, required=True)
 p.add_argument('--list', type=Path, required=True)
 p.add_argument('--work', type=Path)
 p.add_argument('--binary', type=Path, default=Path(__file__).resolve().parents[1] / 'slpz')
+p.add_argument('--baseline', type=Path, help='Compare a previous custom binary instead of legacy')
 p.add_argument('--repeats', type=int, default=5)
 p.add_argument('--threads', type=int, default=16)
 p.add_argument('--level', type=int, default=3)
@@ -33,19 +34,24 @@ a.work.mkdir(parents=True, exist_ok=True)
 names = [n for n in a.list.read_text().splitlines() if n]
 expected = sorted(hashlib.sha1((a.root/n).read_bytes()).hexdigest()+'  '+n for n in names)
 raw = sum((a.root/n).stat().st_size for n in names)
-times = {mode: {'encode': [], 'decode': []} for mode in ('legacy','tuned','custom')}
+entries = {mode: (a.binary, mode) for mode in ('legacy','tuned','custom')}
+if a.baseline:
+    a.baseline = a.baseline.resolve()
+    entries = {'previous_custom': (a.baseline, 'custom'), 'tuned': (a.binary, 'tuned'), 'custom': (a.binary, 'custom')}
+times = {mode: {'encode': [], 'decode': []} for mode in entries}
 for rep in range(-1, a.repeats):
     order = list(times); random.Random(8123+rep).shuffle(order)
     for mode in order:
         archive = a.work / f'{mode}.slpz'
-        for kind, args in [('encode', ['c','--codec',mode,'-o',str(archive),'-l',str(a.level),'@'+str(a.list)]),
+        executable, backend = entries[mode]
+        for kind, args in [('encode', ['c','--codec',backend,'-o',str(archive),'-l',str(a.level),'@'+str(a.list)]),
                            ('decode', ['t',str(archive)])]:
             start = time.perf_counter()
-            subprocess.run([str(a.binary),*args,'-T',str(a.threads)], cwd=a.root, capture_output=True, check=True)
+            subprocess.run([str(executable),*args,'-T',str(a.threads)], cwd=a.root, capture_output=True, check=True)
             dt = time.perf_counter()-start
             if rep >= 0: times[mode][kind].append(dt)
         if rep == -1:
-            result = subprocess.run([str(a.binary),'hash',str(archive),'-T',str(a.threads)], cwd=a.root,capture_output=True,text=True,check=True)
+            result = subprocess.run([str(executable),'hash',str(archive),'-T',str(a.threads)], cwd=a.root,capture_output=True,text=True,check=True)
             if sorted(result.stdout.splitlines()) != expected: raise RuntimeError(f'{mode} hash mismatch')
             print(f'{mode}: {archive.stat().st_size:,} bytes; hashes verified', flush=True)
     print(f'round {rep} complete', flush=True)
@@ -58,5 +64,6 @@ report = dict(files=len(names),raw_bytes=raw,threads=a.threads,level=a.level,rep
               platform=platform.platform(),decode_includes_disk_writes=False,
               binary_sha256=hashlib.sha256(a.binary.read_bytes()).hexdigest(),
               input_list_sha256=hashlib.sha256(a.list.read_bytes()).hexdigest(),rows=rows)
+if a.baseline: report['baseline_binary_sha256'] = hashlib.sha256(a.baseline.read_bytes()).hexdigest()
 (a.work/'results.json').write_text(json.dumps(report,indent=2)+'\n')
 print(a.work/'results.json')

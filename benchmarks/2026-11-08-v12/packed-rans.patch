@@ -1,0 +1,61 @@
+--- a/static_context.h
++++ b/static_context.h
+@@ -155,7 +155,7 @@
+   require(nc == 1 || contexts.size() == n, "context dimensions");
+   std::vector<Model> models;
+   std::vector<uint16_t> map(nc * 256);
+-  Bytes lookup;
++
+   for (unsigned c = 0; c < nc; ++c) {
+     unsigned count = r.byte();
+     require(count && count <= 16, "context tree size");
+@@ -178,7 +178,7 @@
+         m.start[b] = sum;
+         sum += m.freq[b];
+         require(sum <= 4096, "context sum");
+-        lookup.insert(lookup.end(), m.freq[b], uint8_t(b));
++
+       }
+       require(sum == 4096, "context sum");
+       models.push_back(m);
+@@ -191,22 +191,24 @@
+     require(x >= (1u << 23) && x < (1u << 31), "context state");
+   }
+   Bytes out(n);
+-  uint8_t previous = 0, pc = 255;
+-  for (size_t i = 0; i < n; ++i) {
+-    unsigned c = nc == 1 ? 0 : contexts[i];
+-    require(c < nc, "context ID");
+-    if (c != pc) {
+-      previous = 0;
+-      pc = c;
+-    }
+-    unsigned m = map[c * 256 + previous];
+-    uint32_t &x = state[i & 3], slot = x & 4095;
+-    uint8_t b = lookup[m * 4096 + slot];
+-    out[i] = b;
+-    previous = b;
+-    x = models[m].freq[b] * (x >> 12) + slot - models[m].start[b];
+-    while (x < (1u << 23)) x = (x << 8) | r.byte();
+-  }
++  // A packed table entry contains symbol, frequency minus one, and the
++  // slot's residual offset. Large streams avoid two dependent model loads.
++  auto run = [&]<bool packed>(auto* lookup) {
++    for(size_t m=0;m<models.size();++m)for(unsigned b=0;b<256;++b){auto& model=models[m];
++      uint32_t base=(uint32_t(b)<<24)|(uint32_t(model.freq[b]?model.freq[b]-1:0)<<12);
++      for(unsigned k=0;k<model.freq[b];++k)lookup[m*4096+model.start[b]+k]=packed?base|k:b;
++    }
++    uint8_t previous=0,pc=255;
++    for(size_t i=0;i<n;++i){unsigned c=nc==1?0:contexts[i];require(c<nc,"context ID");if(c!=pc){previous=0;pc=c;}
++      unsigned m=map[c*256+previous];uint32_t& x=state[i&3],slot=x&4095;
++      uint32_t entry=lookup[m*4096+slot];uint8_t b;uint32_t f,residual;
++      if constexpr(packed){b=uint8_t(entry>>24);f=((entry>>12)&4095)+1;residual=entry&4095;}
++      else{b=uint8_t(entry);f=models[m].freq[b];residual=slot-models[m].start[b];}
++      out[i]=b;previous=b;x=f*(x>>12)+residual;while(x<(1u<<23))x=(x<<8)|r.byte();
++    }
++  };
++  if(n>=models.size()*1024){std::unique_ptr<uint32_t[]> lookup(new uint32_t[models.size()*4096]);run.template operator()<true>(lookup.get());}
++  else{Bytes lookup(models.size()*4096);run.template operator()<false>(lookup.data());}
+   for (auto x : state) require(x == (1u << 23), "context terminal state");
+   return out;
+ }

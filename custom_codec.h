@@ -571,10 +571,24 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
   return output;
 }
 
+inline bool is_constant(View input) {
+  if (input.empty()) return false;
+  const uint64_t word = uint64_t(input[0]) * 0x0101010101010101ULL;
+  size_t i = 0;
+  for (; i + 8 <= input.size(); i += 8) {
+    uint64_t value;
+    std::memcpy(&value, input.data() + i, 8);
+    if (value != word) return false;
+  }
+  for (; i < input.size(); ++i) if (input[i] != input[0]) return false;
+  return true;
+}
+
 // Small specialized modes are selected by encoded byte count, including
 // their headers. Raw storage is always an escape for incompressible input.
 inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
   narrow(input.size());
+  if (is_constant(input)) return Bytes{1, input[0]};
   Bytes best{0};
   append(best, input);
   if (input.empty()) return best;
@@ -867,7 +881,8 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
     require(profiles[j] < ProfileCount, "custom profile");
     auto plane = data.subspan(j * count, count);
     Bytes special;
-    if (count) {
+    if (is_constant(plane)) special = Bytes{1, plane[0]};
+    else if (count) {
       uint32_t counts[256] = {};
       uint32_t runs = 0;
       for (uint32_t i = 0; i < count; ++i) {

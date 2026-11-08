@@ -1,18 +1,18 @@
-# SLPZ v11 custom codec
+# SLPZ v12 custom codec
 
-The default writer still emits v9 (`--codec legacy`). `--codec tuned` emits
-v10 with the improved predictors and existing compression libraries.
-`--codec custom` emits v11 and uses only the custom payload coder. The reader
-supports v9, v10 (including the first custom backend), and v11. The CLI still
+The default writer still emits v9 (`--codec legacy`). Both `--codec tuned`
+and `--codec custom` emit v12; header flag bit 0 selects the custom payload
+coder. Tuned uses the existing compression libraries. The reader supports
+v9, v10 (including the first custom backend), v11, and v12. The CLI still
 links the old libraries for compatibility; the standalone custom codec does
 not link a compression library.
 
 ## Container and predictors
 
 The v9 directory and framing are retained. Header flag bit 0 selects custom
-payload compression in v10/v11. Codec ID 6 identifies tagged custom frames;
+payload compression in v10–v12. Codec ID 6 identifies tagged custom frames;
 implicit frames use the backend from the header. Unknown versions or header
-flag bits are rejected. Older readers reject v11 before reading its payload.
+flag bits are rejected. Older readers reject v12 before reading its payload.
 Container words are little-endian; source SLP numeric fields are big-endian.
 
 The v10 predictors are unchanged, and are identical for tuned and custom:
@@ -33,6 +33,49 @@ These follow pre/post cross-prediction during encoding and are reversed
 before it during decoding. Unsupported record sizes skip these predictors.
 Signed zero, infinities, and NaN payload bits are retained. Fast-math builds
 are rejected and the CLI establishes nearest/even rounding for its workers.
+
+## Field dictionaries (v12)
+
+Tuned and custom now sort each dictionary by the original big-endian field
+byte sequence and remap its indexes. This improves both the value metadata
+and temporal index deltas. It is an encoder policy: the dictionary explicitly
+records the value assigned to every index.
+
+Each record group begins with `u8 field_count`. The old representation is
+unchanged: each field has `u8 width, u16 offset, u8 value_count_minus_one`, then
+`value_count * width` raw value bytes. Width is 2 or 4; there are at most 255
+non-overlapping fields and at most 256 values per field.
+
+For compressed dictionaries, bit 7 of the first field's width byte is set.
+Bits 4–6 hold a transform ID (1–4); the low four bits hold its width. Remaining
+field width bytes are ordinary widths. All field descriptors appear first,
+followed by **one tagged frame** (`u8 codec, u32 packed_size, u32 original_size,
+payload`) containing all dictionary value bytes. Original size must exactly
+match the sum derived from the field descriptors before allocating/decoding.
+It is bounded by 255 × 256 × 4 bytes. Unknown transforms, invalid widths,
+overlapping/out-of-bounds fields, invalid indexes, and size mismatches fail.
+
+Dictionary values are shuffled into byte planes, separately for each field:
+
+1. Plain shuffled bytes.
+2. XOR each byte with the preceding byte of its plane, initially zero.
+3. Subtract the preceding byte of its plane modulo 256, initially zero.
+4. Interpret each original field as an unsigned big-endian integer, subtract
+   the preceding field value modulo its width (initially zero), then shuffle
+   the resulting big-endian difference bytes into planes.
+
+Prediction resets at every field and, for modes 2/3, every byte plane. The
+encoder selects a transform by estimated entropy plus model cost, compresses
+it at level `min(requested_level, 3)`, and uses the frame only if its entire
+serialized size is smaller than the raw dictionary values. Otherwise it
+writes the original raw representation. Both backends use identical sorting,
+transform selection, and fallback rules. Custom uses its own tagged payload
+codec; tuned compares zstd and fast LZMA as for other small side streams.
+
+Dictionary expansion specializes the 2-/4-byte widths and uses NEON register
+lookups for alphabets up to 64 entries. Index validation precedes the lookup;
+large alphabets and non-ARM builds use scalar gathers. These speed paths do
+not affect the representation.
 
 ## Frames and planes
 
@@ -191,7 +234,9 @@ roundtrip verification uses external hashes.
 
 `make check` covers the original self-test, standalone custom packets/models,
 shared masks, CDFs, truncation/mutation handling, and archive roundtrips and
-extraction for all backends at levels 1/3/9. Standalone custom tests and fuzzing
+extraction for all backends at levels 1/3/9. Record-codec tests additionally
+force all dictionary transforms and cover vector boundaries, malformed
+metadata, field resets, and arithmetic wraparound. Standalone custom tests and fuzzing
 link no compression libraries. See `fuzz/README.md`.
 
 `benchmarks/compare_custom.py` compares identical inputs, randomizes backend

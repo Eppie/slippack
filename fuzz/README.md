@@ -70,3 +70,21 @@ On macOS, if Apple's clang lacks `libclang_rt.fuzzer_osx.a`, use Homebrew LLVM's
 `/opt/homebrew/opt/llvm/bin/clang++`. Generated seeds and artifacts stay under
 the ignored `build/` directory. A short successful run is a smoke test, not
 evidence of a sustained fuzzing campaign.
+
+## Field-dictionary target (v12)
+
+Target 3 exercises all four dictionary transforms, small 2-/4-byte record
+packets, scanner boundaries, and exact index/value reconstruction. Input size
+bounds the dictionary to 256 entries, with 512–767 records per iteration.
+`make check` also tests malformed dictionary metadata in child processes so
+an ordinary decoder rejection is distinguished from a sanitizer crash.
+
+```sh
+clang++ -std=c++20 -O1 -g -fsanitize=fuzzer,address,undefined \
+  -fno-omit-frame-pointer -DFUZZ_TARGET=3 -I/opt/homebrew/include \
+  fuzz/slpz_fuzz.cpp -L/opt/homebrew/lib -lzstd -llzma -lbrotlienc \
+  -lbrotlidec -o build/dictionary_fuzz
+mkdir -p build/dictionary-corpus
+./build/dictionary_fuzz build/dictionary-corpus -max_len=1028 \
+  -max_total_time=60 -rss_limit_mb=2048 -artifact_prefix=build/
+```

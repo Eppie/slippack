@@ -72,7 +72,8 @@ namespace fs = std::filesystem;
 constexpr uint32_t kMagic = 0x5A504C53;  // "SLPZ" little-endian
 constexpr uint8_t kVersion = 9;
 constexpr uint8_t kTunedVersion = 10;
-constexpr uint8_t kCustomVersion = 11;
+constexpr uint8_t kPreviousCustomVersion = 11;
+constexpr uint8_t kCustomVersion = 12;
 static bool g_custom = false, g_tuned = false;
 constexpr uint8_t kModeRaw = 0;    // whole file = one zstd blob
 constexpr uint8_t kModeSplit = 1;  // parsed event streams
@@ -666,10 +667,7 @@ static const float* xlog2x_lut() {
 static uint8_t choose_transform(const uint8_t* plane, uint32_t count,
                                 float* estBits) {
   // constant plane: zstd RLEs it as-is; skip transforms entirely
-  uint32_t i = 1;
-  const uint8_t b0 = plane[0];
-  for (; i < count && plane[i] == b0; i++) {}
-  if (i == count) { *estBits = 0.f; return T_PLAIN; }
+  if (slpz_custom::is_constant({plane, count})) { *estBits = 0.f; return T_PLAIN; }
 
   uint32_t hist[3][256] = {};
   uint32_t m = 0;
@@ -733,9 +731,99 @@ struct U32Set {
 struct DictField {
   uint16_t offset;
   uint8_t width;               // 2 or 4 bytes
-  std::vector<uint32_t> vals;  // LE-packed field bytes, first-appearance order
+  std::vector<uint32_t> vals;  // LE-packed field bytes; sorted for tuned/custom
   Buf idx;                     // index plane (count bytes)
 };
+
+// Sort by the original big-endian byte sequence, then remap record indexes.
+// Adjacent dictionary entries and temporal index differences become smaller.
+static void sort_dictionaries(std::vector<DictField>& fields) {
+  for (auto& f : fields) {
+    if (f.vals.size() < 2) continue;
+    std::array<uint16_t, 256> order;
+    std::array<uint32_t, 256> keys;
+    std::array<uint8_t, 256> remap;
+    for (size_t i = 0; i < f.vals.size(); ++i) {
+      order[i] = uint16_t(i);
+      keys[i] = 0;
+      for (unsigned b = 0; b < f.width; ++b)
+        keys[i] = (keys[i] << 8) | uint8_t(f.vals[i] >> (8 * b));
+    }
+    if (std::is_sorted(keys.begin(), keys.begin() + f.vals.size())) continue;
+    std::sort(order.begin(), order.begin() + f.vals.size(),
+              [&](unsigned a, unsigned b) { return keys[a] < keys[b]; });
+    auto old = f.vals;
+    for (size_t i = 0; i < f.vals.size(); ++i) {
+      f.vals[i] = old[order[i]];
+      remap[order[i]] = uint8_t(i);
+    }
+    for (auto& id : f.idx) id = remap[id];
+  }
+}
+
+// Values are shuffled per field. Modes 2/3 predict the previous byte in each
+// plane; mode 4 predicts the previous whole big-endian field before shuffling.
+static Buf dictionary_forward(const std::vector<DictField>& fields, uint8_t transform) {
+  Buf result;
+  size_t bytes = 0;
+  for (const auto& f : fields) bytes += f.vals.size() * f.width;
+  result.reserve(bytes);
+  for (const auto& f : fields) {
+    std::array<uint32_t, 256> deltas;
+    if (transform == 4) {
+      uint32_t previous = 0;
+      for (size_t i = 0; i < f.vals.size(); ++i) {
+        uint32_t value = 0;
+        for (unsigned b = 0; b < f.width; ++b)
+          value = (value << 8) | uint8_t(f.vals[i] >> (8 * b));
+        deltas[i] = value - previous;
+        previous = value;
+      }
+    }
+    for (unsigned b = 0; b < f.width; ++b) {
+      uint8_t previous = 0;
+      for (size_t i = 0; i < f.vals.size(); ++i) {
+        uint8_t value = uint8_t(f.vals[i] >> (8 * b));
+        uint8_t encoded = transform == 2 ? value ^ previous
+                          : transform == 3 ? uint8_t(value - previous)
+                          : transform == 4 ? uint8_t(deltas[i] >> (8 * (f.width - 1 - b)))
+                                           : value;
+        result.put_u8(encoded);
+        previous = value;
+      }
+    }
+  }
+  return result;
+}
+
+static void dictionary_reverse(std::span<const uint8_t> data, uint8_t transform,
+                               std::vector<DictField>& fields) {
+  size_t at = 0;
+  for (auto& f : fields) {
+    for (unsigned b = 0; b < f.width; ++b) {
+      uint8_t previous = 0;
+      for (auto& v : f.vals) {
+        uint8_t value = data[at++];
+        if (transform == 2) value ^= previous;
+        else if (transform == 3) value += previous;
+        reinterpret_cast<uint8_t*>(&v)[b] = value;
+        previous = value;
+      }
+    }
+    if (transform == 4) {
+      uint32_t previous = 0;
+      for (auto& v : f.vals) {
+        uint32_t delta = 0;
+        for (unsigned b = 0; b < f.width; ++b) delta = (delta << 8) | uint8_t(v >> (8 * b));
+        uint32_t value = previous + delta;
+        previous = value;
+        v = 0;
+        for (unsigned b = 0; b < f.width; ++b)
+          v |= uint32_t(uint8_t(value >> (8 * (f.width - 1 - b)))) << (8 * b);
+      }
+    }
+  }
+}
 
 // transpose + field dictionarization (4- then 2-byte) + per-plane transform
 // + entropy stage with per-plane codec bucketing.
@@ -803,6 +891,8 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
               [](const DictField& a, const DictField& b) { return a.offset < b.offset; });
   }
 
+  if (g_tuned) sort_dictionaries(fields);
+
   uint32_t nOut = size;
   for (auto& f : fields) nOut -= f.width - 1;
   Buf out;
@@ -822,14 +912,38 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
   }
 
   if (fields.size() > 255) die("internal: dict field count overflow");
-  blob.put_u8((uint8_t)fields.size());
-  for (auto& f : fields) {
-    blob.put_u8(f.width);
-    blob.put_u8((uint8_t)(f.offset & 0xFF));
-    blob.put_u8((uint8_t)(f.offset >> 8));
-    blob.put_u8((uint8_t)(f.vals.size() - 1));
-    for (uint32_t v : f.vals) blob.put_bytes(&v, f.width);
+  // Dictionary descriptors remain directly scannable; only value bytes are
+  // compressed. The first width byte marks the new representation.
+  Buf dictionary;
+  uint8_t dictionaryTransform = 0;
+  size_t dictionaryBytes = 0;
+  for (const auto& f : fields) dictionaryBytes += f.vals.size() * f.width;
+  if (g_tuned && dictionaryBytes >= 128) {
+    Buf candidates[4];
+    unsigned best = 0;
+    double cost = std::numeric_limits<double>::infinity();
+    for (unsigned t = 0; t < 4; ++t) {
+      candidates[t] = dictionary_forward(fields, uint8_t(t + 1));
+      std::array<uint32_t, 256> hist{};
+      for (auto b : candidates[t]) ++hist[b];
+      double c = slpz_custom::context_cost(hist);
+      if (c < cost) { cost = c; best = t; }
+    }
+    small_compress(z, candidates[best], std::min(level, 3), dictionary, slpz_custom::Discrete);
+    if (dictionary.size() < dictionaryBytes) dictionaryTransform = uint8_t(best + 1);
   }
+  blob.put_u8(uint8_t(fields.size()));
+  for (size_t j = 0; j < fields.size(); ++j) {
+    const auto& f = fields[j];
+    uint8_t tag = j == 0 && dictionaryTransform ? uint8_t(128 | (dictionaryTransform << 4)) : 0;
+    blob.put_u8(f.width | tag);
+    blob.put_u8(uint8_t(f.offset));
+    blob.put_u8(uint8_t(f.offset >> 8));
+    blob.put_u8(uint8_t(f.vals.size() - 1));
+    if (!dictionaryTransform)
+      for (uint32_t v : f.vals) blob.put_bytes(&v, f.width);
+  }
+  if (dictionaryTransform) blob.put_bytes(dictionary.data(), dictionary.size());
   std::vector<uint8_t> profiles;
   if (g_custom) {
     for (uint32_t offset = 0; offset < size;) {
@@ -899,25 +1013,100 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
   if (g_stats.enabled && stat) *stat += blob.size() - blobAt;
 }
 
+// Validate the index plane once, then expand at a fixed field width. Small
+// alphabets fit in NEON lookup tables; large ones use direct scalar gathers.
+template<unsigned W>
+static void expand_dictionary(const DictField& f, const uint8_t* indexes,
+                              uint32_t count, uint8_t* output) {
+  unsigned maximum = 0, i = 0;
+#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+  auto maxes = vdupq_n_u8(0);
+  for (; i + 16 <= count; i += 16) maxes = vmaxq_u8(maxes, vld1q_u8(indexes + i));
+  maximum = vmaxvq_u8(maxes);
+#endif
+  for (; i < count; ++i) maximum = std::max(maximum, unsigned(indexes[i]));
+  if (maximum >= f.vals.size()) die("corrupt archive (dict index)");
+  if (f.vals.size() == 1) {
+    for (unsigned b = 0; b < W; ++b)
+      memset(output + size_t(b) * count, uint8_t(f.vals[0] >> (8 * b)), count);
+    return;
+  }
+  i = 0;
+#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+  if (f.vals.size() <= 64) {
+    uint8_t tables[W][64] = {};
+    for (unsigned v = 0; v < f.vals.size(); ++v)
+      for (unsigned b = 0; b < W; ++b) tables[b][v] = uint8_t(f.vals[v] >> (8 * b));
+    if (f.vals.size() <= 16) {
+      uint8x16_t table[W];
+      for (unsigned b = 0; b < W; ++b) table[b] = vld1q_u8(tables[b]);
+      for (; i + 16 <= count; i += 16) {
+        auto ids = vld1q_u8(indexes + i);
+        for (unsigned b = 0; b < W; ++b)
+          vst1q_u8(output + size_t(b) * count + i, vqtbl1q_u8(table[b], ids));
+      }
+    } else {
+      uint8x16x4_t table[W];
+      for (unsigned b = 0; b < W; ++b) table[b] = vld1q_u8_x4(tables[b]);
+      for (; i + 16 <= count; i += 16) {
+        auto ids = vld1q_u8(indexes + i);
+        for (unsigned b = 0; b < W; ++b)
+          vst1q_u8(output + size_t(b) * count + i, vqtbl4q_u8(table[b], ids));
+      }
+    }
+  }
+#endif
+  for (; i < count; ++i) {
+    uint32_t value = f.vals[indexes[i]];
+    for (unsigned b = 0; b < W; ++b)
+      output[size_t(b) * count + i] = uint8_t(value >> (8 * b));
+  }
+}
+
 static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
                            std::vector<uint8_t>& records) {
   uint8_t nFields = r.u8();
   std::vector<DictField> fields(nFields);
   uint32_t nOut = size;
-  for (auto& f : fields) {
+  uint8_t dictionaryTransform = 0;
+  uint32_t dictionaryBytes = 0;
+  std::vector<bool> covered(size, false);
+  for (size_t j = 0; j < fields.size(); ++j) {
+    auto& f = fields[j];
     f.width = r.u8();
+    if (j == 0 && g_tuned && (f.width & 128)) {
+      dictionaryTransform = (f.width >> 4) & 7;
+      if (!dictionaryTransform || dictionaryTransform > 4) die("corrupt dictionary transform");
+      f.width &= 15;
+    }
     f.offset = r.u8();
-    f.offset |= (uint16_t)r.u8() << 8;
-    uint32_t nVals = (uint32_t)r.u8() + 1;
-    if ((f.width != 2 && f.width != 4) || f.offset + f.width > size)
+    f.offset |= uint16_t(r.u8()) << 8;
+    uint32_t nVals = uint32_t(r.u8()) + 1;
+    if ((f.width != 2 && f.width != 4) || f.offset + f.width > size || r.fail)
       die("corrupt archive (dict field)");
-    auto raw = r.bytes(nVals * f.width);
-    if (r.fail) die("corrupt archive (dict field)");
+    for (unsigned b = 0; b < f.width; ++b) {
+      if (covered[f.offset + b]) die("corrupt archive (dict overlap)");
+      covered[f.offset + b] = true;
+    }
     f.vals.resize(nVals);
-    for (uint32_t v = 0; v < nVals; v++)
-      memcpy(&f.vals[v], raw.data() + (size_t)v * f.width, f.width);
+    dictionaryBytes += nVals * f.width;
+    if (!dictionaryTransform) {
+      auto raw = r.bytes(nVals * f.width);
+      if (r.fail) die("corrupt archive (dict field)");
+      for (uint32_t v = 0; v < nVals; ++v)
+        memcpy(&f.vals[v], raw.data() + size_t(v) * f.width, f.width);
+    }
     if (nOut < f.width) die("corrupt archive (dict count)");
     nOut -= f.width - 1;
+  }
+  if (dictionaryTransform) {
+    Reader check = r;
+    check.u8();  // codec
+    check.u32();  // packed size
+    if (check.u32() != dictionaryBytes || check.fail) die("corrupt dictionary frame size");
+    auto data = small_decompress(z, r);
+    if (data.size() != dictionaryBytes) die("corrupt dictionary output size");
+    dictionary_reverse(data, dictionaryTransform, fields);
   }
   auto sel = r.bytes(nOut);
   uint8_t layout = r.u8();
@@ -970,12 +1159,9 @@ static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
     const uint8_t* pl = out.data() + srcAt;
     if (fieldAt[o]) {
       const auto& f = *fieldAt[o];
-      for (uint32_t i = 0; i < count; i++) {
-        if (pl[i] >= f.vals.size()) die("corrupt archive (dict index)");
-        uint32_t v = f.vals[pl[i]];
-        for (uint32_t b = 0; b < f.width; b++)
-          planes[(size_t)(o + b) * count + i] = (uint8_t)(v >> (8 * b));
-      }
+      auto* dest = planes.data() + size_t(o) * count;
+      if (f.width == 4) expand_dictionary<4>(f, pl, count, dest);
+      else expand_dictionary<2>(f, pl, count, dest);
       o += f.width;
     } else {
       memcpy(planes.data() + (size_t)o * count, pl, count);
@@ -1766,7 +1952,7 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
 
   Buf out;
   out.put_u32(kMagic);
-  out.put_u8(g_custom ? kCustomVersion : g_tuned ? kTunedVersion : kVersion);
+  out.put_u8(g_tuned ? kCustomVersion : kVersion);
   out.put_u8(g_custom ? 1 : 0);  // flags
   out.put_u32((uint32_t)pools.size());
   for (auto& pl : pools) {
@@ -1885,15 +2071,22 @@ static std::span<const uint8_t> skip_packed(Reader& r, uint32_t size) {
   const uint8_t* start = r.p;
   uint8_t nFields = r.u8();
   uint32_t nOut = size;
-  for (uint8_t f = 0; f < nFields; f++) {
+  bool packedDictionary = false;
+  for (uint8_t f = 0; f < nFields; ++f) {
     uint8_t width = r.u8();
-    r.u8();
-    r.u8();
-    uint32_t nVals = (uint32_t)r.u8() + 1;
-    r.bytes(nVals * width);
+    if (f == 0 && g_tuned && (width & 128)) {
+      uint8_t transform = (width >> 4) & 7;
+      if (!transform || transform > 4) { r.fail = true; return {}; }
+      packedDictionary = true;
+      width &= 15;
+    }
+    r.u8(); r.u8();  // offset; the decoder validates bounds and overlap
+    uint32_t nVals = uint32_t(r.u8()) + 1;
     if ((width != 2 && width != 4) || nOut < width) { r.fail = true; return {}; }
+    if (!packedDictionary) r.bytes(nVals * width);
     nOut -= width - 1;
   }
+  if (packedDictionary) { r.u8(); skip_frame(r); }
   r.bytes(nOut);          // transform selectors
   uint8_t layout = r.u8();
   if (layout == 0) {
@@ -2166,7 +2359,7 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
   Reader r{arc.data(), arc.data() + arc.size()};
   if (r.u32() != kMagic) die("not a slpz archive");
   uint8_t version = r.u8(), flags = r.u8();
-  if (version != kVersion && version != kTunedVersion && version != kCustomVersion) die("unsupported slpz version");
+  if (version != kVersion && version != kTunedVersion && version != kPreviousCustomVersion && version != kCustomVersion) die("unsupported slpz version");
   if (flags & ~1u || (version == kVersion && flags)) die("unsupported slpz flags");
   g_tuned = version != kVersion;
   g_custom = g_tuned && (flags & 1);

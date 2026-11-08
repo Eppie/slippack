@@ -1,0 +1,64 @@
+--- a/custom_codec.h
++++ b/custom_codec.h
+@@ -454,8 +454,14 @@
+       distances.push_back(uint8_t(rep));
+     else {
+       unsigned k = 31 - std::countl_zero(m.distance);
+-      distances.push_back(uint8_t(k + 4));
+-      extra.put(m.distance - (1u << k), k);
++      if (k < 2) {
++        distances.push_back(uint8_t(k + 4));
++        extra.put(m.distance - (1u << k), k);
++      } else {
++        unsigned low = k - 2;
++        distances.push_back(uint8_t(6 + low * 4 + ((m.distance >> low) & 3)));
++        extra.put(m.distance & ((1u << low) - 1), low);
++      }
+     }
+     move_recent(recent, m.distance);
+     ++matches;
+@@ -485,7 +491,7 @@
+   if (favor_prediction || depth >= 24) channel(predicted_literals, residuals, literal_contexts);
+   bool predict = !predicted_literals.empty() &&
+                  (raw_literals.empty() || predicted_literals.size() < raw_literals.size());
+-  payload.push_back(predict ? 1 : 0);
++  payload.push_back((predict ? 1 : 0) | 2);
+   append(payload, predict ? View(predicted_literals) : View(raw_literals));
+   return payload;
+ }
+@@ -497,6 +503,8 @@
+   require(ll.size() == size_t(matches) + 1 && ml.size() == matches && ds.size() == matches,
+           "custom token counts");
+   auto extra = r.take(r.var());
++  uint8_t flags = r.byte();
++  require(flags <= 3, "custom LZ flags");
+   Reader lr{ll}, mr{ml}, dr{ds};
+   BitReader bits{{extra}};
+   struct Token {
+@@ -520,8 +528,14 @@
+       require(uint64_t(code) + 3 <= n - pos, "custom match length");
+       length = code + 3;
+       unsigned c = dr.byte();
+-      require(c <= 24, "custom distance code");
+-      distance = c < 4 ? recent[c] : (1u << (c - 4)) + bits.get(c - 4);
++      if ((flags & 2) && c >= 6) {
++        require(c <= 78, "custom distance code");
++        unsigned low = (c - 6) / 4;
++        distance = ((4u + (c - 6) % 4) << low) + bits.get(low);
++      } else {
++        require(c <= 24, "custom distance code");
++        distance = c < 4 ? recent[c] : (1u << (c - 4)) + bits.get(c - 4);
++      }
+       require(distance && distance <= pos, "custom distance");
+       move_recent(recent, distance);
+       pos += length;
+@@ -533,8 +547,7 @@
+   lr.done();
+   mr.done();
+   dr.done();
+-  uint8_t predict = r.byte();
+-  require(predict <= 1, "custom literal predictor");
++  uint8_t predict = flags & 1;
+   auto literals = unchannel(r, total_literals, contexts);
+   require(literals.size() == total_literals, "custom literal count");
+   Bytes output(n);

@@ -23,9 +23,14 @@ build/custom_codec_test: tests/custom_codec_test.cpp custom_codec.h static_conte
 	mkdir -p build
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-check: slpz build/custom_codec_test
+build/record_codec_test: tests/record_codec_test.cpp slpz.cpp custom_codec.h static_context.h mask_codec.h
+	mkdir -p build
+	$(CXX) $(CXXFLAGS) -Wno-unused-function -I$(ZSTD_INC) -o $@ $< -L$(ZSTD_LIB) -lzstd -llzma -lbrotlienc -lbrotlidec $(PLATFORM_LIBS)
+
+check: slpz build/custom_codec_test build/record_codec_test
 	./slpz selftest
 	./build/custom_codec_test
+	./build/record_codec_test
 	python3 tests/test_archive.py
 
 .PHONY: clean check

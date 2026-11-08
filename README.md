@@ -37,27 +37,30 @@ An opt-in custom codec is available on the `custom-codec` branch:
 ```
 
 `--codec legacy` is the unchanged default and writes v9. `--codec custom`
-writes v10 using only our own payload compression: field-conditioned rANS,
-constant/sparse/repeat modes, and a lazy LZ parser with recent-distance and
+writes v12 using only our own payload compression: field-conditioned rANS,
+shared presence masks, constant/sparse/repeat modes, and a lazy LZ parser with recent-distance and
 literal prediction. It also enables lossless velocity and controller-input
 predictors. Levels 1–2 use a shallow greedy match search, 3–8 use lazy search,
 and 9+ search more deeply. Unknown data retains a reversible raw fallback.
 
 `--codec tuned` is a comparison backend: the same new semantic predictors,
-with existing entropy codecs and block-sized LZMA dictionaries. It writes v10
-with the legacy entropy backend flag. This keeps codec comparisons fair.
+with existing entropy codecs and block-sized LZMA dictionaries. It writes v12
+with the legacy entropy backend flag. Both use the same sorted, compressed
+field dictionaries and semantic predictors to keep codec comparisons fair.
 
 The CLI still links zstd, LZMA, and Brotli to read old archives and provide the
 legacy/tuned backends. The custom payload codec itself is independent of those
 libraries; its standalone test and fuzzer build without them.
 
-The custom backend is experimental. Current local measurements put it within
-roughly 8–11% of tuned LZMA's archive size with faster decoding, rather than
-showing an across-the-board win. See `benchmarks/2026-11-08/` for the recorded
-measurements and `CUSTOM_FORMAT.md` for the versioned format. Existing v9
-archives remain readable; older binaries reject v10 archives.
+The custom backend is experimental. The v12 dictionary work cuts archive
+size by roughly 9–10% relative to v11 across the three measured replay sets.
+Against the equally improved tuned backend, custom is smaller on both Summit
+sets and slightly larger on the mixed set. See `benchmarks/2026-11-08-v12/`
+for timings, limitations, and reproducible comparisons; `CUSTOM_FORMAT.md`
+documents the representation. Existing v9/v10/v11 archives remain readable;
+older binaries reject v12 archives.
 
-`-l` selects the entropy stage (≤2: brotli q5; 3-8: LZMA fast/nice=128/8MB;
+For legacy/tuned, `-l` selects the entropy stage (≤2: brotli q5; 3-8: LZMA fast/nice=128/8MB;
 ≥9: LZMA BT4/nice273 — all raced against zstd(level) per group, smaller wins).
 Work is scheduled as per-(file × group) tasks, largest first, with file
 planning pipelined into the pack queue and a 64-file admission window

@@ -16,7 +16,7 @@
 #include <string>
 
 #ifndef FUZZ_TARGET
-#error "define FUZZ_TARGET=1 (parse) or 2 (roundtrip)"
+#error "define FUZZ_TARGET=1 (parse), 2 (roundtrip), or 3 (dictionary records)"
 #endif
 
 // ── Target 1: parse_slp ─────────────────────────────────────────────────────
@@ -113,6 +113,46 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
       abort();  // silent corruption — the bug class slpz t misses
     }
   }
+  return 0;
+}
+#endif
+
+// Target 3: v12 field dictionary transformations and record framing. Small
+// bounded inputs keep mutations focused on dictionary values and indexes.
+#if FUZZ_TARGET == 3
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+  if (size < 8) return 0;
+  g_tuned = g_custom = true;
+  unsigned width = (data[0] & 1) ? 4 : 2;
+  unsigned nvals = std::min<size_t>(256, (size - 4) / width);
+  unsigned count = 512 + data[1];
+  DictField f{0, uint8_t(width), {}, {}};
+  for (unsigned i = 0; i < nvals; ++i) {
+    uint32_t value = 0;
+    memcpy(&value, data + 4 + i * width, width);
+    f.vals.push_back(value);
+  }
+  std::vector<DictField> fields{f}, restored{f};
+  uint8_t transform = 1 + (data[2] & 3);
+  auto dictionary = dictionary_forward(fields, transform);
+  std::fill(restored[0].vals.begin(), restored[0].vals.end(), 0);
+  dictionary_reverse(dictionary, transform, restored);
+  if (restored[0].vals != f.vals) abort();
+  Buf records;
+  for (unsigned i = 0; i < count; ++i) {
+    auto value = f.vals[data[4 + i % (size - 4)] % nvals];
+    records.put_bytes(&value, width);
+  }
+  Zctx z;
+  Buf packed;
+  pack_records(z, records, count, width, 3, packed, nullptr);
+  Reader r{packed.data(), packed.data() + packed.size()};
+  std::vector<uint8_t> output;
+  unpack_records(z, r, count, width, output);
+  if (r.fail || r.p != r.end || output != records) abort();
+  Reader scanner{packed.data(), packed.data() + packed.size()};
+  auto span = skip_packed(scanner, width);
+  if (scanner.fail || span.size() != packed.size()) abort();
   return 0;
 }
 #endif

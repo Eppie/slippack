@@ -282,3 +282,44 @@ source experiments are retained in `benchmarks/2026-11-08-model-study/`.
 The adaptive model, larger presence symbols, distance deltas, and cross-plane
 value prediction remain possible research directions rather than universal
 negative conclusions.
+
+## 2026-11-08 — sorted, compressed field dictionaries (container v12)
+
+Dictionary metadata was still raw: 2.35 MB of the mixed v11 archive. Sorting
+values by original big-endian bytes and remapping indexes improves both that
+metadata and temporal index deltas. The encoder now selects shuffled/plain,
+byte-XOR, byte-subtract, or whole-field differences and stores a compressed
+value frame only when smaller. Descriptors remain scannable. Tuned receives
+the identical preprocessing and new dictionary representation.
+
+Fixed-width expansion, index validation outside the gather loop, constant
+fills, and NEON lookups for alphabets up to 64 entries reduce reconstruction
+cost. Word-wise constant checks avoid redundant histogram work in encoding.
+The rANS/LZ/mask payload formats themselves are unchanged.
+
+Nine warmed level-3 repetitions, M4 Max, 16 threads, versus custom v11:
+
+| Dataset | Smaller | Less encode time | Less decode time |
+|---|---:|---:|---:|
+| Summit sample, 140 files | 8.75% | 0.61% | 7.60% |
+| GOML + Bair mixed, 103 files | 9.21% | -3.92% | 1.58% |
+| Additional Summit, 279 files | 9.90% | 1.98% | 6.19% |
+
+Total archive bytes fall 9.43%, with broadly unchanged compression time.
+The mixed encoding regression is retained in the report. Against the equally
+improved tuned level-3 baseline, custom is 1.84–2.93% smaller on the Summit
+sets and 0.70% larger on mixed, while encoding/decoding are faster on all
+three measured sets. At level 9 on mixed, custom is 6.84% larger than tuned, which takes 4.62×
+as long to encode. No universal size/speed win is claimed.
+
+All 522 source hashes match. Checks cover every new dictionary transform,
+lookup boundaries, malformed frames, field overlap, v9/v10/v11 compatibility,
+scalar/native byte identity, and a build with fatal external-encoder tripwires.
+ASan/UBSan passed; the dictionary fuzzer completed 180,224 executions in 61
+seconds without findings. Packed rANS tables, finer distance slots, alternate
+match costs, and a constant-field discovery pass were measured and dropped
+where they did not help. Selected patches are retained for another look.
+
+See `benchmarks/2026-11-08-v12/` for exact samples, qualifications, input lists,
+validation, and reproduction. Custom and tuned now write v12; legacy remains
+the default v9 writer. Readers retain all prior versions.
