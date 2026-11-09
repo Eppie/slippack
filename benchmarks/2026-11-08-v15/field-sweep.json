@@ -1,0 +1,446 @@
+[
+  {
+    "dataset": "sample",
+    "field": 0,
+    "mode": 1,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 33,
+    "mode": 1,
+    "bytes": 15724270
+  },
+  {
+    "dataset": "sample",
+    "field": 33,
+    "mode": 2,
+    "bytes": 15769123
+  },
+  {
+    "dataset": "sample",
+    "field": 33,
+    "mode": 3,
+    "bytes": 15461750
+  },
+  {
+    "dataset": "sample",
+    "field": 33,
+    "mode": 4,
+    "bytes": 15709968
+  },
+  {
+    "dataset": "sample",
+    "field": 42,
+    "mode": 1,
+    "bytes": 15834610
+  },
+  {
+    "dataset": "sample",
+    "field": 42,
+    "mode": 2,
+    "bytes": 15864127
+  },
+  {
+    "dataset": "sample",
+    "field": 42,
+    "mode": 3,
+    "bytes": 15778865
+  },
+  {
+    "dataset": "sample",
+    "field": 42,
+    "mode": 4,
+    "bytes": 15916634
+  },
+  {
+    "dataset": "sample",
+    "field": 52,
+    "mode": 1,
+    "bytes": 15733276
+  },
+  {
+    "dataset": "sample",
+    "field": 52,
+    "mode": 2,
+    "bytes": 15780407
+  },
+  {
+    "dataset": "sample",
+    "field": 52,
+    "mode": 3,
+    "bytes": 15852106
+  },
+  {
+    "dataset": "sample",
+    "field": 52,
+    "mode": 4,
+    "bytes": 15659866
+  },
+  {
+    "dataset": "sample",
+    "field": 56,
+    "mode": 1,
+    "bytes": 15699436
+  },
+  {
+    "dataset": "sample",
+    "field": 56,
+    "mode": 2,
+    "bytes": 15698347
+  },
+  {
+    "dataset": "sample",
+    "field": 56,
+    "mode": 3,
+    "bytes": 15740578
+  },
+  {
+    "dataset": "sample",
+    "field": 56,
+    "mode": 4,
+    "bytes": 15679083
+  },
+  {
+    "dataset": "sample",
+    "field": 68,
+    "mode": 1,
+    "bytes": 15743578
+  },
+  {
+    "dataset": "sample",
+    "field": 68,
+    "mode": 2,
+    "bytes": 15757695
+  },
+  {
+    "dataset": "sample",
+    "field": 68,
+    "mode": 3,
+    "bytes": 15794599
+  },
+  {
+    "dataset": "sample",
+    "field": 68,
+    "mode": 4,
+    "bytes": 15717669
+  },
+  {
+    "dataset": "sample",
+    "field": 72,
+    "mode": 1,
+    "bytes": 15693010
+  },
+  {
+    "dataset": "sample",
+    "field": 72,
+    "mode": 2,
+    "bytes": 15691274
+  },
+  {
+    "dataset": "sample",
+    "field": 72,
+    "mode": 3,
+    "bytes": 15691749
+  },
+  {
+    "dataset": "sample",
+    "field": 72,
+    "mode": 4,
+    "bytes": 15691677
+  },
+  {
+    "dataset": "sample",
+    "field": 76,
+    "mode": 1,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 76,
+    "mode": 2,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 76,
+    "mode": 3,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 76,
+    "mode": 4,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 80,
+    "mode": 1,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 80,
+    "mode": 2,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 80,
+    "mode": 3,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": 80,
+    "mode": 4,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "field": -1,
+    "mode": 1,
+    "bytes": 15926536
+  },
+  {
+    "dataset": "sample",
+    "field": -1,
+    "mode": 2,
+    "bytes": 16015435
+  },
+  {
+    "dataset": "sample",
+    "field": -1,
+    "mode": 3,
+    "bytes": 15775471
+  },
+  {
+    "dataset": "sample",
+    "field": -1,
+    "mode": 4,
+    "bytes": 15806929
+  },
+  {
+    "dataset": "mixed",
+    "field": 0,
+    "mode": 1,
+    "bytes": 13212487
+  },
+  {
+    "dataset": "mixed",
+    "field": 33,
+    "mode": 1,
+    "bytes": 13269744
+  },
+  {
+    "dataset": "mixed",
+    "field": 33,
+    "mode": 2,
+    "bytes": 13297760
+  },
+  {
+    "dataset": "mixed",
+    "field": 33,
+    "mode": 3,
+    "bytes": 13067434
+  },
+  {
+    "dataset": "mixed",
+    "field": 33,
+    "mode": 4,
+    "bytes": 13254942
+  },
+  {
+    "dataset": "mixed",
+    "field": 42,
+    "mode": 1,
+    "bytes": 13331007
+  },
+  {
+    "dataset": "mixed",
+    "field": 42,
+    "mode": 2,
+    "bytes": 13352068
+  },
+  {
+    "dataset": "mixed",
+    "field": 42,
+    "mode": 3,
+    "bytes": 13285795
+  },
+  {
+    "dataset": "mixed",
+    "field": 42,
+    "mode": 4,
+    "bytes": 13383844
+  },
+  {
+    "dataset": "mixed",
+    "field": 52,
+    "mode": 1,
+    "bytes": 13342553
+  },
+  {
+    "dataset": "mixed",
+    "field": 52,
+    "mode": 2,
+    "bytes": 13538404
+  },
+  {
+    "dataset": "mixed",
+    "field": 52,
+    "mode": 3,
+    "bytes": 13742287
+  },
+  {
+    "dataset": "mixed",
+    "field": 52,
+    "mode": 4,
+    "bytes": 13121849
+  },
+  {
+    "dataset": "mixed",
+    "field": 56,
+    "mode": 1,
+    "bytes": 13245485
+  },
+  {
+    "dataset": "mixed",
+    "field": 56,
+    "mode": 2,
+    "bytes": 13239835
+  },
+  {
+    "dataset": "mixed",
+    "field": 56,
+    "mode": 3,
+    "bytes": 13368665
+  },
+  {
+    "dataset": "mixed",
+    "field": 56,
+    "mode": 4,
+    "bytes": 13189813
+  },
+  {
+    "dataset": "mixed",
+    "field": 68,
+    "mode": 1,
+    "bytes": 13387028
+  },
+  {
+    "dataset": "mixed",
+    "field": 68,
+    "mode": 2,
+    "bytes": 13470852
+  },
+  {
+    "dataset": "mixed",
+    "field": 68,
+    "mode": 3,
+    "bytes": 13587743
+  },
+  {
+    "dataset": "mixed",
+    "field": 68,
+    "mode": 4,
+    "bytes": 13291814
+  },
+  {
+    "dataset": "mixed",
+    "field": 72,
+    "mode": 1,
+    "bytes": 13218617
+  },
+  {
+    "dataset": "mixed",
+    "field": 72,
+    "mode": 2,
+    "bytes": 13211960
+  },
+  {
+    "dataset": "mixed",
+    "field": 72,
+    "mode": 3,
+    "bytes": 13213200
+  },
+  {
+    "dataset": "mixed",
+    "field": 72,
+    "mode": 4,
+    "bytes": 13213562
+  },
+  {
+    "dataset": "mixed",
+    "field": 76,
+    "mode": 1,
+    "bytes": 13222078
+  },
+  {
+    "dataset": "mixed",
+    "field": 76,
+    "mode": 2,
+    "bytes": 13222997
+  },
+  {
+    "dataset": "mixed",
+    "field": 76,
+    "mode": 3,
+    "bytes": 13223720
+  },
+  {
+    "dataset": "mixed",
+    "field": 76,
+    "mode": 4,
+    "bytes": 13364432
+  },
+  {
+    "dataset": "mixed",
+    "field": 80,
+    "mode": 1,
+    "bytes": 13214992
+  },
+  {
+    "dataset": "mixed",
+    "field": 80,
+    "mode": 2,
+    "bytes": 13236163
+  },
+  {
+    "dataset": "mixed",
+    "field": 80,
+    "mode": 3,
+    "bytes": 13217269
+  },
+  {
+    "dataset": "mixed",
+    "field": 80,
+    "mode": 4,
+    "bytes": 13262333
+  },
+  {
+    "dataset": "mixed",
+    "field": -1,
+    "mode": 1,
+    "bytes": 13510202
+  },
+  {
+    "dataset": "mixed",
+    "field": -1,
+    "mode": 2,
+    "bytes": 13699684
+  },
+  {
+    "dataset": "mixed",
+    "field": -1,
+    "mode": 3,
+    "bytes": 13871145
+  },
+  {
+    "dataset": "mixed",
+    "field": -1,
+    "mode": 4,
+    "bytes": 13232747
+  }
+]

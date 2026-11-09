@@ -717,7 +717,8 @@ inline uint8_t dominant_byte(View input) {
   for (auto b : input) ++h[b];
   return uint8_t(std::max_element(h.begin(), h.end()) - h.begin());
 }
-inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes& out) {
+inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes& out,
+                               std::span<const uint32_t> indexes = {}) {
   size_t width = (size_t(count) + 7) / 8, v = 0;
 #if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
   struct UnpackTable {
@@ -736,6 +737,7 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
   for (size_t j = 0; j < bases.size() / 2; ++j) {
     size_t i = 0;
     uint8_t base = bases[j * 2];
+    uint8_t* destination = out.data() + size_t(indexes.empty() ? j : indexes[j]) * count;
 #if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
     auto constant = vdup_n_u8(base), missing = vdup_n_u8(255);
     for (; i + 8 <= count; i += 8) {
@@ -743,12 +745,12 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
       auto ix = vld1_u8(table.indexes[bits].data()),
            expanded = vtbl1_u8(vld1_u8(values.data() + v), ix);
       auto merged = vbsl_u8(vceq_u8(ix, missing), constant, expanded);
-      vst1_u8(out.data() + j * count + i, merged);
+      vst1_u8(destination + i, merged);
       v += table.counts[bits];
     }
 #endif
     for (; i < count; ++i)
-      out[j * count + i] = (masks[j * width + i / 8] >> (i % 8)) & 1 ? values[v++] : base;
+      destination[i] = (masks[j * width + i / 8] >> (i % 8)) & 1 ? values[v++] : base;
   }
 }
 
@@ -825,11 +827,11 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
   Bytes m;
   if (count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4)
     m = encode(masks, Generic, depth);
-  auto ma = encode_presence(original, count, profiles, refs);
+  auto ma = encode_presence4(original, count, profiles, refs);
   bool binary = m.empty() || ma.size() < m.size();
   if (binary) m = std::move(ma);
   Bytes out = bases;
-  out.push_back(binary ? 2 : 0);
+  out.push_back(binary ? 4 : 0);
   varint(out, narrow(m.size()));
   append(out, m);
   Bytes a = lz_encode(values, contexts, 1, depth);
@@ -837,11 +839,12 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
   append(out, a);
   return out;
 }
-inline Bytes masked_decode(Reader& r, uint32_t count, View profiles) {
+inline Bytes masked_decode(Reader& r, uint32_t count, View profiles, Bytes* destination = nullptr,
+                           std::span<const uint32_t> indexes = {}) {
   auto bases = r.take(profiles.size() * 2);
   size_t width = (size_t(count) + 7) / 8;
   unsigned binary = r.byte();
-  require(binary == 0 || binary == 2, "mask coder");
+  require(binary == 0 || binary == 2 || binary == 4, "mask coder");
   auto data = r.take(r.var());
   Bytes refs;
   for (size_t j = 0; j < profiles.size(); ++j) {
@@ -851,7 +854,8 @@ inline Bytes masked_decode(Reader& r, uint32_t count, View profiles) {
   Bytes mask;
   if (binary) {
     Reader m{data};
-    mask = decode_presence(m, count, profiles, refs);
+    mask = binary == 4 ? decode_presence4(m, count, profiles, refs)
+                       : decode_presence(m, count, profiles, refs);
     m.done();
   } else
     mask = decode(data, narrow(width * profiles.size()));
@@ -870,9 +874,15 @@ inline Bytes masked_decode(Reader& r, uint32_t count, View profiles) {
   require(mode <= 1, "mask value coder");
   Bytes values = mode ? unchannel(r, total, contexts) : lz_decode(r, narrow(total), contexts, 1);
   require(values.size() == total, "mask values");
-  Bytes out(size_t(count) * profiles.size());
+  // Restore rich planes directly into the caller's final plane layout when
+  // available, avoiding an intermediate allocation and copy.
+  Bytes out;
+  if (!destination) {
+    out.resize(size_t(count) * profiles.size());
+    destination = &out;
+  }
   values.resize(total + 8);
-  restore_exceptions(mask, values, count, bases, out);
+  restore_exceptions(mask, values, count, bases, *destination, indexes);
   return out;
 }
 
@@ -891,15 +901,30 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
     Bytes special;
     if (is_constant(plane)) special = Bytes{1, plane[0]};
     else if (count) {
-      uint32_t counts[256] = {};
-      uint32_t runs = 0;
-      for (uint32_t i = 0; i < count; ++i) {
-        counts[plane[i]]++;
-        runs += i == 0 || plane[i] != plane[i - 1];
+      // A cheap screen avoids full histograms for clearly rich planes.
+      // Borderline planes still get the exact sparse/run-mode trial.
+      bool possible = true;
+      if (count >= 1024) {
+        uint32_t hist[256] = {}, runs = 0;
+        for (unsigned at : {0u, (count - 64) / 2, count - 64})
+          for (unsigned i = 0; i < 64; ++i) {
+            uint8_t v = plane[at + i];
+            ++hist[v];
+            runs += i == 0 || v != plane[at + i - 1];
+          }
+        possible = *std::max_element(hist, hist + 256) >= 172 || runs <= 24;
       }
-      uint32_t max = *std::max_element(counts, counts + 256);
-      if (max == count || count - max <= count / 128 || runs <= count / 128)
-        special = encode(plane, Profile(profiles[j]), 0);
+      if (possible) {
+        uint32_t counts[256] = {};
+        uint32_t runs = 0;
+        for (uint32_t i = 0; i < count; ++i) {
+          counts[plane[i]]++;
+          runs += i == 0 || plane[i] != plane[i - 1];
+        }
+        uint32_t max = *std::max_element(counts, counts + 256);
+        if (max == count || count - max <= count / 128 || runs <= count / 128)
+          special = encode(plane, Profile(profiles[j]), 0);
+      }
     }
     if (!special.empty() && special[0] >= 1 && special[0] <= 3) {
       result.push_back(1);
@@ -963,9 +988,10 @@ inline Bytes decode_planes(View packed, uint32_t expected) {
     if (mode == 0)
       rich = lz_decode(r, n, profiles, count);
     else if (mode == 3)
-      rich = masked_decode(r, count, profiles);
-    for (size_t j = 0; j < indexes.size(); ++j)
-      std::copy_n(rich.data() + j * count, count, output.data() + size_t(indexes[j]) * count);
+      masked_decode(r, count, profiles, &output, indexes);
+    if (mode == 0)
+      for (size_t j = 0; j < indexes.size(); ++j)
+        std::copy_n(rich.data() + j * count, count, output.data() + size_t(indexes[j]) * count);
   }
   r.done();
   return output;

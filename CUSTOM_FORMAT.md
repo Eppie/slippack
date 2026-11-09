@@ -1,18 +1,18 @@
-# SLPZ v14 custom codec
+# SLPZ v15 custom codec
 
 The default writer still emits v9 (`--codec legacy`). Both `--codec tuned`
-and `--codec custom` emit v14; header flag bit 0 selects the custom payload
+and `--codec custom` emit v15; header flag bit 0 selects the custom payload
 coder. Tuned uses the existing compression libraries. The reader supports
-v9, v10 (including the first custom backend), v11, v12, v13, and v14. The CLI still
+v9, v10 (including the first custom backend), v11, v12, v13, v14, and v15. The CLI still
 links the old libraries for compatibility; the standalone custom codec does
 not link a compression library.
 
 ## Container and predictors
 
 The v9 directory and framing are retained. Header flag bit 0 selects custom
-payload compression in v10–v14. Codec ID 6 identifies tagged custom frames;
+payload compression in v10–v15. Codec ID 6 identifies tagged custom frames;
 implicit frames use the backend from the header. Unknown versions or header
-flag bits are rejected. Pre-v14 readers reject v14 before reading its payload.
+flag bits are rejected. Pre-v15 readers reject v15 before reading its payload.
 Container words are little-endian; source SLP numeric fields are big-endian.
 
 The encoder omits stream packets for declared commands with no parsed events.
@@ -94,6 +94,58 @@ Every 32-bit input, including signed zero and NaN payloads, remains lossless.
 
 These semantic changes require v14. Payload entropy coding is unchanged;
 readers retain the distinct v10–v12, v13, and v14 predictor paths.
+
+## Semantic refinements and implicit constant indexes (v15)
+
+V15 retains v14 position prediction and changes these additional fields. All
+predictor state resets at each player/follower group. Float arithmetic uses
+separately rounded binary32 operations, nearest/even; a nonfinite prediction
+is replaced with positive zero. All residuals preserve the original bits.
+
+- Pre-frame controller floats at offsets 24, 28, 32, and 36 are first permuted:
+  each exact binary32 representation of `q/80`, for integer `q` in [-80,80],
+  is swapped with the unsigned bit pattern of `zigzag(q)`. Zero maps to itself.
+  Other bit patterns pass through, including negative zero and NaN payloads.
+  The explicit table in `controller_grid` defines the exact representations.
+  Applying the same permutation again is the inverse, including for tiny
+  subnormals whose bit patterns are the small codes.
+- Controller prediction retains the per-axis 256-entry table keyed by raw
+  offsets 58, 63, 64, and 65, and adds a 4,096-entry direct-mapped cache per
+  available axis. The pair key is `raw_axis | (raw_other_axis << 8)` when both
+  raw axes exist. Otherwise it is `raw_axis XOR ((mapped_other_float_bits &
+  0x7fffffff) * 2246822519)`, with unsigned 32-bit multiplication. The slot is
+  `(key * 2654435761) >> 20`. Entries store the 32-bit key and previous mapped
+  actual value; all-ones entries are empty. A matching nonempty entry predicts;
+  a miss falls back to the one-axis table. Both tables learn the actual value.
+  Prediction and zigzag residual arithmetic operate on mapped bits; inverse
+  mapping happens after restoring all four controller values in a record.
+- Post-frame attack velocities at 60 and 64 predict `last + (last - older)`
+  from actual float values, initially zero. Percent and shield at 21 and 25
+  retain v14's unsigned-bit-pattern differences.
+- The post-frame animation counter at 33 uses the action state at 7–8. States
+  below 1,024 keep an entry value (initially zero) and positive step (initially
+  one). On an action change, predict the saved entry value and update it with
+  the actual counter. On the same action, predict `last_counter + step`; update
+  the step to `actual - last_counter` only when the actual counter increased.
+  States outside the table predict `last_counter + 1`. The previous action
+  state and actual counter are updated for every record.
+- Before computing the animation residual, swap each exact integer float in
+  [-4096,4096] with `zigzag(integer)`, using the same reversible permutation
+  rule as above. Map both actual and predicted values, take their unsigned
+  modular difference, then zigzag it. The decoder restores mapped actual bits,
+  inverts the permutation, and updates float predictor state.
+
+V15 dictionary descriptors and value tables retain the v12 layout. A field
+with `nVals == 1` has **no index plane, selector, or semantic profile**. Its
+known value is filled directly during reconstruction. Therefore output width
+is `record_size - sum(field_width - 1) - number_of_single_value_fields`.
+The reader retains explicit constant index planes for v9–v14 packets. This
+version rule applies to both tuned and custom archives; legacy still writes v9.
+
+Encoder-only policies prioritize complete known numeric fields before the
+sliding 4-/2-byte dictionary search, and sample clearly rich planes before
+running full sparse/run histograms. These decisions are represented by the
+existing dictionary descriptors and plane modes; they need no decoder policy.
 
 ## RNG acceleration (all readable versions)
 
@@ -246,6 +298,30 @@ order without zeroing a positive bin. Frequencies total 4096. Encoder and
 decoder derive these small four-symbol tables identically, on demand.
 An odd sample count has one extra zero decision. ANS state selection advances
 continuously across planes, once per pair. Unused final mask bits must be zero.
+
+### Four-bit presence coding (method 4, v15)
+
+Method 4 retains method 2's serialized split flag, 128/256 binary zero
+probabilities at scale 4096, plane references, and four interleaved rANS states.
+It combines four consecutive presence bits into one symbol, least-significant
+bit first. Pad the final symbol of each plane with zero bits. The joint table
+key contains the previous four bits (most recent in bit 0), six referenced-plane
+bits from position `i-1` through `i+4`, and the optional FloatLow class.
+
+For each of 16 symbols, multiply its four conditional binary frequencies
+(updating history and referenced position after each bit). Convert this 48-bit
+weight to a 16-bit CDF frequency by `(weight + 2^31) >> 32`, with minimum one
+for nonzero weights and zero for impossible symbols. If frequencies undershoot
+65536, add the deficit to the first largest-frequency symbol. If they overshoot,
+remove excess in ascending symbol order without reducing a positive frequency
+below one. Cumulative starts follow ascending symbol order.
+
+The rANS lower bound remains `2^23`, but its probability scale is 65536 rather
+than 4096. State selection advances for every nibble across all planes. Final
+states must all equal the lower bound. Method 2 remains readable. The encoder
+reconstructs history from source masks while walking backward instead of
+storing a symbol trace. Lazy table construction and packed literal decode
+lookups are implementation optimizations, with no additional wire fields.
 
 ## Generic packet modes
 

@@ -91,16 +91,35 @@ inline Bytes context_encode(View input, View contexts) {
       ContextTree left, right, bestleft, bestright;
       right = cur;
       left.begin = cur.begin;
+      // Update entropy sums only for symbols moved across this split.
+      uint32_t ln = 0, rn = 0, lu = 0, ru = 0;
+      double le = 0, re = 0;
+      for (auto v : cur.hist) {
+        rn += v;
+        ru += v != 0;
+        re += count_entropy(v);
+      }
+
       for (unsigned p = cur.begin; p + 1 < cur.end; ++p) {
         if (!prior_counts[ids[c] * bins + p]) continue;
         for (unsigned b = 0; b < 256; ++b) {
-          left.hist[b] += h[ids[c] * bins + p][b];
-          right.hist[b] -= h[ids[c] * bins + p][b];
+          uint32_t v = h[ids[c] * bins + p][b];
+          if (!v) continue;
+          auto& l = left.hist[b];
+          auto& r = right.hist[b];
+          lu += l == 0;
+          le += count_entropy(l + v) - count_entropy(l);
+          re += count_entropy(r - v) - count_entropy(r);
+          l += v;
+          r -= v;
+          ru -= r == 0;
+          ln += v;
+          rn -= v;
         }
         unsigned s = p + 1;
-        double lc = context_cost(left.hist), rc = context_cost(right.hist),
-               gain = cur.cost - lc - rc;
-        if (gain > saving) {
+        double lc = count_entropy(ln) - le + 16 + lu * 19,
+               rc = count_entropy(rn) - re + 16 + ru * 19, gain = cur.cost - lc - rc;
+        if (gain > saving + 1e-9) {
           saving = gain;
           split = s;
           bestleft = left;
@@ -158,7 +177,9 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
   require(nc == 1 || contexts.size() == n, "context dimensions");
   std::vector<Model> models;
   std::vector<uint16_t> map(nc * 256);
-  Bytes lookup;
+  // One load supplies the symbol, frequency-minus-one, and CDF offset.
+  // Each occupies 8/12/12 bits respectively.
+  std::vector<uint32_t> lookup;
   for (unsigned c = 0; c < nc; ++c) {
     unsigned count = r.byte();
     require(count && count <= 16, "context tree size");
@@ -181,7 +202,10 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
         m.start[b] = sum;
         sum += m.freq[b];
         require(sum <= 4096, "context sum");
-        lookup.insert(lookup.end(), m.freq[b], uint8_t(b));
+        size_t at = lookup.size();
+        lookup.resize(at + m.freq[b]);
+        uint32_t base = b | ((uint32_t(m.freq[b]) - 1) << 20);
+        for (unsigned j = 0; j < m.freq[b]; ++j) lookup[at + j] = base | (j << 8);
       }
       require(sum == 4096, "context sum");
       models.push_back(m);
@@ -204,10 +228,11 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
     }
     unsigned m = map[c * 256 + previous];
     uint32_t &x = state[i & 3], slot = x & 4095;
-    uint8_t b = lookup[m * 4096 + slot];
+    uint32_t entry = lookup[m * 4096 + slot];
+    uint8_t b = uint8_t(entry);
     out[i] = b;
     previous = b;
-    x = models[m].freq[b] * (x >> 12) + slot - models[m].start[b];
+    x = ((entry >> 20) + 1) * (x >> 12) + ((entry >> 8) & 4095);
     while (x < (1u << 23)) x = (x << 8) | r.byte();
   }
   for (auto x : state) require(x == (1u << 23), "context terminal state");

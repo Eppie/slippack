@@ -1,0 +1,172 @@
+[
+  {
+    "dataset": "sample",
+    "mode": 0,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "mode": 3,
+    "bytes": 15690167
+  },
+  {
+    "dataset": "sample",
+    "mode": 4,
+    "bytes": 16315848
+  },
+  {
+    "dataset": "sample",
+    "mode": 5,
+    "bytes": 16897399
+  },
+  {
+    "dataset": "sample",
+    "mode": 6,
+    "bytes": 17398668
+  },
+  {
+    "dataset": "sample",
+    "mode": 7,
+    "bytes": 17807670
+  },
+  {
+    "dataset": "sample",
+    "mode": 8,
+    "bytes": 18220028
+  },
+  {
+    "dataset": "sample",
+    "mode": 9,
+    "bytes": 18595873
+  },
+  {
+    "dataset": "sample",
+    "mode": 10,
+    "bytes": 16779105
+  },
+  {
+    "dataset": "sample",
+    "mode": 11,
+    "bytes": 17225793
+  },
+  {
+    "dataset": "sample",
+    "mode": 12,
+    "bytes": 16456939
+  },
+  {
+    "dataset": "sample",
+    "mode": 13,
+    "bytes": 16180094
+  },
+  {
+    "dataset": "sample",
+    "mode": 14,
+    "bytes": 15915313
+  },
+  {
+    "dataset": "sample",
+    "mode": 15,
+    "bytes": 16348226
+  },
+  {
+    "dataset": "sample",
+    "mode": 16,
+    "bytes": 16173485
+  },
+  {
+    "dataset": "sample",
+    "mode": 17,
+    "bytes": 15909395
+  },
+  {
+    "dataset": "sample",
+    "mode": 18,
+    "bytes": 16326448
+  },
+  {
+    "dataset": "mixed",
+    "mode": 0,
+    "bytes": 13212487
+  },
+  {
+    "dataset": "mixed",
+    "mode": 3,
+    "bytes": 13212837
+  },
+  {
+    "dataset": "mixed",
+    "mode": 4,
+    "bytes": 13485359
+  },
+  {
+    "dataset": "mixed",
+    "mode": 5,
+    "bytes": 13736157
+  },
+  {
+    "dataset": "mixed",
+    "mode": 6,
+    "bytes": 13954098
+  },
+  {
+    "dataset": "mixed",
+    "mode": 7,
+    "bytes": 14130890
+  },
+  {
+    "dataset": "mixed",
+    "mode": 8,
+    "bytes": 14316111
+  },
+  {
+    "dataset": "mixed",
+    "mode": 9,
+    "bytes": 14481900
+  },
+  {
+    "dataset": "mixed",
+    "mode": 10,
+    "bytes": 13683170
+  },
+  {
+    "dataset": "mixed",
+    "mode": 11,
+    "bytes": 13878249
+  },
+  {
+    "dataset": "mixed",
+    "mode": 12,
+    "bytes": 13540897
+  },
+  {
+    "dataset": "mixed",
+    "mode": 13,
+    "bytes": 13378594
+  },
+  {
+    "dataset": "mixed",
+    "mode": 14,
+    "bytes": 13302343
+  },
+  {
+    "dataset": "mixed",
+    "mode": 15,
+    "bytes": 13494248
+  },
+  {
+    "dataset": "mixed",
+    "mode": 16,
+    "bytes": 13424552
+  },
+  {
+    "dataset": "mixed",
+    "mode": 17,
+    "bytes": 13302393
+  },
+  {
+    "dataset": "mixed",
+    "mode": 18,
+    "bytes": 13487574
+  }
+]

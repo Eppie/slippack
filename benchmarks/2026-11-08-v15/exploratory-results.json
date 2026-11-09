@@ -1,0 +1,170 @@
+{
+  "combined": [
+    {
+      "dataset": "sample",
+      "variant": "combined",
+      "bytes": 14828104
+    },
+    {
+      "dataset": "mixed",
+      "variant": "combined",
+      "bytes": 12467089
+    },
+    {
+      "dataset": "holdout",
+      "variant": "combined",
+      "bytes": 25843377
+    }
+  ],
+  "grid": [
+    {
+      "dataset": "sample",
+      "variant": "grid",
+      "bytes": 15563088
+    },
+    {
+      "dataset": "mixed",
+      "variant": "grid",
+      "bytes": 13098267
+    },
+    {
+      "dataset": "holdout",
+      "variant": "grid",
+      "bytes": 27259930
+    }
+  ],
+  "pairgrid": [
+    {
+      "dataset": "sample",
+      "variant": "pairgrid",
+      "bytes": 15430230
+    },
+    {
+      "dataset": "mixed",
+      "variant": "pairgrid",
+      "bytes": 12969891
+    },
+    {
+      "dataset": "holdout",
+      "variant": "pairgrid",
+      "bytes": 26993560
+    }
+  ],
+  "aligned": [
+    {
+      "dataset": "sample",
+      "variant": "aligned",
+      "bytes": 15603070
+    },
+    {
+      "dataset": "mixed",
+      "variant": "aligned",
+      "bytes": 13133649
+    },
+    {
+      "dataset": "holdout",
+      "variant": "aligned",
+      "bytes": 27334141
+    }
+  ],
+  "nibble": [
+    {
+      "dataset": "sample",
+      "variant": "nibble",
+      "bytes": 15690492
+    },
+    {
+      "dataset": "mixed",
+      "variant": "nibble",
+      "bytes": 13212568
+    },
+    {
+      "dataset": "holdout",
+      "variant": "nibble",
+      "bytes": 27502544
+    }
+  ],
+  "integers": [
+    {
+      "dataset": "sample",
+      "variant": "integers",
+      "bytes": 14706459
+    },
+    {
+      "dataset": "mixed",
+      "variant": "integers",
+      "bytes": 12370529
+    },
+    {
+      "dataset": "holdout",
+      "variant": "integers",
+      "bytes": 25587931
+    }
+  ],
+  "semantic2": [
+    {
+      "dataset": "sample",
+      "variant": "semantic2",
+      "bytes": 14220182
+    },
+    {
+      "dataset": "mixed",
+      "variant": "semantic2",
+      "bytes": 11881303
+    },
+    {
+      "dataset": "holdout",
+      "variant": "semantic2",
+      "bytes": 24603590
+    }
+  ],
+  "special": [
+    {
+      "dataset": "sample",
+      "variant": "special",
+      "bytes": 14214681
+    },
+    {
+      "dataset": "mixed",
+      "variant": "special",
+      "bytes": 11877358
+    },
+    {
+      "dataset": "holdout",
+      "variant": "special",
+      "bytes": 24593666
+    }
+  ],
+  "value-pool-sample": [
+    "batch 1 bytes 7467034 encode 0.196026 decode 0.049787 groups 552",
+    "batch 2 bytes 7322995 encode 0.200580 decode 0.053706 groups 552",
+    "batch 4 bytes 7205100 encode 0.214425 decode 0.056268 groups 552",
+    "batch 8 bytes 7126808 encode 0.233805 decode 0.062200 groups 552",
+    "batch 16 bytes 7074106 encode 0.255354 decode 0.067681 groups 552",
+    "batch 32 bytes 7024246 encode 0.262919 decode 0.070744 groups 552"
+  ],
+  "value-pool-mixed": [
+    "batch 1 bytes 7175580 encode 0.198772 decode 0.051379 groups 416",
+    "batch 2 bytes 7053520 encode 0.206157 decode 0.054806 groups 416",
+    "batch 4 bytes 6924412 encode 0.224683 decode 0.059684 groups 416",
+    "batch 8 bytes 6826196 encode 0.244932 decode 0.066460 groups 416",
+    "batch 16 bytes 6762236 encode 0.253194 decode 0.069510 groups 416",
+    "batch 32 bytes 6722082 encode 0.252058 decode 0.070236 groups 416"
+  ],
+  "combined-pool-sample": [
+    "batch 1 bytes 1748749 encode 0.195339 decode 0.039703",
+    "batch 2 bytes 1718614 encode 0.202363 decode 0.046641",
+    "batch 4 bytes 1684037 encode 0.208663 decode 0.052705",
+    "batch 8 bytes 1663036 encode 0.211531 decode 0.051545",
+    "batch 16 bytes 1650913 encode 0.217057 decode 0.048253",
+    "batch 40 bytes 1650315 encode 0.218361 decode 0.051925"
+  ],
+  "combined-pool-mixed": [
+    "batch 1 bytes 2683010 encode 0.283351 decode 0.060744",
+    "batch 2 bytes 2641781 encode 0.301147 decode 0.068748",
+    "batch 4 bytes 2577993 encode 0.311163 decode 0.074561",
+    "batch 8 bytes 2532867 encode 0.319529 decode 0.076779",
+    "batch 16 bytes 2518589 encode 0.326669 decode 0.073523",
+    "batch 40 bytes 2560757 encode 0.366344 decode 0.089517"
+  ]
+}

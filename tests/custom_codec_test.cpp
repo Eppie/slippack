@@ -96,6 +96,33 @@ int main(int argc, char** argv) {
           "legacy semantic channel");
   legacy_reader.done();
   ++checks;
+  // Force the v15 presence path, including every short nibble/byte boundary.
+  // Its selection heuristic must not determine decoder coverage.
+  for (unsigned count :
+       {1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 15u, 16u, 17u, 31u, 127u, 1025u, 4097u}) {
+    for (unsigned pattern = 0; pattern < 5; ++pattern) {
+      size_t width = (count + 7) / 8;
+      Bytes masks(width * 8, 0), refs(8),
+          labels{FloatHigh, FloatLow, Controller, FloatLow, Discrete, FloatLow, Generic, FloatLow};
+      for (unsigned j = 0; j < 8; ++j) {
+        refs[j] = j ? 1 + random() % j : 0;
+        for (unsigned i = 0; i < count; ++i) {
+          bool bit = pattern == 0   ? false
+                     : pattern == 1 ? true
+                     : pattern == 2 ? bool(random() & 1)
+                     : pattern == 3 ? i % 37 < 4
+                                    : ((i / 7 + j) % 9 < 4);
+          if (bit) masks[j * width + i / 8] |= 1u << (i % 8);
+        }
+      }
+      auto packed = encode_presence4(masks, count, labels, refs);
+      Reader reader{packed};
+      require(decode_presence4(reader, count, labels, refs) == masks,
+              "four-bit presence roundtrip");
+      reader.done();
+      ++checks;
+    }
+  }
   // Related planes share exception locations, including odd lengths and
   // references more than one plane back. Check the mask coder directly so
   // coverage does not depend on a cost heuristic selecting it.

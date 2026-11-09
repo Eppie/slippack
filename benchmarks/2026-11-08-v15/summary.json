@@ -1,0 +1,25 @@
+{
+  "baseline_commit": "f8e4e02",
+  "files": 522,
+  "raw_bytes": 1309561719,
+  "totals": {
+    "v14": {
+      "bytes": 56405346,
+      "encode_median_seconds": 0.7307505000208039,
+      "decode_median_seconds": 0.24777874900610186
+    },
+    "v15": {
+      "bytes": 50700480,
+      "encode_median_seconds": 0.64470670800074,
+      "decode_median_seconds": 0.22120854197419249
+    }
+  },
+  "reduction_percent": {
+    "bytes": 10.114051955288073,
+    "encode_median_seconds": 11.774715449064255,
+    "decode_median_seconds": 10.723359908179642
+  },
+  "threads": 16,
+  "repeats": 31,
+  "level": 3
+}

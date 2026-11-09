@@ -44,19 +44,25 @@ int main() {
     }
     check(lcg_distance(a, b) == expected, "LCG random pair");
   }
+  for (uint32_t value = 0; value < 100000; ++value) {
+    uint32_t bits = value < 8193 ? value : random();
+    check(integer_grid(integer_grid(bits)) == bits, "integer permutation");
+    check(controller_grid(controller_grid(bits)) == bits, "controller permutation");
+  }
   const uint32_t special[] = {0, 0x80000000, 0x7f800000, 0xff800000,
       0x7fc01234, 0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
-  for (unsigned version : {10u, 13u, 14u}) {
+  for (unsigned version : {10u, 13u, 14u, 15u}) {
     bool modern = version >= 13;
     g_v13_predictors = modern;
     g_v14_predictors = version >= 14;
-    for (unsigned size : {28u, 29u, 51u, 59u, 71u, 72u, 76u, 84u, 100u}) {
+    g_v15_format = version >= 15;
+    for (unsigned size : {28u, 29u, 51u, 59u, 63u, 64u, 65u, 66u, 71u, 72u, 76u, 84u, 100u}) {
       for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
         Buf original;
         original.resize(size_t(size) * count);
         for (auto& b : original) b = uint8_t(random());
         for (unsigned i = 0; i < count; ++i)
-          for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 52u, 56u, 60u, 64u, 68u})
+          for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 33u, 52u, 56u, 60u, 64u, 68u})
             if (offset + 4 <= size && i % 2 == 0)
               word(original.data() + size_t(i) * size + offset, special[(i + offset) % std::size(special)]);
         auto records = original;
@@ -81,6 +87,25 @@ int main() {
                         ((delta << 1) ^ (0u - (delta >> 31))), "quadratic scalar oracle");
               h[2] = h[1]; h[1] = h[0];
               memcpy(&h[0], &actual, 4);
+            }
+          }
+        }
+        if (version >= 13 && size >= 72) {
+          float previous[2] = {};
+          for (unsigned i = 0; i < count; ++i) {
+            const auto* source = original.data() + size_t(i) * size;
+            for (unsigned j = 0; j < 2; ++j) {
+              volatile float speed = read_float(source + (j ? 56 : (source[46] ? 52 : 68))) +
+                                     read_float(source + 60 + 4 * j);
+              volatile float next = previous[j] + speed;
+              float prediction = std::isfinite(next) ? next : 0.f;
+              uint32_t bits;
+              memcpy(&bits, &prediction, 4);
+              uint32_t actual = be32(source + 9 + 4 * j), delta = actual - bits;
+              check(be32(records.data() + size_t(i) * size + 9 + 4 * j) ==
+                        ((delta << 1) ^ (0u - (delta >> 31))),
+                    "velocity scalar oracle");
+              memcpy(&previous[j], &actual, 4);
             }
           }
         }
@@ -110,6 +135,7 @@ int main() {
   }
   g_v13_predictors = true;
   g_v14_predictors = false;
+  g_v15_format = false;
   Buf old_records; old_records.resize(51 * 3);
   for (unsigned i = 0; i < 3; ++i) {
     word(old_records.data() + i * 51 + 9, 0x3f800000u + (i == 2));

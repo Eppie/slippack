@@ -1,0 +1,142 @@
+[
+  {
+    "dataset": "sample",
+    "cost": 3,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 15916729
+  },
+  {
+    "dataset": "sample",
+    "cost": 4,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 15764870
+  },
+  {
+    "dataset": "sample",
+    "cost": 5,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 15700811
+  },
+  {
+    "dataset": "sample",
+    "cost": 6,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 15690443
+  },
+  {
+    "dataset": "sample",
+    "cost": 7,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 15726901
+  },
+  {
+    "dataset": "sample",
+    "cost": 8,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 15759870
+  },
+  {
+    "dataset": "sample",
+    "cost": 5,
+    "dist": 0,
+    "rep": 3,
+    "bytes": 15775408
+  },
+  {
+    "dataset": "sample",
+    "cost": 5,
+    "dist": 3,
+    "rep": 3,
+    "bytes": 15689543
+  },
+  {
+    "dataset": "sample",
+    "cost": 5,
+    "dist": 11,
+    "rep": 3,
+    "bytes": 15781310
+  },
+  {
+    "dataset": "sample",
+    "cost": 5,
+    "dist": 15,
+    "rep": 3,
+    "bytes": 15893473
+  },
+  {
+    "dataset": "mixed",
+    "cost": 3,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 13563431
+  },
+  {
+    "dataset": "mixed",
+    "cost": 4,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 13352662
+  },
+  {
+    "dataset": "mixed",
+    "cost": 5,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 13247621
+  },
+  {
+    "dataset": "mixed",
+    "cost": 6,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 13212487
+  },
+  {
+    "dataset": "mixed",
+    "cost": 7,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 13214938
+  },
+  {
+    "dataset": "mixed",
+    "cost": 8,
+    "dist": 7,
+    "rep": 3,
+    "bytes": 13218885
+  },
+  {
+    "dataset": "mixed",
+    "cost": 5,
+    "dist": 0,
+    "rep": 3,
+    "bytes": 13211117
+  },
+  {
+    "dataset": "mixed",
+    "cost": 5,
+    "dist": 3,
+    "rep": 3,
+    "bytes": 13208332
+  },
+  {
+    "dataset": "mixed",
+    "cost": 5,
+    "dist": 11,
+    "rep": 3,
+    "bytes": 13368404
+  },
+  {
+    "dataset": "mixed",
+    "cost": 5,
+    "dist": 15,
+    "rep": 3,
+    "bytes": 13523683
+  }
+]

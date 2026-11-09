@@ -1,0 +1,57 @@
+{
+  "v15-sample": {
+    "hashes": "all source hashes matched",
+    "bytes": 14229456
+  },
+  "v15-mixed": {
+    "hashes": "all source hashes matched",
+    "bytes": 11877358
+  },
+  "v15-holdout": {
+    "hashes": "all source hashes matched",
+    "bytes": 24593666
+  },
+  "v10-custom": "140 source hashes matched",
+  "v10-tuned": "140 source hashes matched",
+  "v11-custom": "140 source hashes matched",
+  "v12-custom": "140 source hashes matched",
+  "v12-tuned": "140 source hashes matched",
+  "v13-custom": "140 source hashes matched",
+  "v13-tuned": "140 source hashes matched",
+  "v14-custom": "140 source hashes matched",
+  "v9-original": "419 source hashes matched",
+  "v9-old-reader": "140 new legacy file hashes matched",
+  "scalar-native": "byte-identical archives and 140 source hashes in all four encoder/decoder combinations",
+  "custom-no-external": "fatal zstd/LZMA/brotli encoder tripwires; byte-identical sample and mixed archives",
+  "v14-reader": "rejects v15 at header",
+  "make-check": "\nselftest: all passed\n./build/custom_codec_test\ncustom codec: 3510 checks passed\n./build/record_codec_test\nrecord codec: 222564 checks passed\n./build/predictor_test\npredictors: 2338268 checks passed\npython3 tests/test_archive.py\narchive integration: 12 codec/level combinations, 12 fixtures, hashes and extraction passed\n",
+  "binary_sha256": "8aed9f82668e8c7519c961c8a70e9f32254fb302ef6e4159126266e6e0c51e4b",
+  "source_sha256": {
+    "slpz.cpp": "68525865b556452ddbffca1d8f11e178caff222e1f1273f294bc81117d465287",
+    "custom_codec.h": "4b60dd0799b47603037978c85b89cee21f6ee8e37232c09493cb961822b98c97",
+    "static_context.h": "604c4acf8cd6931f2477beb5df43da0be02676709ec4f2d721cee6f7364e320b",
+    "mask_codec.h": "ae03ede00b820b58241365229beac23bb942b694f902eba1f369371057035460"
+  },
+  "v14-tuned": "140 source hashes matched",
+  "output-initialization": "all 522 source hashes matched with MallocPreScribble=1",
+  "fuzz": {
+    "predictor": {
+      "runs": 14385,
+      "seconds": 46,
+      "sanitizers": "ASan and UBSan",
+      "result": "passed"
+    },
+    "roundtrip": {
+      "runs": 1156,
+      "seconds": 46,
+      "sanitizers": "ASan and UBSan",
+      "result": "passed"
+    },
+    "codec": {
+      "runs": 70943,
+      "seconds": 46,
+      "sanitizers": "ASan and UBSan",
+      "result": "passed"
+    }
+  }
+}
