@@ -10,6 +10,25 @@ static void word(uint8_t* p, uint32_t n) {
   p[0] = uint8_t(n >> 24); p[1] = uint8_t(n >> 16);
   p[2] = uint8_t(n >> 8); p[3] = uint8_t(n);
 }
+// Preserve the original floating-point mapping as an independent oracle.
+static uint32_t integer_grid_reference(uint32_t value) {
+  if (value <= 8192) {
+    int n = int(value >> 1) ^ -int(value & 1);
+    float f = float(n);
+    uint32_t u;
+    memcpy(&u, &f, 4);
+    return u;
+  }
+  uint32_t magnitude = value & 0x7fffffffu;
+  if (magnitude > 0x45800000u) return value;
+  float f;
+  memcpy(&f, &magnitude, 4);
+  unsigned n = unsigned(f);
+  float g = float(n);
+  uint32_t u;
+  memcpy(&u, &g, 4);
+  return u == magnitude && magnitude ? n * 2 - (value >> 31) : value;
+}
 int main() {
   std::fesetround(FE_TONEAREST);
   std::mt19937 random(821251);
@@ -46,8 +65,16 @@ int main() {
   }
   for (uint32_t value = 0; value < 100000; ++value) {
     uint32_t bits = value < 8193 ? value : random();
+    check(integer_grid(bits) == integer_grid_reference(bits), "integer mapping oracle");
     check(integer_grid(integer_grid(bits)) == bits, "integer permutation");
     check(controller_grid(controller_grid(bits)) == bits, "controller permutation");
+  }
+  for (int i = -4100; i <= 4100; ++i) {
+    float f = float(i);
+    uint32_t bits;
+    memcpy(&bits, &f, 4);
+    for (uint32_t near : {bits - 1, bits, bits + 1})
+      check(integer_grid(near) == integer_grid_reference(near), "integer boundary oracle");
   }
   const uint32_t special[] = {0, 0x80000000, 0x7f800000, 0xff800000,
       0x7fc01234, 0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
@@ -56,7 +83,8 @@ int main() {
     g_v13_predictors = modern;
     g_v14_predictors = version >= 14;
     g_v15_format = version >= 15;
-    for (unsigned size : {28u, 29u, 51u, 59u, 63u, 64u, 65u, 66u, 71u, 72u, 76u, 84u, 100u}) {
+    for (unsigned size :
+         {28u, 29u, 51u, 59u, 63u, 64u, 65u, 66u, 67u, 68u, 71u, 72u, 76u, 84u, 100u}) {
       for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
         Buf original;
         original.resize(size_t(size) * count);
@@ -87,6 +115,30 @@ int main() {
                         ((delta << 1) ^ (0u - (delta >> 31))), "quadratic scalar oracle");
               h[2] = h[1]; h[1] = h[0];
               memcpy(&h[0], &actual, 4);
+            }
+          }
+        }
+        if (version == 15 && size >= 29) {
+          for (unsigned offset : {21u, 25u, 60u, 64u}) {
+            if (offset + 4 > size) continue;
+            uint32_t previous = 0, older = 0;
+            for (unsigned i = 0; i < count; ++i) {
+              uint32_t prediction = previous;
+              if (offset >= 60) {
+                float x, y;
+                memcpy(&x, &previous, 4);
+                memcpy(&y, &older, 4);
+                volatile float delta = x - y;
+                volatile float next = x + delta;
+                float safe = std::isfinite(next) ? next : 0.f;
+                memcpy(&prediction, &safe, 4);
+              }
+              size_t at = size_t(i) * size + offset;
+              uint32_t actual = be32(original.data() + at), delta = actual - prediction;
+              check(be32(records.data() + at) == ((delta << 1) ^ (0u - (delta >> 31))),
+                    "v15 field scalar oracle");
+              older = previous;
+              previous = actual;
             }
           }
         }

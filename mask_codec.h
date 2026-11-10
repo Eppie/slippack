@@ -222,6 +222,8 @@ struct NibbleTable {
 inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View refs) {
   size_t planes = profiles.size(), width = (size_t(count) + 7) / 8;
   std::array<std::array<uint32_t, 2>, 256> hist{};
+  // Independent lanes avoid serial increments when adjacent bits share a context.
+  std::array<std::array<std::array<uint32_t, 2>, 256>, 4> hist4{};
   for (size_t j = 0; j < planes; ++j) {
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned history = 0, cls = profiles[j] == FloatLow ? 128 : 0;
@@ -232,11 +234,18 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
                   : 0;
       unsigned current = masks[j * width + byte];
       unsigned pairs = std::min<size_t>(2, (count - byte * 8 + 3) / 4);
+      // Uniform bytes in a uniform context have identical decisions, including
+      // the zero padding of a final short nibble.
+      if ((current == 0 && history == 0 && (above & 1023) == 0) ||
+          (current == 255 && history == 15 && (above & 1023) == 1023)) {
+        hist4[0][cls + history + (above & 7) * 16][current & 1] += pairs * 4;
+        continue;
+      }
       for (unsigned k = 0; k < pairs; ++k) {
         unsigned s = current & 15;
         for (unsigned bit = 0; bit < 4; ++bit) {
           unsigned value = (s >> bit) & 1;
-          ++hist[cls + history + (above & 7) * 16][value];
+          ++hist4[bit][cls + history + (above & 7) * 16][value];
           history = ((history << 1) | value) & 15;
           above >>= 1;
         }
@@ -244,6 +253,9 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       }
     }
   }
+  for (unsigned c = 0; c < 256; ++c)
+    for (unsigned v = 0; v < 2; ++v)
+      for (unsigned k = 0; k < 4; ++k) hist[c][v] += hist4[k][c][v];
   std::array<std::array<uint16_t, 256>, 2> candidates{};
   double costs[2] = {};
   for (unsigned split = 0; split < 2; ++split)

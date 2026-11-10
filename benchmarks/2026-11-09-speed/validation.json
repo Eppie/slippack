@@ -1,0 +1,51 @@
+{
+  "v15-sample": {
+    "identical_to_v15": true,
+    "hashes": "all source hashes matched",
+    "bytes": 14229456
+  },
+  "v15-mixed": {
+    "identical_to_v15": true,
+    "hashes": "all source hashes matched",
+    "bytes": 11877358
+  },
+  "v15-holdout": {
+    "identical_to_v15": true,
+    "hashes": "all source hashes matched",
+    "bytes": 24593666
+  },
+  "v10-custom": "140 source hashes matched",
+  "v10-tuned": "140 source hashes matched",
+  "v11-custom": "140 source hashes matched",
+  "v12-custom": "140 source hashes matched",
+  "v12-tuned": "140 source hashes matched",
+  "v13-custom": "140 source hashes matched",
+  "v13-tuned": "140 source hashes matched",
+  "v14-custom": "140 source hashes matched",
+  "v14-tuned": "140 source hashes matched",
+  "v9-original": "419 source hashes matched",
+  "v9-old-reader": "140 new legacy file hashes matched",
+  "scalar-native": "byte-identical archives and 140 source hashes in all four encoder/decoder combinations",
+  "make-check": "\nselftest: all passed\n./build/custom_codec_test\ncustom codec: 3510 checks passed\n./build/record_codec_test\nrecord codec: 222564 checks passed\n./build/predictor_test\npredictors: 2478473 checks passed\npython3 tests/test_archive.py\narchive integration: 12 codec/level combinations, 12 fixtures, hashes and extraction passed\n",
+  "binary_sha256": "bbc048ee568dc0ce9dbe43eac162de41b6c3094c062d27ad2b13989bf5020b44",
+  "source_sha256": {
+    "slpz.cpp": "79dfa7798e9e6d22df0adf8ac31ab918111b7ab767a3f525cfb50fdd7bd272a5",
+    "custom_codec.h": "4b60dd0799b47603037978c85b89cee21f6ee8e37232c09493cb961822b98c97",
+    "static_context.h": "604c4acf8cd6931f2477beb5df43da0be02676709ec4f2d721cee6f7364e320b",
+    "mask_codec.h": "4434837fda24873696b5be61f1933d787a2b6938749c90c22185e09b34388de5"
+  },
+  "fuzz": {
+    "codec": {
+      "runs": 73727,
+      "seconds": 46,
+      "sanitizers": "ASan and UBSan",
+      "result": "passed"
+    },
+    "predictor": {
+      "runs": 15096,
+      "seconds": 46,
+      "sanitizers": "ASan and UBSan",
+      "result": "passed"
+    }
+  }
+}

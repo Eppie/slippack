@@ -1,0 +1,72 @@
+{
+  "threads": 1,
+  "repeats": 5,
+  "level": 3,
+  "baseline_commit": "7423bf3",
+  "machine": "Apple M4 Max",
+  "binary_sha256": {
+    "baseline": "8aed9f82668e8c7519c961c8a70e9f32254fb302ef6e4159126266e6e0c51e4b",
+    "current": "bbc048ee568dc0ce9dbe43eac162de41b6c3094c062d27ad2b13989bf5020b44"
+  },
+  "datasets": {
+    "mixed": {
+      "files": 103,
+      "raw_bytes": 297658164,
+      "baseline": {
+        "encode_seconds": [
+          1.3288175000343472,
+          1.3182354579912499,
+          1.3113167500123382,
+          1.312170084042009,
+          1.339236457948573
+        ],
+        "decode_seconds": [
+          0.35583020804915577,
+          0.3783738749916665,
+          0.3734014590154402,
+          0.37341649999143556,
+          0.3536055000149645
+        ],
+        "bytes": 11877358,
+        "encode_median_seconds": 1.3182354579912499,
+        "decode_median_seconds": 0.3734014590154402
+      },
+      "current": {
+        "encode_seconds": [
+          1.2362357079982758,
+          1.233333375013899,
+          1.2433719169930555,
+          1.2477567089954391,
+          1.2323543750098906
+        ],
+        "decode_seconds": [
+          0.36960345902480185,
+          0.3785931250313297,
+          0.3553998749703169,
+          0.3708103339886293,
+          0.37424791598459706
+        ],
+        "bytes": 11877358,
+        "encode_median_seconds": 1.2362357079982758,
+        "decode_median_seconds": 0.3708103339886293
+      }
+    }
+  },
+  "totals": {
+    "baseline": {
+      "bytes": 11877358,
+      "encode_median_seconds": 1.3182354579912499,
+      "decode_median_seconds": 0.3734014590154402
+    },
+    "current": {
+      "bytes": 11877358,
+      "encode_median_seconds": 1.2362357079982758,
+      "decode_median_seconds": 0.3708103339886293
+    }
+  },
+  "reduction_percent": {
+    "bytes": 0.0,
+    "encode_median_seconds": 6.220417566215886,
+    "decode_median_seconds": 0.6939247194274523
+  }
+}

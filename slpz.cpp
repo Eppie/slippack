@@ -2017,14 +2017,12 @@ static uint32_t integer_grid(uint32_t value) {
     return u;
   }
   uint32_t magnitude = value & 0x7fffffffu;
-  if (magnitude > 0x45800000u) return value;
-  float f;
-  memcpy(&f, &magnitude, 4);
-  unsigned n = unsigned(f);
-  float g = float(n);
-  uint32_t u;
-  memcpy(&u, &g, 4);
-  return u == magnitude && magnitude ? n * 2 - (value >> 31) : value;
+  if (magnitude < 0x3f800000u || magnitude > 0x45800000u) return value;
+  // Exact integral values have no significand bits below the units position.
+  unsigned shift = 150 - (magnitude >> 23);
+  uint32_t mantissa = (magnitude & 0x7fffffu) | 0x800000u;
+  unsigned n = mantissa >> shift;
+  return (n << shift) == mantissa ? n * 2 - (value >> 31) : value;
 }
 template <bool inverse, bool modern, bool quadratic = false>
 static void motion_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size) {
@@ -2064,10 +2062,47 @@ static void motion_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size
       last[K] = actual;
       store(r + O, code);
     };
+#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+    // Paired fields preserve the scalar binary32 operation order without
+    // spilling volatile intermediates to the stack.
+    auto pair = [&](unsigned offset, unsigned stateIndex, bool extrapolate) {
+      auto previous = vld1_u32(last + stateIndex), prediction = previous;
+      if (extrapolate) {
+        auto x = vreinterpret_f32_u32(previous),
+             y = vreinterpret_f32_u32(vld1_u32(older + stateIndex));
+        prediction = vreinterpret_u32_f32(vadd_f32(x, vsub_f32(x, y)));
+        prediction = vand_u32(prediction, vclt_u32(vand_u32(prediction, vdup_n_u32(0x7fffffffu)),
+                                                   vdup_n_u32(0x7f800000u)));
+      }
+      auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + offset)));
+      uint32x2_t actual, code;
+      if constexpr (inverse) {
+        auto delta =
+            veor_u32(vshr_n_u32(input, 1), vsub_u32(vdup_n_u32(0), vand_u32(input, vdup_n_u32(1))));
+        actual = vadd_u32(prediction, delta);
+        code = actual;
+      } else {
+        actual = input;
+        auto delta = vsub_u32(actual, prediction);
+        code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(vdup_n_u32(0), vshr_n_u32(delta, 31)));
+      }
+      vst1_u32(older + stateIndex, previous);
+      vst1_u32(last + stateIndex, actual);
+      vst1_u8(r + offset, vrev32_u8(vreinterpret_u8_u32(code)));
+    };
+    pair(21, 0, false);
+    if (size >= 68)
+      pair(60, 2, true);
+    else {
+      field.template operator()<2, 60>();
+      field.template operator()<3, 64>();
+    }
+#else
     field.template operator()<0, 21>();
     field.template operator()<1, 25>();
     field.template operator()<2, 60>();
     field.template operator()<3, 64>();
+#endif
     if (size >= 37) {
       unsigned state = unsigned(r[7]) * 256 + r[8];
       float x;
