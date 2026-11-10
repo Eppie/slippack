@@ -78,127 +78,93 @@ int main() {
   }
   const uint32_t special[] = {0, 0x80000000, 0x7f800000, 0xff800000,
       0x7fc01234, 0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
-  for (unsigned version : {10u, 13u, 14u, 15u}) {
-    bool modern = version >= 13;
-    g_v13_predictors = modern;
-    g_v14_predictors = version >= 14;
-    g_v15_format = version >= 15;
-    for (unsigned size :
-         {28u, 29u, 51u, 59u, 63u, 64u, 65u, 66u, 67u, 68u, 71u, 72u, 76u, 84u, 100u}) {
-      for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
-        Buf original;
-        original.resize(size_t(size) * count);
-        for (auto& b : original) b = uint8_t(random());
-        for (unsigned i = 0; i < count; ++i)
-          for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 33u, 52u, 56u, 60u, 64u, 68u})
-            if (offset + 4 <= size && i % 2 == 0)
-              word(original.data() + size_t(i) * size + offset, special[(i + offset) % std::size(special)]);
-        auto records = original;
-        motion_predict(records.data(), count, size, false);
-        if (version == 14 && size >= 29 && size < 72) {
-          // Independent oracle: extrapolate from three original positions,
-          // rather than keeping the implementation's velocity/acceleration.
-          float positions[2][3] = {};
-          for (unsigned i = 0; i < count; ++i) {
-            for (unsigned j = 0; j < 2; ++j) {
-              auto& h = positions[j];
-              volatile float v0 = h[0] - h[1], v1 = h[1] - h[2];
-              volatile float acceleration = v0 - v1;
-              volatile float velocity = v0 + acceleration;
-              volatile float next = h[0] + velocity;
-              float prediction = std::isfinite(next) ? next : 0.f;
-              uint32_t bits;
-              memcpy(&bits, &prediction, 4);
-              size_t offset = size_t(i) * size + 9 + 4 * j;
-              uint32_t actual = be32(original.data() + offset), delta = actual - bits;
-              check(be32(records.data() + offset) ==
-                        ((delta << 1) ^ (0u - (delta >> 31))), "quadratic scalar oracle");
-              h[2] = h[1]; h[1] = h[0];
-              memcpy(&h[0], &actual, 4);
-            }
+  for (unsigned size :
+       {28u, 29u, 51u, 59u, 63u, 64u, 65u, 66u, 67u, 68u, 71u, 72u, 76u, 84u, 100u}) {
+    for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
+      Buf original;
+      original.resize(size_t(size) * count);
+      for (auto& b : original) b = uint8_t(random());
+      for (unsigned i = 0; i < count; ++i)
+        for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 33u, 52u, 56u, 60u, 64u, 68u})
+          if (offset + 4 <= size && i % 2 == 0)
+            word(original.data() + size_t(i) * size + offset, special[(i + offset) % std::size(special)]);
+      auto records = original;
+      motion_predict(records.data(), count, size, false);
+      if (size >= 29 && size < 72) {
+        // Independent oracle: extrapolate from three original positions,
+        // rather than keeping the implementation's velocity/acceleration.
+        float positions[2][3] = {};
+        for (unsigned i = 0; i < count; ++i) {
+          for (unsigned j = 0; j < 2; ++j) {
+            auto& h = positions[j];
+            volatile float v0 = h[0] - h[1], v1 = h[1] - h[2];
+            volatile float acceleration = v0 - v1;
+            volatile float velocity = v0 + acceleration;
+            volatile float next = h[0] + velocity;
+            float prediction = std::isfinite(next) ? next : 0.f;
+            uint32_t bits;
+            memcpy(&bits, &prediction, 4);
+            size_t offset = size_t(i) * size + 9 + 4 * j;
+            uint32_t actual = be32(original.data() + offset), delta = actual - bits;
+            check(be32(records.data() + offset) ==
+                      ((delta << 1) ^ (0u - (delta >> 31))), "quadratic scalar oracle");
+            h[2] = h[1]; h[1] = h[0];
+            memcpy(&h[0], &actual, 4);
           }
         }
-        if (version == 15 && size >= 29) {
-          for (unsigned offset : {21u, 25u, 60u, 64u}) {
-            if (offset + 4 > size) continue;
-            uint32_t previous = 0, older = 0;
-            for (unsigned i = 0; i < count; ++i) {
-              uint32_t prediction = previous;
-              if (offset >= 60) {
-                float x, y;
-                memcpy(&x, &previous, 4);
-                memcpy(&y, &older, 4);
-                volatile float delta = x - y;
-                volatile float next = x + delta;
-                float safe = std::isfinite(next) ? next : 0.f;
-                memcpy(&prediction, &safe, 4);
-              }
-              size_t at = size_t(i) * size + offset;
-              uint32_t actual = be32(original.data() + at), delta = actual - prediction;
-              check(be32(records.data() + at) == ((delta << 1) ^ (0u - (delta >> 31))),
-                    "v15 field scalar oracle");
-              older = previous;
-              previous = actual;
-            }
-          }
-        }
-        if (version >= 13 && size >= 72) {
-          float previous[2] = {};
-          for (unsigned i = 0; i < count; ++i) {
-            const auto* source = original.data() + size_t(i) * size;
-            for (unsigned j = 0; j < 2; ++j) {
-              volatile float speed = read_float(source + (j ? 56 : (source[46] ? 52 : 68))) +
-                                     read_float(source + 60 + 4 * j);
-              volatile float next = previous[j] + speed;
-              float prediction = std::isfinite(next) ? next : 0.f;
-              uint32_t bits;
-              memcpy(&bits, &prediction, 4);
-              uint32_t actual = be32(source + 9 + 4 * j), delta = actual - bits;
-              check(be32(records.data() + size_t(i) * size + 9 + 4 * j) ==
-                        ((delta << 1) ^ (0u - (delta >> 31))),
-                    "velocity scalar oracle");
-              memcpy(&previous[j], &actual, 4);
-            }
-          }
-        }
-        if (size < (modern ? 29u : 72u)) check(records == original, "predictor eligibility");
-        motion_predict(records.data(), count, size, true);
-        check(records == original, "numeric predictor roundtrip");
-        input_predict(records.data(), count, size, false);
-        if (version == 14 && size >= 59) {
-          uint32_t previous[4][256] = {};
-          const unsigned offsets[] = {24, 28, 32, 36}, raw[] = {58, 63, 64, 65};
-          for (unsigned i = 0; i < count; ++i)
-            for (unsigned j = 0; j < 4; ++j) {
-              if (raw[j] >= size) continue;
-              const auto* source = original.data() + size_t(i) * size;
-              uint32_t actual = be32(source + offsets[j]);
-              auto& last = previous[j][source[raw[j]]];
-              uint32_t delta = actual - last;
-              check(be32(records.data() + size_t(i) * size + offsets[j]) ==
-                        ((delta << 1) ^ (0u - (delta >> 31))), "numeric input oracle");
-              last = actual;
-            }
-        }
-        input_predict(records.data(), count, size, true);
-        check(records == original, "input predictor roundtrip");
       }
+      if (size >= 29) {
+        for (unsigned offset : {21u, 25u, 60u, 64u}) {
+          if (offset + 4 > size) continue;
+          uint32_t previous = 0, older = 0;
+          for (unsigned i = 0; i < count; ++i) {
+            uint32_t prediction = previous;
+            if (offset >= 60) {
+              float x, y;
+              memcpy(&x, &previous, 4);
+              memcpy(&y, &older, 4);
+              volatile float delta = x - y;
+              volatile float next = x + delta;
+              float safe = std::isfinite(next) ? next : 0.f;
+              memcpy(&prediction, &safe, 4);
+            }
+            size_t at = size_t(i) * size + offset;
+            uint32_t actual = be32(original.data() + at), delta = actual - prediction;
+            check(be32(records.data() + at) == ((delta << 1) ^ (0u - (delta >> 31))),
+                  "field scalar oracle");
+            older = previous;
+            previous = actual;
+          }
+        }
+      }
+      if (size >= 72) {
+        float previous[2] = {};
+        for (unsigned i = 0; i < count; ++i) {
+          const auto* source = original.data() + size_t(i) * size;
+          for (unsigned j = 0; j < 2; ++j) {
+            volatile float speed = read_float(source + (j ? 56 : (source[46] ? 52 : 68))) +
+                                   read_float(source + 60 + 4 * j);
+            volatile float next = previous[j] + speed;
+            float prediction = std::isfinite(next) ? next : 0.f;
+            uint32_t bits;
+            memcpy(&bits, &prediction, 4);
+            uint32_t actual = be32(source + 9 + 4 * j), delta = actual - bits;
+            check(be32(records.data() + size_t(i) * size + 9 + 4 * j) ==
+                      ((delta << 1) ^ (0u - (delta >> 31))),
+                  "velocity scalar oracle");
+            memcpy(&previous[j], &actual, 4);
+          }
+        }
+      }
+      if (size < 29u) check(records == original, "predictor eligibility");
+      motion_predict(records.data(), count, size, true);
+      check(records == original, "numeric predictor roundtrip");
+      input_predict(records.data(), count, size, false);
+
+      input_predict(records.data(), count, size, true);
+      check(records == original, "input predictor roundtrip");
     }
   }
-  g_v13_predictors = true;
-  g_v14_predictors = false;
-  g_v15_format = false;
-  Buf old_records; old_records.resize(51 * 3);
-  for (unsigned i = 0; i < 3; ++i) {
-    word(old_records.data() + i * 51 + 9, 0x3f800000u + (i == 2));
-    word(old_records.data() + i * 51 + 13, 0x80000000u);
-  }
-  auto original = old_records;
-  motion_predict(old_records.data(), 3, 51, false);
-  check(be32(old_records.data() + 51 + 9) == 0, "old-format position repeat");
-  check(be32(old_records.data() + 2 * 51 + 9) == 2, "one-ULP signed residual");
-  check(be32(old_records.data() + 51 + 13) == 0, "negative-zero repeat");
-  motion_predict(old_records.data(), 3, 51, true);
-  check(old_records == original, "old-format fallback reconstruction");
+
   printf("predictors: %zu checks passed\n", checks);
 }

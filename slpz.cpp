@@ -9,10 +9,10 @@
 //      (same idea as Blosc shuffle — puts slowly-changing bytes together),
 //   3. per plane, pick plain / subtract-delta / xor-delta by an order-0
 //      entropy probe (sub suits counters, xor suits the BE floats),
-//   4. compress each plane buffer with zstd.
+//   4. compress semantic plane packets with the custom rANS/LZ codec.
 // A one-byte-per-event order stream (itself extremely compressible) lets us
 // reconstruct the exact interleaving. Anything that doesn't parse — truncated
-// events, unknown commands, non-.slp input — falls back to raw zstd of the
+// events, unknown commands, non-.slp input — falls back to a custom frame of the
 // remaining bytes, so output is byte-identical for arbitrary input.
 //
 // Hot paths (transpose, delta, scans) are NEON-vectorized on Apple Silicon and
@@ -38,11 +38,7 @@
 #include <malloc.h>
 #include <openssl/sha.h>
 #endif
-#include <brotli/decode.h>
-#include <brotli/encode.h>
-#include <lzma.h>
 #include <unistd.h>
-#include <zstd.h>
 
 #include <algorithm>
 #include <atomic>
@@ -70,18 +66,10 @@ namespace fs = std::filesystem;
 
 // ── container constants ─────────────────────────────────────────────────────
 constexpr uint32_t kMagic = 0x5A504C53;  // "SLPZ" little-endian
-constexpr uint8_t kVersion = 9;
-constexpr uint8_t kTunedVersion = 10;
-constexpr uint8_t kPreviousCustomVersion = 11;
-constexpr uint8_t kDictionaryVersion = 12;
-constexpr uint8_t kNumericVersion = 13;
-constexpr uint8_t kMotionVersion = 14;
-constexpr uint8_t kCustomVersion = 15;
-static bool g_v15_format = true;
-static bool g_v14_predictors = true;
-static bool g_v13_predictors = true;
-static bool g_custom = false, g_tuned = false;
-constexpr uint8_t kModeRaw = 0;    // whole file = one zstd blob
+constexpr uint8_t kVersion = 1;
+constexpr uint8_t kOriginalVersion = 15;  // identical payload before renumbering
+constexpr uint8_t kCustom = 6;  // tagged custom frame codec ID
+constexpr uint8_t kModeRaw = 0;    // whole file = one custom frame
 constexpr uint8_t kModeSplit = 1;  // parsed event streams
 
 constexpr size_t kSlpHeaderLen = 15;  // "{U\x03raw[$U#l" + u32 BE raw length
@@ -212,10 +200,8 @@ static void write_file(const fs::path& path, std::span<const uint8_t> data) {
   ::close(fd);
 }
 
-// v10 custom frames are self-describing; semantic labels are part of the
-// payload. The legacy v9 framing and codec IDs remain unchanged.
-// The middle tier spends less time searching after v13's predictors have
-// removed more redundancy. Levels 6-8 retain the eight-candidate size option.
+// Custom frames carry their semantic profile in the payload.
+// Levels 6-8 retain the eight-candidate size option.
 static unsigned custom_depth(int level) {
   return level >= 9 ? 24 : level >= 6 ? 8 : level >= 3 ? 4 : 2;
 }
@@ -280,7 +266,6 @@ struct Stats {
   std::atomic<uint64_t> byCmd[256]{};
   std::atomic<uint64_t> order{0}, suffix{0}, tail{0}, selector{0}, misc{0};
   std::atomic<uint64_t> seeds{0}, seedHit{0}, seedMiss{0};
-  std::atomic<uint64_t> lzmaWin{0}, zstdWin{0};
   bool enabled = false;
 };
 static Stats g_stats;
@@ -335,256 +320,16 @@ static uint32_t lcg_distance(uint32_t a, uint32_t b) {
   return jump.multiply * a + jump.add == b ? k : UINT32_MAX;
 }
 
-// ── zstd wrappers (contexts reused per worker thread) ───────────────────────
-struct Zctx {
-  ZSTD_CCtx* c = ZSTD_createCCtx();
-  ZSTD_DCtx* d = ZSTD_createDCtx();
-  ~Zctx() { ZSTD_freeCCtx(c); ZSTD_freeDCtx(d); }
-};
-
-// ── LZMA raw frames ─────────────────────────────────────────────────────────
-// LZMA's literal coder models (prev-byte high bits, position) context —
-// exactly the order-1 structure the transformed planes carry, which zstd's
-// order-0 literal stage cannot see. Measured on transformed planes: LZMA
-// fast ≈ 10% smaller than zstd -3 at 76 MB/s/thread; normal ≈ zstd -19
-// quality at similar speed to zstd -12. pb=0 because planes are positionless
-// byte streams.
-enum : uint8_t {
-  kLzmaFast = 1,
-  kLzmaNormal = 2,
-  kLzmaLite = 3,
-  kBrotli = 4,
-  kLzmaMax = 5,
-  kCustom = 6
-};
-
-// planes codec per CLI level: brotli q5 measured +3.5% size vs LZMA fast but
-// 2.6x faster encode / 3.5x faster decode -> it is the speed tier
-static uint8_t codec_id_for_level(int level) {
-  if (g_custom) return kCustom;
-  return level <= 2 ? kBrotli : level <= 8 ? kLzmaFast : kLzmaMax;
-}
-
-static lzma_options_lzma lzma_opts_for(uint8_t id) {
-  lzma_options_lzma o;
-  lzma_lzma_preset(&o, id == kLzmaNormal ? 6 : 1);
-  o.lc = 3;
-  o.lp = 0;
-  o.pb = 0;
-  if (id == kLzmaLite) {
-    o.dict_size = 1u << 20;
-    o.mode = LZMA_MODE_FAST;
-    o.nice_len = 32;
-    o.mf = LZMA_MF_HC4;
-  } else if (id == kLzmaFast) {
-    // nice=128 + 8MB dict measured 2% smaller than nice=32 + 1MB at the
-    // same throughput (~57 MB/s/thread) on transformed planes
-    o.dict_size = 8u << 20;
-    o.mode = LZMA_MODE_FAST;
-    o.nice_len = 128;
-    o.mf = LZMA_MF_HC4;
-  } else if (id == kLzmaMax) {
-    // BT4/nice=273: -6.4% on frame planes at ~5 MB/s/thread — used only at
-    // -l >=9 where the split routes just the entropy-rich planes here
-    o.dict_size = 8u << 20;
-    o.mode = LZMA_MODE_NORMAL;
-    o.nice_len = 273;
-    o.mf = LZMA_MF_BT4;
-  } else {
-    o.dict_size = 8u << 20;
-    o.mode = LZMA_MODE_NORMAL;
-    o.nice_len = 64;
-    o.mf = LZMA_MF_HC4;
-  }
-  return o;
-}
-
-#ifdef SLPZ_FUZZ_STUB_SLOW
-// Fuzzing shortcut: replace the slow, upstream-hardened codecs (LZMA, brotli)
-// with an identity store — [u32 n][u32 n][raw n bytes], the same frame layout —
-// so the round-trip stops spending CPU on code we trust and aren't fuzzing.
-// zstd stays real, so the packer's size-based mode/layout choices remain honest
-// and the split/alt decode paths still get exercised. Encoder and decoder are
-// stubbed together, so round-trip byte-identity still holds.
-static size_t fuzz_store_frame(std::span<const uint8_t> in, Buf& out) {
-  uint32_t n = (uint32_t)in.size();
-  out.put_u32(n);
-  out.put_u32(n);
-  out.put_bytes(in.data(), in.size());
-  return n;
-}
-static std::vector<uint8_t> fuzz_load_frame(Reader& r) {
-  uint32_t comp = r.u32();
-  (void)r.u32();  // orig == comp for identity frames
-  auto src = r.bytes(comp);
-  if (r.fail) die("corrupt archive (stub frame)");
-  return std::vector<uint8_t>(src.begin(), src.end());
-}
-#endif
-
-// frame layout mirrors z_compress: u32 compLen, u32 origLen, bytes
-static size_t lzma_compress_frame(std::span<const uint8_t> in, uint8_t id, Buf& out) {
-  if (g_custom) return custom_frame(in, out);
-#ifdef SLPZ_FUZZ_STUB_SLOW
-  (void)id;
-  return fuzz_store_frame(in, out);
-#endif
-  lzma_options_lzma o = lzma_opts_for(id);
-  if (g_tuned) {
-    uint32_t size = 4096;
-    while (size < in.size() && size < o.dict_size) size *= 2;
-    o.dict_size = std::min(o.dict_size, size);
-  }
-  lzma_filter filters[2] = {{LZMA_FILTER_LZMA2, &o}, {LZMA_VLI_UNKNOWN, nullptr}};
-  size_t bound = lzma_stream_buffer_bound(in.size());
-  size_t at = out.size();
-  out.resize(at + 8 + bound);
-  size_t pos = 0;
-  lzma_ret rc = in.empty()
-                    ? LZMA_OK  // empty frame: comp=0, orig=0
-                    : lzma_raw_buffer_encode(filters, nullptr, in.data(),
-                                             in.size(), out.data() + at + 8,
-                                             &pos, bound);
-  if (rc != LZMA_OK) die("lzma encode failed");
-  out.resize(at + 8 + pos);
-  uint32_t comp = (uint32_t)pos, orig = (uint32_t)in.size();
-  memcpy(out.data() + at, &comp, 4);
-  memcpy(out.data() + at + 4, &orig, 4);
-  return pos;
-}
-
-static std::vector<uint8_t> lzma_decompress_frame(Reader& r, uint8_t id);
-static size_t z_compress(Zctx& z, std::span<const uint8_t> in, int level, Buf& out);
-static std::vector<uint8_t> z_decompress(Zctx& z, Reader& r);
-static std::vector<uint8_t> codec_decompress_frame(Zctx& z, Reader& r, uint8_t id);
-
-// small side-streams (order, seeds, selectors): u8 codec + frame,
-// zstd vs lzma-fast trial, smaller wins
-static void small_compress(Zctx& z, std::span<const uint8_t> in, int level, Buf& blob,
+// Small side streams carry a codec tag before their custom frame.
+static void small_compress(std::span<const uint8_t> in, int level, Buf& blob,
                            slpz_custom::Profile profile = slpz_custom::Generic) {
-  if (g_custom) {
-    blob.put_u8(kCustom);
-    custom_frame(in, blob, profile, level);
-    return;
-  }
-  Buf a, b;
-  z_compress(z, in, level, a);
-  if (in.size() >= 4096) lzma_compress_frame(in, kLzmaFast, b);
-  bool useL = !b.empty() && b.size() < a.size();
-  blob.put_u8(useL ? kLzmaFast : 0);
-  const Buf& w = useL ? b : a;
-  blob.put_bytes(w.data(), w.size());
+  blob.put_u8(kCustom);
+  custom_frame(in, blob, profile, level);
 }
 
-static std::vector<uint8_t> small_decompress(Zctx& z, Reader& r) {
-  uint8_t codec = r.u8();
-  if (r.fail) die("corrupt archive (side stream)");
-  return codec_decompress_frame(z, r, codec);
-}
-
-static std::vector<uint8_t> lzma_decompress_frame(Reader& r, uint8_t id) {
-#ifdef SLPZ_FUZZ_STUB_SLOW
-  (void)id;
-  return fuzz_load_frame(r);
-#endif
-  uint32_t comp = r.u32(), orig = r.u32();
-  auto src = r.bytes(comp);
-  if (r.fail) die("corrupt archive (lzma frame)");
-  if (orig == 0) return {};
-  lzma_options_lzma o = lzma_opts_for(id);
-  lzma_filter filters[2] = {{LZMA_FILTER_LZMA2, &o}, {LZMA_VLI_UNKNOWN, nullptr}};
-  std::vector<uint8_t> out(orig);
-  size_t inPos = 0, outPos = 0;
-  lzma_ret rc = lzma_raw_buffer_decode(filters, nullptr, src.data(), &inPos,
-                                       comp, out.data(), &outPos, orig);
-  if (rc != LZMA_OK || outPos != orig) die("corrupt archive (lzma payload)");
-  return out;
-}
-
-// brotli frames (quality 5, lgwin 22), same u32 comp / u32 orig framing
-static size_t brotli_compress_frame(std::span<const uint8_t> in, Buf& out) {
-#ifdef SLPZ_FUZZ_STUB_SLOW
-  return fuzz_store_frame(in, out);
-#endif
-  size_t bound = BrotliEncoderMaxCompressedSize(in.size());
-  if (!bound) bound = in.size() + 1024;
-  size_t at = out.size();
-  out.resize(at + 8 + bound);
-  size_t n = 0;
-  if (!in.empty()) {
-    n = bound;
-    if (!BrotliEncoderCompress(5, 22, BROTLI_MODE_GENERIC, in.size(),
-                               in.data(), &n, out.data() + at + 8))
-      die("brotli encode failed");
-  }
-  out.resize(at + 8 + n);
-  uint32_t comp = (uint32_t)n, orig = (uint32_t)in.size();
-  memcpy(out.data() + at, &comp, 4);
-  memcpy(out.data() + at + 4, &orig, 4);
-  return n;
-}
-
-static std::vector<uint8_t> brotli_decompress_frame(Reader& r) {
-#ifdef SLPZ_FUZZ_STUB_SLOW
-  return fuzz_load_frame(r);
-#endif
-  uint32_t comp = r.u32(), orig = r.u32();
-  auto src = r.bytes(comp);
-  if (r.fail) die("corrupt archive (brotli frame)");
-  if (orig == 0) return {};
-  std::vector<uint8_t> out(orig);
-  size_t n = orig;
-  if (BrotliDecoderDecompress(comp, src.data(), &n, out.data()) !=
-          BROTLI_DECODER_RESULT_SUCCESS ||
-      n != orig)
-    die("corrupt archive (brotli payload)");
-  return out;
-}
-
-static void codec_compress_frame(Zctx& z, std::span<const uint8_t> in,
-                                 uint8_t id, int level, Buf& out) {
-  if (id == kCustom && g_custom)
-    custom_frame(in, out, slpz_custom::Generic, level);
-  else if (id == kBrotli)
-    brotli_compress_frame(in, out);
-  else if (id == 0) z_compress(z, in, level, out);
-  else lzma_compress_frame(in, id, out);
-}
-
-static std::vector<uint8_t> codec_decompress_frame(Zctx& z, Reader& r, uint8_t id) {
-  if (id == kCustom && g_custom) return custom_unframe(r);
-  if (id == kBrotli) return brotli_decompress_frame(r);
-  if (id == 0) return z_decompress(z, r);
-  if (id == kLzmaFast || id == kLzmaNormal || id == kLzmaLite || id == kLzmaMax)
-    return lzma_decompress_frame(r, id);
-  die("corrupt archive (codec id)");
-}
-
-// frame layout: u32 compLen, u32 origLen, bytes. Returns compressed size.
-static size_t z_compress(Zctx& z, std::span<const uint8_t> in, int level, Buf& out) {
-  if (g_custom) return custom_frame(in, out, slpz_custom::Generic, level);
-  size_t bound = ZSTD_compressBound(in.size());
-  size_t at = out.size();
-  out.resize(at + 8 + bound);
-  size_t n = ZSTD_compressCCtx(z.c, out.data() + at + 8, bound,
-                               in.data(), in.size(), level);
-  if (ZSTD_isError(n)) die(std::string("zstd: ") + ZSTD_getErrorName(n));
-  out.resize(at + 8 + n);
-  uint32_t comp = (uint32_t)n, orig = (uint32_t)in.size();
-  memcpy(out.data() + at, &comp, 4);
-  memcpy(out.data() + at + 4, &orig, 4);
-  return n;
-}
-
-static std::vector<uint8_t> z_decompress(Zctx& z, Reader& r) {
-  if (g_custom) return custom_unframe(r);
-  uint32_t comp = r.u32(), orig = r.u32();
-  auto src = r.bytes(comp);
-  if (r.fail) die("corrupt archive (zstd frame header)");
-  std::vector<uint8_t> out(orig);
-  size_t n = ZSTD_decompressDCtx(z.d, out.data(), orig, src.data(), comp);
-  if (ZSTD_isError(n) || n != orig) die("corrupt archive (zstd payload)");
-  return out;
+static std::vector<uint8_t> small_decompress(Reader& r) {
+  if (r.u8() != kCustom || r.fail) die("corrupt archive (custom codec tag)");
+  return custom_unframe(r);
 }
 
 // ── NEON kernels ────────────────────────────────────────────────────────────
@@ -787,15 +532,14 @@ static const float* xlog2x_lut() {
   return lut;
 }
 
-// returns transform id; *estBits = post-transform order-0 bits/byte estimate
-static uint8_t choose_transform(const uint8_t* plane, uint32_t count,
-                                float* estBits) {
-  // constant plane: zstd RLEs it as-is; skip transforms entirely
-  if (slpz_custom::is_constant({plane, count})) { *estBits = 0.f; return T_PLAIN; }
+// Return the transform with the lowest estimated order-0 entropy.
+static uint8_t choose_transform(const uint8_t* plane, uint32_t count) {
+  // Constant planes have an explicit compact representation.
+  if (slpz_custom::is_constant({plane, count})) return T_PLAIN;
 
   uint32_t hist[3][256] = {};
   uint32_t m = 0;
-  const uint32_t kWin = g_tuned ? 256 : 4096;
+  constexpr uint32_t kWin = 256;
   uint32_t starts[3] = {0, count > 2 * kWin ? count / 2 : count,
                         count > 3 * kWin ? count - kWin : count};
   for (uint32_t s : starts) {
@@ -824,7 +568,6 @@ static uint8_t choose_transform(const uint8_t* plane, uint32_t count,
   if (score[0] + eps >= score[1] && score[0] + eps >= score[2]) t = T_PLAIN;
   else if (score[1] + eps / 2 >= score[2]) t = T_SUB;
   else t = T_XOR;
-  *estBits = std::log2f((float)m) - score[t] / (float)m;
   return t;
 }
 
@@ -859,12 +602,12 @@ struct U32Set {
 struct DictField {
   uint16_t offset;
   uint8_t width;               // 2 or 4 bytes
-  std::vector<uint32_t> vals;  // LE-packed field bytes; sorted for tuned/custom
+  std::vector<uint32_t> vals;  // LE-packed field bytes; sorted by original byte order
   Buf idx;                     // index plane (count bytes)
 };
 
 static bool implicit_dictionary(const DictField& f) {
-  return g_tuned && g_v15_format && f.vals.size() == 1;
+  return f.vals.size() == 1;
 }
 
 // Sort by the original big-endian byte sequence, then remap record indexes.
@@ -957,20 +700,10 @@ static void dictionary_reverse(std::span<const uint8_t> data, uint8_t transform,
   }
 }
 
-// transpose + field dictionarization (4- then 2-byte) + per-plane transform
-// + entropy stage with per-plane codec bucketing.
-// Group payload layout (format v8):
-//   u8 nFields, per field: u8 width, u16 offset, u8 nVals-1, nVals×width
-//   selector byte per OUTPUT plane (bits 0-1 transform, bit 2 cheap bucket)
-//   u8 layout: 0 = u8 codec + frame(all planes)
-//              1 = frame zstd(cheap planes) + u8 codec + frame(rich planes)
-// "Cheap" planes (probe estimate <= kCheapBits bits/byte — runs, constants,
-// the zeroed prediction spans) go to zstd at ~15x LZMA's speed; the entropy
-// stage only sees planes that pay for it.
-constexpr float kCheapBits = 0.30f;
-
-static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count, uint32_t size,
-                         int level, Buf& blob, std::atomic<uint64_t>* stat, bool allowLzma = true,
+// Transpose, dictionarize complete fields, and select a reversible byte
+// transform per plane. Layout 2 stores the semantic custom plane packet.
+static void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size,
+                         int level, Buf& blob, std::atomic<uint64_t>* stat,
                          uint8_t cmd = 0) {
   size_t blobAt = blob.size();
   Buf planes;
@@ -981,18 +714,17 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
   if (count >= 64) {
     std::vector<uint8_t> covered(size, 0), constant(size, 0);
     std::vector<unsigned> alphabets(size, 0);
-    const unsigned limit = g_tuned ? 128 : 257;
-    if (g_tuned)
-      for (unsigned o = 0; o < size; ++o)
-        constant[o] = slpz_custom::is_constant({planes.data() + size_t(o) * count, count});
+    constexpr unsigned limit = 128;
+    for (unsigned o = 0; o < size; ++o)
+      constant[o] = slpz_custom::is_constant({planes.data() + size_t(o) * count, count});
     Buf idxPlane;
     // Preserve complete semantic fields before considering sliding windows.
     std::vector<std::pair<unsigned, unsigned>> trials;
     trials.reserve(size_t(size) * 2 + 16);
-    if (g_tuned && cmd == 0x37)
+    if (cmd == 0x37)
       for (unsigned o : {12u, 16u, 20u, 24u, 28u, 32u, 36u, 40u, 50u, 54u, 59u})
         if (o + 4 <= size) trials.emplace_back(4, o);
-    if (g_tuned && cmd == 0x38)
+    if (cmd == 0x38)
       for (unsigned o : {9u, 13u, 17u, 21u, 25u, 33u, 42u, 52u, 56u, 60u, 64u, 68u, 72u, 76u, 80u})
         if (o + 4 <= size) trials.emplace_back(4, o);
     for (unsigned width : {4u, 2u})
@@ -1009,7 +741,7 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
         }
       // A large alphabet in one varying byte gains little from a dictionary:
       // explicit constant planes already represent its fixed neighbours.
-      if (changing == 1 && g_tuned) {
+      if (changing == 1) {
         if (!alphabets[changingOffset]) {
           std::array<bool, 256> seen{};
           unsigned distinct = 0;
@@ -1026,7 +758,7 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
       }
       U32Set set;
       idxPlane.clear();
-      if (changing || !(g_tuned && g_v15_format)) idxPlane.resize(count);
+      if (changing) idxPlane.resize(count);
       bool ok = true;
       if (changing == 0) {
         uint32_t v = 0;
@@ -1084,7 +816,7 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
               [](const DictField& a, const DictField& b) { return a.offset < b.offset; });
   }
 
-  if (g_tuned) sort_dictionaries(fields);
+  sort_dictionaries(fields);
 
   uint32_t nOut = size;
   for (auto& f : fields) nOut -= f.width - 1 + implicit_dictionary(f);
@@ -1111,7 +843,7 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
   uint8_t dictionaryTransform = 0;
   size_t dictionaryBytes = 0;
   for (const auto& f : fields) dictionaryBytes += f.vals.size() * f.width;
-  if (g_tuned && dictionaryBytes >= 128) {
+  if (dictionaryBytes >= 128) {
     Buf candidates[4];
     unsigned best = 0;
     double cost = std::numeric_limits<double>::infinity();
@@ -1122,7 +854,7 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
       double c = slpz_custom::context_cost(hist);
       if (c < cost) { cost = c; best = t; }
     }
-    small_compress(z, candidates[best], std::min(level, 3), dictionary, slpz_custom::Discrete);
+    small_compress(candidates[best], std::min(level, 3), dictionary, slpz_custom::Discrete);
     if (dictionary.size() < dictionaryBytes) dictionaryTransform = uint8_t(best + 1);
   }
   blob.put_u8(uint8_t(fields.size()));
@@ -1138,78 +870,26 @@ static void pack_records(Zctx& z, std::span<const uint8_t> recs, uint32_t count,
   }
   if (dictionaryTransform) blob.put_bytes(dictionary.data(), dictionary.size());
   std::vector<uint8_t> profiles;
-  if (g_custom) {
-    for (uint32_t offset = 0; offset < size;) {
-      bool constant = false;
-      if (widthAt[offset])
-        for (auto& f : fields)
-          if (f.offset == offset) {
-            constant = implicit_dictionary(f);
-            break;
-          }
-      if (!constant) profiles.push_back(field_profile(cmd, offset, widthAt[offset] != 0));
-      offset += widthAt[offset] ? widthAt[offset] : 1;
-    }
+  for (uint32_t offset = 0; offset < size;) {
+    bool constant = false;
+    if (widthAt[offset])
+      for (auto& f : fields)
+        if (f.offset == offset) {
+          constant = implicit_dictionary(f);
+          break;
+        }
+    if (!constant) profiles.push_back(field_profile(cmd, offset, widthAt[offset] != 0));
+    offset += widthAt[offset] ? widthAt[offset] : 1;
   }
-  size_t selAt = blob.size();
-  blob.resize(selAt + nOut);
-  size_t cheapBytes = 0;
   for (uint32_t j = 0; j < nOut; j++) {
     uint8_t* pl = out.data() + (size_t)j * count;
-    float est = 8.f;
-    uint8_t t = count >= 8 ? choose_transform(pl, count, &est) : T_PLAIN;
+    uint8_t t = count >= 8 ? choose_transform(pl, count) : T_PLAIN;
     if (t == T_SUB) delta_fwd<false>(pl, count);
     else if (t == T_XOR) delta_fwd<true>(pl, count);
-    if (est <= kCheapBits) {
-      t |= 4;
-      cheapBytes += count;
-    }
-    blob[selAt + j] = t;
+    blob.put_u8(t);
   }
-
-  if (g_custom) {
-    for (uint32_t j = 0; j < nOut; j++) blob[selAt + j] &= 3;
-    blob.put_u8(2);
-    custom_planes_frame(out, count, profiles, level, blob);
-    if (g_stats.enabled && stat) *stat += blob.size() - blobAt;
-    return;
-  }
-  uint8_t altId = codec_id_for_level(level);
-  size_t total = out.size();
-  bool split = allowLzma && cheapBytes >= 4096 && total - cheapBytes >= 4096 &&
-               cheapBytes * 8 >= total;
-  Buf whole;
-  z_compress(z, out, level, whole);
-  Buf splitBuf;
-  if (split) {
-    Buf cheap, rich;
-    cheap.reserve(cheapBytes);
-    rich.reserve(total - cheapBytes);
-    for (uint32_t j = 0; j < nOut; j++)
-      (blob[selAt + j] & 4 ? cheap : rich)
-          .put_bytes(out.data() + (size_t)j * count, count);
-    z_compress(z, cheap, level, splitBuf);
-    splitBuf.put_u8(altId);
-    codec_compress_frame(z, rich, altId, level, splitBuf);
-  }
-  bool useSplit = split && splitBuf.size() + 1 < whole.size() + 2;
-  if (useSplit) {
-    blob.put_u8(1);
-    blob.put_bytes(splitBuf.data(), splitBuf.size());
-    if (g_stats.enabled) g_stats.lzmaWin++;
-  } else {
-    Buf alt;
-    if (allowLzma && !split && total >= 4096)
-      codec_compress_frame(z, out, altId, level, alt);
-    bool useAlt = !alt.empty() && alt.size() < whole.size();
-    if (g_stats.enabled && !alt.empty())
-      (useAlt ? g_stats.lzmaWin : g_stats.zstdWin)++;
-    for (uint32_t j = 0; j < nOut; j++) blob[selAt + j] &= 3;
-    blob.put_u8(0);
-    blob.put_u8(useAlt ? altId : 0);
-    const Buf& win = useAlt ? alt : whole;
-    blob.put_bytes(win.data(), win.size());
-  }
+  blob.put_u8(2);
+  custom_planes_frame(out, count, profiles, level, blob);
   if (g_stats.enabled && stat) *stat += blob.size() - blobAt;
 }
 
@@ -1231,11 +911,7 @@ static void expand_dictionary(const DictField& f, const uint8_t* indexes,
 #endif
   for (; i < count; ++i) maximum = std::max(maximum, unsigned(indexes[i]));
   if (maximum >= f.vals.size()) die("corrupt archive (dict index)");
-  if (f.vals.size() == 1) {
-    for (unsigned b = 0; b < W; ++b)
-      memset(output + size_t(b) * count, uint8_t(f.vals[0] >> (8 * b)), count);
-    return;
-  }
+
   i = 0;
 #if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
   if (f.vals.size() <= 64) {
@@ -1286,7 +962,7 @@ static void expand_dictionary(const DictField& f, const uint8_t* indexes,
 }
 
 template <class RecordBuffer>
-static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
+static void unpack_records(Reader& r, uint32_t count, uint32_t size,
                            RecordBuffer& records) {
   uint8_t nFields = r.u8();
   std::vector<DictField> fields(nFields);
@@ -1297,7 +973,7 @@ static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
   for (size_t j = 0; j < fields.size(); ++j) {
     auto& f = fields[j];
     f.width = r.u8();
-    if (j == 0 && g_tuned && (f.width & 128)) {
+    if (j == 0 && (f.width & 128)) {
       dictionaryTransform = (f.width >> 4) & 7;
       if (!dictionaryTransform || dictionaryTransform > 4) die("corrupt dictionary transform");
       f.width &= 15;
@@ -1327,7 +1003,7 @@ static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
     check.u8();  // codec
     check.u32();  // packed size
     if (check.u32() != dictionaryBytes || check.fail) die("corrupt dictionary frame size");
-    auto data = small_decompress(z, r);
+    auto data = small_decompress(r);
     if (data.size() != dictionaryBytes) die("corrupt dictionary output size");
     dictionary_reverse(data, dictionaryTransform, fields);
   }
@@ -1335,31 +1011,8 @@ static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
   uint8_t layout = r.u8();
   if (r.fail) die("corrupt archive (plane selectors)");
 
-  std::vector<uint8_t> out;
-  if (layout == 0) {
-    uint8_t codec = r.u8();
-    out = codec_decompress_frame(z, r, codec);
-  } else if (layout == 1) {
-    auto cheap = z_decompress(z, r);
-    uint8_t codec = r.u8();
-    auto rich = codec_decompress_frame(z, r, codec);
-    if (cheap.size() + rich.size() != (size_t)count * nOut)
-      die("corrupt archive (bucket sizes)");
-    out.resize((size_t)count * nOut);
-    size_t cAt = 0, rAt = 0;
-    for (uint32_t j = 0; j < nOut; j++) {
-      const bool ch = sel[j] & 4;
-      auto& srcb = ch ? cheap : rich;
-      size_t& at = ch ? cAt : rAt;
-      if (at + count > srcb.size()) die("corrupt archive (bucket underrun)");
-      memcpy(out.data() + (size_t)j * count, srcb.data() + at, count);
-      at += count;
-    }
-  } else if (layout == 2 && g_custom) {
-    out = custom_unframe(r, true);
-  } else {
-    die("corrupt archive (layout id)");
-  }
+  if (layout != 2) die("corrupt archive (layout id)");
+  auto out = custom_unframe(r, true);
   if (out.size() != (size_t)count * nOut) die("corrupt archive (stream size)");
 
   for (uint32_t j = 0; j < nOut; j++) {
@@ -1382,7 +1035,7 @@ static void unpack_records(Zctx& z, Reader& r, uint32_t count, uint32_t size,
     for (unsigned o = 0; o < size;) {
       bool constant = fieldAt[o] && implicit_dictionary(*fieldAt[o]);
       if (!constant && srcAt + count > out.size()) die("corrupt archive (plane underrun)");
-      const uint8_t* pl = out.data() + srcAt + at;
+      const uint8_t* pl = constant ? nullptr : out.data() + srcAt + at;
       auto* dest = planes.data() + size_t(o) * take;
       if (fieldAt[o]) {
         const auto& f = *fieldAt[o];
@@ -1664,78 +1317,34 @@ static void ppc_branch_xform(uint8_t* p, size_t nWords, bool inverse) {
 }
 
 // ── per-file compress / decompress ──────────────────────────────────────────
-// large opaque blobs (appended gecko codesets etc.) are 4-byte-aligned PPC
-// code — run them through the plane machinery as 4-byte records
-static void pack_blob(Zctx& z, std::span<const uint8_t> data, int level,
+// Compare flat custom coding with a reversible PPC branch transform for
+// opaque attachments such as appended Gecko codesets.
+static void pack_blob(std::span<const uint8_t> data, int level,
                       Buf& blob, std::atomic<uint64_t>& stat) {
   size_t before = blob.size();
-  if (g_custom) {
-    Buf flat, ppc;
-    custom_frame(data, flat, slpz_custom::Generic, level);
-    if (data.size() >= 65536) {
-      std::vector<uint8_t> xf(data.begin(), data.end());
-      ppc_branch_xform(xf.data(), xf.size() / 4, false);
-      custom_frame(xf, ppc, slpz_custom::Generic, level);
-    }
-    bool usePpc = !ppc.empty() && ppc.size() < flat.size();
-    blob.put_u8(usePpc ? 4 : 2);
-    blob.put_u8(kCustom);
-    const auto& winner = usePpc ? ppc : flat;
-    blob.put_bytes(winner.data(), winner.size());
-    if (g_stats.enabled) stat += blob.size() - before;
-    return;
-  }
+  Buf flat, ppc;
+  custom_frame(data, flat, slpz_custom::Generic, level);
   if (data.size() >= 65536) {
-    // try flat zstd vs flat LZMA vs 4-byte-record planes; keep the smallest
-    // (LZMA flat usually wins on the appended PPC/gecko code dumps)
-    Buf flat, flatL, packed;
-    z_compress(z, data, level, flat);
-    lzma_compress_frame(data, level <= 8 ? kLzmaFast : kLzmaMax, flatL);
-    uint32_t n4 = (uint32_t)(data.size() / 4);
-    packed.put_u32(n4);
-    // flat-lzma candidate already covers lzma; avoid double lzma work here
-    pack_records(z, data.first((size_t)n4 * 4), n4, 4, level, packed, nullptr,
-                 /*allowLzma=*/false);
-    z_compress(z, data.subspan((size_t)n4 * 4), level, packed);
-    Buf ppc;
-    {
-      std::vector<uint8_t> xf(data.begin(), data.end());
-      ppc_branch_xform(xf.data(), xf.size() / 4, false);
-      lzma_compress_frame(xf, level <= 8 ? kLzmaFast : kLzmaMax, ppc);
-    }
-    const Buf* best = &flat;
-    uint8_t mode = 0;
-    if (flatL.size() < best->size()) { best = &flatL; mode = 2; }
-    if (packed.size() < best->size()) { best = &packed; mode = 1; }
-    if (ppc.size() < best->size()) { best = &ppc; mode = 4; }
-    blob.put_u8(mode);
-    if (mode == 2 || mode == 4) blob.put_u8(level <= 8 ? kLzmaFast : kLzmaMax);
-    blob.put_bytes(best->data(), best->size());
-  } else {
-    blob.put_u8(0);
-    z_compress(z, data, level, blob);
+    std::vector<uint8_t> xf(data.begin(), data.end());
+    ppc_branch_xform(xf.data(), xf.size() / 4, false);
+    custom_frame(xf, ppc, slpz_custom::Generic, level);
   }
+  bool usePpc = !ppc.empty() && ppc.size() < flat.size();
+  blob.put_u8(usePpc ? 4 : 2);
+  blob.put_u8(kCustom);
+  const auto& winner = usePpc ? ppc : flat;
+  blob.put_bytes(winner.data(), winner.size());
   if (g_stats.enabled) stat += blob.size() - before;
 }
 
-// decodes blob modes 0 (flat zstd), 1 (4-byte-record planes), 2 (flat codec);
-// mode 3 (chunked) is handled by the scan/task machinery below
-static std::vector<uint8_t> unpack_blob(Zctx& z, Reader& r) {
+// Modes 0, 2 and 4 are single custom frames; mode 3 is chunked below.
+static std::vector<uint8_t> unpack_blob(Reader& r) {
   uint8_t mode = r.u8();
   if (r.fail) die("corrupt archive (blob header)");
-  if (mode == 0) return z_decompress(z, r);
-  if (mode == 2 || mode == 4) {
-    uint8_t id = r.u8();
-    auto out = codec_decompress_frame(z, r, id);
-    if (mode == 4) ppc_branch_xform(out.data(), out.size() / 4, true);
-    return out;
-  }
-  if (mode != 1) die("corrupt archive (blob mode)");
-  uint32_t n4 = r.u32();
-  std::vector<uint8_t> out;
-  unpack_records(z, r, n4, 4, out);
-  auto rem = z_decompress(z, r);
-  out.insert(out.end(), rem.begin(), rem.end());
+  if (mode == 0) return custom_unframe(r);
+  if (mode != 2 && mode != 4) die("corrupt archive (blob mode)");
+  auto out = small_decompress(r);
+  if (mode == 4) ppc_branch_xform(out.data(), out.size() / 4, true);
   return out;
 }
 
@@ -1746,8 +1355,7 @@ static void parallel_for(size_t n, int threads, Fn work) {
   threads = int(std::min<size_t>(n, threads));
   std::atomic<size_t> next{0};
   auto worker = [&] {
-    Zctx z;
-    for (size_t i; (i = next.fetch_add(1)) < n;) work(z, i);
+    for (size_t i; (i = next.fetch_add(1)) < n;) work(i);
   };
   std::vector<std::thread> pool;
   for (int t = 0; t < threads - 1; t++) pool.emplace_back(worker);
@@ -1761,7 +1369,7 @@ static void parallel_for(size_t n, int threads, Fn work) {
 // Phase 2 (parallel per TASK across files, largest first): pack groups/blobs.
 // Phase 3 (serial): concatenate pieces per file, write the container.
 // This removes the wall-clock pole of the largest file: work items are
-// group-sized (~a few MB), and huge blobs are chunked (mode 3, 4 MB chunks).
+// group-sized (~a few MB), and huge blobs are chunked (mode 3, 1 MB chunks).
 struct FilePlan;
 
 struct PackTask {
@@ -1771,7 +1379,6 @@ struct PackTask {
   Kind kind;
   uint32_t stream = 0, groupIdx = 0;
   std::span<const uint8_t> data;  // BlobFrame / BlobTrial / RawFile
-  uint8_t codecId = 0;            // BlobFrame
   std::atomic<uint64_t>* stat = nullptr;
   size_t est = 0;
 };
@@ -1811,37 +1418,36 @@ struct FilePlan {
   }
 };
 
-static void plan_blob(Zctx& z, FilePlan& fp, std::span<const uint8_t> data,
+static void plan_blob(FilePlan& fp, std::span<const uint8_t> data,
                       int level, std::atomic<uint64_t>* stat) {
-  // Smaller custom chunks keep large opaque attachments from becoming a
+  // Small chunks keep large opaque attachments from becoming a
   // long final task after the replay streams have finished.
-  const size_t kChunk = g_custom ? 1u << 20 : 4u << 20;
+  constexpr size_t kChunk = 1u << 20;
   if (data.size() < 65536) {
     Buf& b = fp.live();
     size_t at = b.size();
     b.put_u8(0);
-    z_compress(z, data, level, b);
+    custom_frame(data, b, slpz_custom::Generic, level);
     if (g_stats.enabled) *stat += b.size() - at;
   } else if (data.size() < kChunk) {
-    fp.tasks.push_back({&fp, fp.defer(), PackTask::BlobTrial, 0, 0, data, 0,
+    fp.tasks.push_back({&fp, fp.defer(), PackTask::BlobTrial, 0, 0, data,
                         stat, data.size()});
   } else {
-    uint8_t id = codec_id_for_level(level);
     // decide the PPC transform once on a 256KB sample
     uint8_t xform = 0;
     {
       auto sample = data.first(std::min<size_t>(data.size(), 256 << 10));
       Buf a, bx;
-      lzma_compress_frame(sample, kLzmaFast, a);
+      custom_frame(sample, a);
       std::vector<uint8_t> xf(sample.begin(), sample.end());
       ppc_branch_xform(xf.data(), xf.size() / 4, false);
-      lzma_compress_frame(xf, kLzmaFast, bx);
+      custom_frame(xf, bx);
       xform = bx.size() < a.size() ? 1 : 0;
     }
     uint32_t n = (uint32_t)((data.size() + kChunk - 1) / kChunk);
     Buf& b = fp.live();
     b.put_u8(3);
-    b.put_u8(id);
+    b.put_u8(kCustom);
     b.put_u8(xform);
     b.put_u32(n);
     if (g_stats.enabled) *stat += 7;
@@ -1849,18 +1455,18 @@ static void plan_blob(Zctx& z, FilePlan& fp, std::span<const uint8_t> data,
       size_t off = (size_t)i * kChunk;
       auto chunk = data.subspan(off, std::min(kChunk, data.size() - off));
       fp.tasks.push_back({&fp, fp.defer(), PackTask::BlobFrame, 0, xform, chunk,
-                          id, stat, chunk.size()});
+                          stat, chunk.size()});
     }
   }
 }
 
-static void plan_compress(Zctx& z, FilePlan& fp, int level) {
+static void plan_compress(FilePlan& fp, int level) {
   fp.data = read_file(fp.path);
   fp.origSize = fp.data.size();
   if (!parse_slp(fp.data, fp.slp)) {
     fp.live().put_u8(kModeRaw);
     fp.tasks.push_back({&fp, fp.defer(), PackTask::RawFile, 0, 0,
-                        std::span<const uint8_t>(fp.data), 0, &g_stats.misc,
+                        std::span<const uint8_t>(fp.data), &g_stats.misc,
                         fp.data.size()});
     return;
   }
@@ -1871,12 +1477,12 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
     b.put_u8((uint8_t)fp.slp.payloadsEvent.size());
     b.put_bytes(fp.slp.payloadsEvent.data(), fp.slp.payloadsEvent.size());
   }
-  plan_blob(z, fp, fp.slp.suffix, level, &g_stats.suffix);
-  plan_blob(z, fp, fp.slp.tail, level, &g_stats.tail);
+  plan_blob(fp, fp.slp.suffix, level, &g_stats.suffix);
+  plan_blob(fp, fp.slp.tail, level, &g_stats.tail);
   {
     Buf& b = fp.live();
     size_t before = b.size();
-    small_compress(z, fp.slp.order, level, b, slpz_custom::Discrete);
+    small_compress(fp.slp.order, level, b, slpz_custom::Discrete);
     if (g_stats.enabled) {
       g_stats.order += b.size() - before;
       g_stats.misc += kSlpHeaderLen + 1 + fp.slp.payloadsEvent.size();
@@ -1955,9 +1561,9 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
         selector.put_u8((uint8_t)groupOf[(uint16_t)(rec[4] << 8 | rec[5])]);
       }
     }
-    if (g_tuned && grouped) {
+    if (grouped) {
       if (st.cmd == 0x37 && st.recSize >= 59) flags |= 32;
-      if (st.cmd == 0x38 && st.recSize >= (g_v13_predictors ? 29u : 72u)) flags |= 16;
+      if (st.cmd == 0x38 && st.recSize >= 29u) flags |= 16;
     }
     if (seedOff && fold_seeds(st, seedOff, seedStream,
                               grouped ? selector.data() : nullptr))
@@ -1970,24 +1576,24 @@ static void plan_compress(Zctx& z, FilePlan& fp, int level) {
       b.put_u8(flags);
       if (flags & 2) {
         size_t before = b.size();
-        small_compress(z, seedStream, level, b, slpz_custom::Rng);
+        small_compress(seedStream, level, b, slpz_custom::Rng);
         if (g_stats.enabled) g_stats.seeds += b.size() - before;
       }
     }
     if (!grouped) {
-      fp.tasks.push_back({&fp, fp.defer(), PackTask::Ungrouped, s, 0, {}, 0,
+      fp.tasks.push_back({&fp, fp.defer(), PackTask::Ungrouped, s, 0, {},
                           stat, st.records.size()});
       continue;
     }
     {
       Buf& b = fp.live();
       size_t before = b.size();
-      small_compress(z, selector, level, b, slpz_custom::Discrete);
+      small_compress(selector, level, b, slpz_custom::Discrete);
       if (g_stats.enabled) g_stats.selector += b.size() - before;
       b.put_u8((uint8_t)keys.size());
     }
     for (uint32_t g = 0; g < keys.size(); g++)
-      fp.tasks.push_back({&fp, fp.defer(), PackTask::Group, s, g, {}, 0, stat,
+      fp.tasks.push_back({&fp, fp.defer(), PackTask::Group, s, g, {}, stat,
                           (size_t)counts[g] * st.recSize});
   }
 }
@@ -2024,13 +1630,13 @@ static uint32_t integer_grid(uint32_t value) {
   unsigned n = mantissa >> shift;
   return (n << shift) == mantissa ? n * 2 - (value >> 31) : value;
 }
-template <bool inverse, bool modern, bool quadratic = false>
-static void motion_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size) {
-  if (size < (modern ? 29u : 72u)) return;
+template <bool inverse>
+static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
+  if (size < 29u) return;
   float prev[2] = {}, velocity[2] = {}, acceleration[2] = {};
   // Percent, shield, and attack velocity fields use first differences of
   // their unsigned bit patterns. Skip fields absent in older record sizes.
-  // Percent/shield retain v14 differences. Attack velocities use two-sample
+  // Percent/shield use first differences. Attack velocities use two-sample
   // extrapolation; animation counters learn their entry value and positive
   // increment separately for each action state.
   uint32_t last[5] = {}, older[4] = {};
@@ -2142,79 +1748,75 @@ static void motion_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size
 #if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
   // Both axes follow the same binary32 addition order. On inverse passes,
   // the restored attack velocities are already available in predictor state.
-  if constexpr (modern) {
-    if (size >= 72) {
-      auto position = vdup_n_f32(0);
-      auto zero = vdup_n_u32(0), one = vdup_n_u32(1);
-      auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
-      for (uint32_t i = 0; i < count; ++i) {
-        auto* r = data + size_t(i) * size;
-        if constexpr (inverse) transform(r);
-        float32x2_t self = {read_float(r + (r[46] ? 52 : 68)), read_float(r + 56)};
-        uint32x2_t attack;
-        if constexpr (inverse)
-          attack = vld1_u32(last + 2);
-        else
-          attack = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 60)));
-        auto pred =
-            vreinterpret_u32_f32(vadd_f32(position, vadd_f32(self, vreinterpret_f32_u32(attack))));
-        pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
-        auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
-        uint32x2_t actual, code;
-        if constexpr (inverse) {
-          auto delta = veor_u32(vshr_n_u32(input, 1), vsub_u32(zero, vand_u32(input, one)));
-          actual = vadd_u32(pred, delta);
-          code = actual;
-        } else {
-          actual = input;
-          auto delta = vsub_u32(actual, pred);
-          code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(zero, vshr_n_u32(delta, 31)));
-        }
-        vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
-        position = vreinterpret_f32_u32(actual);
-        if constexpr (!inverse) transform(r);
+  if (size >= 72) {
+    auto position = vdup_n_f32(0);
+    auto zero = vdup_n_u32(0), one = vdup_n_u32(1);
+    auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
+    for (uint32_t i = 0; i < count; ++i) {
+      auto* r = data + size_t(i) * size;
+      if constexpr (inverse) transform(r);
+      float32x2_t self = {read_float(r + (r[46] ? 52 : 68)), read_float(r + 56)};
+      uint32x2_t attack;
+      if constexpr (inverse)
+        attack = vld1_u32(last + 2);
+      else
+        attack = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 60)));
+      auto pred =
+          vreinterpret_u32_f32(vadd_f32(position, vadd_f32(self, vreinterpret_f32_u32(attack))));
+      pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
+      auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
+      uint32x2_t actual, code;
+      if constexpr (inverse) {
+        auto delta = veor_u32(vshr_n_u32(input, 1), vsub_u32(zero, vand_u32(input, one)));
+        actual = vadd_u32(pred, delta);
+        code = actual;
+      } else {
+        actual = input;
+        auto delta = vsub_u32(actual, pred);
+        code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(zero, vshr_n_u32(delta, 31)));
       }
-      return;
+      vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
+      position = vreinterpret_f32_u32(actual);
+      if constexpr (!inverse) transform(r);
     }
+    return;
   }
 
-  if constexpr (quadratic) {
-    if (size < 72) {
-      // The axes are independent; each lane follows the scalar binary32
-      // operation order. Residual arithmetic preserves all original bits.
-      auto position = vdup_n_f32(0), speed = vdup_n_f32(0), accel = vdup_n_f32(0);
-      auto zero = vdup_n_u32(0), one = vdup_n_u32(1);
-      auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
-      for (uint32_t i = 0; i < count; ++i) {
-        auto* r = data + size_t(i) * size;
-        if constexpr (inverse) transform(r);
-        auto pred = vreinterpret_u32_f32(vadd_f32(position, vadd_f32(speed, accel)));
-        pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
-        auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
-        uint32x2_t actual, code;
-        if constexpr (inverse) {
-          auto delta = veor_u32(vshr_n_u32(input, 1), vsub_u32(zero, vand_u32(input, one)));
-          actual = vadd_u32(pred, delta);
-          code = actual;
-        } else {
-          actual = input;
-          auto delta = vsub_u32(actual, pred);
-          code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(zero, vshr_n_u32(delta, 31)));
-        }
-        vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
-        auto current = vreinterpret_f32_u32(actual), nextSpeed = vsub_f32(current, position);
-        accel = vsub_f32(nextSpeed, speed);
-        speed = nextSpeed;
-        position = current;
-        if constexpr (!inverse) transform(r);
+  if (size < 72) {
+    // The axes are independent; each lane follows the scalar binary32
+    // operation order. Residual arithmetic preserves all original bits.
+    auto position = vdup_n_f32(0), speed = vdup_n_f32(0), accel = vdup_n_f32(0);
+    auto zero = vdup_n_u32(0), one = vdup_n_u32(1);
+    auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
+    for (uint32_t i = 0; i < count; ++i) {
+      auto* r = data + size_t(i) * size;
+      if constexpr (inverse) transform(r);
+      auto pred = vreinterpret_u32_f32(vadd_f32(position, vadd_f32(speed, accel)));
+      pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
+      auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
+      uint32x2_t actual, code;
+      if constexpr (inverse) {
+        auto delta = veor_u32(vshr_n_u32(input, 1), vsub_u32(zero, vand_u32(input, one)));
+        actual = vadd_u32(pred, delta);
+        code = actual;
+      } else {
+        actual = input;
+        auto delta = vsub_u32(actual, pred);
+        code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(zero, vshr_n_u32(delta, 31)));
       }
-      return;
+      vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
+      auto current = vreinterpret_f32_u32(actual), nextSpeed = vsub_f32(current, position);
+      accel = vsub_f32(nextSpeed, speed);
+      speed = nextSpeed;
+      position = current;
+      if constexpr (!inverse) transform(r);
     }
+    return;
   }
 #endif
   for (uint32_t i = 0; i < count; i++) {
     uint8_t* r = data + (size_t)i * size;
-    if constexpr (inverse && modern) transform(r);
+    if constexpr (inverse) transform(r);
     float pred[2] = {};
     if (size >= 72) {
       volatile float vx = read_float(r + (r[46] ? 52 : 68)) + read_float(r + 60);
@@ -2223,66 +1825,41 @@ static void motion_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size
       volatile float vy = read_float(r + 56) + read_float(r + 64);
       volatile float y = prev[1] + vy;
       pred[1] = std::isfinite(y) ? y : 0.f;
-    } else if constexpr (quadratic) {
+    } else {
       for (unsigned j = 0; j < 2; ++j) {
         volatile float nextVelocity = velocity[j] + acceleration[j];
         volatile float position = prev[j] + nextVelocity;
         pred[j] = std::isfinite(position) ? position : 0.f;
       }
-    } else {
-      // Older records lack velocity. Predict the previous position's exact
-      // bits, including signed zero and nonfinite payloads, without arithmetic.
-      memcpy(pred, prev, sizeof(pred));
     }
     for (uint32_t j = 0; j < 2; j++) {
       uint8_t* f = r + 9 + 4 * j;
       uint32_t pb;
       memcpy(&pb, pred + j, 4);
       uint32_t v = be32(f), decoded, residual;
-      if constexpr (modern) {
-        decoded = inverse ? pb + ((v >> 1) ^ (0u - (v & 1))) : v;
-        uint32_t delta = v - pb;
-        residual = inverse ? decoded : (delta << 1) ^ (0u - (delta >> 31));
-      } else {
-        decoded = inverse ? v ^ pb : v;
-        residual = v ^ pb;
-      }
+      decoded = inverse ? pb + ((v >> 1) ^ (0u - (v & 1))) : v;
+      uint32_t delta = v - pb;
+      residual = inverse ? decoded : (delta << 1) ^ (0u - (delta >> 31));
       f[0] = (uint8_t)(residual >> 24);
       f[1] = (uint8_t)(residual >> 16);
       f[2] = (uint8_t)(residual >> 8);
       f[3] = (uint8_t)residual;
-      if constexpr (quadratic) {
-        if (size < 72) {
-          float position;
-          memcpy(&position, &decoded, 4);
-          volatile float nextVelocity = position - prev[j];
-          volatile float nextAcceleration = nextVelocity - velocity[j];
-          velocity[j] = nextVelocity;
-          acceleration[j] = nextAcceleration;
-        }
+      if (size < 72) {
+        float position;
+        memcpy(&position, &decoded, 4);
+        volatile float nextVelocity = position - prev[j];
+        volatile float nextAcceleration = nextVelocity - velocity[j];
+        velocity[j] = nextVelocity;
+        acceleration[j] = nextAcceleration;
       }
       memcpy(prev + j, &decoded, 4);
     }
-    if constexpr (!inverse && modern) transform(r);
+    if constexpr (!inverse) transform(r);
   }
 }
-static void motion_predict_v15(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (g_v14_predictors) {
-    if (inverse)
-      motion_predict_impl_v15<true, true, true>(data, count, size);
-    else
-      motion_predict_impl_v15<false, true, true>(data, count, size);
-  } else if (g_v13_predictors) {
-    if (inverse)
-      motion_predict_impl_v15<true, true>(data, count, size);
-    else
-      motion_predict_impl_v15<false, true>(data, count, size);
-  } else {
-    if (inverse)
-      motion_predict_impl_v15<true, false>(data, count, size);
-    else
-      motion_predict_impl_v15<false, false>(data, count, size);
-  }
+static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
+  if (inverse) motion_predict_impl<true>(data, count, size);
+  else motion_predict_impl<false>(data, count, size);
 }
 // Swap each exact q/80 controller value with its small zigzag code. The
 // explicit binary32 table makes the permutation independent of float division.
@@ -2319,8 +1896,8 @@ static uint32_t controller_grid(uint32_t value) {
   unsigned q = unsigned(f * 80.f + 0.5f), code = q * 2 - (value >> 31);
   return code <= 160 && grid[code] == value ? code : value;
 }
-template <bool inverse, bool numeric = false>
-static void input_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size) {
+template <bool inverse>
+static void input_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
   if (size < 59) return;
   uint32_t table[4][256] = {};
   constexpr unsigned bits = 12;
@@ -2328,7 +1905,6 @@ static void input_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size)
   unsigned axes = 1 + (size > 63) + (size > 64) + (size > 65);
   std::vector<uint64_t> pair(axes * slots, UINT64_MAX);
 
-  constexpr unsigned mode = 0;
   auto map = [](uint8_t* r) {
     for (unsigned off : {24u, 28u, 32u, 36u}) {
       uint32_t code = controller_grid(be32(r + off));
@@ -2348,260 +1924,63 @@ static void input_predict_impl_v15(uint8_t* data, uint32_t count, uint32_t size)
     const uint8_t* pred = be32(r + 50) >= be32(r + 54) ? r + 50 : r + 54;
     for (uint32_t j = 0; j < 4; j++) r[40 + j] ^= pred[j];
     for (uint32_t j = 0; j < 4; j++) {
-      if (raw[j] >= size || mode == 1) continue;
-      if constexpr (numeric) {
-        uint8_t* f = r + offsets[j];
-        uint8_t key = r[raw[j]];
-        unsigned other = j ^ 1;
-        uint32_t pairKey = key;
-        if (raw[other] < size)
-          pairKey |= uint32_t(r[raw[other]]) << 8;
-        else
-          pairKey ^= (be32(r + offsets[other]) & 0x7fffffffu) * 2246822519u;
-        unsigned index = j * slots + ((pairKey * 2654435761u) >> (32 - bits));
-        uint32_t v = be32(f),
-                 prediction = pair[index] != UINT64_MAX && uint32_t(pair[index] >> 32) == pairKey
-                                  ? uint32_t(pair[index])
-                                  : table[j][key];
-        uint32_t actual = inverse ? prediction + ((v >> 1) ^ (0u - (v & 1))) : v;
-        uint32_t delta = v - prediction;
-        uint32_t code = inverse ? actual : (delta << 1) ^ (0u - (delta >> 31));
-        table[j][key] = actual;
-        pair[index] = (uint64_t(pairKey) << 32) | actual;
-        f[0] = uint8_t(code >> 24);
-        f[1] = uint8_t(code >> 16);
-        f[2] = uint8_t(code >> 8);
-        f[3] = uint8_t(code);
-        continue;
-      }
-      uint32_t v;
-      memcpy(&v, r + offsets[j], 4);
+      if (raw[j] >= size) continue;
+      uint8_t* f = r + offsets[j];
       uint8_t key = r[raw[j]];
-      uint32_t decoded = inverse ? v ^ table[j][key] : v;
-      v ^= table[j][key];
-      table[j][key] = decoded;
-      memcpy(r + offsets[j], &v, 4);
+      unsigned other = j ^ 1;
+      uint32_t pairKey = key;
+      if (raw[other] < size)
+        pairKey |= uint32_t(r[raw[other]]) << 8;
+      else
+        pairKey ^= (be32(r + offsets[other]) & 0x7fffffffu) * 2246822519u;
+      unsigned index = j * slots + ((pairKey * 2654435761u) >> (32 - bits));
+      uint32_t v = be32(f),
+               prediction = pair[index] != UINT64_MAX && uint32_t(pair[index] >> 32) == pairKey
+                                ? uint32_t(pair[index])
+                                : table[j][key];
+      uint32_t actual = inverse ? prediction + ((v >> 1) ^ (0u - (v & 1))) : v;
+      uint32_t delta = v - prediction;
+      uint32_t code = inverse ? actual : (delta << 1) ^ (0u - (delta >> 31));
+      table[j][key] = actual;
+      pair[index] = (uint64_t(pairKey) << 32) | actual;
+      f[0] = uint8_t(code >> 24);
+      f[1] = uint8_t(code >> 16);
+      f[2] = uint8_t(code >> 8);
+      f[3] = uint8_t(code);
     }
     if constexpr (inverse) map(r);
   }
 }
-static void input_predict_v15(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (g_v14_predictors) {
-    if (inverse)
-      input_predict_impl_v15<true, true>(data, count, size);
-    else
-      input_predict_impl_v15<false, true>(data, count, size);
-  } else {
-    if (inverse)
-      input_predict_impl_v15<true>(data, count, size);
-    else
-      input_predict_impl_v15<false>(data, count, size);
-  }
-}
-template<bool inverse, bool modern, bool quadratic = false>
-static void motion_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
-  if (size < (modern ? 29u : 72u)) return;
-  float prev[2] = {}, velocity[2] = {}, acceleration[2] = {};
-  // Percent, shield, and attack velocity fields use first differences of
-  // their unsigned bit patterns. Skip fields absent in older record sizes.
-  constexpr unsigned offsets[] = {21, 25, 60, 64};
-  uint32_t last[4] = {};
-  auto transform = [&](uint8_t* r) {
-    for (unsigned k = 0; k < 4; ++k) {
-      unsigned o = offsets[k];
-      if (o + 4 > size) continue;
-      uint32_t v = be32(r + o), actual, encoded;
-      if (inverse) actual = last[k] + ((v >> 1) ^ (0u - (v & 1)));
-      else actual = v;
-      uint32_t delta = v - last[k];
-      encoded = inverse ? actual : (delta << 1) ^ (0u - (delta >> 31));
-      last[k] = actual;
-      r[o] = uint8_t(encoded >> 24);
-      r[o + 1] = uint8_t(encoded >> 16);
-      r[o + 2] = uint8_t(encoded >> 8);
-      r[o + 3] = uint8_t(encoded);
-    }
-  };
-#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
-  if constexpr (quadratic) {
-    if (size < 72) {
-      // The axes are independent; each lane follows the scalar binary32
-      // operation order. Residual arithmetic preserves all original bits.
-      auto position = vdup_n_f32(0), speed = vdup_n_f32(0), accel = vdup_n_f32(0);
-      auto zero = vdup_n_u32(0), one = vdup_n_u32(1);
-      auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
-      for (uint32_t i = 0; i < count; ++i) {
-        auto* r = data + size_t(i) * size;
-        if constexpr (inverse) transform(r);
-        auto pred = vreinterpret_u32_f32(vadd_f32(position, vadd_f32(speed, accel)));
-        pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
-        auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
-        uint32x2_t actual, code;
-        if constexpr (inverse) {
-          auto delta = veor_u32(vshr_n_u32(input, 1), vsub_u32(zero, vand_u32(input, one)));
-          actual = vadd_u32(pred, delta);
-          code = actual;
-        } else {
-          actual = input;
-          auto delta = vsub_u32(actual, pred);
-          code = veor_u32(vshl_n_u32(delta, 1), vsub_u32(zero, vshr_n_u32(delta, 31)));
-        }
-        vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
-        auto current = vreinterpret_f32_u32(actual), nextSpeed = vsub_f32(current, position);
-        accel = vsub_f32(nextSpeed, speed);
-        speed = nextSpeed;
-        position = current;
-        if constexpr (!inverse) transform(r);
-      }
-      return;
-    }
-  }
-#endif
-  for (uint32_t i = 0; i < count; i++) {
-    uint8_t* r = data + (size_t)i * size;
-    if constexpr (inverse && modern) transform(r);
-    float pred[2] = {};
-    if (size >= 72) {
-      volatile float vx = read_float(r + (r[46] ? 52 : 68)) + read_float(r + 60);
-      volatile float x = prev[0] + vx;
-      pred[0] = std::isfinite(x) ? x : 0.f;
-      volatile float vy = read_float(r + 56) + read_float(r + 64);
-      volatile float y = prev[1] + vy;
-      pred[1] = std::isfinite(y) ? y : 0.f;
-    } else if constexpr (quadratic) {
-      for (unsigned j = 0; j < 2; ++j) {
-        volatile float nextVelocity = velocity[j] + acceleration[j];
-        volatile float position = prev[j] + nextVelocity;
-        pred[j] = std::isfinite(position) ? position : 0.f;
-      }
-    } else {
-      // Older records lack velocity. Predict the previous position's exact
-      // bits, including signed zero and nonfinite payloads, without arithmetic.
-      memcpy(pred, prev, sizeof(pred));
-    }
-    for (uint32_t j = 0; j < 2; j++) {
-      uint8_t* f = r + 9 + 4 * j;
-      uint32_t pb;
-      memcpy(&pb, pred + j, 4);
-      uint32_t v = be32(f), decoded, residual;
-      if constexpr (modern) {
-        decoded = inverse ? pb + ((v >> 1) ^ (0u - (v & 1))) : v;
-        uint32_t delta = v - pb;
-        residual = inverse ? decoded : (delta << 1) ^ (0u - (delta >> 31));
-      } else {
-        decoded = inverse ? v ^ pb : v;
-        residual = v ^ pb;
-      }
-      f[0] = (uint8_t)(residual >> 24);
-      f[1] = (uint8_t)(residual >> 16);
-      f[2] = (uint8_t)(residual >> 8);
-      f[3] = (uint8_t)residual;
-      if constexpr (quadratic) {
-        if (size < 72) {
-          float position;
-          memcpy(&position, &decoded, 4);
-          volatile float nextVelocity = position - prev[j];
-          volatile float nextAcceleration = nextVelocity - velocity[j];
-          velocity[j] = nextVelocity;
-          acceleration[j] = nextAcceleration;
-        }
-      }
-      memcpy(prev + j, &decoded, 4);
-    }
-    if constexpr (!inverse && modern) transform(r);
-  }
-}
-static void motion_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (g_v15_format) {
-    motion_predict_v15(data, count, size, inverse);
-    return;
-  }
-  if (g_v14_predictors) {
-    if (inverse) motion_predict_impl<true, true, true>(data, count, size);
-    else motion_predict_impl<false, true, true>(data, count, size);
-  } else if (g_v13_predictors) {
-    if (inverse) motion_predict_impl<true, true>(data, count, size);
-    else motion_predict_impl<false, true>(data, count, size);
-  } else {
-    if (inverse) motion_predict_impl<true, false>(data, count, size);
-    else motion_predict_impl<false, false>(data, count, size);
-  }
-}
-template<bool inverse, bool numeric = false>
-static void input_predict_impl(uint8_t* data, uint32_t count, uint32_t size) {
-  if (size < 59) return;
-  uint32_t table[4][256] = {};
-  const uint32_t offsets[4] = {24, 28, 32, 36}, raw[4] = {58, 63, 64, 65};
-  for (uint32_t i = 0; i < count; i++) {
-    uint8_t* r = data + (size_t)i * size;
-    // Processed and physical button copies; float trigger vs max(L,R).
-    r[46] ^= r[48];
-    r[47] ^= r[49];
-    const uint8_t* pred = be32(r + 50) >= be32(r + 54) ? r + 50 : r + 54;
-    for (uint32_t j = 0; j < 4; j++) r[40 + j] ^= pred[j];
-    for (uint32_t j = 0; j < 4; j++) {
-      if (raw[j] >= size) continue;
-      if constexpr (numeric) {
-        uint8_t* f = r + offsets[j];
-        uint8_t key = r[raw[j]];
-        uint32_t v = be32(f), prediction = table[j][key];
-        uint32_t actual = inverse ? prediction + ((v >> 1) ^ (0u - (v & 1))) : v;
-        uint32_t delta = v - prediction;
-        uint32_t code = inverse ? actual : (delta << 1) ^ (0u - (delta >> 31));
-        table[j][key] = actual;
-        f[0] = uint8_t(code >> 24); f[1] = uint8_t(code >> 16);
-        f[2] = uint8_t(code >> 8); f[3] = uint8_t(code);
-        continue;
-      }
-      uint32_t v;
-      memcpy(&v, r + offsets[j], 4);
-      uint8_t key = r[raw[j]];
-      uint32_t decoded = inverse ? v ^ table[j][key] : v;
-      v ^= table[j][key];
-      table[j][key] = decoded;
-      memcpy(r + offsets[j], &v, 4);
-    }
-  }
-}
 static void input_predict(uint8_t* data, uint32_t count, uint32_t size, bool inverse) {
-  if (g_v15_format) {
-    input_predict_v15(data, count, size, inverse);
-    return;
-  }
-  if (g_v14_predictors) {
-    if (inverse) input_predict_impl<true, true>(data, count, size);
-    else input_predict_impl<false, true>(data, count, size);
-  } else {
-    if (inverse) input_predict_impl<true>(data, count, size);
-    else input_predict_impl<false>(data, count, size);
-  }
+  if (inverse) input_predict_impl<true>(data, count, size);
+  else input_predict_impl<false>(data, count, size);
 }
-static void run_pack_task(Zctx& z, PackTask& t, int level) {
+static void run_pack_task(PackTask& t, int level) {
   Buf& out = t.fp->pieces[t.piece];
   switch (t.kind) {
     case PackTask::RawFile: {
-      size_t n = z_compress(z, t.data, level, out);
+      size_t n = custom_frame(t.data, out, slpz_custom::Generic, level);
       if (g_stats.enabled) *t.stat += n;
       break;
     }
     case PackTask::BlobTrial:
-      pack_blob(z, t.data, level, out, *t.stat);
+      pack_blob(t.data, level, out, *t.stat);
       break;
     case PackTask::BlobFrame: {
       size_t at = out.size();
       if (t.groupIdx) {  // PPC transform, chunk-local word indices
         std::vector<uint8_t> xf(t.data.begin(), t.data.end());
         ppc_branch_xform(xf.data(), xf.size() / 4, false);
-        codec_compress_frame(z, xf, t.codecId, level, out);
+        custom_frame(xf, out, slpz_custom::Generic, level);
       } else {
-        codec_compress_frame(z, t.data, t.codecId, level, out);
+        custom_frame(t.data, out, slpz_custom::Generic, level);
       }
       if (g_stats.enabled) *t.stat += out.size() - at;
       break;
     }
     case PackTask::Ungrouped: {
       auto& st = t.fp->slp.streams[t.stream];
-      pack_records(z, st.records, st.count, st.recSize, level, out, t.stat, true, st.cmd);
+      pack_records(st.records, st.count, st.recSize, level, out, t.stat, st.cmd);
       break;
     }
     case PackTask::Group: {
@@ -2615,9 +1994,9 @@ static void run_pack_task(Zctx& z, PackTask& t, int level) {
           group.put_bytes(st.records.data() + (size_t)i * st.recSize,
                           st.recSize);
       out.put_u32(cnt);
-      if (g_tuned && st.cmd == 0x37) input_predict(group.data(), cnt, st.recSize, false);
-      if (g_tuned && st.cmd == 0x38) motion_predict(group.data(), cnt, st.recSize, false);
-      pack_records(z, group, cnt, st.recSize, level, out, t.stat, true, st.cmd);
+      if (st.cmd == 0x37) input_predict(group.data(), cnt, st.recSize, false);
+      if (st.cmd == 0x38) motion_predict(group.data(), cnt, st.recSize, false);
+      pack_records(group, cnt, st.recSize, level, out, t.stat, st.cmd);
       break;
     }
   }
@@ -2657,7 +2036,7 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
       p.gCounts.clear();
       retired.fetch_add(1);
     };
-    auto worker = [&](Zctx& z) {
+    auto worker = [&]() {
       for (;;) {
         PackTask* t = nullptr;
         size_t fi = SIZE_MAX;
@@ -2673,10 +2052,10 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
           }
         }
         if (t) {
-          run_pack_task(z, *t, level);
+          run_pack_task(*t, level);
           if (t->fp->pending.fetch_sub(1) == 1) retire(*t->fp);
         } else if (fi != SIZE_MAX) {
-          plan_compress(z, plans[fi], level);
+          plan_compress(plans[fi], level);
           plans[fi].pending.store((uint32_t)plans[fi].tasks.size());
           if (plans[fi].tasks.empty()) {
             retire(plans[fi]);
@@ -2697,8 +2076,8 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
     };
     std::vector<std::thread> pool;
     for (int t = 0; t < threads - 1; t++)
-      pool.emplace_back([&] { Zctx z; worker(z); });
-    { Zctx z; worker(z); }
+      pool.emplace_back(worker);
+    worker();
     for (auto& th : pool) th.join();
   }
   lap("plan+pack");
@@ -2726,18 +2105,18 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
       pl->records.put_bytes(ps.records.data(), ps.records.size());
       ps.records = Buf();
     }
-  parallel_for(pools.size(), threads, [&](Zctx& z, size_t i) {
+  parallel_for(pools.size(), threads, [&](size_t i) {
     auto& pl = pools[i];
-    pack_records(z, pl.records, pl.total, pl.recSize, level, pl.packed,
-                 g_stats.enabled ? &g_stats.byCmd[pl.cmd] : nullptr, true, pl.cmd);
+    pack_records(pl.records, pl.total, pl.recSize, level, pl.packed,
+                 g_stats.enabled ? &g_stats.byCmd[pl.cmd] : nullptr, pl.cmd);
     pl.records = Buf();
   });
   lap("pools");
 
   Buf out;
   out.put_u32(kMagic);
-  out.put_u8(g_tuned ? kCustomVersion : kVersion);
-  out.put_u8(g_custom ? 1 : 0);  // flags
+  out.put_u8(kVersion);
+  out.put_u8(1);  // custom payload backend
   out.put_u32((uint32_t)pools.size());
   for (auto& pl : pools) {
     out.put_u8(pl.cmd);
@@ -2777,9 +2156,6 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
             (unsigned long long)g_stats.seedHit.load(),
             (unsigned long long)g_stats.seedMiss.load());
     fprintf(stderr, "    misc     : %10llu\n", (unsigned long long)g_stats.misc.load());
-    fprintf(stderr, "    alt codec: won %llu / lost %llu group trials vs zstd\n",
-            (unsigned long long)g_stats.lzmaWin.load(),
-            (unsigned long long)g_stats.zstdWin.load());
   }
 }
 
@@ -2790,8 +2166,8 @@ static void cmd_compress(const fs::path& outPath, std::vector<fs::path> inputs,
 // Phase 3 (parallel per file): gather source/prediction pointers, restore
 // seeds and cross-frame residuals during final reconstruction, verify, write.
 struct BlobPlan {
-  uint8_t mode = 0, codec = 0, xform = 0;
-  std::span<const uint8_t> span;                 // modes 0/1/2, incl. mode byte
+  uint8_t mode = 0, xform = 0;
+  std::span<const uint8_t> span;                 // modes 0/2/4, including mode byte
   std::vector<std::span<const uint8_t>> chunks;  // mode 3 frames
   std::vector<std::vector<uint8_t>> chunkOut;
   std::vector<uint8_t> out;
@@ -2857,7 +2233,7 @@ static std::span<const uint8_t> skip_packed(Reader& r, uint32_t size) {
   bool packedDictionary = false;
   for (uint8_t f = 0; f < nFields; ++f) {
     uint8_t width = r.u8();
-    if (f == 0 && g_tuned && (width & 128)) {
+    if (f == 0 && (width & 128)) {
       uint8_t transform = (width >> 4) & 7;
       if (!transform || transform > 4) { r.fail = true; return {}; }
       packedDictionary = true;
@@ -2867,23 +2243,13 @@ static std::span<const uint8_t> skip_packed(Reader& r, uint32_t size) {
     uint32_t nVals = uint32_t(r.u8()) + 1;
     if ((width != 2 && width != 4) || nOut < width) { r.fail = true; return {}; }
     if (!packedDictionary) r.bytes(nVals * width);
-    nOut -= width - 1 + (g_tuned && g_v15_format && nVals == 1);
+    nOut -= width - 1 + (nVals == 1);
   }
   if (packedDictionary) { r.u8(); skip_frame(r); }
   r.bytes(nOut);          // transform selectors
   uint8_t layout = r.u8();
-  if (layout == 0) {
-    r.u8();  // codec
-    skip_frame(r);
-  } else if (layout == 1) {
-    skip_frame(r);  // cheap bucket (zstd)
-    r.u8();         // codec
-    skip_frame(r);  // rich bucket
-  } else if (layout == 2 && g_custom) {
-    skip_frame(r);
-  } else {
-    r.fail = true;
-  }
+  if (layout == 2) skip_frame(r);
+  else r.fail = true;
   return {start, (size_t)(r.p - start)};
 }
 
@@ -2897,14 +2263,10 @@ static void scan_blob(Reader& r, BlobPlan& bp) {
     r.u8();
     skip_frame(r);
     bp.span = {start, (size_t)(r.p - start)};
-  } else if (bp.mode == 1) {
-    r.u32();  // n4
-    skip_packed(r, 4);
-    skip_frame(r);  // remainder
-    bp.span = {start, (size_t)(r.p - start)};
   } else if (bp.mode == 3) {
-    bp.codec = r.u8();
+    if (r.u8() != kCustom) { r.fail = true; return; }
     bp.xform = r.u8();
+    if (bp.xform > 1) { r.fail = true; return; }
     uint32_t n = r.u32();
     for (uint32_t i = 0; i < n && !r.fail; i++) bp.chunks.push_back(skip_frame(r));
     bp.chunkOut.resize(bp.chunks.size());
@@ -2913,7 +2275,7 @@ static void scan_blob(Reader& r, BlobPlan& bp) {
   }
 }
 
-static void scan_decompress(Zctx& z, DecPlan& dp) {
+static void scan_decompress(DecPlan& dp) {
   Reader r{dp.blob.data(), dp.blob.data() + dp.blob.size()};
   uint8_t mode = r.u8();
   if (mode == kModeRaw) {
@@ -2930,7 +2292,7 @@ static void scan_decompress(Zctx& z, DecPlan& dp) {
   scan_blob(r, dp.suffix);
   scan_blob(r, dp.tail);
   if (r.fail) die("corrupt archive (blob scan)");
-  dp.order = small_decompress(z, r);
+  dp.order = small_decompress(r);
   uint8_t nStreams = r.u8();
   dp.streams.resize(nStreams);
   for (auto& st : dp.streams) {
@@ -2940,12 +2302,12 @@ static void scan_decompress(Zctx& z, DecPlan& dp) {
     st.flags = r.u8();
     if (r.fail) die("corrupt archive (stream header)");
     if (st.flags & 8) continue;  // pooled: records live in the shared pool
-    if (st.flags & 2) st.seedStream = small_decompress(z, r);
+    if (st.flags & 2) st.seedStream = small_decompress(r);
     if (!(st.flags & 1)) {
       st.spans.push_back(skip_packed(r, st.recSize));
       st.gCounts.push_back(st.count);
     } else {
-      st.selector = small_decompress(z, r);
+      st.selector = small_decompress(r);
       if (st.selector.size() != st.count) die("corrupt archive (selector)");
       uint8_t nGroups = r.u8();
       for (uint8_t g = 0; g < nGroups; g++) {
@@ -2968,24 +2330,24 @@ struct DecTask {
   size_t est = 0;
 };
 
-static void run_dec_task(Zctx& z, DecTask& t) {
+static void run_dec_task(DecTask& t) {
   switch (t.kind) {
     case DecTask::Raw: {
       Reader r{t.dp->rawFrame.data(), t.dp->rawFrame.data() + t.dp->rawFrame.size()};
-      auto bytes = z_decompress(z, r);
+      auto bytes = custom_unframe(r);
       t.dp->outData.assign(bytes.begin(), bytes.end());
       break;
     }
     case DecTask::Blob: {
       Reader r{t.bp->span.data(), t.bp->span.data() + t.bp->span.size()};
-      t.bp->out = unpack_blob(z, r);
+      t.bp->out = unpack_blob(r);
       break;
     }
     case DecTask::BlobChunk: {
       auto& c = t.bp->chunks[t.idx];
       Reader r{c.data(), c.data() + c.size()};
       auto& out = t.bp->chunkOut[t.idx];
-      out = codec_decompress_frame(z, r, t.bp->codec);
+      out = custom_unframe(r);
       if (t.bp->xform) ppc_branch_xform(out.data(), out.size() / 4, true);
       break;
     }
@@ -2993,14 +2355,14 @@ static void run_dec_task(Zctx& z, DecTask& t) {
       auto& st = t.dp->streams[t.stream];
       auto& sp = st.spans[t.idx];
       Reader r{sp.data(), sp.data() + sp.size()};
-      unpack_records(z, r, st.gCounts[t.idx], st.recSize, st.recs[t.idx]);
+      unpack_records(r, st.gCounts[t.idx], st.recSize, st.recs[t.idx]);
       if (st.flags & 16) {
-        if (!g_tuned || st.cmd != 0x38 || !(st.flags & 1) || st.recSize < (g_v13_predictors ? 29u : 72u))
+        if (st.cmd != 0x38 || !(st.flags & 1) || st.recSize < 29u)
           die("corrupt motion predictor flag");
         motion_predict(st.recs[t.idx].data(), st.gCounts[t.idx], st.recSize, true);
       }
       if (st.flags & 32) {
-        if (!g_tuned || st.cmd != 0x37 || !(st.flags & 1) || st.recSize < 59)
+        if (st.cmd != 0x37 || !(st.flags & 1) || st.recSize < 59)
           die("corrupt input predictor flag");
         input_predict(st.recs[t.idx].data(), st.gCounts[t.idx], st.recSize, true);
       }
@@ -3008,7 +2370,7 @@ static void run_dec_task(Zctx& z, DecTask& t) {
     }
     case DecTask::Pool: {
       Reader r{t.pool->span.data(), t.pool->span.data() + t.pool->span.size()};
-      unpack_records(z, r, t.pool->total, t.pool->recSize, t.pool->records);
+      unpack_records(r, t.pool->total, t.pool->recSize, t.pool->records);
       break;
     }
     case DecTask::AssembleOnly:
@@ -3193,16 +2555,8 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
   Reader r{arc.data(), arc.data() + arc.size()};
   if (r.u32() != kMagic) die("not a slpz archive");
   uint8_t version = r.u8(), flags = r.u8();
-  if (version != kVersion && version != kTunedVersion && version != kPreviousCustomVersion &&
-      version != kDictionaryVersion && version != kNumericVersion && version != kMotionVersion &&
-      version != kCustomVersion)
-    die("unsupported slpz version");
-  if (flags & ~1u || (version == kVersion && flags)) die("unsupported slpz flags");
-  g_v13_predictors = version >= kNumericVersion;
-  g_v14_predictors = version >= kMotionVersion;
-  g_v15_format = version >= kCustomVersion;
-  g_tuned = version != kVersion;
-  g_custom = g_tuned && (flags & 1);
+  if ((version != kVersion && version != kOriginalVersion) || flags != 1 || r.fail)
+    die("unsupported slpz format (requires v1 custom or its original v15 header; use the compatibility reader for older formats)");
   uint32_t nPools = r.u32();
   std::vector<DecPool> pools(nPools);
   for (auto& pl : pools) {
@@ -3234,7 +2588,7 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
     t0 = t1;
   };
   parallel_for(plans.size(), threads,
-               [&](Zctx& z, size_t i) { scan_decompress(z, plans[i]); });
+               [&](size_t i) { scan_decompress(plans[i]); });
   lap("scan");
 
   // resolve pool slices in file order; each pooled stream is a dependency
@@ -3270,7 +2624,7 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
     for (auto& pl : pools)
       ptasks.push_back({nullptr, DecTask::Pool, 0, 0, nullptr, &pl, 0});
     parallel_for(ptasks.size(), threads,
-                 [&](Zctx& z, size_t i) { run_dec_task(z, ptasks[i]); });
+                 [&](size_t i) { run_dec_task(ptasks[i]); });
   }
   lap("pools");
 
@@ -3364,9 +2718,9 @@ static void cmd_extract(const fs::path& arcPath, const fs::path& outDir,
     }
     std::sort(tasks.begin(), tasks.end(),
               [](const DecTask& a, const DecTask& b) { return a.est > b.est; });
-    parallel_for(tasks.size(), threads, [&](Zctx& z, size_t i) {
+    parallel_for(tasks.size(), threads, [&](size_t i) {
       auto& t = tasks[i];
-      run_dec_task(z, t);
+      run_dec_task(t);
       if (t.kind == DecTask::AssembleOnly) finish(*t.dp);
       else if (t.dp->pending.fetch_sub(1) == 1) finish(*t.dp);
     });
@@ -3460,25 +2814,14 @@ static int cmd_selftest() {
     scan_rev<true>(v.data(), n);
     check(v == orig, "scan_rev/xor", n, 0);
   }
-  // brotli frame roundtrip
+  // Custom frame roundtrip, including empty and opaque inputs.
   for (size_t n : {0u, 1u, 100u, 65536u, 1000001u}) {
     auto orig = rnd(n);
     Buf enc;
-    brotli_compress_frame(orig, enc);
+    custom_frame(orig, enc);
     Reader r{enc.data(), enc.data() + enc.size()};
-    auto dec = brotli_decompress_frame(r);
-    check(dec == orig, "brotli roundtrip", n, 0);
-  }
-  // lzma raw frame roundtrip
-  for (uint8_t id : {kLzmaFast, kLzmaNormal}) {
-    for (size_t n : {0u, 1u, 100u, 65536u, 1000001u}) {
-      auto orig = rnd(n);
-      Buf enc;
-      lzma_compress_frame(orig, id, enc);
-      Reader r{enc.data(), enc.data() + enc.size()};
-      auto dec = lzma_decompress_frame(r, id);
-      check(dec == orig, "lzma roundtrip", id, n);
-    }
+    auto dec = custom_unframe(r);
+    check(dec == orig && r.p == r.end, "custom frame roundtrip", n, 0);
   }
   // ppc transform roundtrip (random words exercise both branch opcodes)
   for (size_t n : {0u, 1u, 4u, 1024u, 100003u}) {
@@ -3491,7 +2834,6 @@ static int cmd_selftest() {
   // pack/unpack roundtrip: random planes, drifting counters, and a
   // dictionarizable 4-byte field (j in [4,8) cycles through 23 values)
   {
-    Zctx z;
     for (auto [count, size] : {std::pair<uint32_t, uint32_t>{20000, 13},
                                {5000, 63}, {100, 5}, {1, 9}, {6000, 1},
                                {70, 12}}) {
@@ -3511,10 +2853,10 @@ static int cmd_selftest() {
         }
       for (int level : {3, 12}) {
         Buf blob;
-        pack_records(z, recs, count, size, level, blob, nullptr);
+        pack_records(recs, count, size, level, blob, nullptr);
         Reader r{blob.data(), blob.data() + blob.size()};
         std::vector<uint8_t> back;
-        unpack_records(z, r, count, size, back);
+        unpack_records(r, count, size, back);
         check(back == recs, "pack/unpack roundtrip", count, size);
       }
     }
@@ -3526,7 +2868,7 @@ static int cmd_selftest() {
 // ── CLI ─────────────────────────────────────────────────────────────────────
 static void usage() {
   die("usage:\n"
-      "  slpz c -o out.slpz [--codec legacy|tuned|custom] [-l level] [-T threads] [-v] "
+      "  slpz c -o out.slpz [-l level] [-T threads] [-v] "
       "<file.slp...|@listfile>\n"
       "  slpz x archive.slpz -d outdir [-T threads]\n"
       "  slpz t archive.slpz [-T threads]\n"
@@ -3555,11 +2897,8 @@ int main(int argc, char** argv) {
     else if (a == "-l") level = std::stoi(next());
     else if (a == "-T") threads = std::stoi(next());
     else if (a == "--codec") {
-      auto codec = next();
-      if (codec != "legacy" && codec != "tuned" && codec != "custom")
-        die("codec must be legacy, tuned, or custom");
-      g_custom = codec == "custom";
-      g_tuned = codec != "legacy";
+      // Accept existing custom-encoder scripts without retaining backend selection.
+      if (next() != "custom") die("only the custom codec is supported");
     } else if (a == "-v")
       g_stats.enabled = true;
     else if (a[0] == '@') {

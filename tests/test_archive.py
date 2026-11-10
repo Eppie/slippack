@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """End-to-end format, predictor, fallback, and exact extraction checks."""
+import argparse
 import hashlib
 from pathlib import Path
 import struct
 import subprocess
 import tempfile
 
-binary = Path(__file__).resolve().parents[1] / 'slpz'
+repo = Path(__file__).resolve().parents[1]
+binary = repo / 'slpz'
+golden = repo / 'tests/fixtures/v15-custom.slpz'
 
 def replay(post_size=84, unused=False):
     sizes = {0x37: 66, 0x38: post_size, 0x3A: 12}
@@ -45,8 +48,7 @@ def replay(post_size=84, unused=False):
             previous[player] = bytes(post)
     return b'{U\x03raw[$U#l' + struct.pack('>I', len(raw)) + raw + b'metadata verbatim'
 
-with tempfile.TemporaryDirectory(prefix='slpz-integration-') as work:
-    work = Path(work)
+def make_fixtures():
     good = replay()
     # Large unused declarations are retained verbatim but require no empty
     # record packets. A zero-width declaration with events must remain active.
@@ -59,24 +61,96 @@ with tempfile.TemporaryDirectory(prefix='slpz-integration-') as work:
                 'tiny.slp': b'\x00', 'nested/another.slp': good, 'old-format.slp': replay(51),
                 'short-post.slp': replay(28), 'unused-types.slp': replay(unused=True),
                 'declared-only.slp': declared_only, 'command-only.slp': command_only}
-    for name, data in fixtures.items():
-        target = work/name; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(data)
-    (work/'list.txt').write_text('\n'.join(fixtures)+'\n')
-    expected = sorted(hashlib.sha1(data).hexdigest()+'  '+name for name,data in fixtures.items())
-    for codec in ('legacy','tuned','custom'):
-        for level in (1,3,7,9):
-            archive = work/f'{codec}-{level}.slpz'
-            subprocess.run([str(binary),'c','--codec',codec,'-l',str(level),'-T','2','-o',str(archive),'@list.txt'],cwd=work,capture_output=True,check=True)
-            header = archive.read_bytes()[:6]
-            assert header[:4] == b'SLPZ'
-            assert header[4:] == (b'\x09\x00' if codec=='legacy' else b'\x0f\x01' if codec=='custom' else b'\x0f\x00')
-            result = subprocess.run([str(binary),'hash',str(archive),'-T','2'],capture_output=True,text=True,check=True)
-            assert sorted(result.stdout.splitlines()) == expected
-            out = work/f'out-{codec}-{level}'
-            subprocess.run([str(binary),'x',str(archive),'-d',str(out),'-T','2'],capture_output=True,check=True)
-            assert all((out/name).read_bytes()==data for name,data in fixtures.items())
-        archive = work/f'{codec}-declaration.slpz'
-        subprocess.run([str(binary),'c','--codec',codec,'-l','3','-T','2','-o',str(archive),
-                        'declared-only.slp'],cwd=work,capture_output=True,check=True)
-        assert archive.stat().st_size < 512, 'unused declaration expanded into empty plane descriptors'
-    print('archive integration: 12 codec/level combinations, 12 fixtures, hashes and extraction passed')
+    # Relative PPC branches become a constant destination under the transform.
+    # Cover both a single opaque frame and multiple independently coded chunks.
+    def ppc(words):
+        return b''.join(struct.pack('>I', 0x48000000 | (((4096 - i) * 4) & 0x03fffffc))
+                        for i in range(words))
+    fixtures['ppc.slp'] = good + ppc(18000)
+    fixtures['chunked.slp'] = good + ppc(280000)
+    fixtures['opaque.slp'] = good + bytes(range(256)) * 300
+    return fixtures
+
+
+def run(args, **kwargs):
+    return subprocess.run([str(x) for x in args], capture_output=True, check=True, **kwargs)
+
+
+def verify(archive, work, expected, fixtures, label):
+    assert archive.read_bytes()[:6] in (b'SLPZ\x01\x01', b'SLPZ\x0f\x01')
+    result = run([binary, 'hash', archive, '-T', '2'], text=True)
+    assert sorted(result.stdout.splitlines()) == expected, label
+    output = work / label
+    run([binary, 'x', archive, '-d', output, '-T', '2'])
+    assert all((output / name).read_bytes() == data for name, data in fixtures.items()), label
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--reference', type=Path, help='also compare against a pre-cleanup v15 binary')
+    parser.add_argument('--write-golden', action='store_true', help='generate the fixture with --reference')
+    args = parser.parse_args()
+    reference = args.reference.resolve() if args.reference else None
+    if args.write_golden and reference is None:
+        parser.error('--write-golden requires --reference')
+    fixtures = make_fixtures()
+    expected = sorted(hashlib.sha1(data).hexdigest() + '  ' + name for name, data in fixtures.items())
+    with tempfile.TemporaryDirectory(prefix='slpz-integration-') as temporary:
+        work = Path(temporary)
+        for name, data in fixtures.items():
+            target = work / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        (work / 'list.txt').write_text('\n'.join(fixtures) + '\n')
+        if args.write_golden:
+            golden.parent.mkdir(exist_ok=True)
+            run([reference, 'c', '--codec', 'custom', '-l', 3, '-T', 2, '-o', golden, '@list.txt'], cwd=work)
+        verify(golden, work, expected, fixtures, 'golden-v15')
+        renamed = work / 'golden-v1.slpz'
+        old_bytes = golden.read_bytes()
+        assert old_bytes[:6] == b'SLPZ\x0f\x01'
+        renamed.write_bytes(old_bytes[:4] + b'\x01' + old_bytes[5:])
+        verify(renamed, work, expected, fixtures, 'golden-v1')
+        for level in (1, 3, 7, 9):
+            archive = work / f'custom-{level}.slpz'
+            run([binary, 'c', '-l', level, '-T', 2, '-o', archive, '@list.txt'], cwd=work)
+            assert archive.read_bytes()[:6] == b'SLPZ\x01\x01', 'new archives must use v1'
+            verify(archive, work, expected, fixtures, f'out-{level}')
+            if reference:
+                baseline = work / f'reference-{level}.slpz'
+                run([reference, 'c', '--codec', 'custom', '-l', level, '-T', 2,
+                     '-o', baseline, '@list.txt'], cwd=work)
+                current = archive.read_bytes()
+                original_header = current[:4] + b'\x0f' + current[5:]
+                assert original_header == baseline.read_bytes(), f'payload changed at level {level}'
+                # The old reader understands the identical payload with its original header.
+                compatible = work / f'compatible-{level}.slpz'
+                compatible.write_bytes(original_header)
+                result = run([reference, 'hash', compatible, '-T', 2], text=True)
+                assert sorted(result.stdout.splitlines()) == expected
+        declaration = work / 'declaration.slpz'
+        run([binary, 'c', '--codec', 'custom', '-o', declaration, 'declared-only.slp'], cwd=work)
+        assert declaration.stat().st_size < 512, 'unused declarations expanded into empty planes'
+        # Reject unsupported versions/backends before creating extracted files.
+        original = golden.read_bytes()
+        for version, flags in ([(v, f) for v in (0, *range(2, 15), 16) for f in (0, 1)]
+                               + [(v, f) for v in (1, 15) for f in (0, 2, 3, 255)]):
+            rejected = work / f'rejected-{version}-{flags}.slpz'
+            rejected.write_bytes(original[:4] + bytes([version, flags]) + original[6:])
+            output = work / f'rejected-{version}-{flags}'
+            result = subprocess.run([str(binary), 'x', str(rejected), '-d', str(output)],
+                                    capture_output=True, text=True)
+            assert result.returncode == 1 and 'requires v1 custom' in result.stderr
+            assert not output.exists()
+        for codec in ('legacy', 'tuned'):
+            output = work / f'{codec}.slpz'
+            result = subprocess.run([str(binary), 'c', '--codec', codec, '-o', str(output), 'valid.slp'],
+                                    cwd=work, capture_output=True, text=True)
+            assert result.returncode == 1 and 'only the custom codec' in result.stderr
+            assert not output.exists()
+    print(f'archive integration: v1/v15-header compatibility, 4 levels, {len(fixtures)} fixtures, '
+          'exact hashes/extraction, and unsupported-format rejection passed')
+
+
+if __name__ == '__main__':
+    main()

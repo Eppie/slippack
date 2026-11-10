@@ -14,10 +14,7 @@ cd "$(dirname "$0")"
 target=${1:?usage: run.sh <parse|roundtrip> [seconds]}
 secs=${2:-0}   # 0 = run until Ctrl-C
 
-# STUB=1 selects the roundtrip binary with LZMA/brotli stubbed to identity
-# (zstd stays real) — fuzzes our code, not the trusted codecs. Much faster.
 binname="slpz_fuzz_$target"
-[[ "$target" == roundtrip && "${STUB:-0}" != 0 ]] && binname="slpz_fuzz_roundtrip_fast"
 bin="./$binname"
 [[ -x "$bin" ]] || { echo "building..."; ./build.sh; }
 

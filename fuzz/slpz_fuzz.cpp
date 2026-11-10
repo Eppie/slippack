@@ -83,13 +83,6 @@ extern "C" int LLVMFuzzerInitialize(int*, char***) {
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   auto files = split(data, size);
-  static const std::string codec = [] {
-    const char* e = getenv("SLPZ_FUZZ_CODEC");
-    return std::string(e ? e : "legacy");
-  }();
-  if (codec != "legacy" && codec != "tuned" && codec != "custom") abort();
-  g_custom = codec == "custom";
-  g_tuned = codec != "legacy";
   memfs_clear();  // drop the prior iteration's blobs; the FS never grows
   std::vector<fs::path> inputs;
   for (size_t i = 0; i < files.size(); i++) {
@@ -99,9 +92,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   }
 
   // threads=1 keeps it in-process/deterministic. Level is tunable via
-  // SLPZ_FUZZ_LEVEL (default 3 = LZMA mix; 1-2 = brotli, ~2x faster/exec but
-  // fuzzes the brotli plane path instead of LZMA). Compress never die()s on
-  // file content (bad parses fall back to raw zstd); an extract die() therefore
+  // SLPZ_FUZZ_LEVEL (default 3). Compress never die()s on file content
+  // (bad parses fall back to a custom frame); an extract die() therefore
   // signals a real archive-handling bug.
   static const int level = [] {
     const char* e = getenv("SLPZ_FUZZ_LEVEL");
@@ -124,12 +116,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 }
 #endif
 
-// Target 3: v12 field dictionary transformations and record framing. Small
+// Target 3: field dictionary transformations and record framing. Small
 // bounded inputs keep mutations focused on dictionary values and indexes.
 #if FUZZ_TARGET == 3
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   if (size < 8) return 0;
-  g_tuned = g_custom = true;
   unsigned width = (data[0] & 1) ? 4 : 2;
   unsigned nvals = std::min<size_t>(256, (size - 4) / width);
   unsigned count = 512 + data[1];
@@ -150,12 +141,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     auto value = f.vals[data[4 + i % (size - 4)] % nvals];
     records.put_bytes(&value, width);
   }
-  Zctx z;
   Buf packed;
-  pack_records(z, records, count, width, 3, packed, nullptr);
+  pack_records(records, count, width, 3, packed, nullptr);
   Reader r{packed.data(), packed.data() + packed.size()};
   std::vector<uint8_t> output;
-  unpack_records(z, r, count, width, output);
+  unpack_records(r, count, width, output);
   if (r.fail || r.p != r.end || output != records) abort();
   Reader scanner{packed.data(), packed.data() + packed.size()};
   auto span = skip_packed(scanner, width);
@@ -165,27 +155,22 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 #endif
 
 // Target 4: numeric predictors composed with real custom record packets.
-// Exercise the v10 through v15 predictor paths.
+// Exercise current predictors across old and new Slippi record sizes.
 #if FUZZ_TARGET == 4
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t length) {
   if (length < 4) return 0;
-  g_tuned = g_custom = true;
-  g_v13_predictors = data[2] & 1;
-  g_v14_predictors = g_v13_predictors && (data[2] & 2);
-  g_v15_format = g_v14_predictors && (data[2] & 4);
-  const uint32_t widths[] = {28, 29, 51, 59, 63, 64, 65, 66, 71, 72, 76, 84};
+  const uint32_t widths[] = {28, 29, 51, 59, 63, 64, 65, 66, 67, 68, 71, 72, 76, 84};
   uint32_t width = widths[data[1] % std::size(widths)], count = 1 + data[0];
   Buf original;
   original.resize(size_t(width) * count);
   for (size_t i = 0; i < original.size(); ++i) original[i] = data[3 + i % (length - 3)];
   auto records = original;
   motion_predict(records.data(), count, width, false);
-  Zctx z;
   Buf packed;
-  pack_records(z, records, count, width, 3, packed, nullptr, true, 0x38);
+  pack_records(records, count, width, 3, packed, nullptr, 0x38);
   Reader r{packed.data(), packed.data() + packed.size()};
   std::vector<uint8_t> restored;
-  unpack_records(z, r, count, width, restored);
+  unpack_records(r, count, width, restored);
   if (r.fail || r.p != r.end || restored != records) abort();
   motion_predict(restored.data(), count, width, true);
   if (restored != original) abort();

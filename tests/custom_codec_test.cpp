@@ -85,18 +85,18 @@ int main(int argc, char** argv) {
   Reader decode_channel{encoded_channel};
   require(unchannel(decode_channel, field_data.size(), field_contexts) == field_data,
           "semantic model roundtrip");
-  // The version-10 semantic channel remains readable.
-  auto legacy_semantic = ans_candidate(field_data, field_contexts);
-  Bytes legacy_framed;
-  varint(legacy_framed, narrow(legacy_semantic.size()));
-  varint(legacy_framed, narrow(field_data.size()));
-  append(legacy_framed, legacy_semantic);
-  Reader legacy_reader{legacy_framed};
-  require(unchannel(legacy_reader, field_data.size(), field_contexts) == field_data,
-          "legacy semantic channel");
-  legacy_reader.done();
+  // Mode 2 is a valid self-described semantic channel in the current payload format.
+  auto semantic_candidate = ans_candidate(field_data, field_contexts);
+  Bytes semantic_framed;
+  varint(semantic_framed, narrow(semantic_candidate.size()));
+  varint(semantic_framed, narrow(field_data.size()));
+  append(semantic_framed, semantic_candidate);
+  Reader semantic_reader{semantic_framed};
+  require(unchannel(semantic_reader, field_data.size(), field_contexts) == field_data,
+          "semantic channel");
+  semantic_reader.done();
   ++checks;
-  // Force the v15 presence path, including every short nibble/byte boundary.
+  // Force four-bit presence coding, including every short nibble/byte boundary.
   // Its selection heuristic must not determine decoder coverage.
   for (unsigned count :
        {1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u, 15u, 16u, 17u, 31u, 127u, 1025u, 4097u}) {

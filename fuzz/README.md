@@ -52,10 +52,8 @@ stopped). `edges (cov)` and `features` are libFuzzer's coverage counters.
 
 ## Custom codec target
 
-The full archive roundtrip target (`FUZZ_TARGET=2`) accepts
-`SLPZ_FUZZ_CODEC=legacy|tuned|custom`, defaulting to legacy. Use custom to
-exercise parsing, unused declarations, pooling, and the custom payload codec
-together. The standalone target below focuses on payload models and packets.
+The full archive roundtrip target (`FUZZ_TARGET=2`) exercises parsing,
+unused declarations, pooling, and the v1 custom payload codec together. The standalone target below focuses on payload models and packets.
 
 The independent custom codec target covers malformed packet/plane decoding and
 arbitrary-input packet and plane encode/decode identities, including shared
@@ -76,7 +74,7 @@ On macOS, if Apple's clang lacks `libclang_rt.fuzzer_osx.a`, use Homebrew LLVM's
 the ignored `build/` directory. A short successful run is a smoke test, not
 evidence of a sustained fuzzing campaign.
 
-## Field-dictionary target (v12)
+## Field-dictionary target
 
 Target 3 exercises all four dictionary transforms, small 2-/4-byte record
 packets, scanner boundaries, and exact index/value reconstruction. Input size
@@ -86,28 +84,28 @@ an ordinary decoder rejection is distinguished from a sanitizer crash.
 
 ```sh
 clang++ -std=c++20 -O1 -g -fsanitize=fuzzer,address,undefined \
-  -fno-omit-frame-pointer -DFUZZ_TARGET=3 -I/opt/homebrew/include \
-  fuzz/slpz_fuzz.cpp -L/opt/homebrew/lib -lzstd -llzma -lbrotlienc \
-  -lbrotlidec -o build/dictionary_fuzz
+  -fno-omit-frame-pointer -DFUZZ_TARGET=3 \
+  fuzz/slpz_fuzz.cpp -o build/dictionary_fuzz
 mkdir -p build/dictionary-corpus
 ./build/dictionary_fuzz build/dictionary-corpus -max_len=1028 \
   -max_total_time=60 -rss_limit_mb=2048 -artifact_prefix=build/
 ```
 
-## Numeric-predictor target (v10/v13/v14)
+## Numeric-predictor target
 
-Build `fuzz/slpz_fuzz.cpp` with `-DFUZZ_TARGET=4` using the same libraries and
-sanitizers as target 3. It composes XOR, v13 numeric, and v14 quadratic/input prediction, custom record
-packing, and inverse prediction, across record lengths 28/29/51/59/71/72/76/84.
+Build `fuzz/slpz_fuzz.cpp` with `-DFUZZ_TARGET=4` using the same sanitizers as
+target 3. It composes current motion and controller prediction, custom record
+packing, and inverse prediction across old and new Slippi record lengths.
 The input also exercises the controller predictor. Counts are bounded to
 1–256 records, and arbitrary bit patterns include non-finite float values.
 
 ```sh
 clang++ -std=c++20 -O1 -g -fsanitize=fuzzer,address,undefined \
-  -fno-omit-frame-pointer -DFUZZ_TARGET=4 -I/opt/homebrew/include \
-  fuzz/slpz_fuzz.cpp -L/opt/homebrew/lib -lzstd -llzma -lbrotlienc \
-  -lbrotlidec -o build/predictor_fuzz
+  -fno-omit-frame-pointer -DFUZZ_TARGET=4 \
+  fuzz/slpz_fuzz.cpp -o build/predictor_fuzz
 mkdir -p build/predictor-corpus
 ./build/predictor_fuzz build/predictor-corpus -max_len=1028 \
   -max_total_time=60 -rss_limit_mb=2048 -artifact_prefix=build/
 ```
+
+On Linux, add `-lcrypto` when building targets that include `slpz.cpp`.

@@ -1,106 +1,89 @@
-# SLPZ v15 custom codec
+# SLPZ v1 custom codec
 
-The default writer still emits v9 (`--codec legacy`). Both `--codec tuned`
-and `--codec custom` emit v15; header flag bit 0 selects the custom payload
-coder. Tuned uses the existing compression libraries. The reader supports
-v9, v10 (including the first custom backend), v11, v12, v13, v14, and v15. The CLI still
-links the old libraries for compatibility; the standalone custom codec does
-not link a compression library.
+The writer emits version 1 with header flags exactly 1. The reader accepts
+versions 1 and 15 as aliases for the same payload format. The custom rANS/LZ
+codec is the only payload backend. Codec ID 6 identifies tagged
+custom frames; implicit frames also use custom compression. Other archive
+versions, tuned/legacy backends, and unknown header flags are rejected.
+The last compatibility reader is commit `b66dd55` (see the README).
 
-## Container and predictors
+Container words are little-endian; source Slippi numeric fields are big-endian.
+Only the version byte changes from 15 to 1; every payload byte retains its
+meaning. Existing archives with the original v15 header need no rewrite.
 
-The v9 directory and framing are retained. Header flag bit 0 selects custom
-payload compression in v10–v15. Codec ID 6 identifies tagged custom frames;
-implicit frames use the backend from the header. Unknown versions or header
-flag bits are rejected. Pre-v15 readers reject v15 before reading its payload.
-Container words are little-endian; source SLP numeric fields are big-endian.
+## Container
 
-The encoder omits stream packets for declared commands with no parsed events.
-The original payload declaration table remains verbatim, so reconstruction
-retains those declarations without storing empty selectors and plane models.
-Streams containing actual zero-width events remain present. This is compatible
-with existing readers and changes neither the container version nor framing.
+```
+u32 magic "SLPZ", u8 version=1 (or original alias 15), u8 flags=1
+u32 pool_count
+  per pool: u8 command, u32 record_size, u32 record_count, record_packet
+u32 file_count
+  per file: u32 name_length, name bytes, u64 original_size, u64 blob_length, blob
 
-The v10–v12 predictor representation below remains readable. Tuned and custom
-share the same predictors in each version; v13's changes follow this section:
+blob = u8 mode, payload
+  mode 0: custom_frame of the entire original file
+  mode 1: original 15-byte Slippi header, original 0x35 declaration,
+          packed_blob(metadata suffix), packed_blob(unparsed tail),
+          tagged_frame(event order), u8 stream_count, stream packets
+stream = u8 command, u32 record_size, u32 record_count, u8 flags,
+         [tagged_frame(seed codes)],
+         [tagged_frame(group selectors), u8 group_count,
+          per group: u32 count, record_packet]
+         or [record_packet] for ungrouped streams
+         or [no payload] for pooled streams
+```
 
-- Stream flag bit 4: post-frame velocity prediction for grouped 0x38 records
-  at least 72 bytes long. Predict x/y from the previous position plus current
-  self-induced and attack velocity; payload byte 46 selects ground/air x
-  velocity. Both additions round separately to IEEE binary32, nearest/even.
-  Non-finite predictions become +0. Store exact XOR residuals; each group
-  starts with position zero.
-- Stream flag bit 5: pre-frame input prediction for grouped 0x37 records at
-  least 59 bytes long. XOR processed button bits with physical buttons, and
-  the processed trigger with the physical trigger having the larger unsigned
-  big-endian bit pattern. Available raw stick bytes index zero-initialized
-  256-entry last-value tables predicting the corresponding float bits.
+Stream flag bits are 0 grouped, 1 seed folding, 2 pre/post cross-prediction,
+3 pooled, 4 motion prediction, and 5 controller-input prediction. Pooled
+streams refer to the matching command/record-size pool; offsets follow file
+order. The encoder omits declared streams without events but keeps their
+original declaration bytes. Actual zero-width events remain present.
 
-These follow pre/post cross-prediction during encoding and are reversed
-before it during decoding. Unsupported record sizes skip these predictors.
-Signed zero, infinities, and NaN payload bits are retained. Fast-math builds
-are rejected and the CLI establishes nearest/even rounding for its workers.
+`custom_frame` is `u32 packed_size, u32 original_size, packed_bytes`.
+A tagged frame prefixes it with `u8 codec=6`. Generic packed bytes begin with
+a profile byte; record plane frames use their own plane-packet structure.
+Record packets contain dictionaries, one transform selector per output plane,
+`u8 layout=2`, and one plane frame. Layouts 0 and 1 are unsupported.
 
-## Numeric predictors (v13)
+Opaque metadata/tail blobs use these modes:
 
-Stream flag bit 4 now applies to grouped post-frame (0x38) records at least
-29 bytes long. V10–v12 retain the old 72-byte minimum and XOR residuals.
-V13 chooses the position prediction from fields available in the record:
+| Mode | Payload |
+|---|---|
+| 0 | One implicit custom frame |
+| 2 | One tagged custom frame |
+| 3 | `u8 codec=6, u8 PPC_transform, u32 chunk_count`, then custom frames |
+| 4 | One tagged custom frame, then inverse PPC transform |
 
-- At 72 bytes or more, use the same velocity-based binary32 prediction as
-  before, with separately rounded additions and non-finite predictions zeroed.
-- At 29–71 bytes, use the previous position's exact 32-bit pattern, initially
-  zero. This fallback performs no floating-point arithmetic and retains NaN
-  payloads and signed zeros.
+Mode 1 is unsupported. PPC transforms operate on complete 4-byte words and
+reset word indexes for each chunk. The encoder currently uses 1 MiB chunks.
 
-For each x/y position, encode the unsigned modular difference between its
-32-bit pattern and the predicted pattern. Zigzag the resulting signed bit
-pattern: `(difference << 1) ^ (0u - (difference >> 31))`. Decode the difference
-with `(code >> 1) ^ (0u - (code & 1))`, then add the predicted pattern modulo
-2^32. This is a bijection for every 32-bit input, including exceptional floats.
+## Predictors
 
-The 4-byte fields at offsets 21, 25, 60, and 64 use the same difference/zigzag
-mapping against the previous actual field value, initially zero, whenever the
-whole field exists. Encoding computes positions before transforming those
-fields; decoding restores the fields before computing the position prediction
-because the velocity predictor reads offsets 60/64. State resets per group.
+Pre/post cross-prediction runs before motion/input prediction on encoding and
+is reversed after them on decoding. All state resets per player/follower group.
+Float operations round separately to IEEE binary32 nearest/even. Nonfinite
+predictions become positive zero; residuals preserve every original bit,
+including signed zero and NaN payloads. Fast-math builds are rejected.
 
-Input prediction is unchanged. The implementation specializes encoding and
-decoding outside the record loop, including separate old/new position paths.
-This removes per-record direction branches without changing old semantics.
+Stream flag bit 4 applies to grouped post-frame records (0x38) of at least
+29 bytes. For records of at least 72 bytes, predict each position from the
+previous position plus current self-induced and attack velocity; byte 46
+selects the ground/air x velocity. Each addition rounds separately. For
+29–71-byte records, use `position + (velocity + acceleration)`. After restoring
+the actual position, update `nextVelocity = actualPosition - position`, then
+`acceleration = nextVelocity - velocity`, velocity, and position, rounding
+each subtraction separately. Initial state is positive zero.
 
-## Quadratic motion and numeric input residuals (v14)
+Encode the unsigned modular difference between actual and predicted bit
+patterns as `(difference << 1) ^ (0u - (difference >> 31))`. Invert it with
+`(code >> 1) ^ (0u - (code & 1))`, adding the predicted bits modulo 2^32.
+Encoding computes positions before transforming other post-frame fields;
+decoding restores those fields before computing velocity-based positions.
 
-For post-frame records of 29–71 bytes, each axis maintains binary32 position,
-velocity, and acceleration, initially +0. The prediction is
-`position + (velocity + acceleration)`, with each addition separately rounded
-to nearest/even. Non-finite predictions become +0. After reconstructing the
-actual position bits, update `nextVelocity = actualPosition - position`, then
-`acceleration = nextVelocity - velocity`, then store the new velocity and
-position. Each subtraction also rounds separately. The operation order matters;
-reassociating the additions changes the format. V13 keeps its previous-position
-fallback, and records of at least 72 bytes retain v13's velocity-based predictor.
-
-The position difference/zigzag mapping and the extra post-frame fields are
-unchanged from v13. The NEON implementation computes the two axes in parallel;
-the scalar implementation follows exactly the same operation order.
-
-For pre-frame controller floats at offsets 24/28/32/36, the available raw bytes
-at 58/63/64/65 still index independent 256-entry last-value tables. V14 encodes
-the modular difference of the big-endian float bit patterns, then zigzags it,
-instead of XORing the patterns. Tables start at zero and retain actual values.
-Buttons and trigger prediction retain their existing XOR representation.
-Every 32-bit input, including signed zero and NaN payloads, remains lossless.
-
-These semantic changes require v14. Payload entropy coding is unchanged;
-readers retain the distinct v10–v12, v13, and v14 predictor paths.
-
-## Semantic refinements and implicit constant indexes (v15)
-
-V15 retains v14 position prediction and changes these additional fields. All
-predictor state resets at each player/follower group. Float arithmetic uses
-separately rounded binary32 operations, nearest/even; a nonfinite prediction
-is replaced with positive zero. All residuals preserve the original bits.
+Stream flag bit 5 applies to grouped pre-frame records (0x37) of at least
+59 bytes. XOR processed buttons with physical buttons, and the processed
+trigger with the physical trigger whose unsigned big-endian bits are larger.
+Controller floats use the mappings and prediction tables below.
 
 - Pre-frame controller floats at offsets 24, 28, 32, and 36 are first permuted:
   each exact binary32 representation of `q/80`, for integer `q` in [-80,80],
@@ -121,7 +104,7 @@ is replaced with positive zero. All residuals preserve the original bits.
   mapping happens after restoring all four controller values in a record.
 - Post-frame attack velocities at 60 and 64 predict `last + (last - older)`
   from actual float values, initially zero. Percent and shield at 21 and 25
-  retain v14's unsigned-bit-pattern differences.
+  use unsigned-bit-pattern differences.
 - The post-frame animation counter at 33 uses the action state at 7–8. States
   below 1,024 keep an entry value (initially zero) and positive step (initially
   one). On an action change, predict the saved entry value and update it with
@@ -135,19 +118,16 @@ is replaced with positive zero. All residuals preserve the original bits.
   modular difference, then zigzag it. The decoder restores mapped actual bits,
   inverts the permutation, and updates float predictor state.
 
-V15 dictionary descriptors and value tables retain the v12 layout. A field
-with `nVals == 1` has **no index plane, selector, or semantic profile**. Its
-known value is filled directly during reconstruction. Therefore output width
-is `record_size - sum(field_width - 1) - number_of_single_value_fields`.
-The reader retains explicit constant index planes for v9–v14 packets. This
-version rule applies to both tuned and custom archives; legacy still writes v9.
 
-Encoder-only policies prioritize complete known numeric fields before the
-sliding 4-/2-byte dictionary search, and sample clearly rich planes before
-running full sparse/run histograms. These decisions are represented by the
-existing dictionary descriptors and plane modes; they need no decoder policy.
+## Constant dictionaries
 
-## RNG acceleration (all readable versions)
+A dictionary with one value has no index plane, transform selector, or
+semantic profile. Its known value is filled directly during reconstruction.
+Output width is `record_size - sum(field_width - 1) - single_value_field_count`.
+The encoder tries complete known numeric fields before sliding 4-/2-byte
+windows. These choices are encoded in the dictionary descriptors.
+
+## RNG coding
 
 RNG framing, group ordering, the 4096-step search cap, and raw-seed exceptions
 are unchanged. A table maps the low 13 bits of each generator state to its
@@ -160,14 +140,14 @@ Ordinary step counts exceeding 4096 are rejected; the existing exception code
 through and beyond the cap for random seeds, and unrelated/aliased states
 against the original scalar stepper.
 
-## Field dictionaries (v12)
+## Field dictionaries
 
-Tuned and custom now sort each dictionary by the original big-endian field
+The encoder sorts each dictionary by the original big-endian field
 byte sequence and remap its indexes. This improves both the value metadata
 and temporal index deltas. It is an encoder policy: the dictionary explicitly
 records the value assigned to every index.
 
-The current tuned/custom encoder skips candidate dictionaries with exactly
+The encoder skips candidate dictionaries with exactly
 one nonconstant byte and at least 128 distinct values in that byte. Constant
 planes already represent the fixed neighbours cheaply. Alphabet counts are
 cached by byte offset and stop at the threshold. Constant dictionaries and
@@ -175,12 +155,11 @@ small one-byte alphabets avoid hashing every full record; dictionary values
 and first-occurrence indexes are otherwise unchanged. This is an encoder
 policy, not a new dictionary representation.
 
-Byte-transform selection probes up to three 256-byte windows for tuned/custom
-(first, middle, last), instead of the legacy 4096-byte windows. Explicit plane
+Byte-transform selection probes up to three 256-byte windows
+(first, middle, last). Explicit plane
 selectors carry every decision, so this also needs no new decoder semantics.
 
-Each record group begins with `u8 field_count`. The old representation is
-unchanged: each field has `u8 width, u16 offset, u8 value_count_minus_one`, then
+Each record group begins with `u8 field_count`. The raw representation uses `u8 width, u16 offset, u8 value_count_minus_one`, then
 `value_count * width` raw value bytes. Width is 2 or 4; there are at most 255
 non-overlapping fields and at most 256 values per field.
 
@@ -206,9 +185,7 @@ Prediction resets at every field and, for modes 2/3, every byte plane. The
 encoder selects a transform by estimated entropy plus model cost, compresses
 it at level `min(requested_level, 3)`, and uses the frame only if its entire
 serialized size is smaller than the raw dictionary values. Otherwise it
-writes the original raw representation. Both backends use identical sorting,
-transform selection, and fallback rules. Custom uses its own tagged payload
-codec; tuned compares zstd and fast LZMA as for other small side streams.
+writes the original raw representation. Dictionary data uses the tagged custom payload codec.
 
 Dictionary expansion specializes the 2-/4-byte widths and uses NEON register
 lookups for alphabets up to 64 entries. Index validation precedes the lookup;
@@ -227,17 +204,20 @@ reserved RNG continuation 5, counter 6, and discrete/dictionary 7. Unknown
 fields use generic. Profiles and context boundaries are serialized once per
 plane, not per literal.
 
-A v11 plane frame starts with varints `65536, plane_count, samples_per_plane`.
-The sentinel distinguishes it from v10's `plane_count, samples_per_plane`.
+A plane frame starts with varints `65536, plane_count, samples_per_plane`.
+The decoder also accepts the original unextended plane-packet representation
+without this sentinel.
 Plane count is at most 65535 and dimensions must match the enclosing size.
 Each plane has one descriptor:
 
 - `1, varint packet_size, packet`: an explicit constant/sparse/run packet.
 - `0, u8 profile`: a plane included in the remaining data.
 
-If remaining data is nonempty, v11 stores a method byte: 0 for LZ of the
+If remaining data is nonempty, the packet stores a method byte: 0 for LZ of the
 concatenated planes, or 3 for shared presence masks and exception values.
-Methods 1 and 2 are reserved, not accepted. V10 has no method byte and uses LZ.
+Methods 1 and 2 are reserved, not accepted. Unextended plane packets omit
+the method byte and use LZ. These self-describing payload variants remain
+valid inside the current format.
 
 Very cheap planes use explicit packets. For substantial float-rich groups,
 the encoder selects shared masks directly. Otherwise it compares the two
@@ -266,7 +246,7 @@ their plane profiles, derivable from the decoded masks. Reconstruction fills
 each plane with its dominant byte and scatters the exceptions into set bits.
 
 The presence coder processes four two-bit symbols per mask byte, reusing
-neighbor-byte loads. This preserves the exact v11/v12 representation.
+neighbor-byte loads. This preserves the two-bit presence representation.
 Decoding checks the all-zero/all-one pairs before the two mixed pairs; this
 changes only the lookup order, not probabilities, state transitions, or bytes.
 
@@ -299,7 +279,7 @@ decoder derive these small four-symbol tables identically, on demand.
 An odd sample count has one extra zero decision. ANS state selection advances
 continuously across planes, once per pair. Unused final mask bits must be zero.
 
-### Four-bit presence coding (method 4, v15)
+### Four-bit presence coding (method 4)
 
 Method 4 retains method 2's serialized split flag, 128/256 binary zero
 probabilities at scale 4096, plane references, and four interleaved rANS states.
@@ -342,7 +322,7 @@ storage remains an escape in generic packets and entropy channels.
 
 ## LZ payload
 
-The representation is unchanged from v10:
+The payload contains:
 
 1. Varint match count.
 2. Channels of literal-run length codes, match-length codes, distance codes.
@@ -374,7 +354,7 @@ A channel is `varint packed_size, varint original_size, payload`:
 
 - Mode 0: raw bytes.
 - Mode 1: one static byte rANS model.
-- Mode 2: eight semantic rANS models (v10 compatibility).
+- Mode 2: eight semantic rANS models.
 - Mode 4: static byte-context model. Mode 3 is reserved, not accepted.
 
 A probability model stores a varint symbol count followed by
@@ -415,18 +395,19 @@ roundtrip verification uses external hashes.
 
 ## Validation and benchmarking
 
-`make check` covers the original self-test, standalone custom packets/models,
-shared masks, CDFs, truncation/mutation handling, and archive roundtrips and
-extraction for all backends at levels 1/3/7/9. Predictor tests compare RNG tables with the scalar oracle
-and compare v14 quadratic/input residuals with independent scalar oracles on arbitrary float bit patterns and
-record-size boundaries. Record-codec tests additionally
-force all dictionary transforms and cover vector boundaries, malformed
-metadata, field resets, and arithmetic wraparound. Standalone custom tests and fuzzing
-link no compression libraries. See `fuzz/README.md`.
+`make check` covers standalone custom packets/models, shared masks, CDFs,
+truncation/mutation handling, and current-format archive roundtrips at levels 1/3/7/9.
+A committed synthetic fixture from the pre-cleanup encoder checks existing
+decoding under both version headers; unsupported archive versions and backends must fail before
+extraction. Predictor tests compare the RNG tables, quadratic positions,
+velocity-based positions, integer mapping, and extra field residuals with
+independent scalar oracles on arbitrary float bit patterns and record sizes.
+Record-codec tests force dictionary transforms and cover vector boundaries,
+malformed metadata, field resets, and arithmetic wraparound.
+No tests require external compression libraries. See `fuzz/README.md`.
 
-`benchmarks/compare_custom.py` compares identical inputs, randomizes backend
-order, warms once, records all timing samples, and verifies decoded file hashes.
-Decode uses `slpz t`, including reconstruction and excluding file writes.
-Results are hardware/level specific; superiority over slower, high-compression
-LZMA presets is not implied by a level-3 comparison. Prior prototypes and negative results are
-preserved in `benchmarks/2026-11-08-model-study/`.
+Historical benchmark scripts compare the backends available at their recorded
+commits. They warm inputs, retain timing samples, and verify decoded hashes.
+Decode timings use `slpz t`, including reconstruction and excluding writes.
+Results depend on hardware, level, and dataset. Earlier prototypes and negative
+results are retained under `benchmarks/` and in Git history.
