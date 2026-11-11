@@ -1,6 +1,6 @@
 # Slippack — Slippi replay compressor
 
-Losslessly packs many `.slp` replays into one archive. It uses Slippi event
+Losslessly compresses one or many `.slp` replays into an archive. It uses Slippi event
 structure, cross-frame and controller prediction, field dictionaries, shared
 presence masks, and a custom rANS/LZ payload codec. Extraction restores the
 original file bytes, including metadata, malformed input, and unknown events.
@@ -162,6 +162,33 @@ original-v15 fixture made by the pre-cleanup encoder. Fuzzing instructions are i
 
 The `benchmarks/` directory and [EXPERIMENTS.md](EXPERIMENTS.md) record historical
 experiments. Their backend selections and version comparisons describe the
-commits used for those studies. For the latest recorded speed study, see
+commits used for those studies. Earlier speed studies are under
 `benchmarks/2026-11-09-speed/`; all benchmark sets were examined during
 development, so those results are not independent held-out estimates.
+
+## Single-replay comparison
+
+On an Apple M4 Max, 120 individually compressed replays (313 MB), one worker,
+five-run medians, with inputs in RAM and exact round-trip verification:
+
+| Codec | Packed size / original | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 3 (default) | 4.13% | 215.6 | 858.9 |
+| slpz --fast (default) | 13.45% | 531.2 | 1027.4 |
+| slpz --small | 12.20% | 109.2 | 1164.8 |
+
+Slippack's default output was 69% smaller than slpz's fast preset, while slpz
+encoded about 2.5 times faster and decoded about 1.2 times faster. On the 98
+files within slippc's supported version range, Slippack produced 24% smaller
+files, encoded about 33 times faster, and decoded about 2.7 times faster.
+
+Peppi 2.1.2 restored only 28 of these files byte-for-byte; its comparisons use
+that matched subset. Slippack's output was 61% smaller than whole-file Peppi +
+Zstd level 3, with about 1.8 times slower encoding and 1.3 times slower decoding.
+Peppi's Arrow representation also serves analysis use cases.
+
+See [the full method and matched comparisons](EXPERIMENTS.md#2026-11-10-single-replay-comparison-with-slpz-slippc-and-peppi)
+for every tested level, single/eight-worker results, Peppi coverage details,
+and reproduction instructions. These are codec timings; disk I/O and process
+startup are excluded. [Raw results](benchmarks/2026-11-10-single-file/results.json)
+include source hashes and all timing samples.

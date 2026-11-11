@@ -441,3 +441,168 @@ New custom/tuned output is v14; v9–v13 remain readable. Tests, 522 file hashes
 scalar/native equivalence, legacy compatibility, external-encoder tripwires,
 and short ASan/UBSan predictor/archive fuzz runs all pass. Full evidence,
 limits, rejected trials, and reproduction are in `benchmarks/2026-11-08-v14/`.
+
+## 2026-11-10: single-replay comparison with slpz, slippc, and Peppi
+
+Slippack v1 was compared with [Alexander Harrison's slpz](https://github.com/AlexanderHarrison/slpz/tree/9f4d952f444037edbbc49af11e5e963ecd4d399f),
+[pcrain's slippc](https://github.com/pcrain/slippc/tree/8d79a665392e491edd62150687a956e45a7a0fe7),
+and [Peppi 2.1.2](https://docs.rs/peppi/2.1.2/peppi/).
+Every compressed file contains exactly one replay. There is no sharing between
+replays, including in the parallel runs.
+
+The sample contains 120 distinct replays, totaling 313,007,679 bytes: 40 from each
+of the existing sample, mixed, and historically named holdout lists. Selection
+sorts filenames by SHA-256 and takes the first 40, before any codec is run. One
+non-replay inventory file in the original mixed list is excluded. Versions are
+2.0.1 (92 files), 3.9.0 (6), and 3.17.0 (22). These source sets were used in earlier
+development; they are not independent unseen evaluation data.
+
+On an Apple M4 Max with 128 GiB RAM, each setting receives a warmup and five
+measured runs in reproducibly shuffled order. Tables use medians. Inputs are
+preloaded into RAM. Timings include codec setup, transformations, allocations,
+and full output construction, and exclude file I/O, process startup, final
+buffer disposal, and verification. Every output is compared byte-for-byte with
+its input after each run. slippc's usual verification is likewise outside the
+encoding timer. Peppi decoding includes reconstruction of the original `.slp`,
+not just loading Arrow data into a parsed game.
+
+One worker measures sequential single-replay operations. Eight workers process
+independent files; each codec invocation uses one worker. slpz reuses its Zstd
+context per worker, as its directory CLI does. Slippack calls the public archive
+API with one member and the original basename. Complete file sizes, including
+headers, filenames, and metadata, are counted. CLI/library compressed-size spot
+checks agree for Slippack and slpz.
+
+The core is Slippack commit `9bffdb5`; slpz is commit `9f4d952`, slippc is
+`8d79a66`, and Peppi is the published 2.1.2 crate. Builds use Apple Clang 17 at
+`-O3` (C++20 for Slippack, C++17 for slippc), rustc 1.88.0's release profile,
+Zstd 1.5.6, and system liblzma 5.8.4. The benchmark pins Rust dependencies in
+Cargo.lock. No upstream codec code is patched. Peppi's outer Zstd decoder sizes
+its buffer from the frame's declared content size. Executable SHA-256 hashes
+are recorded per comparison set in the raw report. Desktop scheduling and
+allocator/cache state still affect these measurements.
+
+### Coverage and matched sets
+
+Slippack and slpz restored all 120 sampled files exactly. slippc restored all
+98 files within its advertised support through replay version 3.12.0; the 22
+newer files were not submitted to its fixed-layout transforms.
+
+All 120 files could be written to Peppi format, but only 28 could be restored
+byte-for-byte by Peppi 2.1.2 in this test. Seventy-four reconstructions panicked
+at its Gecko-code size assertion (`io/slippi/ser.rs:394`); another 18 returned
+different bytes. All three Peppi storage variants had the same failures. This
+is a result for this corpus and this version, not a claim that Peppi generally
+loses replay data. Peppi also provides an Arrow representation for analysis,
+which the other formats do not.
+
+Every table compares tools on exactly the same files. The three sets have
+different compositions, so do not compare absolute throughput across sets.
+The uncompressed Peppi row is a format-conversion reference, not a compression
+competitor. Internal Zstd compresses Arrow buffers; the outer variants instead
+compress the entire uncompressed `.slpp` file with Zstd at the indicated level.
+
+### All 120 replays: Slippack versus slpz
+
+Raw size: 313,007,679 bytes. Sizes are percentages of the original input
+(smaller is better); speed is decimal MB/s of original replay bytes (larger is
+better). All settings are listed to show the size/speed tradeoff.
+
+**1 worker**
+
+| Codec | Packed size | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 1 | 4.18% | 222.8 | 839.0 |
+| Slippack level 3 (default) | 4.13% | 215.6 | 858.9 |
+| Slippack level 9 | 4.11% | 158.4 | 870.7 |
+| slpz --fast (default) | 13.45% | 531.2 | 1027.4 |
+| slpz --small | 12.20% | 109.2 | 1164.8 |
+
+**8 workers**
+
+| Codec | Packed size | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 1 | 4.18% | 1700.0 | 6489.9 |
+| Slippack level 3 (default) | 4.13% | 1579.7 | 6498.7 |
+| Slippack level 9 | 4.11% | 1177.1 | 6653.2 |
+| slpz --fast (default) | 13.45% | 3915.3 | 7246.8 |
+| slpz --small | 12.20% | 774.3 | 7938.3 |
+
+### 98 replays within slippc’s supported version range
+
+Raw size: 242,937,060 bytes. Sizes are percentages of the original input
+(smaller is better); speed is decimal MB/s of original replay bytes (larger is
+better). All settings are listed to show the size/speed tradeoff.
+
+**1 worker**
+
+| Codec | Packed size | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 1 | 4.06% | 215.8 | 835.6 |
+| Slippack level 3 (default) | 4.03% | 220.9 | 894.5 |
+| Slippack level 9 | 4.01% | 160.2 | 890.7 |
+| slpz --fast (default) | 13.38% | 528.1 | 1037.7 |
+| slpz --small | 12.04% | 109.5 | 1087.7 |
+| slippc (LZMA level 6) | 5.33% | 6.6 | 335.3 |
+
+**8 workers**
+
+| Codec | Packed size | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 1 | 4.06% | 1591.5 | 6439.4 |
+| Slippack level 3 (default) | 4.03% | 1578.9 | 6210.6 |
+| Slippack level 9 | 4.01% | 1147.9 | 6609.0 |
+| slpz --fast (default) | 13.38% | 3842.4 | 7055.4 |
+| slpz --small | 12.04% | 779.8 | 7800.2 |
+| slippc (LZMA level 6) | 5.33% | 48.9 | 2196.1 |
+
+### 28 replays that round-trip exactly through Peppi
+
+Raw size: 74,297,116 bytes. Sizes are percentages of the original input
+(smaller is better); speed is decimal MB/s of original replay bytes (larger is
+better). All settings are listed to show the size/speed tradeoff.
+
+**1 worker**
+
+| Codec | Packed size | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 1 | 4.47% | 239.9 | 859.5 |
+| Slippack level 3 (default) | 4.41% | 216.1 | 803.9 |
+| Slippack level 9 | 4.39% | 156.3 | 852.7 |
+| slpz --fast (default) | 13.72% | 536.4 | 1012.7 |
+| slpz --small | 12.78% | 108.2 | 1108.5 |
+| Peppi, no compression | 91.67% | 659.9 | 1919.5 |
+| Peppi, internal Zstd | 17.69% | 257.3 | 501.8 |
+| Peppi + whole-file Zstd 3 | 11.36% | 382.6 | 1072.2 |
+| Peppi + whole-file Zstd 12 | 10.07% | 126.5 | 1108.8 |
+
+**8 workers**
+
+| Codec | Packed size | Encode MB/s | Decode MB/s |
+|---|---:|---:|---:|
+| Slippack level 1 | 4.47% | 1438.0 | 5285.7 |
+| Slippack level 3 (default) | 4.41% | 1414.6 | 5338.4 |
+| Slippack level 9 | 4.39% | 995.2 | 5302.7 |
+| slpz --fast (default) | 13.72% | 3488.6 | 5980.2 |
+| slpz --small | 12.78% | 697.6 | 6376.3 |
+| Peppi, no compression | 91.67% | 3061.9 | 8315.6 |
+| Peppi, internal Zstd | 17.69% | 1226.9 | 1501.6 |
+| Peppi + whole-file Zstd 3 | 11.36% | 1964.0 | 5183.9 |
+| Peppi + whole-file Zstd 12 | 10.07% | 777.2 | 5087.4 |
+
+### Reproduction
+
+The benchmark adds optional Rust/Zstd/LZMA dependencies only to its runners;
+Slippack itself retains its self-contained codec.
+
+```sh
+bash benchmarks/2026-11-10-single-file/build.sh
+python3 benchmarks/2026-11-10-single-file/benchmark.py \
+  --study /path/to/existing-study --repeats 5
+```
+
+The study directory must contain the existing `summit/` and `mixed/` sources
+referenced by the tracked lists under `benchmarks/2026-11-09-speed/`. No replay
+payloads are included in this repository. The JSON report records every selected
+filename, source SHA-256, compressed size, coverage failure, and timing sample:
+[raw results](benchmarks/2026-11-10-single-file/results.json).

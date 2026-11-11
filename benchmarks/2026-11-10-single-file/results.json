@@ -1,0 +1,8401 @@
+{
+  "date": "2026-11-10",
+  "machine": "Apple M4 Max",
+  "platform": "macOS-15.5-arm64-arm-64bit-Mach-O",
+  "repeats": 5,
+  "method": "One replay per compressed file; in-memory library calls; full .slp reconstruction; verification outside timers.",
+  "inputs": [
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T030831.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3933602,
+      "sha256": "46710b1bfd56969fbc747d66e4ee8cb940fb2af9095a957eea579c3b73a360eb"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T010420.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2511442,
+      "sha256": "7bceabf92ec01bcd025ea2732c415f6e07848db573606893497b9e797c6d7d3c"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T015949.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1559314,
+      "sha256": "5ca33ac6197e6034d56f8acd686ad466864f58b42e53ff5119e4ca9f6c9c9aa3"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T043219.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2181306,
+      "sha256": "903adcb8428c8f312ba429b347f58bcbc38754c8ddfff0004afe18a5135aa72b"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T071402.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1299242,
+      "sha256": "36f96c24de7287bc2b3a461686a98dc4771accde79f914d2b4358579b39da50c"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T060936.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2141170,
+      "sha256": "ff85bb93e8143231d46585e32d0db69f23585b02c065ea4e3bb61556c97ab2f6"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T062008.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1754426,
+      "sha256": "14d868e56c892e71aee389c15759614656dec7ed195c6fb9f64c6dbb0d0e9289"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T041139.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1269082,
+      "sha256": "0dbc7950c5ebaa989b26e6ed740b845fcace8db51298614dcba6d70377ae8eea"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T093151.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2629762,
+      "sha256": "49597b0da0cd5da5974d391114829eb1dae4ba2c71eba949448e4ecf8bc12d06"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T012609.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2289882,
+      "sha256": "5f4e7fa82779f3af1e3f92a1438b09912bed823ab57ba8458a24900e193d5636"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T215318.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1083714,
+      "sha256": "8b1a12994d095a03f0d1db937354f15c4b3935a08e9d8e6129daa907bbd370ee"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T233827.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2792394,
+      "sha256": "a876713390f75c11734de44ea9b7ff410bd39487fd22941e4c0aee5275c3fd26"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T010908.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2534410,
+      "sha256": "8cbcff67f7ecef5ada041e949cd8c940b233a9de46117921729a71fed420ae70"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210716T225015.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3605322,
+      "sha256": "97fbac096845f29153f39b75a4c91ef60a85d2e4676d6e56b2be582d5ea1ad1d"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T211724.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 117898,
+      "sha256": "9ad756ab966ecd85cf3654c1767bda89da774ab5799f103d44fd2d0df41420b2"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T011445.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1924946,
+      "sha256": "fca1a4a51a93ff902a19813469dfca1e17dd7223ad329664d7d7dd24fcc4ee91"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T064540.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2754578,
+      "sha256": "f3227561403b40a472bae3a605d63cb7bbd4f642d28505ef4d16c605e7d6478d"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T074602.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2359482,
+      "sha256": "61effbcf6c327dd73ab6c8b52f4409f457ee1b6b286add6599e7c84353cc1340"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T001526.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1608266,
+      "sha256": "33185e5508425ed10fbbdabfd94d7a9e14e2cacd2efb6c3aa684c92bf4837666"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_001AE992EB29_20210715T010042.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 7800218,
+      "sha256": "56702ded56288829ee7e4cbd56822f04fc5480954d6653fa27e36bcba5466757"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T023325.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2003362,
+      "sha256": "6baf3a77e24075549d46cd4e9f786c7cabe6fcfe19b8cd5f53f53cffbe681eff"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T075915.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 860298,
+      "sha256": "88f4551aac3e2f0b93e615b73212300485f4678af58f96d11ee77bab51677ca3"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T065751.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3465426,
+      "sha256": "e3ecda13753ca9f2873bb60aacfd74da4e360f9c19629de2127648272c7e4f44"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T080319.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3203730,
+      "sha256": "187330935e0e5ab355f91ba0593ea5a281bb709237c3cfa43e78c53a73d5f76b"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T053422.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2997018,
+      "sha256": "cd7f60a6240dd1035bbd48594fa66c295a69203df0a6c6b4f445c4064fc1c3e0"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T072457.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1538202,
+      "sha256": "17cb95c0e8323ab66c9e9e6881e610e7825cfd1843a8e48b21da83af8b458cc3"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T035423.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1943042,
+      "sha256": "b2448235b1c8ed71f27d526c85b1f7f38a8edbcb82ab2692d4b29c6ecef346b0"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T042252.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2504250,
+      "sha256": "8d13ee94a640816d275b1ce2ed18614e1d5dbfdf72d8c03929256d736101cf77"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T001113.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3357778,
+      "sha256": "471aaebc3a526c60b2cac112a08e5daee405d71e7e937baa857b212d5cce3957"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T083221.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2302642,
+      "sha256": "fbdb551b83a7431df6a1c64e10fdcf1667a39d228fc2fc9b5862908f6272dc34"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T015850.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2480818,
+      "sha256": "77dea9c305d1052a6ed017b862ac6e7b9087dda7455a1858841e7779ebd14b89"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T063653.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2236290,
+      "sha256": "874f8dfd2b0577881f87825c7f38833b1aaa4fd04079e0cd20701b524d991ade"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T032934.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 420890,
+      "sha256": "d7372d0137f12205de81753d29d22c2af151750658dd798a2c6a515a308f455f"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T005511.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2864314,
+      "sha256": "dfe8665821691a1d558f432f253e0726de76ec64959af36ef388a7ed2115b478"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T011839.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 455458,
+      "sha256": "838c7b32c7da2fb772ced3054c9ff3b2dd1708bd4e343da27cfa6d1e888d0f00"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T105034.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 852410,
+      "sha256": "61f17b322ec5b372d52e1a634be1dc51643a44016debf38f0ca41e9814952d7c"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T021659.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2504946,
+      "sha256": "ac206915e3862fa13375af10e5235c3f98c066269d4b5326a7575d0d6b59fcfe"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T044345.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2774530,
+      "sha256": "7323184a28d11cd5d19b867694d96696dd3f4dade3fad93ae057bbc837a37e82"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T043458.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2583362,
+      "sha256": "f77eebd6ddc2a814bd8507a46eb374059c7b0c899deacdabdfa0c86ab8e16884"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T235739.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2914658,
+      "sha256": "185f1b0fce7ac69eb99c4c136afa4477793502f643d39ffa4b0c0c90ca430a4d"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T144723.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2029470,
+      "sha256": "582692c2630c05892a8789be4267563083fe96cb24e50c24c94a57d8bdba40ae"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T132920.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 870399,
+      "sha256": "3a04ee4db3d8428ddbd907dc3caca7e4493f91ccf99a98df91101397180cb471"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T192440.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4225554,
+      "sha256": "8c515424478b979ac29b2f0d70e9599fb16b8f5215ee748e0977ae607c12450b"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T184836.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2677388,
+      "sha256": "b23a8e2b360fc960b147fb9ab093559ab16faaffb9fa2cf2123c77910bbac271"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T135844.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2197901,
+      "sha256": "a2a8a394306dd22d2697d153cdbc62f59cf730c8fedf6930ef7d2f28df924fa8"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T193359.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3344941,
+      "sha256": "96a7fd41163122cac82674a16ab0edfd02cef9d1101aa092b3f31ccad6f03233"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T192035.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4422043,
+      "sha256": "d80f12f3c601b5ef38df230a58b737b0d78d0a0eedea8ef6eb0d3baa96d5ab6b"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T173046.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 779576,
+      "sha256": "d09c0518fadf9270630c24163f51e81f44324bff5bbe887e59bc8c31e3de94cf"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T170924.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2601191,
+      "sha256": "f4e4de7f09e38ddf426f857f0b6845a2e202a55a5d656a1e1533d6ebfc5dc890"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T175400.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 5728716,
+      "sha256": "0abec6d528bf3bbf1e03fc2827e515c08c7e987e6bc7649fdba05d9f648ba74d"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T190543.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3280710,
+      "sha256": "a0df3f0d67e3a8c4bd7afb6f193efa44ec479f8abff1e5c08ad7940d1af25712"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T185117.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2867882,
+      "sha256": "ca19c5ffce5194aecce4d3d6f3502f796aff43b2b7e4550ed4d7f96a9f257858"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T164026.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1487751,
+      "sha256": "981680da0d96d3af8ee2b5d676e05448094f1937d536fc97c5de42a5c3d43701"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T183804.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3463791,
+      "sha256": "d902456d2c1fd718620405ea49cdfae8337097ae2480bcd2742034f9b0766dd5"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T200536.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4181646,
+      "sha256": "b2afe016a40e08821588d449fcc4ac075866f9de6d5565b254560f574aa0b8f0"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T134047.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3089247,
+      "sha256": "ab2b4e8ffdad5dbfb53e6b7633095c2dded4726ba4d1aa82f1a26bbbd2695708"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T190345.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2037610,
+      "sha256": "e70a4f2b579f5ac257be9aba03a7f32dddce6519e0e2a2df2851b4d1a9ac354e"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T161202.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1714182,
+      "sha256": "1eb515cf8d69db93ef6dfa35a3144bf998109156f411838ec39ba5d1126197d0"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T151452.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2844022,
+      "sha256": "c10371550da9bea9ee9fb616499500fd088f1a393fb542091441bd42119cb7bc"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T192831.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 908345,
+      "sha256": "b482bb0e203b79e65ad89bc403e5c344bd56e8dec5fb0e7d5114fc8d654ce3c1"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T175121.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2934226,
+      "sha256": "36c2407a1ec4afcab547fc5ce7f61613e63ebceaef0d966c5c4c2c88ecd45562"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T175859.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3505026,
+      "sha256": "338d462e4cd3b17b74d7af9a411fcec462a1e95062a89e46d01c5896126ff908"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T140421.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2137581,
+      "sha256": "042a9f6eb4a9f54c24acf1a2fb7eca15749390b10319f748597488558abc1a90"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T151835.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2824070,
+      "sha256": "9e37a3531b04c729b3cc98a09b165d36c69aa1b890659baf6abbc9b60c1e9659"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T190827.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4643797,
+      "sha256": "5ddcda8d201b3d3c965b69731f9c907b88091bea0118cfe96886d04f70a0a22c"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T143028.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2205094,
+      "sha256": "ed912a57388dc175cb9658b31395d5406cd31244d5bc71dac8271443a83b3b81"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T185814.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3458083,
+      "sha256": "83392f2312abde9cc675b3087ec95c86d0a2ee9cf0b59b794a433580f83cfca1"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T200116.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4867226,
+      "sha256": "98c3198e5d3ef5a72f3296f41273979f581776e2baaeefa540212d4c984452a8"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T194700.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4100059,
+      "sha256": "9cf223668730cd57034255d52f28e7165015b91133a5d31f2a51c0ad5e6a0989"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T161419.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2289774,
+      "sha256": "c3ff2b7c7e308b10c90e3181c806b34ae138d6c4ca5ab319583371f27df2ae42"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T150827.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2137118,
+      "sha256": "8ac2f3480965c9415e0a2b48d62532106730a31ea78a65d7990693f306b3f345"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T184526.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 532793,
+      "sha256": "d67e49bdb187432d767de36715ac7573e333046df984a4ddcb1d4c4b2ebb1cef"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T153555.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1591918,
+      "sha256": "e5dce7a36f502d4e8b7307e4015a118f8e0be2ca0687dedb78fad3fcdeb6060e"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T141730.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3911222,
+      "sha256": "eb45d3f60389d66d56702c9d149ce6315d7acd8862cf1c84268354557d8a7c54"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T144214.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 881766,
+      "sha256": "21669a9749e0a23abfe1f122b93fc5881180cf926a945c1eea6b5e3622d0cec7"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T184438.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 515440,
+      "sha256": "5bfa0d55c6545e38ab9bbf89cf1c7216fa6f803836f9f8c62c3b08190b501784"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T162734.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2887871,
+      "sha256": "b5c188ae887c01718b6643a5991035ddf49822c37d0d2f70622ea890203d1b67"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T171512.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4994576,
+      "sha256": "86b509c3e44709c1b3b084c54eb176ea97291013fe942e050d4485fb144fbf2d"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T141409.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2579310,
+      "sha256": "24d55a157bb5e3e6518197d571ec00107d30d7809ffa5c62f4a52f18fce250d5"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T140138.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1575213,
+      "sha256": "72640a4223bf835cf3da62146fb561a0a90d635db1c10deeb972b8cf3a1f6ff8"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T091908.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2372706,
+      "sha256": "173ffe74008365149ed58cd7dd53bd57aeae6ae9bb5bdffde979f063ac1af299"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T071240.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2900738,
+      "sha256": "75526e8e2931c10ee92c4275cfb2fe08e0cfaa4655da9ce415e6b4086ac70bd2"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T001535.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 6556033,
+      "sha256": "3b25fd945a196210a4086cba493ecf607fe8fd66dd6790ce4d9f729d14ebf16d"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T034732.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2433490,
+      "sha256": "a53ee504f364e12b21995ca0262c3d8611c5b25c1084384edb946a138974dd7f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T002115.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2089898,
+      "sha256": "03be79c0cfb69db73d8db0746c04c7ebb9343c29153e6f5dfc004310a3210629"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T010555.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 6902108,
+      "sha256": "01589990bcfef1acebf434028688887ae41cd93fd21ff91c06d87d9237c94848"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T011935.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2634402,
+      "sha256": "fb10fb627a33e534a8e2a06e35d8aa4ddf7254882e68a7067cf642652f3ea9ff"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T004333.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2023082,
+      "sha256": "65166736156e11fdd761fb5cce3fcae818df2e672741ecdb7762d52f0958418e"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T030646.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1964154,
+      "sha256": "b24fe32fa1e42db81a812bc57af74eb0a66e6415b2f08eb7cf13279ac68d6a30"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T004807.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2854106,
+      "sha256": "486b8bd472839abf0b0f00e0976ec0d21c7ad35bf4156d88c3a7fb61e6da5a3a"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T042737.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3252682,
+      "sha256": "473043033813aeb776291b94aa2451ba322b2032cba4829e548cb73f05ad5656"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T074220.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2190586,
+      "sha256": "b98cc5932d96f2f8643cb28f338795b104b5299952238f3d9da200de7b39ba45"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210714T233320.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 2451013,
+      "sha256": "4ba00a85184a48439089bffdd788feaa38b64dc7e94fc396079960a8bb002068"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T012938.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1657682,
+      "sha256": "9d1a9c6821ea4e327540b6197a818af971d051f4501b858e099519c1929d1651"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T060641.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2611666,
+      "sha256": "b1411eb7cbda49d2d8cdb6386c8fd9ca866c295f9867849184d8b9633774a11b"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T055427.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2799818,
+      "sha256": "f96b750058cc6a2f6cc542f0834144a94d1d1cd4d7e3101ac3688680d4f5175f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T040656.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3472618,
+      "sha256": "a67f064ce0225afc341a45219ab10e7d0f2c85846c517600bef5a78bb4b4b01c"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T102856.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 4357002,
+      "sha256": "33e8e121847dbc155603547bc700753bd712f15ac9897cba205b1e124286c571"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T000934.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2480586,
+      "sha256": "033e6b8811ee5c369e718d68e4477f1af78a3fda1baad0760f5ac18f938bfef7"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T105325.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 33450,
+      "sha256": "b7159bb79d76a140381e1c2292c899902f55617f5811575b06764f1c30a6c675"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T053047.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2352754,
+      "sha256": "92f0c30b6686fddbfd71fe3378120cde0be0b699664474bc9fe60e33e91fa344"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T044229.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2442074,
+      "sha256": "50a3835ee69507e2b7e71ab9b97ecb0ae7c4f08670291130ee4755d39815f703"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T034754.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 4282066,
+      "sha256": "074a710abbe7fcd8719cd19f79217c7545da0431b5a1c941596836eb220e4d98"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T001914.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1386242,
+      "sha256": "02f98ecb90aa4df5339b562498d08a574fc04bcf8acbd0edad4cdaf8cefc737f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T031351.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3403482,
+      "sha256": "6314ce634f5483c7ab426a51df647328b3ce571d292bd45700546e27c385e38f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T021221.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 5673370,
+      "sha256": "2d7860e72076bc7a3c810a8413a709718ab212c25b1e4fb3d1b3b886549437ff"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T003304.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 6053726,
+      "sha256": "f14fd3b6d95694fd174f40b0f406db4c1fc147cb9e81cb8ef422aa57abc238ba"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T211710.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 102586,
+      "sha256": "6ba2d2a3eded4025f497a3b25d2440502de5f55480910449882d341f14d05248"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T010157.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1524514,
+      "sha256": "57aab0c4389e5fe139e1e4533da98399b70a7e39cd554e8175a9093d40853d40"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T041946.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2153930,
+      "sha256": "f3fcd2c530b5c392e88de96e75e3c7d9296cf0256d7c0a520ecae7bb25c5efba"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210716T230541.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3779786,
+      "sha256": "a09a2cb32001a63fb7a2447faa0b93ce060dd33dc80a75b389f59128268af9f3"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T004208.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 5273129,
+      "sha256": "f9a9f8f5aa96cad1810618e60e9ecd8927d5b14f300964cc3392c1afc098c721"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T215448.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 957042,
+      "sha256": "5ce090e7b81f9531dfae9ab6f9e01d4fdf9cbbe9e4d3d7ac692e65c24830d537"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T031531.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1376498,
+      "sha256": "cd4f2732bb0c56c10115cced45d7dfbf3cdcc3916c9adbea8f189d07c8e4603b"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T040112.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3035762,
+      "sha256": "2fbee21ee48b4cb01a30a37f127686c26f886484a3c78524cc8232ac84582b3d"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T225042.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2173882,
+      "sha256": "14ca7dedb547c170aacd9e66d01e68ffabdbf93fd35675246264d1a5a322a061"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T235348.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2911410,
+      "sha256": "b0ad28b2bab7e4a2fd1af2efb3262bf55f56ccbb8bcbea8e549bc03fa7d74110"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T211655.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 68250,
+      "sha256": "583fe9b99108571e816158dfcdedee7103a87d5adedaa489aa2691939015b6fa"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T042920.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1929586,
+      "sha256": "37bd050a923bbc7992feeb268a6ac0f2887573fe30ae9954c7f9848525f13446"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T030001.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2351362,
+      "sha256": "6e478deaaadee7354b95597fa97f6e39fcc65fe086293c08aa737b12c89b809d"
+    }
+  ],
+  "excluded_non_replays": [
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/.source-items.tsv",
+      "reason": "not a Slippi replay"
+    }
+  ],
+  "versions": {
+    "ours_base_commit": "9bffdb508b03a1790197a2dbd2d89e738f5e48cf",
+    "slpz_commit": "9f4d952f444037edbbc49af11e5e963ecd4d399f",
+    "slippc_commit": "8d79a665392e491edd62150687a956e45a7a0fe7",
+    "peppi": "2.1.2"
+  },
+  "preflight": {
+    "ours": {
+      "encode_seconds": 1.229822791,
+      "decode_seconds": 0.351450334,
+      "files": [
+        {
+          "bytes": 142794,
+          "error": ""
+        },
+        {
+          "bytes": 105346,
+          "error": ""
+        },
+        {
+          "bytes": 65312,
+          "error": ""
+        },
+        {
+          "bytes": 90086,
+          "error": ""
+        },
+        {
+          "bytes": 57586,
+          "error": ""
+        },
+        {
+          "bytes": 91734,
+          "error": ""
+        },
+        {
+          "bytes": 79490,
+          "error": ""
+        },
+        {
+          "bytes": 60314,
+          "error": ""
+        },
+        {
+          "bytes": 105517,
+          "error": ""
+        },
+        {
+          "bytes": 97992,
+          "error": ""
+        },
+        {
+          "bytes": 42822,
+          "error": ""
+        },
+        {
+          "bytes": 107946,
+          "error": ""
+        },
+        {
+          "bytes": 108952,
+          "error": ""
+        },
+        {
+          "bytes": 140367,
+          "error": ""
+        },
+        {
+          "bytes": 12562,
+          "error": ""
+        },
+        {
+          "bytes": 84978,
+          "error": ""
+        },
+        {
+          "bytes": 110966,
+          "error": ""
+        },
+        {
+          "bytes": 97657,
+          "error": ""
+        },
+        {
+          "bytes": 70238,
+          "error": ""
+        },
+        {
+          "bytes": 307595,
+          "error": ""
+        },
+        {
+          "bytes": 74666,
+          "error": ""
+        },
+        {
+          "bytes": 37090,
+          "error": ""
+        },
+        {
+          "bytes": 124183,
+          "error": ""
+        },
+        {
+          "bytes": 130553,
+          "error": ""
+        },
+        {
+          "bytes": 119486,
+          "error": ""
+        },
+        {
+          "bytes": 69269,
+          "error": ""
+        },
+        {
+          "bytes": 71702,
+          "error": ""
+        },
+        {
+          "bytes": 103862,
+          "error": ""
+        },
+        {
+          "bytes": 125606,
+          "error": ""
+        },
+        {
+          "bytes": 96151,
+          "error": ""
+        },
+        {
+          "bytes": 100829,
+          "error": ""
+        },
+        {
+          "bytes": 94264,
+          "error": ""
+        },
+        {
+          "bytes": 26352,
+          "error": ""
+        },
+        {
+          "bytes": 107027,
+          "error": ""
+        },
+        {
+          "bytes": 31054,
+          "error": ""
+        },
+        {
+          "bytes": 32224,
+          "error": ""
+        },
+        {
+          "bytes": 103146,
+          "error": ""
+        },
+        {
+          "bytes": 112223,
+          "error": ""
+        },
+        {
+          "bytes": 101658,
+          "error": ""
+        },
+        {
+          "bytes": 110534,
+          "error": ""
+        },
+        {
+          "bytes": 81405,
+          "error": ""
+        },
+        {
+          "bytes": 40551,
+          "error": ""
+        },
+        {
+          "bytes": 180772,
+          "error": ""
+        },
+        {
+          "bytes": 137812,
+          "error": ""
+        },
+        {
+          "bytes": 82340,
+          "error": ""
+        },
+        {
+          "bytes": 169563,
+          "error": ""
+        },
+        {
+          "bytes": 188264,
+          "error": ""
+        },
+        {
+          "bytes": 54771,
+          "error": ""
+        },
+        {
+          "bytes": 85207,
+          "error": ""
+        },
+        {
+          "bytes": 241128,
+          "error": ""
+        },
+        {
+          "bytes": 140836,
+          "error": ""
+        },
+        {
+          "bytes": 156614,
+          "error": ""
+        },
+        {
+          "bytes": 66615,
+          "error": ""
+        },
+        {
+          "bytes": 147326,
+          "error": ""
+        },
+        {
+          "bytes": 175630,
+          "error": ""
+        },
+        {
+          "bytes": 123654,
+          "error": ""
+        },
+        {
+          "bytes": 90350,
+          "error": ""
+        },
+        {
+          "bytes": 72371,
+          "error": ""
+        },
+        {
+          "bytes": 120120,
+          "error": ""
+        },
+        {
+          "bytes": 34446,
+          "error": ""
+        },
+        {
+          "bytes": 130668,
+          "error": ""
+        },
+        {
+          "bytes": 160029,
+          "error": ""
+        },
+        {
+          "bytes": 87083,
+          "error": ""
+        },
+        {
+          "bytes": 116812,
+          "error": ""
+        },
+        {
+          "bytes": 189197,
+          "error": ""
+        },
+        {
+          "bytes": 89066,
+          "error": ""
+        },
+        {
+          "bytes": 164939,
+          "error": ""
+        },
+        {
+          "bytes": 208551,
+          "error": ""
+        },
+        {
+          "bytes": 170978,
+          "error": ""
+        },
+        {
+          "bytes": 97604,
+          "error": ""
+        },
+        {
+          "bytes": 87700,
+          "error": ""
+        },
+        {
+          "bytes": 43340,
+          "error": ""
+        },
+        {
+          "bytes": 63183,
+          "error": ""
+        },
+        {
+          "bytes": 145470,
+          "error": ""
+        },
+        {
+          "bytes": 42756,
+          "error": ""
+        },
+        {
+          "bytes": 39014,
+          "error": ""
+        },
+        {
+          "bytes": 114581,
+          "error": ""
+        },
+        {
+          "bytes": 232283,
+          "error": ""
+        },
+        {
+          "bytes": 106811,
+          "error": ""
+        },
+        {
+          "bytes": 60810,
+          "error": ""
+        },
+        {
+          "bytes": 97720,
+          "error": ""
+        },
+        {
+          "bytes": 113387,
+          "error": ""
+        },
+        {
+          "bytes": 287528,
+          "error": ""
+        },
+        {
+          "bytes": 108621,
+          "error": ""
+        },
+        {
+          "bytes": 91392,
+          "error": ""
+        },
+        {
+          "bytes": 280864,
+          "error": ""
+        },
+        {
+          "bytes": 107279,
+          "error": ""
+        },
+        {
+          "bytes": 79657,
+          "error": ""
+        },
+        {
+          "bytes": 75211,
+          "error": ""
+        },
+        {
+          "bytes": 105114,
+          "error": ""
+        },
+        {
+          "bytes": 116846,
+          "error": ""
+        },
+        {
+          "bytes": 93130,
+          "error": ""
+        },
+        {
+          "bytes": 109064,
+          "error": ""
+        },
+        {
+          "bytes": 65256,
+          "error": ""
+        },
+        {
+          "bytes": 57825,
+          "error": ""
+        },
+        {
+          "bytes": 114003,
+          "error": ""
+        },
+        {
+          "bytes": 118614,
+          "error": ""
+        },
+        {
+          "bytes": 112322,
+          "error": ""
+        },
+        {
+          "bytes": 96945,
+          "error": ""
+        },
+        {
+          "bytes": 8667,
+          "error": ""
+        },
+        {
+          "bytes": 97828,
+          "error": ""
+        },
+        {
+          "bytes": 96360,
+          "error": ""
+        },
+        {
+          "bytes": 163693,
+          "error": ""
+        },
+        {
+          "bytes": 59771,
+          "error": ""
+        },
+        {
+          "bytes": 129926,
+          "error": ""
+        },
+        {
+          "bytes": 212643,
+          "error": ""
+        },
+        {
+          "bytes": 268830,
+          "error": ""
+        },
+        {
+          "bytes": 13251,
+          "error": ""
+        },
+        {
+          "bytes": 68926,
+          "error": ""
+        },
+        {
+          "bytes": 90200,
+          "error": ""
+        },
+        {
+          "bytes": 136218,
+          "error": ""
+        },
+        {
+          "bytes": 238121,
+          "error": ""
+        },
+        {
+          "bytes": 41237,
+          "error": ""
+        },
+        {
+          "bytes": 64965,
+          "error": ""
+        },
+        {
+          "bytes": 128569,
+          "error": ""
+        },
+        {
+          "bytes": 86700,
+          "error": ""
+        },
+        {
+          "bytes": 111410,
+          "error": ""
+        },
+        {
+          "bytes": 11071,
+          "error": ""
+        },
+        {
+          "bytes": 89149,
+          "error": ""
+        },
+        {
+          "bytes": 88380,
+          "error": ""
+        }
+      ]
+    },
+    "slpz": {
+      "encode_seconds": 0.578951625,
+      "decode_seconds": 0.306930625,
+      "files": [
+        {
+          "bytes": 489572,
+          "error": ""
+        },
+        {
+          "bytes": 324005,
+          "error": ""
+        },
+        {
+          "bytes": 180929,
+          "error": ""
+        },
+        {
+          "bytes": 267563,
+          "error": ""
+        },
+        {
+          "bytes": 163521,
+          "error": ""
+        },
+        {
+          "bytes": 280817,
+          "error": ""
+        },
+        {
+          "bytes": 227012,
+          "error": ""
+        },
+        {
+          "bytes": 161090,
+          "error": ""
+        },
+        {
+          "bytes": 333699,
+          "error": ""
+        },
+        {
+          "bytes": 295028,
+          "error": ""
+        },
+        {
+          "bytes": 118549,
+          "error": ""
+        },
+        {
+          "bytes": 327764,
+          "error": ""
+        },
+        {
+          "bytes": 326758,
+          "error": ""
+        },
+        {
+          "bytes": 453806,
+          "error": ""
+        },
+        {
+          "bytes": 14140,
+          "error": ""
+        },
+        {
+          "bytes": 252441,
+          "error": ""
+        },
+        {
+          "bytes": 350044,
+          "error": ""
+        },
+        {
+          "bytes": 297540,
+          "error": ""
+        },
+        {
+          "bytes": 205413,
+          "error": ""
+        },
+        {
+          "bytes": 1492875,
+          "error": ""
+        },
+        {
+          "bytes": 220711,
+          "error": ""
+        },
+        {
+          "bytes": 100481,
+          "error": ""
+        },
+        {
+          "bytes": 409186,
+          "error": ""
+        },
+        {
+          "bytes": 425784,
+          "error": ""
+        },
+        {
+          "bytes": 370379,
+          "error": ""
+        },
+        {
+          "bytes": 195677,
+          "error": ""
+        },
+        {
+          "bytes": 216874,
+          "error": ""
+        },
+        {
+          "bytes": 307847,
+          "error": ""
+        },
+        {
+          "bytes": 417446,
+          "error": ""
+        },
+        {
+          "bytes": 288813,
+          "error": ""
+        },
+        {
+          "bytes": 302183,
+          "error": ""
+        },
+        {
+          "bytes": 286677,
+          "error": ""
+        },
+        {
+          "bytes": 54360,
+          "error": ""
+        },
+        {
+          "bytes": 343009,
+          "error": ""
+        },
+        {
+          "bytes": 65938,
+          "error": ""
+        },
+        {
+          "bytes": 90036,
+          "error": ""
+        },
+        {
+          "bytes": 307538,
+          "error": ""
+        },
+        {
+          "bytes": 355351,
+          "error": ""
+        },
+        {
+          "bytes": 316906,
+          "error": ""
+        },
+        {
+          "bytes": 345365,
+          "error": ""
+        },
+        {
+          "bytes": 250521,
+          "error": ""
+        },
+        {
+          "bytes": 115460,
+          "error": ""
+        },
+        {
+          "bytes": 576740,
+          "error": ""
+        },
+        {
+          "bytes": 386723,
+          "error": ""
+        },
+        {
+          "bytes": 259200,
+          "error": ""
+        },
+        {
+          "bytes": 459921,
+          "error": ""
+        },
+        {
+          "bytes": 596257,
+          "error": ""
+        },
+        {
+          "bytes": 118912,
+          "error": ""
+        },
+        {
+          "bytes": 256468,
+          "error": ""
+        },
+        {
+          "bytes": 956577,
+          "error": ""
+        },
+        {
+          "bytes": 421856,
+          "error": ""
+        },
+        {
+          "bytes": 375468,
+          "error": ""
+        },
+        {
+          "bytes": 201231,
+          "error": ""
+        },
+        {
+          "bytes": 484261,
+          "error": ""
+        },
+        {
+          "bytes": 583126,
+          "error": ""
+        },
+        {
+          "bytes": 400929,
+          "error": ""
+        },
+        {
+          "bytes": 286639,
+          "error": ""
+        },
+        {
+          "bytes": 208664,
+          "error": ""
+        },
+        {
+          "bytes": 376971,
+          "error": ""
+        },
+        {
+          "bytes": 74983,
+          "error": ""
+        },
+        {
+          "bytes": 416886,
+          "error": ""
+        },
+        {
+          "bytes": 485226,
+          "error": ""
+        },
+        {
+          "bytes": 266245,
+          "error": ""
+        },
+        {
+          "bytes": 368820,
+          "error": ""
+        },
+        {
+          "bytes": 592972,
+          "error": ""
+        },
+        {
+          "bytes": 290725,
+          "error": ""
+        },
+        {
+          "bytes": 465433,
+          "error": ""
+        },
+        {
+          "bytes": 707890,
+          "error": ""
+        },
+        {
+          "bytes": 582125,
+          "error": ""
+        },
+        {
+          "bytes": 300949,
+          "error": ""
+        },
+        {
+          "bytes": 277129,
+          "error": ""
+        },
+        {
+          "bytes": 85702,
+          "error": ""
+        },
+        {
+          "bytes": 191380,
+          "error": ""
+        },
+        {
+          "bytes": 482576,
+          "error": ""
+        },
+        {
+          "bytes": 117604,
+          "error": ""
+        },
+        {
+          "bytes": 80126,
+          "error": ""
+        },
+        {
+          "bytes": 374391,
+          "error": ""
+        },
+        {
+          "bytes": 602955,
+          "error": ""
+        },
+        {
+          "bytes": 340535,
+          "error": ""
+        },
+        {
+          "bytes": 181677,
+          "error": ""
+        },
+        {
+          "bytes": 293265,
+          "error": ""
+        },
+        {
+          "bytes": 349505,
+          "error": ""
+        },
+        {
+          "bytes": 1237082,
+          "error": ""
+        },
+        {
+          "bytes": 318227,
+          "error": ""
+        },
+        {
+          "bytes": 271247,
+          "error": ""
+        },
+        {
+          "bytes": 1272361,
+          "error": ""
+        },
+        {
+          "bytes": 330356,
+          "error": ""
+        },
+        {
+          "bytes": 240900,
+          "error": ""
+        },
+        {
+          "bytes": 229187,
+          "error": ""
+        },
+        {
+          "bytes": 335622,
+          "error": ""
+        },
+        {
+          "bytes": 368805,
+          "error": ""
+        },
+        {
+          "bytes": 282316,
+          "error": ""
+        },
+        {
+          "bytes": 368452,
+          "error": ""
+        },
+        {
+          "bytes": 195954,
+          "error": ""
+        },
+        {
+          "bytes": 202896,
+          "error": ""
+        },
+        {
+          "bytes": 366626,
+          "error": ""
+        },
+        {
+          "bytes": 388920,
+          "error": ""
+        },
+        {
+          "bytes": 649882,
+          "error": ""
+        },
+        {
+          "bytes": 295499,
+          "error": ""
+        },
+        {
+          "bytes": 3706,
+          "error": ""
+        },
+        {
+          "bytes": 287874,
+          "error": ""
+        },
+        {
+          "bytes": 294588,
+          "error": ""
+        },
+        {
+          "bytes": 683736,
+          "error": ""
+        },
+        {
+          "bytes": 168144,
+          "error": ""
+        },
+        {
+          "bytes": 424909,
+          "error": ""
+        },
+        {
+          "bytes": 956663,
+          "error": ""
+        },
+        {
+          "bytes": 1135476,
+          "error": ""
+        },
+        {
+          "bytes": 13484,
+          "error": ""
+        },
+        {
+          "bytes": 186689,
+          "error": ""
+        },
+        {
+          "bytes": 257998,
+          "error": ""
+        },
+        {
+          "bytes": 453320,
+          "error": ""
+        },
+        {
+          "bytes": 840725,
+          "error": ""
+        },
+        {
+          "bytes": 110311,
+          "error": ""
+        },
+        {
+          "bytes": 174432,
+          "error": ""
+        },
+        {
+          "bytes": 387604,
+          "error": ""
+        },
+        {
+          "bytes": 258096,
+          "error": ""
+        },
+        {
+          "bytes": 357936,
+          "error": ""
+        },
+        {
+          "bytes": 8434,
+          "error": ""
+        },
+        {
+          "bytes": 252063,
+          "error": ""
+        },
+        {
+          "bytes": 273039,
+          "error": ""
+        }
+      ]
+    },
+    "slippc": {
+      "encode_seconds": 37.13104375,
+      "decode_seconds": 0.721991,
+      "files": [
+        {
+          "bytes": 207360,
+          "error": ""
+        },
+        {
+          "bytes": 143336,
+          "error": ""
+        },
+        {
+          "bytes": 80856,
+          "error": ""
+        },
+        {
+          "bytes": 119128,
+          "error": ""
+        },
+        {
+          "bytes": 72832,
+          "error": ""
+        },
+        {
+          "bytes": 121868,
+          "error": ""
+        },
+        {
+          "bytes": 102344,
+          "error": ""
+        },
+        {
+          "bytes": 77568,
+          "error": ""
+        },
+        {
+          "bytes": 144988,
+          "error": ""
+        },
+        {
+          "bytes": 129596,
+          "error": ""
+        },
+        {
+          "bytes": 50152,
+          "error": ""
+        },
+        {
+          "bytes": 150432,
+          "error": ""
+        },
+        {
+          "bytes": 146952,
+          "error": ""
+        },
+        {
+          "bytes": 198524,
+          "error": ""
+        },
+        {
+          "bytes": 5380,
+          "error": ""
+        },
+        {
+          "bytes": 111644,
+          "error": ""
+        },
+        {
+          "bytes": 151804,
+          "error": ""
+        },
+        {
+          "bytes": 129088,
+          "error": ""
+        },
+        {
+          "bytes": 88352,
+          "error": ""
+        },
+        {
+          "bytes": 373668,
+          "error": ""
+        },
+        {
+          "bytes": 99468,
+          "error": ""
+        },
+        {
+          "bytes": 42056,
+          "error": ""
+        },
+        {
+          "bytes": 178820,
+          "error": ""
+        },
+        {
+          "bytes": 189152,
+          "error": ""
+        },
+        {
+          "bytes": 167668,
+          "error": ""
+        },
+        {
+          "bytes": 84332,
+          "error": ""
+        },
+        {
+          "bytes": 100272,
+          "error": ""
+        },
+        {
+          "bytes": 142568,
+          "error": ""
+        },
+        {
+          "bytes": 180032,
+          "error": ""
+        },
+        {
+          "bytes": 127852,
+          "error": ""
+        },
+        {
+          "bytes": 137728,
+          "error": ""
+        },
+        {
+          "bytes": 128400,
+          "error": ""
+        },
+        {
+          "bytes": 22520,
+          "error": ""
+        },
+        {
+          "bytes": 149268,
+          "error": ""
+        },
+        {
+          "bytes": 29068,
+          "error": ""
+        },
+        {
+          "bytes": 36996,
+          "error": ""
+        },
+        {
+          "bytes": 142308,
+          "error": ""
+        },
+        {
+          "bytes": 155228,
+          "error": ""
+        },
+        {
+          "bytes": 137932,
+          "error": ""
+        },
+        {
+          "bytes": 158556,
+          "error": ""
+        },
+        {
+          "bytes": 112132,
+          "error": ""
+        },
+        {
+          "bytes": 50376,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 115356,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 84860,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 174808,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 94820,
+          "error": ""
+        },
+        {
+          "bytes": 165696,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 117644,
+          "error": ""
+        },
+        {
+          "bytes": 166564,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 121928,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 131724,
+          "error": ""
+        },
+        {
+          "bytes": 120440,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 83412,
+          "error": ""
+        },
+        {
+          "bytes": 218200,
+          "error": ""
+        },
+        {
+          "bytes": 53720,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 162080,
+          "error": ""
+        },
+        {
+          "bytes": 0,
+          "error": "outside slippc advertised support (3.12.0)"
+        },
+        {
+          "bytes": 150044,
+          "error": ""
+        },
+        {
+          "bytes": 80788,
+          "error": ""
+        },
+        {
+          "bytes": 132996,
+          "error": ""
+        },
+        {
+          "bytes": 158616,
+          "error": ""
+        },
+        {
+          "bytes": 286000,
+          "error": ""
+        },
+        {
+          "bytes": 143076,
+          "error": ""
+        },
+        {
+          "bytes": 120492,
+          "error": ""
+        },
+        {
+          "bytes": 339464,
+          "error": ""
+        },
+        {
+          "bytes": 143792,
+          "error": ""
+        },
+        {
+          "bytes": 102024,
+          "error": ""
+        },
+        {
+          "bytes": 99932,
+          "error": ""
+        },
+        {
+          "bytes": 146720,
+          "error": ""
+        },
+        {
+          "bytes": 172772,
+          "error": ""
+        },
+        {
+          "bytes": 122708,
+          "error": ""
+        },
+        {
+          "bytes": 119780,
+          "error": ""
+        },
+        {
+          "bytes": 89556,
+          "error": ""
+        },
+        {
+          "bytes": 83400,
+          "error": ""
+        },
+        {
+          "bytes": 158432,
+          "error": ""
+        },
+        {
+          "bytes": 176928,
+          "error": ""
+        },
+        {
+          "bytes": 157028,
+          "error": ""
+        },
+        {
+          "bytes": 132416,
+          "error": ""
+        },
+        {
+          "bytes": 1736,
+          "error": ""
+        },
+        {
+          "bytes": 131784,
+          "error": ""
+        },
+        {
+          "bytes": 132308,
+          "error": ""
+        },
+        {
+          "bytes": 240856,
+          "error": ""
+        },
+        {
+          "bytes": 75504,
+          "error": ""
+        },
+        {
+          "bytes": 184824,
+          "error": ""
+        },
+        {
+          "bytes": 326136,
+          "error": ""
+        },
+        {
+          "bytes": 275556,
+          "error": ""
+        },
+        {
+          "bytes": 6196,
+          "error": ""
+        },
+        {
+          "bytes": 88356,
+          "error": ""
+        },
+        {
+          "bytes": 121708,
+          "error": ""
+        },
+        {
+          "bytes": 196056,
+          "error": ""
+        },
+        {
+          "bytes": 245424,
+          "error": ""
+        },
+        {
+          "bytes": 47424,
+          "error": ""
+        },
+        {
+          "bytes": 77892,
+          "error": ""
+        },
+        {
+          "bytes": 181036,
+          "error": ""
+        },
+        {
+          "bytes": 115660,
+          "error": ""
+        },
+        {
+          "bytes": 158916,
+          "error": ""
+        },
+        {
+          "bytes": 3892,
+          "error": ""
+        },
+        {
+          "bytes": 115336,
+          "error": ""
+        },
+        {
+          "bytes": 119576,
+          "error": ""
+        }
+      ]
+    },
+    "peppi-none": {
+      "encode_seconds": 0.477770958,
+      "decode_seconds": 0.095693417,
+      "files": [
+        {
+          "bytes": 3556352,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2283520,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1426432,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1985536,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1194496,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1950720,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1604608,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1167872,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2390016,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2083840,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1000448,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2531328,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2302464,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3260928,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 135168,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1756672,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2499072,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2145280,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1471488,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 7286272,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 1825792,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 800768,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3138048,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2901504,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2715136,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1407488,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1772544,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2275840,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3042304,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2092032,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2251776,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2036224,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 406528,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2597888,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 438784,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 795136,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2275840,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2518016,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2344960,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2642944,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1848320,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 809984,
+          "error": ""
+        },
+        {
+          "bytes": 3879424,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2474496,
+          "error": ""
+        },
+        {
+          "bytes": 1997312,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 3071488,
+          "error": ""
+        },
+        {
+          "bytes": 4056064,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 751104,
+          "error": ""
+        },
+        {
+          "bytes": 2407424,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 5240832,
+          "error": ""
+        },
+        {
+          "bytes": 3013632,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2632704,
+          "error": ""
+        },
+        {
+          "bytes": 1363456,
+          "error": ""
+        },
+        {
+          "bytes": 3187712,
+          "error": ""
+        },
+        {
+          "bytes": 3841024,
+          "error": ""
+        },
+        {
+          "bytes": 2801152,
+          "error": ""
+        },
+        {
+          "bytes": 1894400,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 1565696,
+          "error": ""
+        },
+        {
+          "bytes": 2577408,
+          "error": ""
+        },
+        {
+          "bytes": 871424,
+          "error": ""
+        },
+        {
+          "bytes": 2710016,
+          "error": ""
+        },
+        {
+          "bytes": 3225088,
+          "error": ""
+        },
+        {
+          "bytes": 1944064,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2561536,
+          "error": ""
+        },
+        {
+          "bytes": 4246016,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2004992,
+          "error": ""
+        },
+        {
+          "bytes": 3169792,
+          "error": ""
+        },
+        {
+          "bytes": 4465152,
+          "error": ""
+        },
+        {
+          "bytes": 3764224,
+          "error": ""
+        },
+        {
+          "bytes": 2082304,
+          "error": ""
+        },
+        {
+          "bytes": 1944064,
+          "error": ""
+        },
+        {
+          "bytes": 530432,
+          "error": ""
+        },
+        {
+          "bytes": 1456640,
+          "error": ""
+        },
+        {
+          "bytes": 3535872,
+          "error": ""
+        },
+        {
+          "bytes": 820224,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 509440,
+          "error": ""
+        },
+        {
+          "bytes": 2617344,
+          "error": ""
+        },
+        {
+          "bytes": 4548608,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2340864,
+          "error": ""
+        },
+        {
+          "bytes": 1443328,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2156032,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2632192,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 6162944,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2211840,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1903104,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 6922752,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 2392576,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1844224,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1790976,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2589696,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2944000,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1993216,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2299392,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 1517056,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2371584,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2539008,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3143680,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3917824,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2251776,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 60416,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2139648,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2219520,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3870208,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1274368,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3082240,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 5113856,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 5745664,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 121856,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1397248,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1958912,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 3417600,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 5059072,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 888320,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1264128,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2752000,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1979904,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2637824,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 89600,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1759232,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 2139648,
+          "error": "codec panicked"
+        }
+      ]
+    },
+    "peppi-zstd": {
+      "encode_seconds": 1.152758375,
+      "decode_seconds": 0.350940334,
+      "files": [
+        {
+          "bytes": 629248,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 424448,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 249856,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 350208,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 217088,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 364032,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 303104,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 228864,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 440832,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 378880,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 170496,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 444416,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 413696,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 574464,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 49152,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 340480,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 443904,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 373760,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 282112,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1281536,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 278016,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 158208,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 529920,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 543232,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 467968,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 278016,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 282112,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 400384,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 559104,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 380928,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 397312,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 373760,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 90624,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 453632,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 103936,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 135680,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 412160,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 463872,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 416768,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 461824,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 345600,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 152064,
+          "error": ""
+        },
+        {
+          "bytes": 750080,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 510464,
+          "error": ""
+        },
+        {
+          "bytes": 347648,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 604672,
+          "error": ""
+        },
+        {
+          "bytes": 778240,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 182272,
+          "error": ""
+        },
+        {
+          "bytes": 348672,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 999424,
+          "error": ""
+        },
+        {
+          "bytes": 578560,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 467968,
+          "error": ""
+        },
+        {
+          "bytes": 272384,
+          "error": ""
+        },
+        {
+          "bytes": 630272,
+          "error": ""
+        },
+        {
+          "bytes": 759808,
+          "error": ""
+        },
+        {
+          "bytes": 514560,
+          "error": ""
+        },
+        {
+          "bytes": 391168,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 279040,
+          "error": ""
+        },
+        {
+          "bytes": 473600,
+          "error": ""
+        },
+        {
+          "bytes": 141312,
+          "error": ""
+        },
+        {
+          "bytes": 546304,
+          "error": ""
+        },
+        {
+          "bytes": 631808,
+          "error": ""
+        },
+        {
+          "bytes": 350720,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 463872,
+          "error": ""
+        },
+        {
+          "bytes": 803328,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 379392,
+          "error": ""
+        },
+        {
+          "bytes": 624640,
+          "error": ""
+        },
+        {
+          "bytes": 904704,
+          "error": ""
+        },
+        {
+          "bytes": 762880,
+          "error": ""
+        },
+        {
+          "bytes": 388096,
+          "error": ""
+        },
+        {
+          "bytes": 356864,
+          "error": ""
+        },
+        {
+          "bytes": 140800,
+          "error": ""
+        },
+        {
+          "bytes": 265216,
+          "error": ""
+        },
+        {
+          "bytes": 628224,
+          "error": ""
+        },
+        {
+          "bytes": 158720,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 142336,
+          "error": ""
+        },
+        {
+          "bytes": 477696,
+          "error": ""
+        },
+        {
+          "bytes": 737280,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 438784,
+          "error": ""
+        },
+        {
+          "bytes": 252928,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 394240,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 472064,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1084416,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 411648,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 357376,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 1184256,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 427520,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 343040,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 318976,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 446976,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 452096,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 363008,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 423424,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 267776,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 284672,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 467456,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 510464,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 612352,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 395776,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 36352,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 371200,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 410112,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 669696,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 217600,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 568832,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 932864,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 988672,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 47616,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 240640,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 354304,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 603136,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 913408,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 161280,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 248320,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 500736,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 352256,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 477184,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 41984,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 323072,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 372224,
+          "error": "codec panicked"
+        }
+      ]
+    },
+    "peppi-outer": {
+      "encode_seconds": 0.84519875,
+      "decode_seconds": 0.230641084,
+      "files": [
+        {
+          "bytes": 398640,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 266433,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 149947,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 218533,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 129553,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 228464,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 184354,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 134687,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 274901,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 237188,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 94522,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 278175,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 263484,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 362781,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 12907,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 209393,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 282475,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 240100,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 170187,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 784820,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 172319,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 83601,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 338872,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 342532,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 294194,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 168331,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 172016,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 254688,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 357830,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 242286,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 250856,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 234700,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 42306,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 287103,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 51619,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 73765,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 256770,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 293142,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 258855,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 291537,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 211786,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 87778,
+          "error": ""
+        },
+        {
+          "bytes": 480412,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 318362,
+          "error": ""
+        },
+        {
+          "bytes": 214647,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 393894,
+          "error": ""
+        },
+        {
+          "bytes": 495416,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 87938,
+          "error": ""
+        },
+        {
+          "bytes": 192340,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 769501,
+          "error": ""
+        },
+        {
+          "bytes": 365689,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 301212,
+          "error": ""
+        },
+        {
+          "bytes": 165956,
+          "error": ""
+        },
+        {
+          "bytes": 384838,
+          "error": ""
+        },
+        {
+          "bytes": 504861,
+          "error": ""
+        },
+        {
+          "bytes": 327677,
+          "error": ""
+        },
+        {
+          "bytes": 211513,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 171004,
+          "error": ""
+        },
+        {
+          "bytes": 303952,
+          "error": ""
+        },
+        {
+          "bytes": 55866,
+          "error": ""
+        },
+        {
+          "bytes": 330749,
+          "error": ""
+        },
+        {
+          "bytes": 400530,
+          "error": ""
+        },
+        {
+          "bytes": 218694,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 294903,
+          "error": ""
+        },
+        {
+          "bytes": 502417,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 237646,
+          "error": ""
+        },
+        {
+          "bytes": 407242,
+          "error": ""
+        },
+        {
+          "bytes": 674271,
+          "error": ""
+        },
+        {
+          "bytes": 492710,
+          "error": ""
+        },
+        {
+          "bytes": 242780,
+          "error": ""
+        },
+        {
+          "bytes": 222108,
+          "error": ""
+        },
+        {
+          "bytes": 62134,
+          "error": ""
+        },
+        {
+          "bytes": 160438,
+          "error": ""
+        },
+        {
+          "bytes": 398503,
+          "error": ""
+        },
+        {
+          "bytes": 90940,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 62130,
+          "error": ""
+        },
+        {
+          "bytes": 304244,
+          "error": ""
+        },
+        {
+          "bytes": 496502,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 276066,
+          "error": ""
+        },
+        {
+          "bytes": 152333,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 247047,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 292814,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 701102,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 264191,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 220693,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 744499,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 269209,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 209649,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 193739,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 280596,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 288540,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 229074,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 220690,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 157647,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 166539,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 298087,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 309596,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 294808,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 247176,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 4876,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 231269,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 255556,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 424885,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 130942,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 359896,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 683047,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 613906,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 12305,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 147973,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 218436,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 381833,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 564923,
+          "error": "round-trip bytes differ"
+        },
+        {
+          "bytes": 89093,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 146732,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 315264,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 215570,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 301715,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 8548,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 202909,
+          "error": "codec panicked"
+        },
+        {
+          "bytes": 228642,
+          "error": "codec panicked"
+        }
+      ]
+    }
+  },
+  "scopes": {
+    "all": {
+      "input_indexes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "files": 120,
+      "raw_bytes": 313007679,
+      "results": {
+        "slpz-l12-t1": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 1,
+          "bytes": 38187718,
+          "file_bytes": [
+            445282,
+            305450,
+            172120,
+            252154,
+            154915,
+            264382,
+            215892,
+            153396,
+            315793,
+            278769,
+            113079,
+            309331,
+            308819,
+            430409,
+            13583,
+            240002,
+            329678,
+            281577,
+            195068,
+            1133598,
+            206597,
+            95396,
+            385764,
+            402513,
+            350644,
+            185878,
+            203926,
+            289535,
+            395083,
+            273756,
+            287639,
+            270128,
+            51929,
+            323676,
+            62828,
+            85204,
+            290569,
+            336028,
+            301287,
+            325483,
+            236301,
+            109373,
+            544878,
+            369091,
+            245077,
+            438548,
+            563248,
+            113462,
+            240085,
+            738116,
+            402624,
+            358167,
+            191441,
+            458934,
+            552377,
+            379621,
+            273567,
+            198088,
+            355622,
+            72662,
+            395158,
+            457691,
+            252790,
+            347997,
+            564398,
+            270236,
+            443536,
+            672519,
+            552559,
+            285531,
+            261757,
+            82420,
+            182414,
+            452728,
+            110461,
+            77401,
+            353804,
+            572573,
+            321052,
+            172477,
+            277207,
+            331466,
+            967512,
+            301381,
+            256434,
+            988484,
+            311248,
+            229413,
+            216326,
+            317676,
+            346064,
+            268107,
+            350162,
+            184699,
+            193804,
+            346080,
+            367947,
+            421553,
+            278247,
+            3582,
+            273597,
+            278991,
+            483829,
+            158717,
+            400044,
+            667942,
+            875677,
+            12897,
+            175838,
+            244974,
+            429070,
+            793275,
+            104490,
+            166144,
+            368055,
+            244582,
+            339106,
+            8212,
+            238775,
+            258167
+          ],
+          "encode_seconds": [
+            2.866339333,
+            2.86727725,
+            2.9146807089999998,
+            2.909150542,
+            2.8479965
+          ],
+          "decode_seconds": [
+            0.273679834,
+            0.284441292,
+            0.267575583,
+            0.268281167,
+            0.268715875
+          ],
+          "encode_median_seconds": 2.86727725,
+          "decode_median_seconds": 0.268715875
+        },
+        "ours-l1-t1": {
+          "mode": "ours",
+          "level": 1,
+          "threads": 1,
+          "bytes": 13068173,
+          "file_bytes": [
+            143577,
+            105897,
+            65562,
+            90475,
+            57833,
+            92175,
+            79794,
+            60625,
+            105920,
+            98386,
+            42950,
+            108461,
+            109347,
+            140998,
+            12663,
+            85246,
+            111452,
+            98096,
+            70443,
+            310607,
+            75032,
+            37246,
+            124804,
+            131042,
+            120002,
+            69448,
+            72117,
+            104259,
+            126157,
+            96654,
+            101230,
+            94703,
+            26457,
+            107482,
+            31137,
+            32320,
+            103578,
+            112807,
+            102105,
+            111094,
+            81699,
+            40742,
+            182838,
+            139024,
+            82769,
+            175654,
+            190095,
+            55133,
+            86111,
+            243705,
+            144509,
+            166116,
+            66831,
+            149166,
+            177615,
+            124220,
+            91137,
+            72584,
+            120568,
+            34621,
+            132016,
+            161478,
+            87382,
+            117324,
+            194417,
+            89430,
+            170282,
+            210935,
+            173139,
+            97956,
+            88044,
+            43602,
+            63433,
+            146094,
+            42967,
+            39222,
+            115189,
+            249761,
+            107438,
+            61046,
+            98079,
+            113953,
+            298111,
+            108967,
+            91749,
+            283798,
+            107813,
+            79890,
+            75476,
+            105609,
+            117634,
+            93502,
+            110075,
+            65515,
+            58234,
+            114619,
+            119061,
+            112679,
+            97373,
+            8749,
+            98204,
+            96754,
+            164324,
+            59998,
+            130501,
+            213852,
+            278081,
+            13420,
+            69220,
+            90644,
+            136865,
+            244831,
+            41310,
+            65186,
+            129090,
+            87045,
+            112143,
+            11179,
+            89422,
+            88745
+          ],
+          "encode_seconds": [
+            1.324935708,
+            1.376525875,
+            1.404881,
+            1.503918833,
+            1.434073
+          ],
+          "decode_seconds": [
+            0.375888,
+            0.358978625,
+            0.367462875,
+            0.373065792,
+            0.373604875
+          ],
+          "encode_median_seconds": 1.404881,
+          "decode_median_seconds": 0.373065792
+        },
+        "slpz-l3-t1": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 1,
+          "bytes": 42111709,
+          "file_bytes": [
+            489572,
+            324005,
+            180929,
+            267563,
+            163521,
+            280817,
+            227012,
+            161090,
+            333699,
+            295028,
+            118549,
+            327764,
+            326758,
+            453806,
+            14140,
+            252441,
+            350044,
+            297540,
+            205413,
+            1492875,
+            220711,
+            100481,
+            409186,
+            425784,
+            370379,
+            195677,
+            216874,
+            307847,
+            417446,
+            288813,
+            302183,
+            286677,
+            54360,
+            343009,
+            65938,
+            90036,
+            307538,
+            355351,
+            316906,
+            345365,
+            250521,
+            115460,
+            576740,
+            386723,
+            259200,
+            459921,
+            596257,
+            118912,
+            256468,
+            956577,
+            421856,
+            375468,
+            201231,
+            484261,
+            583126,
+            400929,
+            286639,
+            208664,
+            376971,
+            74983,
+            416886,
+            485226,
+            266245,
+            368820,
+            592972,
+            290725,
+            465433,
+            707890,
+            582125,
+            300949,
+            277129,
+            85702,
+            191380,
+            482576,
+            117604,
+            80126,
+            374391,
+            602955,
+            340535,
+            181677,
+            293265,
+            349505,
+            1237082,
+            318227,
+            271247,
+            1272361,
+            330356,
+            240900,
+            229187,
+            335622,
+            368805,
+            282316,
+            368452,
+            195954,
+            202896,
+            366626,
+            388920,
+            649882,
+            295499,
+            3706,
+            287874,
+            294588,
+            683736,
+            168144,
+            424909,
+            956663,
+            1135476,
+            13484,
+            186689,
+            257998,
+            453320,
+            840725,
+            110311,
+            174432,
+            387604,
+            258096,
+            357936,
+            8434,
+            252063,
+            273039
+          ],
+          "encode_seconds": [
+            0.589268125,
+            0.599576125,
+            0.592265708,
+            0.570200791,
+            0.578609334
+          ],
+          "decode_seconds": [
+            0.286826375,
+            0.3181275,
+            0.312266042,
+            0.293352166,
+            0.304667084
+          ],
+          "encode_median_seconds": 0.589268125,
+          "decode_median_seconds": 0.304667084
+        },
+        "ours-l9-t1": {
+          "mode": "ours",
+          "level": 9,
+          "threads": 1,
+          "bytes": 12875484,
+          "file_bytes": [
+            142240,
+            105028,
+            65160,
+            89828,
+            57426,
+            91402,
+            79224,
+            60106,
+            105232,
+            97703,
+            42705,
+            107614,
+            108707,
+            140050,
+            12523,
+            84789,
+            110653,
+            97386,
+            70064,
+            305714,
+            74355,
+            37001,
+            123843,
+            130247,
+            119097,
+            69096,
+            71410,
+            103645,
+            125197,
+            95879,
+            100578,
+            93996,
+            26325,
+            106769,
+            30974,
+            32166,
+            102900,
+            111849,
+            101394,
+            110145,
+            81202,
+            40444,
+            179669,
+            137293,
+            82054,
+            168898,
+            187254,
+            54566,
+            84607,
+            239443,
+            140230,
+            155188,
+            66400,
+            146314,
+            174299,
+            123261,
+            89874,
+            72180,
+            119840,
+            34370,
+            129900,
+            159132,
+            86847,
+            116555,
+            187830,
+            88882,
+            164113,
+            207142,
+            169752,
+            97354,
+            87494,
+            43197,
+            62994,
+            144984,
+            42613,
+            38917,
+            114230,
+            229774,
+            106352,
+            60630,
+            97513,
+            113001,
+            285527,
+            108383,
+            91171,
+            279186,
+            106835,
+            79446,
+            75014,
+            104782,
+            116212,
+            92895,
+            108587,
+            65012,
+            57589,
+            113595,
+            118178,
+            111750,
+            96683,
+            8657,
+            97465,
+            96136,
+            163127,
+            59605,
+            129538,
+            211690,
+            267080,
+            13225,
+            68683,
+            89870,
+            135890,
+            236967,
+            41137,
+            64786,
+            128234,
+            86442,
+            111025,
+            11059,
+            88932,
+            88079
+          ],
+          "encode_seconds": [
+            2.006433625,
+            1.917747083,
+            1.941201208,
+            1.976582167,
+            2.076103458
+          ],
+          "decode_seconds": [
+            0.361133875,
+            0.359478917,
+            0.356492917,
+            0.36725375,
+            0.342740958
+          ],
+          "encode_median_seconds": 1.976582167,
+          "decode_median_seconds": 0.359478917
+        },
+        "ours-l3-t1": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 1,
+          "bytes": 12929476,
+          "file_bytes": [
+            142794,
+            105346,
+            65312,
+            90086,
+            57586,
+            91734,
+            79490,
+            60314,
+            105517,
+            97992,
+            42822,
+            107946,
+            108952,
+            140367,
+            12562,
+            84978,
+            110966,
+            97657,
+            70238,
+            307595,
+            74666,
+            37090,
+            124183,
+            130553,
+            119486,
+            69269,
+            71702,
+            103862,
+            125606,
+            96151,
+            100829,
+            94264,
+            26352,
+            107027,
+            31054,
+            32224,
+            103146,
+            112223,
+            101658,
+            110534,
+            81405,
+            40551,
+            180772,
+            137812,
+            82340,
+            169563,
+            188264,
+            54771,
+            85207,
+            241128,
+            140836,
+            156614,
+            66615,
+            147326,
+            175630,
+            123654,
+            90350,
+            72371,
+            120120,
+            34446,
+            130668,
+            160029,
+            87083,
+            116812,
+            189197,
+            89066,
+            164939,
+            208551,
+            170978,
+            97604,
+            87700,
+            43340,
+            63183,
+            145470,
+            42756,
+            39014,
+            114581,
+            232283,
+            106811,
+            60810,
+            97720,
+            113387,
+            287528,
+            108621,
+            91392,
+            280864,
+            107279,
+            79657,
+            75211,
+            105114,
+            116846,
+            93130,
+            109064,
+            65256,
+            57825,
+            114003,
+            118614,
+            112322,
+            96945,
+            8667,
+            97828,
+            96360,
+            163693,
+            59771,
+            129926,
+            212643,
+            268830,
+            13251,
+            68926,
+            90200,
+            136218,
+            238121,
+            41237,
+            64965,
+            128569,
+            86700,
+            111410,
+            11071,
+            89149,
+            88380
+          ],
+          "encode_seconds": [
+            1.421963833,
+            1.451468583,
+            1.500119042,
+            1.48833025,
+            1.432940667
+          ],
+          "decode_seconds": [
+            0.365145,
+            0.353164333,
+            0.364414875,
+            0.365833625,
+            0.349065167
+          ],
+          "encode_median_seconds": 1.451468583,
+          "decode_median_seconds": 0.364414875
+        },
+        "slpz-l3-t8": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 8,
+          "bytes": 42111709,
+          "file_bytes": [
+            489572,
+            324005,
+            180929,
+            267563,
+            163521,
+            280817,
+            227012,
+            161090,
+            333699,
+            295028,
+            118549,
+            327764,
+            326758,
+            453806,
+            14140,
+            252441,
+            350044,
+            297540,
+            205413,
+            1492875,
+            220711,
+            100481,
+            409186,
+            425784,
+            370379,
+            195677,
+            216874,
+            307847,
+            417446,
+            288813,
+            302183,
+            286677,
+            54360,
+            343009,
+            65938,
+            90036,
+            307538,
+            355351,
+            316906,
+            345365,
+            250521,
+            115460,
+            576740,
+            386723,
+            259200,
+            459921,
+            596257,
+            118912,
+            256468,
+            956577,
+            421856,
+            375468,
+            201231,
+            484261,
+            583126,
+            400929,
+            286639,
+            208664,
+            376971,
+            74983,
+            416886,
+            485226,
+            266245,
+            368820,
+            592972,
+            290725,
+            465433,
+            707890,
+            582125,
+            300949,
+            277129,
+            85702,
+            191380,
+            482576,
+            117604,
+            80126,
+            374391,
+            602955,
+            340535,
+            181677,
+            293265,
+            349505,
+            1237082,
+            318227,
+            271247,
+            1272361,
+            330356,
+            240900,
+            229187,
+            335622,
+            368805,
+            282316,
+            368452,
+            195954,
+            202896,
+            366626,
+            388920,
+            649882,
+            295499,
+            3706,
+            287874,
+            294588,
+            683736,
+            168144,
+            424909,
+            956663,
+            1135476,
+            13484,
+            186689,
+            257998,
+            453320,
+            840725,
+            110311,
+            174432,
+            387604,
+            258096,
+            357936,
+            8434,
+            252063,
+            273039
+          ],
+          "encode_seconds": [
+            0.079907375,
+            0.081866833,
+            0.079944167,
+            0.079699292,
+            0.089663166
+          ],
+          "decode_seconds": [
+            0.041601125,
+            0.042202625,
+            0.043192334,
+            0.04327875,
+            0.048183167
+          ],
+          "encode_median_seconds": 0.079944167,
+          "decode_median_seconds": 0.043192334
+        },
+        "ours-l3-t8": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 8,
+          "bytes": 12929476,
+          "file_bytes": [
+            142794,
+            105346,
+            65312,
+            90086,
+            57586,
+            91734,
+            79490,
+            60314,
+            105517,
+            97992,
+            42822,
+            107946,
+            108952,
+            140367,
+            12562,
+            84978,
+            110966,
+            97657,
+            70238,
+            307595,
+            74666,
+            37090,
+            124183,
+            130553,
+            119486,
+            69269,
+            71702,
+            103862,
+            125606,
+            96151,
+            100829,
+            94264,
+            26352,
+            107027,
+            31054,
+            32224,
+            103146,
+            112223,
+            101658,
+            110534,
+            81405,
+            40551,
+            180772,
+            137812,
+            82340,
+            169563,
+            188264,
+            54771,
+            85207,
+            241128,
+            140836,
+            156614,
+            66615,
+            147326,
+            175630,
+            123654,
+            90350,
+            72371,
+            120120,
+            34446,
+            130668,
+            160029,
+            87083,
+            116812,
+            189197,
+            89066,
+            164939,
+            208551,
+            170978,
+            97604,
+            87700,
+            43340,
+            63183,
+            145470,
+            42756,
+            39014,
+            114581,
+            232283,
+            106811,
+            60810,
+            97720,
+            113387,
+            287528,
+            108621,
+            91392,
+            280864,
+            107279,
+            79657,
+            75211,
+            105114,
+            116846,
+            93130,
+            109064,
+            65256,
+            57825,
+            114003,
+            118614,
+            112322,
+            96945,
+            8667,
+            97828,
+            96360,
+            163693,
+            59771,
+            129926,
+            212643,
+            268830,
+            13251,
+            68926,
+            90200,
+            136218,
+            238121,
+            41237,
+            64965,
+            128569,
+            86700,
+            111410,
+            11071,
+            89149,
+            88380
+          ],
+          "encode_seconds": [
+            0.199469875,
+            0.19813975,
+            0.194301084,
+            0.191213291,
+            0.203974125
+          ],
+          "decode_seconds": [
+            0.048164667,
+            0.047886042,
+            0.048427292,
+            0.04776825,
+            0.04893175
+          ],
+          "encode_median_seconds": 0.19813975,
+          "decode_median_seconds": 0.048164667
+        },
+        "ours-l9-t8": {
+          "mode": "ours",
+          "level": 9,
+          "threads": 8,
+          "bytes": 12875484,
+          "file_bytes": [
+            142240,
+            105028,
+            65160,
+            89828,
+            57426,
+            91402,
+            79224,
+            60106,
+            105232,
+            97703,
+            42705,
+            107614,
+            108707,
+            140050,
+            12523,
+            84789,
+            110653,
+            97386,
+            70064,
+            305714,
+            74355,
+            37001,
+            123843,
+            130247,
+            119097,
+            69096,
+            71410,
+            103645,
+            125197,
+            95879,
+            100578,
+            93996,
+            26325,
+            106769,
+            30974,
+            32166,
+            102900,
+            111849,
+            101394,
+            110145,
+            81202,
+            40444,
+            179669,
+            137293,
+            82054,
+            168898,
+            187254,
+            54566,
+            84607,
+            239443,
+            140230,
+            155188,
+            66400,
+            146314,
+            174299,
+            123261,
+            89874,
+            72180,
+            119840,
+            34370,
+            129900,
+            159132,
+            86847,
+            116555,
+            187830,
+            88882,
+            164113,
+            207142,
+            169752,
+            97354,
+            87494,
+            43197,
+            62994,
+            144984,
+            42613,
+            38917,
+            114230,
+            229774,
+            106352,
+            60630,
+            97513,
+            113001,
+            285527,
+            108383,
+            91171,
+            279186,
+            106835,
+            79446,
+            75014,
+            104782,
+            116212,
+            92895,
+            108587,
+            65012,
+            57589,
+            113595,
+            118178,
+            111750,
+            96683,
+            8657,
+            97465,
+            96136,
+            163127,
+            59605,
+            129538,
+            211690,
+            267080,
+            13225,
+            68683,
+            89870,
+            135890,
+            236967,
+            41137,
+            64786,
+            128234,
+            86442,
+            111025,
+            11059,
+            88932,
+            88079
+          ],
+          "encode_seconds": [
+            0.277888958,
+            0.265915625,
+            0.249500625,
+            0.265011125,
+            0.267322958
+          ],
+          "decode_seconds": [
+            0.047046208,
+            0.0467725,
+            0.04673375,
+            0.048253625,
+            0.048542292
+          ],
+          "encode_median_seconds": 0.265915625,
+          "decode_median_seconds": 0.047046208
+        },
+        "ours-l1-t8": {
+          "mode": "ours",
+          "level": 1,
+          "threads": 8,
+          "bytes": 13068173,
+          "file_bytes": [
+            143577,
+            105897,
+            65562,
+            90475,
+            57833,
+            92175,
+            79794,
+            60625,
+            105920,
+            98386,
+            42950,
+            108461,
+            109347,
+            140998,
+            12663,
+            85246,
+            111452,
+            98096,
+            70443,
+            310607,
+            75032,
+            37246,
+            124804,
+            131042,
+            120002,
+            69448,
+            72117,
+            104259,
+            126157,
+            96654,
+            101230,
+            94703,
+            26457,
+            107482,
+            31137,
+            32320,
+            103578,
+            112807,
+            102105,
+            111094,
+            81699,
+            40742,
+            182838,
+            139024,
+            82769,
+            175654,
+            190095,
+            55133,
+            86111,
+            243705,
+            144509,
+            166116,
+            66831,
+            149166,
+            177615,
+            124220,
+            91137,
+            72584,
+            120568,
+            34621,
+            132016,
+            161478,
+            87382,
+            117324,
+            194417,
+            89430,
+            170282,
+            210935,
+            173139,
+            97956,
+            88044,
+            43602,
+            63433,
+            146094,
+            42967,
+            39222,
+            115189,
+            249761,
+            107438,
+            61046,
+            98079,
+            113953,
+            298111,
+            108967,
+            91749,
+            283798,
+            107813,
+            79890,
+            75476,
+            105609,
+            117634,
+            93502,
+            110075,
+            65515,
+            58234,
+            114619,
+            119061,
+            112679,
+            97373,
+            8749,
+            98204,
+            96754,
+            164324,
+            59998,
+            130501,
+            213852,
+            278081,
+            13420,
+            69220,
+            90644,
+            136865,
+            244831,
+            41310,
+            65186,
+            129090,
+            87045,
+            112143,
+            11179,
+            89422,
+            88745
+          ],
+          "encode_seconds": [
+            0.181376917,
+            0.189287917,
+            0.192672375,
+            0.180902541,
+            0.184122917
+          ],
+          "decode_seconds": [
+            0.047515833,
+            0.0468655,
+            0.04847725,
+            0.048229792,
+            0.049236416
+          ],
+          "encode_median_seconds": 0.184122917,
+          "decode_median_seconds": 0.048229792
+        },
+        "slpz-l12-t8": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 8,
+          "bytes": 38187718,
+          "file_bytes": [
+            445282,
+            305450,
+            172120,
+            252154,
+            154915,
+            264382,
+            215892,
+            153396,
+            315793,
+            278769,
+            113079,
+            309331,
+            308819,
+            430409,
+            13583,
+            240002,
+            329678,
+            281577,
+            195068,
+            1133598,
+            206597,
+            95396,
+            385764,
+            402513,
+            350644,
+            185878,
+            203926,
+            289535,
+            395083,
+            273756,
+            287639,
+            270128,
+            51929,
+            323676,
+            62828,
+            85204,
+            290569,
+            336028,
+            301287,
+            325483,
+            236301,
+            109373,
+            544878,
+            369091,
+            245077,
+            438548,
+            563248,
+            113462,
+            240085,
+            738116,
+            402624,
+            358167,
+            191441,
+            458934,
+            552377,
+            379621,
+            273567,
+            198088,
+            355622,
+            72662,
+            395158,
+            457691,
+            252790,
+            347997,
+            564398,
+            270236,
+            443536,
+            672519,
+            552559,
+            285531,
+            261757,
+            82420,
+            182414,
+            452728,
+            110461,
+            77401,
+            353804,
+            572573,
+            321052,
+            172477,
+            277207,
+            331466,
+            967512,
+            301381,
+            256434,
+            988484,
+            311248,
+            229413,
+            216326,
+            317676,
+            346064,
+            268107,
+            350162,
+            184699,
+            193804,
+            346080,
+            367947,
+            421553,
+            278247,
+            3582,
+            273597,
+            278991,
+            483829,
+            158717,
+            400044,
+            667942,
+            875677,
+            12897,
+            175838,
+            244974,
+            429070,
+            793275,
+            104490,
+            166144,
+            368055,
+            244582,
+            339106,
+            8212,
+            238775,
+            258167
+          ],
+          "encode_seconds": [
+            0.396538708,
+            0.404245792,
+            0.414541834,
+            0.390573375,
+            0.420199791
+          ],
+          "decode_seconds": [
+            0.039364625,
+            0.041180125,
+            0.039744625,
+            0.037764791,
+            0.039429875
+          ],
+          "encode_median_seconds": 0.404245792,
+          "decode_median_seconds": 0.039429875
+        }
+      },
+      "binary_sha256": {
+        "ours": "68ad08755a9472f9c448284c919f6dd08135f758788a1a48b65c10366ed45c88",
+        "slippc": "c5b2482f3a8dc228d41ec86ea4422eae3736e01ecdd324a3f27a7b7deed5bdc6",
+        "rust-target/release/replay-codec-benchmark": "2c9554c2d5faaae00e58b9a02553154cd7fd9218431ace2d546b661281b261fe"
+      }
+    },
+    "slippc": {
+      "input_indexes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        44,
+        52,
+        55,
+        57,
+        58,
+        62,
+        63,
+        65,
+        69,
+        70,
+        72,
+        73,
+        74,
+        76,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "files": 98,
+      "raw_bytes": 242937060,
+      "results": {
+        "slpz-l12-t1": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 1,
+          "bytes": 29243704,
+          "file_bytes": [
+            445282,
+            305450,
+            172120,
+            252154,
+            154915,
+            264382,
+            215892,
+            153396,
+            315793,
+            278769,
+            113079,
+            309331,
+            308819,
+            430409,
+            13583,
+            240002,
+            329678,
+            281577,
+            195068,
+            1133598,
+            206597,
+            95396,
+            385764,
+            402513,
+            350644,
+            185878,
+            203926,
+            289535,
+            395083,
+            273756,
+            287639,
+            270128,
+            51929,
+            323676,
+            62828,
+            85204,
+            290569,
+            336028,
+            301287,
+            325483,
+            236301,
+            109373,
+            245077,
+            191441,
+            379621,
+            198088,
+            355622,
+            252790,
+            347997,
+            270236,
+            285531,
+            261757,
+            182414,
+            452728,
+            110461,
+            353804,
+            321052,
+            172477,
+            277207,
+            331466,
+            967512,
+            301381,
+            256434,
+            988484,
+            311248,
+            229413,
+            216326,
+            317676,
+            346064,
+            268107,
+            350162,
+            184699,
+            193804,
+            346080,
+            367947,
+            421553,
+            278247,
+            3582,
+            273597,
+            278991,
+            483829,
+            158717,
+            400044,
+            667942,
+            875677,
+            12897,
+            175838,
+            244974,
+            429070,
+            793275,
+            104490,
+            166144,
+            368055,
+            244582,
+            339106,
+            8212,
+            238775,
+            258167
+          ],
+          "encode_seconds": [
+            2.217954375,
+            2.2120555,
+            2.273522916,
+            2.18602975,
+            2.221714583
+          ],
+          "decode_seconds": [
+            0.215235292,
+            0.225091666,
+            0.223353625,
+            0.210198875,
+            0.231271167
+          ],
+          "encode_median_seconds": 2.217954375,
+          "decode_median_seconds": 0.223353625
+        },
+        "slippc-l6-t1": {
+          "mode": "slippc",
+          "level": 6,
+          "threads": 1,
+          "bytes": 12952996,
+          "file_bytes": [
+            207360,
+            143336,
+            80856,
+            119128,
+            72832,
+            121868,
+            102344,
+            77568,
+            144988,
+            129596,
+            50152,
+            150432,
+            146952,
+            198524,
+            5380,
+            111644,
+            151804,
+            129088,
+            88352,
+            373668,
+            99468,
+            42056,
+            178820,
+            189152,
+            167668,
+            84332,
+            100272,
+            142568,
+            180032,
+            127852,
+            137728,
+            128400,
+            22520,
+            149268,
+            29068,
+            36996,
+            142308,
+            155228,
+            137932,
+            158556,
+            112132,
+            50376,
+            115356,
+            84860,
+            174808,
+            94820,
+            165696,
+            117644,
+            166564,
+            121928,
+            131724,
+            120440,
+            83412,
+            218200,
+            53720,
+            162080,
+            150044,
+            80788,
+            132996,
+            158616,
+            286000,
+            143076,
+            120492,
+            339464,
+            143792,
+            102024,
+            99932,
+            146720,
+            172772,
+            122708,
+            119780,
+            89556,
+            83400,
+            158432,
+            176928,
+            157028,
+            132416,
+            1736,
+            131784,
+            132308,
+            240856,
+            75504,
+            184824,
+            326136,
+            275556,
+            6196,
+            88356,
+            121708,
+            196056,
+            245424,
+            47424,
+            77892,
+            181036,
+            115660,
+            158916,
+            3892,
+            115336,
+            119576
+          ],
+          "encode_seconds": [
+            37.33816292,
+            36.60509487,
+            36.58828204,
+            36.36328296,
+            36.20919775
+          ],
+          "decode_seconds": [
+            0.747618375,
+            0.724460334,
+            0.709285417,
+            0.728611417,
+            0.719387959
+          ],
+          "encode_median_seconds": 36.58828204,
+          "decode_median_seconds": 0.724460334
+        },
+        "slpz-l3-t1": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 1,
+          "bytes": 32514463,
+          "file_bytes": [
+            489572,
+            324005,
+            180929,
+            267563,
+            163521,
+            280817,
+            227012,
+            161090,
+            333699,
+            295028,
+            118549,
+            327764,
+            326758,
+            453806,
+            14140,
+            252441,
+            350044,
+            297540,
+            205413,
+            1492875,
+            220711,
+            100481,
+            409186,
+            425784,
+            370379,
+            195677,
+            216874,
+            307847,
+            417446,
+            288813,
+            302183,
+            286677,
+            54360,
+            343009,
+            65938,
+            90036,
+            307538,
+            355351,
+            316906,
+            345365,
+            250521,
+            115460,
+            259200,
+            201231,
+            400929,
+            208664,
+            376971,
+            266245,
+            368820,
+            290725,
+            300949,
+            277129,
+            191380,
+            482576,
+            117604,
+            374391,
+            340535,
+            181677,
+            293265,
+            349505,
+            1237082,
+            318227,
+            271247,
+            1272361,
+            330356,
+            240900,
+            229187,
+            335622,
+            368805,
+            282316,
+            368452,
+            195954,
+            202896,
+            366626,
+            388920,
+            649882,
+            295499,
+            3706,
+            287874,
+            294588,
+            683736,
+            168144,
+            424909,
+            956663,
+            1135476,
+            13484,
+            186689,
+            257998,
+            453320,
+            840725,
+            110311,
+            174432,
+            387604,
+            258096,
+            357936,
+            8434,
+            252063,
+            273039
+          ],
+          "encode_seconds": [
+            0.43015025,
+            0.461473667,
+            0.461099209,
+            0.460033917,
+            0.447378458
+          ],
+          "decode_seconds": [
+            0.227707208,
+            0.240071542,
+            0.231181125,
+            0.234953417,
+            0.234119125
+          ],
+          "encode_median_seconds": 0.460033917,
+          "decode_median_seconds": 0.234119125
+        },
+        "ours-l1-t1": {
+          "mode": "ours",
+          "level": 1,
+          "threads": 1,
+          "bytes": 9857597,
+          "file_bytes": [
+            143577,
+            105897,
+            65562,
+            90475,
+            57833,
+            92175,
+            79794,
+            60625,
+            105920,
+            98386,
+            42950,
+            108461,
+            109347,
+            140998,
+            12663,
+            85246,
+            111452,
+            98096,
+            70443,
+            310607,
+            75032,
+            37246,
+            124804,
+            131042,
+            120002,
+            69448,
+            72117,
+            104259,
+            126157,
+            96654,
+            101230,
+            94703,
+            26457,
+            107482,
+            31137,
+            32320,
+            103578,
+            112807,
+            102105,
+            111094,
+            81699,
+            40742,
+            82769,
+            66831,
+            124220,
+            72584,
+            120568,
+            87382,
+            117324,
+            89430,
+            97956,
+            88044,
+            63433,
+            146094,
+            42967,
+            115189,
+            107438,
+            61046,
+            98079,
+            113953,
+            298111,
+            108967,
+            91749,
+            283798,
+            107813,
+            79890,
+            75476,
+            105609,
+            117634,
+            93502,
+            110075,
+            65515,
+            58234,
+            114619,
+            119061,
+            112679,
+            97373,
+            8749,
+            98204,
+            96754,
+            164324,
+            59998,
+            130501,
+            213852,
+            278081,
+            13420,
+            69220,
+            90644,
+            136865,
+            244831,
+            41310,
+            65186,
+            129090,
+            87045,
+            112143,
+            11179,
+            89422,
+            88745
+          ],
+          "encode_seconds": [
+            1.121450875,
+            1.125703,
+            1.183569167,
+            1.203519167,
+            1.100786375
+          ],
+          "decode_seconds": [
+            0.283047292,
+            0.29851675,
+            0.293567625,
+            0.274197666,
+            0.290728125
+          ],
+          "encode_median_seconds": 1.125703,
+          "decode_median_seconds": 0.290728125
+        },
+        "ours-l9-t1": {
+          "mode": "ours",
+          "level": 9,
+          "threads": 1,
+          "bytes": 9753722,
+          "file_bytes": [
+            142240,
+            105028,
+            65160,
+            89828,
+            57426,
+            91402,
+            79224,
+            60106,
+            105232,
+            97703,
+            42705,
+            107614,
+            108707,
+            140050,
+            12523,
+            84789,
+            110653,
+            97386,
+            70064,
+            305714,
+            74355,
+            37001,
+            123843,
+            130247,
+            119097,
+            69096,
+            71410,
+            103645,
+            125197,
+            95879,
+            100578,
+            93996,
+            26325,
+            106769,
+            30974,
+            32166,
+            102900,
+            111849,
+            101394,
+            110145,
+            81202,
+            40444,
+            82054,
+            66400,
+            123261,
+            72180,
+            119840,
+            86847,
+            116555,
+            88882,
+            97354,
+            87494,
+            62994,
+            144984,
+            42613,
+            114230,
+            106352,
+            60630,
+            97513,
+            113001,
+            285527,
+            108383,
+            91171,
+            279186,
+            106835,
+            79446,
+            75014,
+            104782,
+            116212,
+            92895,
+            108587,
+            65012,
+            57589,
+            113595,
+            118178,
+            111750,
+            96683,
+            8657,
+            97465,
+            96136,
+            163127,
+            59605,
+            129538,
+            211690,
+            267080,
+            13225,
+            68683,
+            89870,
+            135890,
+            236967,
+            41137,
+            64786,
+            128234,
+            86442,
+            111025,
+            11059,
+            88932,
+            88079
+          ],
+          "encode_seconds": [
+            1.416338333,
+            1.469556625,
+            1.622023667,
+            1.51640675,
+            1.537897709
+          ],
+          "decode_seconds": [
+            0.278023583,
+            0.269026458,
+            0.269311833,
+            0.284537792,
+            0.272750791
+          ],
+          "encode_median_seconds": 1.51640675,
+          "decode_median_seconds": 0.272750791
+        },
+        "ours-l3-t1": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 1,
+          "bytes": 9787758,
+          "file_bytes": [
+            142794,
+            105346,
+            65312,
+            90086,
+            57586,
+            91734,
+            79490,
+            60314,
+            105517,
+            97992,
+            42822,
+            107946,
+            108952,
+            140367,
+            12562,
+            84978,
+            110966,
+            97657,
+            70238,
+            307595,
+            74666,
+            37090,
+            124183,
+            130553,
+            119486,
+            69269,
+            71702,
+            103862,
+            125606,
+            96151,
+            100829,
+            94264,
+            26352,
+            107027,
+            31054,
+            32224,
+            103146,
+            112223,
+            101658,
+            110534,
+            81405,
+            40551,
+            82340,
+            66615,
+            123654,
+            72371,
+            120120,
+            87083,
+            116812,
+            89066,
+            97604,
+            87700,
+            63183,
+            145470,
+            42756,
+            114581,
+            106811,
+            60810,
+            97720,
+            113387,
+            287528,
+            108621,
+            91392,
+            280864,
+            107279,
+            79657,
+            75211,
+            105114,
+            116846,
+            93130,
+            109064,
+            65256,
+            57825,
+            114003,
+            118614,
+            112322,
+            96945,
+            8667,
+            97828,
+            96360,
+            163693,
+            59771,
+            129926,
+            212643,
+            268830,
+            13251,
+            68926,
+            90200,
+            136218,
+            238121,
+            41237,
+            64965,
+            128569,
+            86700,
+            111410,
+            11071,
+            89149,
+            88380
+          ],
+          "encode_seconds": [
+            1.003476542,
+            1.135593208,
+            0.988962,
+            1.1256525,
+            1.09957725
+          ],
+          "decode_seconds": [
+            0.274296667,
+            0.269200875,
+            0.267204875,
+            0.280067083,
+            0.271584875
+          ],
+          "encode_median_seconds": 1.09957725,
+          "decode_median_seconds": 0.271584875
+        },
+        "slpz-l3-t8": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 8,
+          "bytes": 32514463,
+          "file_bytes": [
+            489572,
+            324005,
+            180929,
+            267563,
+            163521,
+            280817,
+            227012,
+            161090,
+            333699,
+            295028,
+            118549,
+            327764,
+            326758,
+            453806,
+            14140,
+            252441,
+            350044,
+            297540,
+            205413,
+            1492875,
+            220711,
+            100481,
+            409186,
+            425784,
+            370379,
+            195677,
+            216874,
+            307847,
+            417446,
+            288813,
+            302183,
+            286677,
+            54360,
+            343009,
+            65938,
+            90036,
+            307538,
+            355351,
+            316906,
+            345365,
+            250521,
+            115460,
+            259200,
+            201231,
+            400929,
+            208664,
+            376971,
+            266245,
+            368820,
+            290725,
+            300949,
+            277129,
+            191380,
+            482576,
+            117604,
+            374391,
+            340535,
+            181677,
+            293265,
+            349505,
+            1237082,
+            318227,
+            271247,
+            1272361,
+            330356,
+            240900,
+            229187,
+            335622,
+            368805,
+            282316,
+            368452,
+            195954,
+            202896,
+            366626,
+            388920,
+            649882,
+            295499,
+            3706,
+            287874,
+            294588,
+            683736,
+            168144,
+            424909,
+            956663,
+            1135476,
+            13484,
+            186689,
+            257998,
+            453320,
+            840725,
+            110311,
+            174432,
+            387604,
+            258096,
+            357936,
+            8434,
+            252063,
+            273039
+          ],
+          "encode_seconds": [
+            0.063144417,
+            0.064284958,
+            0.063226,
+            0.065006,
+            0.062990209
+          ],
+          "decode_seconds": [
+            0.035848834,
+            0.034432959,
+            0.0340915,
+            0.03427275,
+            0.035764958
+          ],
+          "encode_median_seconds": 0.063226,
+          "decode_median_seconds": 0.034432959
+        },
+        "ours-l3-t8": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 8,
+          "bytes": 9787758,
+          "file_bytes": [
+            142794,
+            105346,
+            65312,
+            90086,
+            57586,
+            91734,
+            79490,
+            60314,
+            105517,
+            97992,
+            42822,
+            107946,
+            108952,
+            140367,
+            12562,
+            84978,
+            110966,
+            97657,
+            70238,
+            307595,
+            74666,
+            37090,
+            124183,
+            130553,
+            119486,
+            69269,
+            71702,
+            103862,
+            125606,
+            96151,
+            100829,
+            94264,
+            26352,
+            107027,
+            31054,
+            32224,
+            103146,
+            112223,
+            101658,
+            110534,
+            81405,
+            40551,
+            82340,
+            66615,
+            123654,
+            72371,
+            120120,
+            87083,
+            116812,
+            89066,
+            97604,
+            87700,
+            63183,
+            145470,
+            42756,
+            114581,
+            106811,
+            60810,
+            97720,
+            113387,
+            287528,
+            108621,
+            91392,
+            280864,
+            107279,
+            79657,
+            75211,
+            105114,
+            116846,
+            93130,
+            109064,
+            65256,
+            57825,
+            114003,
+            118614,
+            112322,
+            96945,
+            8667,
+            97828,
+            96360,
+            163693,
+            59771,
+            129926,
+            212643,
+            268830,
+            13251,
+            68926,
+            90200,
+            136218,
+            238121,
+            41237,
+            64965,
+            128569,
+            86700,
+            111410,
+            11071,
+            89149,
+            88380
+          ],
+          "encode_seconds": [
+            0.152822,
+            0.153422917,
+            0.155846958,
+            0.165316292,
+            0.153861
+          ],
+          "decode_seconds": [
+            0.03747375,
+            0.036757375,
+            0.039518209,
+            0.039116417,
+            0.039763875
+          ],
+          "encode_median_seconds": 0.153861,
+          "decode_median_seconds": 0.039116417
+        },
+        "ours-l9-t8": {
+          "mode": "ours",
+          "level": 9,
+          "threads": 8,
+          "bytes": 9753722,
+          "file_bytes": [
+            142240,
+            105028,
+            65160,
+            89828,
+            57426,
+            91402,
+            79224,
+            60106,
+            105232,
+            97703,
+            42705,
+            107614,
+            108707,
+            140050,
+            12523,
+            84789,
+            110653,
+            97386,
+            70064,
+            305714,
+            74355,
+            37001,
+            123843,
+            130247,
+            119097,
+            69096,
+            71410,
+            103645,
+            125197,
+            95879,
+            100578,
+            93996,
+            26325,
+            106769,
+            30974,
+            32166,
+            102900,
+            111849,
+            101394,
+            110145,
+            81202,
+            40444,
+            82054,
+            66400,
+            123261,
+            72180,
+            119840,
+            86847,
+            116555,
+            88882,
+            97354,
+            87494,
+            62994,
+            144984,
+            42613,
+            114230,
+            106352,
+            60630,
+            97513,
+            113001,
+            285527,
+            108383,
+            91171,
+            279186,
+            106835,
+            79446,
+            75014,
+            104782,
+            116212,
+            92895,
+            108587,
+            65012,
+            57589,
+            113595,
+            118178,
+            111750,
+            96683,
+            8657,
+            97465,
+            96136,
+            163127,
+            59605,
+            129538,
+            211690,
+            267080,
+            13225,
+            68683,
+            89870,
+            135890,
+            236967,
+            41137,
+            64786,
+            128234,
+            86442,
+            111025,
+            11059,
+            88932,
+            88079
+          ],
+          "encode_seconds": [
+            0.216241666,
+            0.208767458,
+            0.211641542,
+            0.208671083,
+            0.220520875
+          ],
+          "decode_seconds": [
+            0.039323459,
+            0.036758584,
+            0.037739083,
+            0.03652175,
+            0.036458959
+          ],
+          "encode_median_seconds": 0.211641542,
+          "decode_median_seconds": 0.036758584
+        },
+        "ours-l1-t8": {
+          "mode": "ours",
+          "level": 1,
+          "threads": 8,
+          "bytes": 9857597,
+          "file_bytes": [
+            143577,
+            105897,
+            65562,
+            90475,
+            57833,
+            92175,
+            79794,
+            60625,
+            105920,
+            98386,
+            42950,
+            108461,
+            109347,
+            140998,
+            12663,
+            85246,
+            111452,
+            98096,
+            70443,
+            310607,
+            75032,
+            37246,
+            124804,
+            131042,
+            120002,
+            69448,
+            72117,
+            104259,
+            126157,
+            96654,
+            101230,
+            94703,
+            26457,
+            107482,
+            31137,
+            32320,
+            103578,
+            112807,
+            102105,
+            111094,
+            81699,
+            40742,
+            82769,
+            66831,
+            124220,
+            72584,
+            120568,
+            87382,
+            117324,
+            89430,
+            97956,
+            88044,
+            63433,
+            146094,
+            42967,
+            115189,
+            107438,
+            61046,
+            98079,
+            113953,
+            298111,
+            108967,
+            91749,
+            283798,
+            107813,
+            79890,
+            75476,
+            105609,
+            117634,
+            93502,
+            110075,
+            65515,
+            58234,
+            114619,
+            119061,
+            112679,
+            97373,
+            8749,
+            98204,
+            96754,
+            164324,
+            59998,
+            130501,
+            213852,
+            278081,
+            13420,
+            69220,
+            90644,
+            136865,
+            244831,
+            41310,
+            65186,
+            129090,
+            87045,
+            112143,
+            11179,
+            89422,
+            88745
+          ],
+          "encode_seconds": [
+            0.160682042,
+            0.159824584,
+            0.1526495,
+            0.142183583,
+            0.148793083
+          ],
+          "decode_seconds": [
+            0.037468375,
+            0.0387755,
+            0.037726917,
+            0.038152917,
+            0.037331667
+          ],
+          "encode_median_seconds": 0.1526495,
+          "decode_median_seconds": 0.037726917
+        },
+        "slpz-l12-t8": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 8,
+          "bytes": 29243704,
+          "file_bytes": [
+            445282,
+            305450,
+            172120,
+            252154,
+            154915,
+            264382,
+            215892,
+            153396,
+            315793,
+            278769,
+            113079,
+            309331,
+            308819,
+            430409,
+            13583,
+            240002,
+            329678,
+            281577,
+            195068,
+            1133598,
+            206597,
+            95396,
+            385764,
+            402513,
+            350644,
+            185878,
+            203926,
+            289535,
+            395083,
+            273756,
+            287639,
+            270128,
+            51929,
+            323676,
+            62828,
+            85204,
+            290569,
+            336028,
+            301287,
+            325483,
+            236301,
+            109373,
+            245077,
+            191441,
+            379621,
+            198088,
+            355622,
+            252790,
+            347997,
+            270236,
+            285531,
+            261757,
+            182414,
+            452728,
+            110461,
+            353804,
+            321052,
+            172477,
+            277207,
+            331466,
+            967512,
+            301381,
+            256434,
+            988484,
+            311248,
+            229413,
+            216326,
+            317676,
+            346064,
+            268107,
+            350162,
+            184699,
+            193804,
+            346080,
+            367947,
+            421553,
+            278247,
+            3582,
+            273597,
+            278991,
+            483829,
+            158717,
+            400044,
+            667942,
+            875677,
+            12897,
+            175838,
+            244974,
+            429070,
+            793275,
+            104490,
+            166144,
+            368055,
+            244582,
+            339106,
+            8212,
+            238775,
+            258167
+          ],
+          "encode_seconds": [
+            0.308679584,
+            0.311547084,
+            0.32361475,
+            0.309865583,
+            0.314364125
+          ],
+          "decode_seconds": [
+            0.031145083,
+            0.031454666,
+            0.032210667,
+            0.02996725,
+            0.029389459
+          ],
+          "encode_median_seconds": 0.311547084,
+          "decode_median_seconds": 0.031145083
+        },
+        "slippc-l6-t8": {
+          "mode": "slippc",
+          "level": 6,
+          "threads": 8,
+          "bytes": 12952996,
+          "file_bytes": [
+            207360,
+            143336,
+            80856,
+            119128,
+            72832,
+            121868,
+            102344,
+            77568,
+            144988,
+            129596,
+            50152,
+            150432,
+            146952,
+            198524,
+            5380,
+            111644,
+            151804,
+            129088,
+            88352,
+            373668,
+            99468,
+            42056,
+            178820,
+            189152,
+            167668,
+            84332,
+            100272,
+            142568,
+            180032,
+            127852,
+            137728,
+            128400,
+            22520,
+            149268,
+            29068,
+            36996,
+            142308,
+            155228,
+            137932,
+            158556,
+            112132,
+            50376,
+            115356,
+            84860,
+            174808,
+            94820,
+            165696,
+            117644,
+            166564,
+            121928,
+            131724,
+            120440,
+            83412,
+            218200,
+            53720,
+            162080,
+            150044,
+            80788,
+            132996,
+            158616,
+            286000,
+            143076,
+            120492,
+            339464,
+            143792,
+            102024,
+            99932,
+            146720,
+            172772,
+            122708,
+            119780,
+            89556,
+            83400,
+            158432,
+            176928,
+            157028,
+            132416,
+            1736,
+            131784,
+            132308,
+            240856,
+            75504,
+            184824,
+            326136,
+            275556,
+            6196,
+            88356,
+            121708,
+            196056,
+            245424,
+            47424,
+            77892,
+            181036,
+            115660,
+            158916,
+            3892,
+            115336,
+            119576
+          ],
+          "encode_seconds": [
+            4.966041,
+            5.0482355,
+            4.991954833,
+            4.920428458,
+            4.870411625
+          ],
+          "decode_seconds": [
+            0.107718792,
+            0.110500291,
+            0.112742708,
+            0.111203875,
+            0.110623125
+          ],
+          "encode_median_seconds": 4.966041,
+          "decode_median_seconds": 0.110623125
+        }
+      },
+      "binary_sha256": {
+        "ours": "68ad08755a9472f9c448284c919f6dd08135f758788a1a48b65c10366ed45c88",
+        "slippc": "c5b2482f3a8dc228d41ec86ea4422eae3736e01ecdd324a3f27a7b7deed5bdc6",
+        "rust-target/release/replay-codec-benchmark": "2c9554c2d5faaae00e58b9a02553154cd7fd9218431ace2d546b661281b261fe"
+      }
+    },
+    "peppi": {
+      "input_indexes": [
+        41,
+        43,
+        45,
+        47,
+        49,
+        51,
+        52,
+        53,
+        54,
+        55,
+        57,
+        58,
+        59,
+        60,
+        61,
+        63,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        75,
+        76,
+        78
+      ],
+      "files": 28,
+      "raw_bytes": 74297116,
+      "results": {
+        "slpz-l3-t1": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 1,
+          "bytes": 10193119,
+          "file_bytes": [
+            115460,
+            386723,
+            459921,
+            118912,
+            956577,
+            375468,
+            201231,
+            484261,
+            583126,
+            400929,
+            208664,
+            376971,
+            74983,
+            416886,
+            485226,
+            368820,
+            290725,
+            465433,
+            707890,
+            582125,
+            300949,
+            277129,
+            85702,
+            191380,
+            482576,
+            80126,
+            374391,
+            340535
+          ],
+          "encode_seconds": [
+            0.138499083,
+            0.145176625,
+            0.133263166,
+            0.133393625,
+            0.138972458
+          ],
+          "decode_seconds": [
+            0.073363416,
+            0.077129041,
+            0.071058083,
+            0.079183833,
+            0.072963584
+          ],
+          "encode_median_seconds": 0.138499083,
+          "decode_median_seconds": 0.073363416
+        },
+        "peppi-zstd-l3-t1": {
+          "mode": "peppi-zstd",
+          "level": 3,
+          "threads": 1,
+          "bytes": 13139456,
+          "file_bytes": [
+            152064,
+            510464,
+            604672,
+            182272,
+            999424,
+            467968,
+            272384,
+            630272,
+            759808,
+            514560,
+            279040,
+            473600,
+            141312,
+            546304,
+            631808,
+            463872,
+            379392,
+            624640,
+            904704,
+            762880,
+            388096,
+            356864,
+            140800,
+            265216,
+            628224,
+            142336,
+            477696,
+            438784
+          ],
+          "encode_seconds": [
+            0.279389583,
+            0.288704208,
+            0.308550958,
+            0.2492655,
+            0.303823542
+          ],
+          "decode_seconds": [
+            0.089948625,
+            0.077723042,
+            0.148052333,
+            0.183920333,
+            0.148111042
+          ],
+          "encode_median_seconds": 0.288704208,
+          "decode_median_seconds": 0.148052333
+        },
+        "ours-l3-t1": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 1,
+          "bytes": 3279347,
+          "file_bytes": [
+            40551,
+            137812,
+            169563,
+            54771,
+            241128,
+            156614,
+            66615,
+            147326,
+            175630,
+            123654,
+            72371,
+            120120,
+            34446,
+            130668,
+            160029,
+            116812,
+            89066,
+            164939,
+            208551,
+            170978,
+            97604,
+            87700,
+            43340,
+            63183,
+            145470,
+            39014,
+            114581,
+            106811
+          ],
+          "encode_seconds": [
+            0.359684125,
+            0.33303575,
+            0.335492833,
+            0.352715209,
+            0.343862625
+          ],
+          "decode_seconds": [
+            0.087030542,
+            0.0924195,
+            0.089813584,
+            0.092890708,
+            0.092460041
+          ],
+          "encode_median_seconds": 0.343862625,
+          "decode_median_seconds": 0.0924195
+        },
+        "peppi-outer-l12-t1": {
+          "mode": "peppi-outer",
+          "level": 12,
+          "threads": 1,
+          "bytes": 7479929,
+          "file_bytes": [
+            81095,
+            281275,
+            353230,
+            82209,
+            599357,
+            282470,
+            155801,
+            336650,
+            429244,
+            304461,
+            160315,
+            279747,
+            53987,
+            289260,
+            349618,
+            276197,
+            222260,
+            366176,
+            546165,
+            417001,
+            227677,
+            207412,
+            58210,
+            150750,
+            370635,
+            59409,
+            282122,
+            257196
+          ],
+          "encode_seconds": [
+            0.576697417,
+            0.587067334,
+            0.587511958,
+            0.603524333,
+            0.593078791
+          ],
+          "decode_seconds": [
+            0.071673959,
+            0.065303084,
+            0.067883834,
+            0.067009541,
+            0.065314542
+          ],
+          "encode_median_seconds": 0.587511958,
+          "decode_median_seconds": 0.067009541
+        },
+        "peppi-none-l3-t1": {
+          "mode": "peppi-none",
+          "level": 3,
+          "threads": 1,
+          "bytes": 68106240,
+          "file_bytes": [
+            809984,
+            2474496,
+            3071488,
+            751104,
+            5240832,
+            2632704,
+            1363456,
+            3187712,
+            3841024,
+            2801152,
+            1565696,
+            2577408,
+            871424,
+            2710016,
+            3225088,
+            2561536,
+            2004992,
+            3169792,
+            4465152,
+            3764224,
+            2082304,
+            1944064,
+            530432,
+            1456640,
+            3535872,
+            509440,
+            2617344,
+            2340864
+          ],
+          "encode_seconds": [
+            0.116743083,
+            0.109526625,
+            0.110514125,
+            0.112583667,
+            0.116354542
+          ],
+          "decode_seconds": [
+            0.03803625,
+            0.038515083,
+            0.038705666,
+            0.04035375,
+            0.040202792
+          ],
+          "encode_median_seconds": 0.112583667,
+          "decode_median_seconds": 0.038705666
+        },
+        "ours-l1-t1": {
+          "mode": "ours",
+          "level": 1,
+          "threads": 1,
+          "bytes": 3321561,
+          "file_bytes": [
+            40742,
+            139024,
+            175654,
+            55133,
+            243705,
+            166116,
+            66831,
+            149166,
+            177615,
+            124220,
+            72584,
+            120568,
+            34621,
+            132016,
+            161478,
+            117324,
+            89430,
+            170282,
+            210935,
+            173139,
+            97956,
+            88044,
+            43602,
+            63433,
+            146094,
+            39222,
+            115189,
+            107438
+          ],
+          "encode_seconds": [
+            0.302887458,
+            0.322440583,
+            0.30963775,
+            0.304437875,
+            0.315584417
+          ],
+          "decode_seconds": [
+            0.085700125,
+            0.098185958,
+            0.086442458,
+            0.084962375,
+            0.087379125
+          ],
+          "encode_median_seconds": 0.30963775,
+          "decode_median_seconds": 0.086442458
+        },
+        "peppi-outer-l3-t1": {
+          "mode": "peppi-outer",
+          "level": 3,
+          "threads": 1,
+          "bytes": 8439293,
+          "file_bytes": [
+            87778,
+            318362,
+            393894,
+            87938,
+            769501,
+            301212,
+            165956,
+            384838,
+            504861,
+            327677,
+            171004,
+            303952,
+            55866,
+            330749,
+            400530,
+            294903,
+            237646,
+            407242,
+            674271,
+            492710,
+            242780,
+            222108,
+            62134,
+            160438,
+            398503,
+            62130,
+            304244,
+            276066
+          ],
+          "encode_seconds": [
+            0.190099583,
+            0.190175209,
+            0.199118542,
+            0.194196542,
+            0.205504625
+          ],
+          "decode_seconds": [
+            0.069590083,
+            0.067910125,
+            0.069976209,
+            0.069292625,
+            0.0674315
+          ],
+          "encode_median_seconds": 0.194196542,
+          "decode_median_seconds": 0.069292625
+        },
+        "slpz-l12-t1": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 1,
+          "bytes": 9492305,
+          "file_bytes": [
+            109373,
+            369091,
+            438548,
+            113462,
+            738116,
+            358167,
+            191441,
+            458934,
+            552377,
+            379621,
+            198088,
+            355622,
+            72662,
+            395158,
+            457691,
+            347997,
+            270236,
+            443536,
+            672519,
+            552559,
+            285531,
+            261757,
+            82420,
+            182414,
+            452728,
+            77401,
+            353804,
+            321052
+          ],
+          "encode_seconds": [
+            0.694553833,
+            0.686445584,
+            0.689631666,
+            0.663052042,
+            0.669518541
+          ],
+          "decode_seconds": [
+            0.068308458,
+            0.066195708,
+            0.066988459,
+            0.067024208,
+            0.067269166
+          ],
+          "encode_median_seconds": 0.686445584,
+          "decode_median_seconds": 0.067024208
+        },
+        "ours-l9-t1": {
+          "mode": "ours",
+          "level": 9,
+          "threads": 1,
+          "bytes": 3263494,
+          "file_bytes": [
+            40444,
+            137293,
+            168898,
+            54566,
+            239443,
+            155188,
+            66400,
+            146314,
+            174299,
+            123261,
+            72180,
+            119840,
+            34370,
+            129900,
+            159132,
+            116555,
+            88882,
+            164113,
+            207142,
+            169752,
+            97354,
+            87494,
+            43197,
+            62994,
+            144984,
+            38917,
+            114230,
+            106352
+          ],
+          "encode_seconds": [
+            0.458724958,
+            0.470318583,
+            0.481931125,
+            0.475504584,
+            0.475323625
+          ],
+          "decode_seconds": [
+            0.093607042,
+            0.086139083,
+            0.085597209,
+            0.087133875,
+            0.0874615
+          ],
+          "encode_median_seconds": 0.475323625,
+          "decode_median_seconds": 0.087133875
+        },
+        "slpz-l12-t8": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 8,
+          "bytes": 9492305,
+          "file_bytes": [
+            109373,
+            369091,
+            438548,
+            113462,
+            738116,
+            358167,
+            191441,
+            458934,
+            552377,
+            379621,
+            198088,
+            355622,
+            72662,
+            395158,
+            457691,
+            347997,
+            270236,
+            443536,
+            672519,
+            552559,
+            285531,
+            261757,
+            82420,
+            182414,
+            452728,
+            77401,
+            353804,
+            321052
+          ],
+          "encode_seconds": [
+            0.106006,
+            0.106885542,
+            0.108042917,
+            0.105992084,
+            0.10651025
+          ],
+          "decode_seconds": [
+            0.012878416,
+            0.011652125,
+            0.010417667,
+            0.011906292,
+            0.011160542
+          ],
+          "encode_median_seconds": 0.10651025,
+          "decode_median_seconds": 0.011652125
+        },
+        "slpz-l3-t8": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 8,
+          "bytes": 10193119,
+          "file_bytes": [
+            115460,
+            386723,
+            459921,
+            118912,
+            956577,
+            375468,
+            201231,
+            484261,
+            583126,
+            400929,
+            208664,
+            376971,
+            74983,
+            416886,
+            485226,
+            368820,
+            290725,
+            465433,
+            707890,
+            582125,
+            300949,
+            277129,
+            85702,
+            191380,
+            482576,
+            80126,
+            374391,
+            340535
+          ],
+          "encode_seconds": [
+            0.021596792,
+            0.021274875,
+            0.021296916,
+            0.021221834,
+            0.023186292
+          ],
+          "decode_seconds": [
+            0.011776875,
+            0.011724667,
+            0.01255775,
+            0.013408375,
+            0.012423875
+          ],
+          "encode_median_seconds": 0.021296916,
+          "decode_median_seconds": 0.012423875
+        },
+        "peppi-outer-l3-t8": {
+          "mode": "peppi-outer",
+          "level": 3,
+          "threads": 8,
+          "bytes": 8439293,
+          "file_bytes": [
+            87778,
+            318362,
+            393894,
+            87938,
+            769501,
+            301212,
+            165956,
+            384838,
+            504861,
+            327677,
+            171004,
+            303952,
+            55866,
+            330749,
+            400530,
+            294903,
+            237646,
+            407242,
+            674271,
+            492710,
+            242780,
+            222108,
+            62134,
+            160438,
+            398503,
+            62130,
+            304244,
+            276066
+          ],
+          "encode_seconds": [
+            0.044556667,
+            0.039885833,
+            0.035265292,
+            0.0378295,
+            0.033893209
+          ],
+          "decode_seconds": [
+            0.015271625,
+            0.013986958,
+            0.01584025,
+            0.014332375,
+            0.013642667
+          ],
+          "encode_median_seconds": 0.0378295,
+          "decode_median_seconds": 0.014332375
+        },
+        "ours-l9-t8": {
+          "mode": "ours",
+          "level": 9,
+          "threads": 8,
+          "bytes": 3263494,
+          "file_bytes": [
+            40444,
+            137293,
+            168898,
+            54566,
+            239443,
+            155188,
+            66400,
+            146314,
+            174299,
+            123261,
+            72180,
+            119840,
+            34370,
+            129900,
+            159132,
+            116555,
+            88882,
+            164113,
+            207142,
+            169752,
+            97354,
+            87494,
+            43197,
+            62994,
+            144984,
+            38917,
+            114230,
+            106352
+          ],
+          "encode_seconds": [
+            0.076920625,
+            0.075010084,
+            0.07411625,
+            0.07196125,
+            0.074653458
+          ],
+          "decode_seconds": [
+            0.0136905,
+            0.014253917,
+            0.014452,
+            0.014011083,
+            0.013433833
+          ],
+          "encode_median_seconds": 0.074653458,
+          "decode_median_seconds": 0.014011083
+        },
+        "peppi-outer-l12-t8": {
+          "mode": "peppi-outer",
+          "level": 12,
+          "threads": 8,
+          "bytes": 7479929,
+          "file_bytes": [
+            81095,
+            281275,
+            353230,
+            82209,
+            599357,
+            282470,
+            155801,
+            336650,
+            429244,
+            304461,
+            160315,
+            279747,
+            53987,
+            289260,
+            349618,
+            276197,
+            222260,
+            366176,
+            546165,
+            417001,
+            227677,
+            207412,
+            58210,
+            150750,
+            370635,
+            59409,
+            282122,
+            257196
+          ],
+          "encode_seconds": [
+            0.095650625,
+            0.095590459,
+            0.096526458,
+            0.091079791,
+            0.092827666
+          ],
+          "decode_seconds": [
+            0.014604167,
+            0.014669833,
+            0.014113792,
+            0.013159542,
+            0.015777917
+          ],
+          "encode_median_seconds": 0.095590459,
+          "decode_median_seconds": 0.014604167
+        },
+        "ours-l3-t8": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 8,
+          "bytes": 3279347,
+          "file_bytes": [
+            40551,
+            137812,
+            169563,
+            54771,
+            241128,
+            156614,
+            66615,
+            147326,
+            175630,
+            123654,
+            72371,
+            120120,
+            34446,
+            130668,
+            160029,
+            116812,
+            89066,
+            164939,
+            208551,
+            170978,
+            97604,
+            87700,
+            43340,
+            63183,
+            145470,
+            39014,
+            114581,
+            106811
+          ],
+          "encode_seconds": [
+            0.05113275,
+            0.055010917,
+            0.055438917,
+            0.052522209,
+            0.051532916
+          ],
+          "decode_seconds": [
+            0.013864541,
+            0.014222958,
+            0.0139175,
+            0.014700375,
+            0.013608584
+          ],
+          "encode_median_seconds": 0.052522209,
+          "decode_median_seconds": 0.0139175
+        },
+        "peppi-zstd-l3-t8": {
+          "mode": "peppi-zstd",
+          "level": 3,
+          "threads": 8,
+          "bytes": 13139456,
+          "file_bytes": [
+            152064,
+            510464,
+            604672,
+            182272,
+            999424,
+            467968,
+            272384,
+            630272,
+            759808,
+            514560,
+            279040,
+            473600,
+            141312,
+            546304,
+            631808,
+            463872,
+            379392,
+            624640,
+            904704,
+            762880,
+            388096,
+            356864,
+            140800,
+            265216,
+            628224,
+            142336,
+            477696,
+            438784
+          ],
+          "encode_seconds": [
+            0.0735795,
+            0.060218209,
+            0.061565167,
+            0.060554458,
+            0.058096709
+          ],
+          "decode_seconds": [
+            0.049478583,
+            0.040088208,
+            0.053890375,
+            0.060173625,
+            0.039531458
+          ],
+          "encode_median_seconds": 0.060554458,
+          "decode_median_seconds": 0.049478583
+        },
+        "peppi-none-l3-t8": {
+          "mode": "peppi-none",
+          "level": 3,
+          "threads": 8,
+          "bytes": 68106240,
+          "file_bytes": [
+            809984,
+            2474496,
+            3071488,
+            751104,
+            5240832,
+            2632704,
+            1363456,
+            3187712,
+            3841024,
+            2801152,
+            1565696,
+            2577408,
+            871424,
+            2710016,
+            3225088,
+            2561536,
+            2004992,
+            3169792,
+            4465152,
+            3764224,
+            2082304,
+            1944064,
+            530432,
+            1456640,
+            3535872,
+            509440,
+            2617344,
+            2340864
+          ],
+          "encode_seconds": [
+            0.023553459,
+            0.020132,
+            0.024265416,
+            0.027385417,
+            0.461761875
+          ],
+          "decode_seconds": [
+            0.008694417,
+            0.009248542,
+            0.008934666,
+            0.013152292,
+            0.008044584
+          ],
+          "encode_median_seconds": 0.024265416,
+          "decode_median_seconds": 0.008934666
+        },
+        "ours-l1-t8": {
+          "mode": "ours",
+          "level": 1,
+          "threads": 8,
+          "bytes": 3321561,
+          "file_bytes": [
+            40742,
+            139024,
+            175654,
+            55133,
+            243705,
+            166116,
+            66831,
+            149166,
+            177615,
+            124220,
+            72584,
+            120568,
+            34621,
+            132016,
+            161478,
+            117324,
+            89430,
+            170282,
+            210935,
+            173139,
+            97956,
+            88044,
+            43602,
+            63433,
+            146094,
+            39222,
+            115189,
+            107438
+          ],
+          "encode_seconds": [
+            0.050615792,
+            0.051053375,
+            0.052282167,
+            0.052773667,
+            0.051667791
+          ],
+          "decode_seconds": [
+            0.0138605,
+            0.014170083,
+            0.014056375,
+            0.0141125,
+            0.013922834
+          ],
+          "encode_median_seconds": 0.051667791,
+          "decode_median_seconds": 0.014056375
+        }
+      },
+      "binary_sha256": {
+        "ours": "68ad08755a9472f9c448284c919f6dd08135f758788a1a48b65c10366ed45c88",
+        "slippc": "c5b2482f3a8dc228d41ec86ea4422eae3736e01ecdd324a3f27a7b7deed5bdc6",
+        "rust-target/release/replay-codec-benchmark": "b4e9474a36dcea16f20d24d4e7fdfb4953a9aec16fdf3b24e50b254a73547913"
+      }
+    }
+  },
+  "toolchain": {
+    "cxx": "Apple clang 17.0.0 (clang-1700.0.13.5)",
+    "cxx_optimization": "-O3; C++20 for Slippack, C++17 for slippc; no fast-math",
+    "rust": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+    "rust_profile": "release (opt-level 3)",
+    "zstd": "1.5.6 (zstd-sys 2.0.13; Rust zstd 0.13.2)",
+    "slippc_liblzma": "5.8.4",
+    "peppi_arrow": "Arrow2 0.17.4; internal Zstd Rust binding 0.12.4"
+  },
+  "coverage_notes": {
+    "slippc": "22 files newer than its advertised 3.12.0 limit were not submitted to its fixed-layout transforms.",
+    "peppi": "74 reconstructions panicked at gecko_codes_size (ser.rs:394); 18 reconstructed files differed from source bytes. All three Peppi storage variants had the same failures.",
+    "inputs": "120 distinct SHA-256 hashes; 40 deterministic filename-hash samples from each existing study set. All sets have been examined in prior development."
+  }
+}

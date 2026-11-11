@@ -1,0 +1,13 @@
+[package]
+name = "replay-codec-benchmark"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+peppi = "=2.1.2"
+slpz = { path = "../../../build/alexander-slpz" }
+serde_json = "1"
+zstd = "=0.13.2"
+zstd-sys = "=2.0.13"
+arrow2 = { version = "0.17", features = ["io_ipc_compression"] }
