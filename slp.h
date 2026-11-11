@@ -1,7 +1,7 @@
 #pragma once
 #include "format.h"
 
-namespace slpz {
+namespace slippack {
 constexpr uint32_t kSeedCap = 4096; // max steps to search
 inline uint32_t lcg_next(uint32_t s) {
   return s * 214013u + 2531011u;
@@ -69,4 +69,4 @@ void motion_predict(uint8_t *data, uint32_t count, uint32_t size, bool inverse);
 uint32_t controller_grid(uint32_t value);
 void input_predict(uint8_t *data, uint32_t count, uint32_t size, bool inverse);
 
-} // namespace slpz
+} // namespace slippack

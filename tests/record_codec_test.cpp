@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cstdio>
 #include <random>
-using namespace slpz;
+using namespace slippack;
 
 static size_t checks = 0;
 static void check(bool ok, const char *why) {
@@ -73,12 +73,12 @@ int main() {
         packet.put_u8(0);
         packet.put_u8(0);
         packet.put_u8(nvals - 1);
-        small_compress(bytes, 3, packet, slpz_custom::Discrete);
+        small_compress(bytes, 3, packet, slippack_custom::Discrete);
         if (!implicit_dictionary(field)) {
           packet.put_u8(0);
         }
         packet.put_u8(2); // custom layout
-        std::array<uint8_t, 1> profiles{slpz_custom::Discrete};
+        std::array<uint8_t, 1> profiles{slippack_custom::Discrete};
         if (implicit_dictionary(field)) {
           custom_planes_frame({}, field.idx.size(), {}, 3, packet);
         } else {

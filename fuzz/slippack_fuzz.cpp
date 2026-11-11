@@ -3,7 +3,7 @@
 #include "../slp.h"
 #include "../record_codec.h"
 #include <cstdio>
-using namespace slpz;
+using namespace slippack;
 
 #include <cstdlib>
 #include <cstring>
@@ -72,7 +72,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
                       [view = files[i]] { return Bytes(view.begin(), view.end()); }});
   }
   EncodeOptions encode;
-  if (const char *level = std::getenv("SLPZ_FUZZ_LEVEL")) {
+  if (const char *level = std::getenv("SLIPPACK_FUZZ_LEVEL")) {
     encode.level = std::atoi(level);
   }
   auto packed = encode_archive(inputs, encode);

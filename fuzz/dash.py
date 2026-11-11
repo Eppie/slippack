@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AFL++-style live status screen for a slpz libFuzzer run.
+"""AFL++-style live status screen for a slippack libFuzzer run.
 
 Reads logs/<target>.log (written by run.sh) plus runs/<target>/artifacts, and
 renders a refreshing panel: throughput, coverage, corpus, and crash counts.
@@ -143,7 +143,7 @@ def render(target, start, once):
     tcolor = GRN if age < 4 else YEL
 
     out = []
-    out.append(f"{BOLD}{CYN}┌─ slpz fuzz · {target} "
+    out.append(f"{BOLD}{CYN}┌─ slippack fuzz · {target} "
                + "─" * max(0, 42 - len(target)) + f"┐{RST}")
     line = lambda s: out.append(f"{CYN}│{RST} {s}")
     line(f"{'run time':<14}{BOLD}{hms(wall)}{RST}"

@@ -1,4 +1,4 @@
-# slpz fuzzing
+# slippack fuzzing
 
 The harnesses link the same archive, replay, record, and frame modules as the
 CLI. They call the in-memory library API directly; no production filesystem
@@ -19,9 +19,9 @@ Use a Clang installation with libFuzzer:
 ```sh
 CXX=clang++ ./fuzz/build.sh
 mkdir -p build/archive-corpus
-cp tests/fixtures/v15-custom.slpz build/archive-corpus/
-./fuzz/slpz_fuzz_archive build/archive-corpus -runs=2000 -max_len=65536
-./fuzz/slpz_fuzz_roundtrip fuzz/corpus_rt -max_total_time=60 -max_len=131072
+cp tests/fixtures/v15-custom.slippack build/archive-corpus/
+./fuzz/slippack_fuzz_archive build/archive-corpus -runs=2000 -max_len=65536
+./fuzz/slippack_fuzz_roundtrip fuzz/corpus_rt -max_total_time=60 -max_len=131072
 ```
 
 `fuzz/build.sh` compiles the core once with ASan/UBSan coverage and links all

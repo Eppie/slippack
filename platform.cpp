@@ -10,7 +10,7 @@
 #include <malloc.h>
 #include <openssl/sha.h>
 #endif
-namespace slpz {
+namespace slippack {
 std::string sha1(View data) {
   uint8_t digest[20];
 #if defined(__APPLE__)
@@ -38,7 +38,7 @@ void release_unused_memory() {
   malloc_trim(0);
 #endif
 }
-} // namespace slpz
+} // namespace slippack
 #if defined(__APPLE__)
 #pragma clang diagnostic pop
 #endif

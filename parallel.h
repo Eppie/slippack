@@ -7,7 +7,7 @@
 #include <mutex>
 #include <thread>
 
-namespace slpz {
+namespace slippack {
 // Joining ownership also works on libc++ versions without std::jthread.
 class JoiningThread {
   std::thread thread_;
@@ -92,4 +92,4 @@ template <class Fn> void parallel_for(size_t count, int threads, Fn work) {
     }
   });
 }
-} // namespace slpz
+} // namespace slippack

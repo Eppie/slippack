@@ -11,14 +11,14 @@
 #include <limits>
 #include <memory>
 #include <random>
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
 #include <arm_neon.h>
-#define SLPZ_NEON 1
+#define SLIPPACK_NEON 1
 #else
-#define SLPZ_NEON 0
+#define SLIPPACK_NEON 0
 #endif
 
-namespace slpz {
+namespace slippack {
 std::span<const uint16_t> semantic_fields(uint8_t cmd) {
   static constexpr uint16_t pre[] = {12, 16, 20, 24, 28, 32, 36, 40, 50, 54, 59};
   static constexpr uint16_t post[] = {9, 13, 17, 21, 25, 33, 42, 52, 56, 60, 64, 68, 72, 76, 80};
@@ -31,7 +31,7 @@ std::span<const uint16_t> semantic_fields(uint8_t cmd) {
   return {};
 }
 uint8_t field_profile(uint8_t cmd, uint32_t offset, bool dictionary) {
-  using namespace slpz_custom;
+  using namespace slippack_custom;
   if (dictionary) {
     return cmd == 0x37 && offset >= 24 ? Controller : Discrete;
   }
@@ -382,7 +382,7 @@ void ppc_branch_xform(uint8_t *p, size_t nWords, bool inverse) {
 // use zero so NaN payload bits remain literal and reconstruct exactly.
 static_assert(std::numeric_limits<float>::is_iec559 && sizeof(float) == 4);
 #ifdef __FAST_MATH__
-#error SLPZ v1 predictors require IEEE floating-point semantics
+#error SLIPPACK v1 predictors require IEEE floating-point semantics
 #endif
 float read_float(const uint8_t *p) {
   uint32_t u = be32(p);
@@ -453,7 +453,7 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       last[K] = actual;
       store(r + O, code);
     };
-#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+#if SLIPPACK_NEON && !defined(SLIPPACK_CUSTOM_SCALAR)
     // Paired fields preserve the scalar binary32 operation order without
     // spilling volatile intermediates to the stack.
     auto pair = [&](unsigned offset, unsigned stateIndex, bool extrapolate) {
@@ -534,7 +534,7 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       store(r + 33, code);
     }
   };
-#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+#if SLIPPACK_NEON && !defined(SLIPPACK_CUSTOM_SCALAR)
   // Both axes follow the same binary32 addition order. On inverse passes,
   // the restored attack velocities are already available in predictor state.
   if (size >= 72) {
@@ -779,4 +779,4 @@ void input_predict(uint8_t *data, uint32_t count, uint32_t size, bool inverse) {
   }
 }
 
-} // namespace slpz
+} // namespace slippack

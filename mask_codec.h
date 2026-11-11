@@ -1,7 +1,7 @@
 #pragma once
 #include "codec_types.h"
 
-namespace slpz_custom {
+namespace slippack_custom {
 // Two presence decisions per ANS symbol. Tables are derived deterministically
 // from the compact binary model, so no extra conditional histograms are stored.
 inline unsigned reverse2(unsigned v) {
@@ -441,4 +441,4 @@ inline Bytes decode_presence4(Reader &r, uint32_t count, View profiles, View ref
   return masks;
 }
 
-} // namespace slpz_custom
+} // namespace slippack_custom

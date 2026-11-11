@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace slpz {
+namespace slippack {
 using Bytes = std::vector<uint8_t>;
 using View = std::span<const uint8_t>;
 struct Error : std::runtime_error {
@@ -45,7 +45,7 @@ inline void append(Bytes &b, View v) {
 }
 struct Buf : Bytes {
   void put_u8(uint8_t v) { push_back(v); }
-  void put_u32(uint32_t v) { slpz::u32(*this, v); }
+  void put_u32(uint32_t v) { slippack::u32(*this, v); }
   void put_u64(uint64_t v) {
     for (unsigned i = 0; i < 8; ++i) {
       push_back(uint8_t(v >> (8 * i)));
@@ -141,4 +141,4 @@ template <class T> struct OutputAllocator : std::allocator<T> {
 };
 using OutputBytes = std::vector<uint8_t, OutputAllocator<uint8_t>>;
 
-} // namespace slpz
+} // namespace slippack

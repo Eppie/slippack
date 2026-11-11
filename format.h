@@ -3,8 +3,8 @@
 #include <array>
 #include <atomic>
 
-namespace slpz {
-constexpr uint32_t kMagic = 0x5A504C53; // "SLPZ" little-endian
+namespace slippack {
+constexpr uint32_t kMagic = 0x5A504C53; // "SLPZ" little-endian; retained v1 wire signature
 constexpr uint8_t kVersion = 1;
 constexpr uint8_t kOriginalVersion = 15; // identical payload before renumbering
 constexpr uint8_t kCustom = 6;           // tagged custom frame codec ID
@@ -23,4 +23,4 @@ struct Stats {
   std::atomic<uint64_t> seeds{0}, seedHit{0}, seedMiss{0};
 };
 
-} // namespace slpz
+} // namespace slippack

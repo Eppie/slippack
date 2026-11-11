@@ -13,11 +13,11 @@ the independently regenerated inputs. A compatibility reader can additionally
 check encoder agreement (apart from the version byte) at levels 1, 3, 7, and 9:
 
 ```sh
-python3 tests/test_archive.py --reference /path/to/slpz-compat
+python3 tests/test_archive.py --reference /path/to/slippack-compat
 ```
 
 To reproduce the fixture, use the `b66dd55` executable explicitly:
 
 ```sh
-python3 tests/test_archive.py --reference /path/to/slpz-compat --write-golden
+python3 tests/test_archive.py --reference /path/to/slippack-compat --write-golden
 ```

@@ -2,7 +2,7 @@
 #include "frames.h"
 #include <atomic>
 
-namespace slpz {
+namespace slippack {
 struct DictField {
   uint16_t offset;
   uint8_t width;              // 2 or 4 bytes
@@ -30,4 +30,4 @@ int cmd_selftest();
 
 std::span<const uint8_t> skip_packed(Reader &r, uint32_t size, uint64_t count = UINT64_MAX);
 
-} // namespace slpz
+} // namespace slippack

@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <utility>
 
-namespace slpz {
+namespace slippack {
 namespace fs = std::filesystem;
 namespace {
 class Fd {
@@ -87,7 +87,7 @@ void atomic_write(int parent, const std::string &name, View data, Overwrite poli
   std::string temporary;
   Fd output;
   for (unsigned attempt = 0; attempt < 128; ++attempt) {
-    temporary = ".slpz-tmp-" + std::to_string(::getpid()) + "-" + std::to_string(sequence++);
+    temporary = ".slippack-tmp-" + std::to_string(::getpid()) + "-" + std::to_string(sequence++);
     int fd = ::openat(parent, temporary.c_str(),
                       O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0644);
     if (fd >= 0) {
@@ -279,4 +279,4 @@ void ExtractionWriter::submit(DecodedFile file) {
 void ExtractionWriter::finish() {
   impl_->finish();
 }
-} // namespace slpz
+} // namespace slippack

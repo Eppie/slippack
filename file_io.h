@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <memory>
 
-namespace slpz {
+namespace slippack {
 enum class Overwrite { Refuse, Replace };
 Bytes read_file(const std::filesystem::path &path, uint64_t limit = UINT32_MAX);
 // Writes a complete sibling temporary file, then atomically installs it.
@@ -23,4 +23,4 @@ public:
   void submit(DecodedFile file); // concurrent; bounded queue with backpressure
   void finish();                 // joins writers and propagates errors; destructor cancels
 };
-} // namespace slpz
+} // namespace slippack

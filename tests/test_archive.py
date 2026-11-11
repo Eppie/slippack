@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 repo = Path(__file__).resolve().parents[1]
-binary = repo / 'slpz'
+binary = repo / 'slippack'
 golden = repo / 'tests/fixtures/v15-custom.slpz'
 
 def replay(post_size=84, unused=False):
@@ -95,7 +95,7 @@ def main():
         parser.error('--write-golden requires --reference')
     fixtures = make_fixtures()
     expected = sorted(hashlib.sha1(data).hexdigest() + '  ' + name for name, data in fixtures.items())
-    with tempfile.TemporaryDirectory(prefix='slpz-integration-') as temporary:
+    with tempfile.TemporaryDirectory(prefix='slippack-integration-') as temporary:
         work = Path(temporary)
         for name, data in fixtures.items():
             target = work / name
@@ -106,36 +106,36 @@ def main():
             golden.parent.mkdir(exist_ok=True)
             run([reference, 'c', '--codec', 'custom', '-l', 3, '-T', 2, '-o', golden, '@list.txt'], cwd=work)
         verify(golden, work, expected, fixtures, 'golden-v15')
-        renamed = work / 'golden-v1.slpz'
+        renamed = work / 'golden-v1.slippack'
         old_bytes = golden.read_bytes()
         assert old_bytes[:6] == b'SLPZ\x0f\x01'
         renamed.write_bytes(old_bytes[:4] + b'\x01' + old_bytes[5:])
         verify(renamed, work, expected, fixtures, 'golden-v1')
         for level in (1, 3, 7, 9):
-            archive = work / f'custom-{level}.slpz'
+            archive = work / f'custom-{level}.slippack'
             run([binary, 'c', '-l', level, '-T', 2, '-o', archive, '@list.txt'], cwd=work)
             assert archive.read_bytes()[:6] == b'SLPZ\x01\x01', 'new archives must use v1'
             verify(archive, work, expected, fixtures, f'out-{level}')
             if reference:
-                baseline = work / f'reference-{level}.slpz'
+                baseline = work / f'reference-{level}.slippack'
                 run([reference, 'c', '--codec', 'custom', '-l', level, '-T', 2,
                      '-o', baseline, '@list.txt'], cwd=work)
                 current = archive.read_bytes()
                 original_header = current[:4] + b'\x0f' + current[5:]
                 assert original_header == baseline.read_bytes(), f'payload changed at level {level}'
                 # The old reader understands the identical payload with its original header.
-                compatible = work / f'compatible-{level}.slpz'
+                compatible = work / f'compatible-{level}.slippack'
                 compatible.write_bytes(original_header)
                 result = run([reference, 'hash', compatible, '-T', 2], text=True)
                 assert sorted(result.stdout.splitlines()) == expected
-        declaration = work / 'declaration.slpz'
+        declaration = work / 'declaration.slippack'
         run([binary, 'c', '--codec', 'custom', '-o', declaration, 'declared-only.slp'], cwd=work)
         assert declaration.stat().st_size < 512, 'unused declarations expanded into empty planes'
         # Reject unsupported versions/backends before creating extracted files.
         original = golden.read_bytes()
         for version, flags in ([(v, f) for v in (0, *range(2, 15), 16) for f in (0, 1)]
                                + [(v, f) for v in (1, 15) for f in (0, 2, 3, 255)]):
-            rejected = work / f'rejected-{version}-{flags}.slpz'
+            rejected = work / f'rejected-{version}-{flags}.slippack'
             rejected.write_bytes(original[:4] + bytes([version, flags]) + original[6:])
             output = work / f'rejected-{version}-{flags}'
             result = subprocess.run([str(binary), 'x', str(rejected), '-d', str(output)],
@@ -143,7 +143,7 @@ def main():
             assert result.returncode == 1 and 'requires v1 custom' in result.stderr
             assert not output.exists()
         for codec in ('legacy', 'tuned'):
-            output = work / f'{codec}.slpz'
+            output = work / f'{codec}.slippack'
             result = subprocess.run([str(binary), 'c', '--codec', codec, '-o', str(output), 'valid.slp'],
                                     cwd=work, capture_output=True, text=True)
             assert result.returncode == 1 and 'only the custom codec' in result.stderr

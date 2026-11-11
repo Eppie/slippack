@@ -12,17 +12,17 @@
 #include <limits>
 #include <memory>
 #include <random>
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
 #include <arm_neon.h>
-#define SLPZ_NEON 1
+#define SLIPPACK_NEON 1
 #else
-#define SLPZ_NEON 0
+#define SLIPPACK_NEON 0
 #endif
 
-namespace slpz {
+namespace slippack {
 template <unsigned Rows = 16, unsigned Cols = 16>
 static inline void tile16(const uint8_t *src, size_t sStride, uint8_t *dst, size_t dStride) {
-#if SLPZ_NEON
+#if SLIPPACK_NEON
   uint8x16_t x[16];
   for (unsigned k = 0; k < 16; ++k) {
     if (k >= Rows) {
@@ -238,7 +238,7 @@ template <bool XOR> static void delta_fwd(uint8_t *p, size_t n) {
   if (n < 2) {
     return;
   }
-#if SLPZ_NEON
+#if SLIPPACK_NEON
   size_t pos = n;
   while (pos >= 17) {
     pos -= 16;
@@ -257,7 +257,7 @@ template <bool XOR> static void delta_fwd(uint8_t *p, size_t n) {
 
 // inclusive scan undoing delta_fwd (Hillis–Steele within a vector + carry)
 template <bool XOR> static void scan_rev(uint8_t *p, size_t n) {
-#if SLPZ_NEON
+#if SLIPPACK_NEON
   const uint8x16_t zero = vdupq_n_u8(0);
   uint8x16_t carry = zero;
   auto combine = [](uint8x16_t a, uint8x16_t b) { return XOR ? veorq_u8(a, b) : vaddq_u8(a, b); };
@@ -304,7 +304,7 @@ static const float *xlog2x_lut() {
 // Return the transform with the lowest estimated order-0 entropy.
 static uint8_t choose_transform(const uint8_t *plane, uint32_t count) {
   // Constant planes have an explicit compact representation.
-  if (slpz_custom::is_constant({plane, count})) {
+  if (slippack_custom::is_constant({plane, count})) {
     return T_PLAIN;
   }
 
@@ -507,7 +507,7 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
     std::vector<unsigned> alphabets(size, 0);
     constexpr unsigned limit = 128;
     for (unsigned o = 0; o < size; ++o) {
-      constant[o] = slpz_custom::is_constant({planes.data() + size_t(o) * count, count});
+      constant[o] = slippack_custom::is_constant({planes.data() + size_t(o) * count, count});
     }
     Buf idxPlane;
     // Preserve complete semantic fields before considering sliding windows.
@@ -662,13 +662,13 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       for (auto b : candidates[t]) {
         ++hist[b];
       }
-      double c = slpz_custom::context_cost(hist);
+      double c = slippack_custom::context_cost(hist);
       if (c < cost) {
         cost = c;
         best = t;
       }
     }
-    small_compress(candidates[best], std::min(level, 3), dictionary, slpz_custom::Discrete);
+    small_compress(candidates[best], std::min(level, 3), dictionary, slippack_custom::Discrete);
     if (dictionary.size() < dictionaryBytes) {
       dictionaryTransform = uint8_t(best + 1);
     }
@@ -737,7 +737,7 @@ void expand_dictionary(const DictField &f, const uint8_t *indexes, uint32_t coun
     return;
   }
   unsigned maximum = 0, i = 0;
-#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+#if SLIPPACK_NEON && !defined(SLIPPACK_CUSTOM_SCALAR)
   auto maxes = vdupq_n_u8(0);
   for (; i + 16 <= count; i += 16) {
     maxes = vmaxq_u8(maxes, vld1q_u8(indexes + i));
@@ -752,7 +752,7 @@ void expand_dictionary(const DictField &f, const uint8_t *indexes, uint32_t coun
   }
 
   i = 0;
-#if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
+#if SLIPPACK_NEON && !defined(SLIPPACK_CUSTOM_SCALAR)
   if (f.vals.size() <= 64) {
     uint8_t tables[W][64] = {};
     for (unsigned v = 0; v < f.vals.size(); ++v) {
@@ -1077,4 +1077,4 @@ template void expand_dictionary<4>(const DictField &, const uint8_t *, uint32_t,
 template void unpack_records<Bytes>(Reader &, uint32_t, uint32_t, Bytes &);
 template void unpack_records<OutputBytes>(Reader &, uint32_t, uint32_t, OutputBytes &);
 
-} // namespace slpz
+} // namespace slippack

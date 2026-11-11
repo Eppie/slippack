@@ -11,15 +11,16 @@
 #include <thread>
 
 namespace fs = std::filesystem;
-using namespace slpz;
+using namespace slippack;
 namespace {
 [[noreturn]] void usage() {
   fail("usage:\n"
-       "  slpz c -o out.slpz [-l level] [-T threads] [-v] [--overwrite] <file.slp...|@listfile>\n"
-       "  slpz x archive.slpz -d outdir [-T threads] [--overwrite]\n"
-       "  slpz t archive.slpz [-T threads]\n"
-       "  slpz hash archive.slpz [-T threads]   (sha1 per file, shasum format)\n"
-       "  slpz selftest\n"
+       "  slippack c -o out.slippack [-l level] [-T threads] [-v] [--overwrite] "
+       "<file.slp...|@listfile>\n"
+       "  slippack x archive.slippack -d outdir [-T threads] [--overwrite]\n"
+       "  slippack t archive.slippack [-T threads]\n"
+       "  slippack hash archive.slippack [-T threads]   (sha1 per file, shasum format)\n"
+       "  slippack selftest\n"
        "  Decode limits: --max-archive-mib N --max-file-mib N --max-output-mib N\n"
        "                 --max-frame-mib N --max-pool-mib N --max-metadata-mib N --wave-mib N");
 }
@@ -133,7 +134,7 @@ int run(int argc, char **argv) {
       paths.emplace_back(argument);
     }
   }
-  if (std::getenv("SLPZ_TIMING")) {
+  if (std::getenv("SLIPPACK_TIMING")) {
     encode.on_phase = decode.on_phase = [](std::string_view phase, double seconds) {
       fprintf(stderr, "  [%.*s] %.3fs\n", int(phase.size()), phase.data(), seconds);
     };
@@ -148,7 +149,7 @@ int run(int argc, char **argv) {
     }
     auto result = encode_archive(inputs, encode);
     write_file(out, result.bytes, overwrite);
-    fprintf(stderr, "slpz: %zu files, %.1f MB -> %.1f MB (%.2f%%)\n", inputs.size(),
+    fprintf(stderr, "slippack: %zu files, %.1f MB -> %.1f MB (%.2f%%)\n", inputs.size(),
             result.original_bytes / 1e6, result.bytes.size() / 1e6,
             result.original_bytes ? 100.0 * result.bytes.size() / result.original_bytes : 0.0);
     if (encode.collect_stats) {
@@ -179,7 +180,7 @@ int run(int argc, char **argv) {
         printf("%s  %s\n", entry.sha1.c_str(), entry.name.c_str());
       }
     }
-    fprintf(stderr, "slpz: %s %zu files\n",
+    fprintf(stderr, "slippack: %s %zu files\n",
             mode == "x"   ? "extracted"
             : mode == "t" ? "tested"
                           : "hashed",
@@ -194,7 +195,7 @@ int main(int argc, char **argv) {
   try {
     return run(argc, argv);
   } catch (const std::exception &error) {
-    fprintf(stderr, "slpz: %s\n", error.what());
+    fprintf(stderr, "slippack: %s\n", error.what());
     return 1;
   }
 }

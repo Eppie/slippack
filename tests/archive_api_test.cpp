@@ -8,7 +8,7 @@
 #include <mutex>
 #include <set>
 
-using namespace slpz;
+using namespace slippack;
 static size_t checks = 0;
 static void check(bool ok, const char *why) {
   if (!ok) {

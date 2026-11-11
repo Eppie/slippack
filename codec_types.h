@@ -1,6 +1,6 @@
 #pragma once
 
-// SLPZ custom payload codec. No compression-library dependency.
+// SLIPPACK custom payload codec. No compression-library dependency.
 // Four interleaved byte-rANS states, semantic literal contexts, explicit
 // constant/sparse/run modes, and a bounded lazy LZ parser.
 #include <algorithm>
@@ -14,13 +14,13 @@
 #include <span>
 #include <stdexcept>
 #include <vector>
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
 #include <arm_neon.h>
 #endif
 
 #include "binary_io.h"
 
-namespace slpz_custom {
+namespace slippack_custom {
 using Bytes = std::vector<uint8_t>;
 using View = std::span<const uint8_t>;
 enum Profile : uint8_t {
@@ -34,13 +34,13 @@ enum Profile : uint8_t {
   Discrete,
   ProfileCount
 };
-using slpz::append;
-using slpz::Error;
-using slpz::narrow;
-using slpz::Reader;
-using slpz::require;
-using slpz::u32;
-using slpz::varint;
+using slippack::append;
+using slippack::Error;
+using slippack::narrow;
+using slippack::Reader;
+using slippack::require;
+using slippack::u32;
+using slippack::varint;
 
 struct Model {
   std::array<uint32_t, 256> hist{};
@@ -83,4 +83,4 @@ struct Model {
   }
 };
 
-} // namespace slpz_custom
+} // namespace slippack_custom

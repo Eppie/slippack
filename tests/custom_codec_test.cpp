@@ -5,7 +5,7 @@
 #include <fstream>
 #include <random>
 
-using namespace slpz_custom;
+using namespace slippack_custom;
 int main(int argc, char **argv) {
   std::mt19937 random(716018);
   size_t checks = 0;

@@ -26,3 +26,9 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# Slippack executable, archives, and fuzz targets
+/slippack
+*.slippack
+/fuzz/slippack_fuzz_*
+/benchmarks/2026-11-10-single-file/rust/target/

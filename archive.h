@@ -4,7 +4,7 @@
 #include <functional>
 #include <string_view>
 
-namespace slpz {
+namespace slippack {
 // All limits are per operation. Wave size is an admission target, not an RSS
 // limit: the input, pools, codec scratch, and sink-owned files also occupy RAM.
 struct DecodeLimits {
@@ -71,4 +71,4 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs,
 DecodeResult decode_archive(View archive, const DecodeOptions &options = {}, FileSink sink = {});
 // Canonical, portable relative paths; throws on traversal or ambiguous names.
 std::string archive_name(std::string_view name);
-} // namespace slpz
+} // namespace slippack

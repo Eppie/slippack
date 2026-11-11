@@ -1,4 +1,4 @@
-# SLPZ v1 custom codec
+# SLIPPACK v1 custom codec
 
 The writer emits version 1 with header flags exactly 1. The reader accepts
 versions 1 and 15 as aliases for the same payload format. The custom rANS/LZ
@@ -408,6 +408,6 @@ No tests require external compression libraries. See `fuzz/README.md`.
 
 Historical benchmark scripts compare the backends available at their recorded
 commits. They warm inputs, retain timing samples, and verify decoded hashes.
-Decode timings use `slpz t`, including reconstruction and excluding writes.
+Decode timings use `slippack t`, including reconstruction and excluding writes.
 Results depend on hardware, level, and dataset. Earlier prototypes and negative
 results are retained under `benchmarks/` and in Git history.

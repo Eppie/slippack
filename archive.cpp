@@ -10,7 +10,7 @@
 #include <thread>
 #include <variant>
 
-namespace slpz {
+namespace slippack {
 
 std::string archive_name(std::string_view name) {
   require(!name.empty() && name.front() != '/', "unsafe archive path");
@@ -68,11 +68,11 @@ static void pack_blob(std::span<const uint8_t> data, int level, Buf &blob,
                       std::atomic<uint64_t> *stat) {
   size_t before = blob.size();
   Buf flat, ppc;
-  custom_frame(data, flat, slpz_custom::Generic, level);
+  custom_frame(data, flat, slippack_custom::Generic, level);
   if (data.size() >= 65536) {
     std::vector<uint8_t> xf(data.begin(), data.end());
     ppc_branch_xform(xf.data(), xf.size() / 4, false);
-    custom_frame(xf, ppc, slpz_custom::Generic, level);
+    custom_frame(xf, ppc, slippack_custom::Generic, level);
   }
   bool usePpc = !ppc.empty() && ppc.size() < flat.size();
   blob.put_u8(usePpc ? 4 : 2);
@@ -179,7 +179,7 @@ static void plan_blob(FilePlan &fp, std::span<const uint8_t> data, int level,
     Buf &b = fp.live();
     size_t at = b.size();
     b.put_u8(0);
-    custom_frame(data, b, slpz_custom::Generic, level);
+    custom_frame(data, b, slippack_custom::Generic, level);
     if (stat) {
       *stat += b.size() - at;
     }
@@ -236,7 +236,7 @@ static void plan_compress(FilePlan &fp, int level) {
   {
     Buf &b = fp.live();
     size_t before = b.size();
-    small_compress(fp.slp.order, level, b, slpz_custom::Discrete);
+    small_compress(fp.slp.order, level, b, slippack_custom::Discrete);
     if (stats) {
       stats->order += b.size() - before;
       stats->misc += kSlpHeaderLen + 1 + fp.slp.payloadsEvent.size();
@@ -344,7 +344,7 @@ static void plan_compress(FilePlan &fp, int level) {
       b.put_u8(flags);
       if (flags & 2) {
         size_t before = b.size();
-        small_compress(seedStream, level, b, slpz_custom::Rng);
+        small_compress(seedStream, level, b, slippack_custom::Rng);
         if (stats) {
           stats->seeds += b.size() - before;
         }
@@ -357,7 +357,7 @@ static void plan_compress(FilePlan &fp, int level) {
     {
       Buf &b = fp.live();
       size_t before = b.size();
-      small_compress(selector, level, b, slpz_custom::Discrete);
+      small_compress(selector, level, b, slippack_custom::Discrete);
       if (stats) {
         stats->selector += b.size() - before;
       }
@@ -374,7 +374,7 @@ static void run_pack_task(PackTask &t, int level) {
       [&](const auto &work) {
         using Work = std::decay_t<decltype(work)>;
         if constexpr (std::is_same_v<Work, RawWork>) {
-          auto n = custom_frame(work.data, out, slpz_custom::Generic, level);
+          auto n = custom_frame(work.data, out, slippack_custom::Generic, level);
           if (t.stat) {
             *t.stat += n;
           }
@@ -385,9 +385,9 @@ static void run_pack_task(PackTask &t, int level) {
           if (work.ppc) {
             Bytes transformed(work.data.begin(), work.data.end());
             ppc_branch_xform(transformed.data(), transformed.size() / 4, false);
-            custom_frame(transformed, out, slpz_custom::Generic, level);
+            custom_frame(transformed, out, slippack_custom::Generic, level);
           } else {
-            custom_frame(work.data, out, slpz_custom::Generic, level);
+            custom_frame(work.data, out, slippack_custom::Generic, level);
           }
           if (t.stat) {
             *t.stat += out.size() - at;
@@ -1079,11 +1079,11 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   Reader r(arc);
   r.output_limit = options.limits.frame_bytes;
   if (r.u32() != kMagic) {
-    fail("not a slpz archive");
+    fail("not a slippack archive");
   }
   uint8_t version = r.u8(), flags = r.u8();
   if ((version != kVersion && version != kOriginalVersion) || flags != 1) {
-    fail("unsupported slpz format (requires v1 custom or its original v15 header; use the "
+    fail("unsupported slippack format (requires v1 custom or its original v15 header; use the "
          "compatibility reader for older formats)");
   }
   MetadataBudget metadata(options.limits.metadata_bytes);
@@ -1242,4 +1242,4 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   return result;
 }
 
-} // namespace slpz
+} // namespace slippack

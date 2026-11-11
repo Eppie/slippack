@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <random>
-using namespace slpz;
+using namespace slippack;
 
 static size_t checks = 0;
 static void check(bool ok, const char *why) {

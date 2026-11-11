@@ -1,4 +1,4 @@
-# slpz — Slippi replay solid-archive compressor
+# Slippack — Slippi replay compressor
 
 Losslessly packs many `.slp` replays into one archive. It uses Slippi event
 structure, cross-frame and controller prediction, field dictionaries, shared
@@ -8,6 +8,12 @@ original file bytes, including metadata, malformed input, and unknown events.
 The executable reads and writes **v1 custom archives**. Custom compression is
 the default and only backend. No zstd, LZMA, or Brotli libraries are required.
 
+Slippack was previously named `slpz`. It is a separate project from
+[Alexander Harrison's slpz](https://github.com/AlexanderHarrison/slpz), whose
+single-replay `.slpz` files use a different format. Use `.slippack` for new
+Slippack archives. Our existing archives still decode without conversion;
+the v1 wire signature remains `SLPZ` and the format version remains 1.
+
 ## Build and use
 
 A C++20 compiler is required. macOS uses the system CommonCrypto implementation
@@ -15,12 +21,12 @@ for SHA-1; Linux requires OpenSSL development headers and `libcrypto`.
 
 ```sh
 make
-./slpz c -o out.slpz -l 3 -T 16 file1.slp file2.slp
-./slpz c -o out.slpz --overwrite @listfile
-./slpz x out.slpz -d outdir       # extract, recreating stored paths
-./slpz t out.slpz                 # decode in memory without writing files
-./slpz hash out.slpz              # SHA-1 per file in shasum format
-./slpz selftest
+./slippack c -o out.slippack -l 3 -T 16 file1.slp file2.slp
+./slippack c -o out.slippack --overwrite @listfile
+./slippack x out.slippack -d outdir       # extract, recreating stored paths
+./slippack t out.slippack                 # decode in memory without writing files
+./slippack hash out.slippack              # SHA-1 per file in shasum format
+./slippack selftest
 make check
 ```
 
@@ -91,18 +97,18 @@ See [CUSTOM_FORMAT.md](CUSTOM_FORMAT.md) for the format and predictor details.
 
 ## Code structure and library API
 
-The build produces `build/libslpz.a` alongside the CLI. [archive.h](archive.h)
+The build produces `build/libslippack.a` alongside the CLI. [archive.h](archive.h)
 is the application interface: `encode_archive` accepts named input loaders and
 returns owned archive bytes and statistics; `decode_archive` borrows archive
 bytes, returns ordered entry information, and optionally sends owned decoded
 files to a sink. Loaders and sinks may run concurrently. They must keep captures
 alive for the call and synchronize shared state. No callbacks outlive a call.
-Failures throw `slpz::Error` (or propagate callback/allocation exceptions) after
+Failures throw `slippack::Error` (or propagate callback/allocation exceptions) after
 workers join; the CLI alone translates failures into diagnostics and exit codes.
 
 | Module | Responsibility |
 |---|---|
-| `slpz.cpp` | CLI parsing, reporting, connecting loaders and sinks |
+| `slippack.cpp` | CLI parsing, reporting, connecting loaders and sinks |
 | `archive.h/.cpp` | v1 container, validation, scheduling, per-operation options/stats |
 | `file_io.h/.cpp` | bounded writer queue, safe directory traversal, atomic file output |
 | `slp.h/.cpp` | Slippi parsing, RNG folding, replay predictors, PPC transform |
@@ -130,11 +136,11 @@ previous reader does not recognize the new v1 header; current readers accept
 both headers through the same decoding path.
 
 The last reader supporting v9–v15 and all three backends is commit
-[`b66dd55`](https://github.com/Eppie/slpz/tree/b66dd55). To build it separately:
+[`b66dd55`](https://github.com/Eppie/slippack/tree/b66dd55). To build it separately:
 
 ```sh
-git worktree add --detach ../slpz-compat b66dd55
-make -C ../slpz-compat
+git worktree add --detach ../slippack-compat b66dd55
+make -C ../slippack-compat
 ```
 
 That checkout includes the old migration tools and requires zstd, LZMA, and

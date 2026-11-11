@@ -3,7 +3,7 @@
 #include "mask_codec.h"
 #include "static_context.h"
 
-namespace slpz_custom {
+namespace slippack_custom {
 
 // Context IDs are derived from the reconstructed plane layout, never stored
 // once per literal. A model is serialized only when its actual size wins.
@@ -666,7 +666,7 @@ inline Bytes decode(View packed, uint32_t n, Profile profile = Generic) {
 
 inline uint8_t dominant_byte(View input) {
   size_t zeros = 0, i = 0;
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
   for (; i + 16 <= input.size(); i += 16) {
     zeros += vaddvq_u8(vshrq_n_u8(vceqq_u8(vld1q_u8(input.data() + i), vdupq_n_u8(0)), 7));
   }
@@ -686,7 +686,7 @@ inline uint8_t dominant_byte(View input) {
 inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes &out,
                                std::span<const uint32_t> indexes = {}) {
   size_t width = (size_t(count) + 7) / 8, v = 0;
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
   struct UnpackTable {
     std::array<std::array<uint8_t, 8>, 256> indexes;
     std::array<uint8_t, 256> counts{};
@@ -707,7 +707,7 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
     size_t i = 0;
     uint8_t base = bases[j * 2];
     uint8_t *destination = out.data() + size_t(indexes.empty() ? j : indexes[j]) * count;
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
     auto constant = vdup_n_u8(base), missing = vdup_n_u8(255);
     for (; i + 8 <= count; i += 8) {
       unsigned bits = masks[j * width + i / 8];
@@ -727,7 +727,7 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
 inline void extract_exceptions(View plane, uint8_t base, Bytes &mask, Bytes &values) {
   size_t start = values.size(), used = start, i = 0;
   values.resize(start + plane.size() + 8);
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
   struct PackTable {
     std::array<std::array<uint8_t, 8>, 256> indexes;
     std::array<uint8_t, 256> counts{};
@@ -1003,4 +1003,4 @@ inline Bytes decode_planes(View packed, uint32_t expected) {
   r.done();
   return output;
 }
-} // namespace slpz_custom
+} // namespace slippack_custom

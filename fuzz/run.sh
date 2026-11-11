@@ -1,5 +1,5 @@
 #!/bin/bash
-# Launch a slpz fuzz target in libFuzzer fork mode (parallel, crash-tolerant,
+# Launch a slippack fuzz target in libFuzzer fork mode (parallel, crash-tolerant,
 # continuous — the AFL-like mode). Streams stats to the terminal AND to
 # logs/<target>.log, which fuzz/dash.py renders as a live status screen.
 #
@@ -14,7 +14,7 @@ cd "$(dirname "$0")"
 target=${1:?usage: run.sh <parse|roundtrip|dictionary|predictors|archive> [seconds]}
 secs=${2:-0}   # 0 = run until Ctrl-C
 
-binname="slpz_fuzz_$target"
+binname="slippack_fuzz_$target"
 bin="./$binname"
 [[ -x "$bin" ]] || { echo "building..."; ./build.sh; }
 
@@ -65,10 +65,10 @@ verbose=""; [[ "${VERBOSE:-0}" != 0 ]] && verbose="-verbosity=2 -print_pcs=1"
 # but the right mode for watching how it explores.
 if [[ "$forks" -le 0 ]]; then
   modeflag=""
-  echo "target=$target MODE=single-process max_len=$maxlen level=${SLPZ_FUZZ_LEVEL:-3} seeds=$seeds"
+  echo "target=$target MODE=single-process max_len=$maxlen level=${SLIPPACK_FUZZ_LEVEL:-3} seeds=$seeds"
 else
   modeflag="-fork=$forks -ignore_crashes=1"
-  echo "target=$target forks=$forks max_len=$maxlen level=${SLPZ_FUZZ_LEVEL:-3} vp=${VP:-1} seeds=$seeds"
+  echo "target=$target forks=$forks max_len=$maxlen level=${SLIPPACK_FUZZ_LEVEL:-3} vp=${VP:-1} seeds=$seeds"
 fi
 echo "dashboard:  ./dash.py $target   (log: logs/$target.log)"
 

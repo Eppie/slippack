@@ -1,8 +1,8 @@
 #pragma once
 #include "codec_types.h"
 
-namespace slpz_custom {
-// Included inside slpz_custom. Static byte-context trees keep decoding to one
+namespace slippack_custom {
+// Included inside slippack_custom. Static byte-context trees keep decoding to one
 // table lookup per byte; only useful splits (including table cost) are stored.
 struct ContextTree {
   std::array<uint32_t, 256> hist{};
@@ -285,4 +285,4 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts) {
   return out;
 }
 
-} // namespace slpz_custom
+} // namespace slippack_custom

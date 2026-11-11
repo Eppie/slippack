@@ -16,6 +16,6 @@ done
 names=(parse roundtrip dictionary predictors archive)
 for target in 1 2 3 4 5; do
   name=${names[$((target - 1))]}
-  echo "building slpz_fuzz_$name..."
-  $CXX $FLAGS -DFUZZ_TARGET=$target slpz_fuzz.cpp $OBJECTS $LIBS -o "slpz_fuzz_$name"
+  echo "building slippack_fuzz_$name..."
+  $CXX $FLAGS -DFUZZ_TARGET=$target slippack_fuzz.cpp $OBJECTS $LIBS -o "slippack_fuzz_$name"
 done
