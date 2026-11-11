@@ -16,7 +16,7 @@ for SHA-1; Linux requires OpenSSL development headers and `libcrypto`.
 ```sh
 make
 ./slpz c -o out.slpz -l 3 -T 16 file1.slp file2.slp
-./slpz c -o out.slpz @listfile
+./slpz c -o out.slpz --overwrite @listfile
 ./slpz x out.slpz -d outdir       # extract, recreating stored paths
 ./slpz t out.slpz                 # decode in memory without writing files
 ./slpz hash out.slpz              # SHA-1 per file in shasum format
@@ -27,7 +27,34 @@ make check
 List files contain one input path per line. `-T` sets the thread count
 (default: available hardware threads). `-v` prints compressed bytes by section.
 `--codec custom` remains accepted for existing scripts; `legacy` and `tuned`
-are rejected.
+are rejected. Use `--` before filenames that start with a dash.
+
+Source paths and archive names are separate. Relative paths retain their
+subdirectories; absolute paths and paths outside the working directory use
+basenames. Harmless `./` prefixes already stored in archives are preserved.
+Duplicate names and file/directory conflicts are rejected.
+
+Both creation and extraction refuse to overwrite existing files by default.
+Pass `--overwrite` to replace regular files. Outputs are written to sibling
+temporary files and installed atomically; extraction never follows symlinks
+inside the selected destination. Archive members containing absolute paths,
+parent traversal, backslashes, drive prefixes, NULs, or line breaks are rejected.
+The destination root chosen by the caller is resolved once, including platform
+aliases such as macOS `/var`. Each file is atomic; a failed multi-file extraction
+can leave earlier completed files in place. Atomic installation does not promise
+power-loss durability.
+
+Decoding checks counts, sizes, and record shapes before allocating. Default
+limits are 8 GiB of archive input, 16 GiB per decoded file, 1 TiB total decoded
+output, just under 4 GiB per frame/record packet (the v1 frame maximum), 2 GiB of
+shared pool output, and 512 MiB
+for descriptors plus admitted side-stream metadata. The CLI exposes
+`--max-archive-mib`, `--max-file-mib`, `--max-output-mib`, `--max-frame-mib`,
+`--max-pool-mib`, and `--max-metadata-mib`. `--wave-mib` changes the default
+2 GiB decoded-output admission target. These are validation and scheduling
+limits, not a process RSS cap: input, pool buffers, record pointers, codec
+scratch, and queued writes also occupy memory. Additional count limits are
+explicit in `DecodeLimits` in [archive.h](archive.h).
 
 `-l` controls the custom LZ search effort:
 
@@ -36,7 +63,7 @@ are rejected.
 | 1–2 | 2 |
 | 3–5 (default 3) | 4, with lazy parsing |
 | 6–8 | 8 |
-| 9+ | 24 |
+| 9–12 | 24 |
 
 ## How it works
 
@@ -61,6 +88,35 @@ Silicon, with scalar paths on other architectures. Float predictors require
 IEEE binary32 round-to-nearest; fast-math builds are unsupported.
 
 See [CUSTOM_FORMAT.md](CUSTOM_FORMAT.md) for the format and predictor details.
+
+## Code structure and library API
+
+The build produces `build/libslpz.a` alongside the CLI. [archive.h](archive.h)
+is the application interface: `encode_archive` accepts named input loaders and
+returns owned archive bytes and statistics; `decode_archive` borrows archive
+bytes, returns ordered entry information, and optionally sends owned decoded
+files to a sink. Loaders and sinks may run concurrently. They must keep captures
+alive for the call and synchronize shared state. No callbacks outlive a call.
+Failures throw `slpz::Error` (or propagate callback/allocation exceptions) after
+workers join; the CLI alone translates failures into diagnostics and exit codes.
+
+| Module | Responsibility |
+|---|---|
+| `slpz.cpp` | CLI parsing, reporting, connecting loaders and sinks |
+| `archive.h/.cpp` | v1 container, validation, scheduling, per-operation options/stats |
+| `file_io.h/.cpp` | bounded writer queue, safe directory traversal, atomic file output |
+| `slp.h/.cpp` | Slippi parsing, RNG folding, replay predictors, PPC transform |
+| `record_codec.h/.cpp` | transpose/delta kernels, dictionary coding, shared packet parser |
+| `frames.h/.cpp` | frame envelopes around the payload codec |
+| `custom_codec.h`, `mask_codec.h`, `static_context.h` | self-contained payload coding headers |
+| `binary_io.h`, `codec_types.h` | checked little-endian reading, varints, shared codec types |
+| `parallel.h`, `platform.h/.cpp` | joining workers/error propagation, SHA-1 and allocator helpers |
+
+Internal task payloads explicitly identify their work. Borrowed spans remain
+valid until their owning plan's final task completes. Statistics and budgets
+belong to each operation; concurrent calls and repeated calls after an error
+are tested. Predictor operations establish round-to-nearest and restore the
+caller's floating-point mode. The optimized kernels retain scalar alternatives.
 
 ## Compatibility
 
@@ -88,7 +144,9 @@ legacy implementation; the latest code is on `custom-codec`.
 ## Validation and benchmarks
 
 `make check` covers custom packets, dictionary framing, scalar predictor
-oracles, exact extraction, unsupported-format rejection, and a committed
+oracles, exception propagation, concurrent/repeated library calls, path and
+symlink confinement, atomic overwrites, limits, exact extraction, unsupported-format
+rejection, and a committed
 original-v15 fixture made by the pre-cleanup encoder. Fuzzing instructions are in
 [fuzz/README.md](fuzz/README.md).
 

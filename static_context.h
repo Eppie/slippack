@@ -1,3 +1,7 @@
+#pragma once
+#include "codec_types.h"
+
+namespace slpz_custom {
 // Included inside slpz_custom. Static byte-context trees keep decoding to one
 // table lookup per byte; only useful splits (including table cost) are stored.
 struct ContextTree {
@@ -238,3 +242,5 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
   for (auto x : state) require(x == (1u << 23), "context terminal state");
   return out;
 }
+
+}  // namespace slpz_custom

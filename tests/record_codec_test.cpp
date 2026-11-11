@@ -1,40 +1,30 @@
 // Exercise dictionary transforms, vector lookup boundaries, framing, and
 // malformed metadata in the actual record decoder (including its scanner).
-#define SLPZ_FUZZ 1
-#include "../slpz.cpp"
-#include <sys/wait.h>
+#include "../record_codec.h"
+#include <algorithm>
+#include <cfenv>
+#include <cmath>
+#include <cstdio>
+#include <random>
+using namespace slpz;
 
 static size_t checks = 0;
-static void check(bool ok, const char* why) {
-  if (!ok) { fprintf(stderr, "record test: %s\n", why); abort(); }
+static void check(bool ok, const char *why) {
+  if (!ok) {
+    fprintf(stderr, "record test: %s\n", why);
+    abort();
+  }
   ++checks;
 }
 
-template<class F> static void rejects(F fn) {
-  int output[2];
-  check(pipe(output) == 0, "pipe");
-  fflush(nullptr);
-  pid_t child = fork();
-  check(child >= 0, "fork");
-  if (child == 0) {
-    close(output[0]);
-    if (dup2(output[1], STDERR_FILENO) < 0) _Exit(2);
-    close(output[1]);
+template <class F> static void rejects(F fn) {
+  try {
     fn();
-    _Exit(0);
+  } catch (const Error &) {
+    ++checks;
+    return;
   }
-  close(output[1]);
-  std::string diagnostic;
-  char buffer[1024];
-  ssize_t bytes;
-  while ((bytes = read(output[0], buffer, sizeof(buffer))) > 0)
-    diagnostic.append(buffer, size_t(bytes));
-  close(output[0]);
-  int status = 0;
-  check(waitpid(child, &status, 0) == child, "waitpid");
-  check(WIFEXITED(status) && WEXITSTATUS(status) == 1 &&
-            diagnostic.starts_with("slpz: corrupt"),
-        "malformed metadata accepted/crashed");
+  check(false, "malformed metadata accepted");
 }
 
 int main() {
@@ -46,7 +36,8 @@ int main() {
         field.vals.push_back(random() & (width == 2 ? 0xffffu : 0xffffffffu));
       for (unsigned count : {1u, 7u, 15u, 16u, 17u, 31u, 64u, 257u, 1025u}) {
         field.idx.resize(count);
-        for (auto& v : field.idx) v = random() % nvals;
+        for (auto &v : field.idx)
+          v = random() % nvals;
         std::vector<uint8_t> expected(count * width), actual(expected.size());
         for (unsigned b = 0; b < width; ++b)
           for (unsigned i = 0; i < count; ++i)
@@ -77,8 +68,9 @@ int main() {
         packet.put_u8(0);
         packet.put_u8(nvals - 1);
         small_compress(bytes, 3, packet, slpz_custom::Discrete);
-        if (!implicit_dictionary(field)) packet.put_u8(0);
-        packet.put_u8(2);  // custom layout
+        if (!implicit_dictionary(field))
+          packet.put_u8(0);
+        packet.put_u8(2); // custom layout
         std::array<uint8_t, 1> profiles{slpz_custom::Discrete};
         if (implicit_dictionary(field))
           custom_planes_frame({}, field.idx.size(), {}, 3, packet);
@@ -86,11 +78,11 @@ int main() {
           custom_planes_frame(field.idx, field.idx.size(), profiles, 3, packet);
         Reader scanner{packet.data(), packet.data() + packet.size()};
         auto span = skip_packed(scanner, width);
-        check(!scanner.fail && span.size() == packet.size(), "dictionary scanner");
+        check(span.size() == packet.size(), "dictionary scanner");
         Reader reader{packet.data(), packet.data() + packet.size()};
         std::vector<uint8_t> records;
         unpack_records(reader, field.idx.size(), width, records);
-        check(!reader.fail && reader.p == reader.end, "dictionary framing");
+        check(reader.p == reader.end, "dictionary framing");
         for (size_t i = 0; i < field.idx.size(); ++i)
           check(memcmp(records.data() + i * width, &field.vals[field.idx[i]], width) == 0,
                 "forced transform record output");
@@ -104,16 +96,16 @@ int main() {
           };
           auto broken = packet;
           broken[1] = width | 0xf0;
-          fail(broken);  // unknown transform
+          fail(broken); // unknown transform
           broken = packet;
           broken[2] = width;
-          fail(broken);  // out-of-bounds field
+          fail(broken); // out-of-bounds field
           broken = packet;
           broken[10] ^= 1;
-          fail(broken);  // wrong dictionary output size
+          fail(broken); // wrong dictionary output size
           broken = packet;
           broken.resize(9);
-          fail(broken);  // truncated metadata frame
+          fail(broken); // truncated metadata frame
         }
       }
       if (nvals < 256 && !implicit_dictionary(field)) {
@@ -136,7 +128,8 @@ int main() {
   for (uint8_t transform = 1; transform <= 4; ++transform) {
     auto packed = dictionary_forward(fields, transform), original = packed;
     auto result = fields;
-    for (auto& f : result) std::fill(f.vals.begin(), f.vals.end(), 0);
+    for (auto &f : result)
+      std::fill(f.vals.begin(), f.vals.end(), 0);
     dictionary_reverse(packed, transform, result);
     check(result[0].vals == fields[0].vals && result[1].vals == fields[1].vals, "field resets");
     check(packed == original, "immutable dictionary input");

@@ -9,29 +9,38 @@ CXXFLAGS += -march=native
 PLATFORM_LIBS := -lcrypto
 endif
 
-slpz: slpz.cpp custom_codec.h static_context.h mask_codec.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(LDFLAGS) $(PLATFORM_LIBS)
+CORE := archive frames record_codec slp platform
+OBJECTS := $(addprefix build/,$(addsuffix .o,$(CORE)))
+HEADERS := $(wildcard *.h)
 
-clean:
-	rm -f slpz
+slpz: build/slpz.o build/file_io.o build/libslpz.a
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(PLATFORM_LIBS) -pthread
 
-build/custom_codec_test: tests/custom_codec_test.cpp custom_codec.h static_context.h mask_codec.h
+build/%.o: %.cpp
+	mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -MP -pthread -c $< -o $@
+
+build/libslpz.a: $(OBJECTS)
+	$(AR) rcs $@ $^
+
+build/custom_codec_test: tests/custom_codec_test.cpp $(HEADERS)
 	mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
 
-build/record_codec_test: tests/record_codec_test.cpp slpz.cpp custom_codec.h static_context.h mask_codec.h
-	mkdir -p build
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wno-unused-function -o $@ $< $(LDFLAGS) $(PLATFORM_LIBS)
+build/%_test: tests/%_test.cpp build/libslpz.a $(HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< build/libslpz.a $(LDFLAGS) $(PLATFORM_LIBS) -pthread
 
-build/predictor_test: tests/predictor_test.cpp slpz.cpp custom_codec.h static_context.h mask_codec.h
-	mkdir -p build
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wno-unused-function -o $@ $< $(LDFLAGS) $(PLATFORM_LIBS)
-
-check: slpz build/custom_codec_test build/record_codec_test build/predictor_test
+check: slpz build/custom_codec_test build/record_codec_test build/predictor_test build/archive_api_test
 	./slpz selftest
 	./build/custom_codec_test
 	./build/record_codec_test
 	./build/predictor_test
+	./build/archive_api_test
 	python3 tests/test_archive.py
+	python3 tests/test_extraction.py
 
+clean:
+	rm -f slpz build/*.o build/*.d build/libslpz.a build/*_test
+
+-include $(wildcard build/*.d)
 .PHONY: clean check

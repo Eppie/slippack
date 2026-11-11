@@ -11,7 +11,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-target=${1:?usage: run.sh <parse|roundtrip> [seconds]}
+target=${1:?usage: run.sh <parse|roundtrip|dictionary|predictors|archive> [seconds]}
 secs=${2:-0}   # 0 = run until Ctrl-C
 
 binname="slpz_fuzz_$target"
@@ -23,15 +23,18 @@ case "$target" in
   roundtrip) seeds=corpus_rt;    defmax=131072  ;;  # smaller = more exec/s; the
                                                     # transform paths don't need
                                                     # multi-MB inputs to fire
-  *) echo "unknown target '$target' (use parse|roundtrip)"; exit 2 ;;
+  dictionary) seeds=../build/dictionary-corpus; defmax=1028 ;;
+  predictors) seeds=../build/predictor-corpus; defmax=1028 ;;
+  archive) seeds=../build/archive-corpus; defmax=65536 ;;
+  *) echo "unknown target '$target'"; exit 2 ;;
 esac
 
-# sweep temp dirs left by the pre-memfs disk-based harness (harmless if none)
-rm -rf /tmp/slpz_fuzz_* 2>/dev/null || true
+mkdir -p "$seeds"
 
 run="runs/$target"
 mkdir -p "$run/corpus" "$run/artifacts" logs
-forks=${FORKS:-$(( $(sysctl -n hw.ncpu) - 2 ))}
+if [[ "$(uname -s)" == Darwin ]]; then cpus=$(sysctl -n hw.ncpu); else cpus=$(getconf _NPROCESSORS_ONLN); fi
+forks=${FORKS:-$(( cpus > 2 ? cpus - 2 : 0 ))}
 maxlen=${MAXLEN:-$defmax}
 # scalar, not an array: macOS Bash 3.2 errors on empty-array expansion under
 # `set -u`. The flags have no spaces, so unquoted expansion is safe.

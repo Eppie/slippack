@@ -1,3 +1,7 @@
+#pragma once
+#include "codec_types.h"
+
+namespace slpz_custom {
 // Two presence decisions per ANS symbol. Tables are derived deterministically
 // from the compact binary model, so no extra conditional histograms are stored.
 inline unsigned reverse2(unsigned v) { return ((v & 1) << 1) | ((v & 2) >> 1); }
@@ -384,3 +388,5 @@ inline Bytes decode_presence4(Reader& r, uint32_t count, View profiles, View ref
   for (auto x : state) require(x == (1u << 23), "presence terminal state");
   return masks;
 }
+
+}  // namespace slpz_custom

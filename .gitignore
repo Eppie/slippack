@@ -13,9 +13,7 @@
 /benchmarks/work/
 
 # Fuzzer output and generated corpora
-/fuzz/slpz_fuzz_parse
-/fuzz/slpz_fuzz_roundtrip
-/fuzz/slpz_fuzz_roundtrip_fast
+/fuzz/slpz_fuzz_*
 /fuzz/runs/
 /fuzz/logs/
 /fuzz/corpus/

@@ -1,130 +1,9 @@
 #pragma once
-
-// SLPZ custom payload codec. No compression-library dependency.
-// Four interleaved byte-rANS states, semantic literal contexts, explicit
-// constant/sparse/run modes, and a bounded lazy LZ parser.
-#include <algorithm>
-#include <array>
-#include <bit>
-#include <cmath>
-#include <cstdint>
-#include <cstring>
-#include <limits>
-#include <memory>
-#include <span>
-#include <stdexcept>
-#include <vector>
-#if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
-#include <arm_neon.h>
-#endif
-
-namespace slpz_custom {
-using Bytes = std::vector<uint8_t>;
-using View = std::span<const uint8_t>;
-enum Profile : uint8_t {
-  Generic,
-  Controller,
-  FloatHigh,
-  FloatLow,
-  Rng,
-  RngContinuation,
-  Counter,
-  Discrete,
-  ProfileCount
-};
-struct Error : std::runtime_error {
-  using std::runtime_error::runtime_error;
-};
-inline void require(bool ok, const char* why) {
-  if (!ok) throw Error(why);
-}
-inline uint32_t narrow(size_t n) {
-  require(n <= UINT32_MAX, "custom input too large");
-  return uint32_t(n);
-}
-inline void u32(Bytes& b, uint32_t n) {
-  for (unsigned i = 0; i < 4; ++i) b.push_back(uint8_t(n >> (8 * i)));
-}
-inline void varint(Bytes& b, uint32_t n) {
-  while (n >= 128) {
-    b.push_back(uint8_t(n | 128));
-    n >>= 7;
-  }
-  b.push_back(uint8_t(n));
-}
-inline void append(Bytes& b, View v) { b.insert(b.end(), v.begin(), v.end()); }
-struct Reader {
-  View data;
-  size_t pos = 0;
-  size_t remaining() const { return data.size() - pos; }
-  uint8_t byte() {
-    require(remaining() != 0, "truncated custom data");
-    return data[pos++];
-  }
-  uint32_t word() {
-    uint32_t n = 0;
-    for (unsigned i = 0; i < 4; ++i) n |= uint32_t(byte()) << (8 * i);
-    return n;
-  }
-  uint32_t var() {
-    uint32_t n = 0;
-    for (unsigned s = 0; s <= 28; s += 7) {
-      uint8_t c = byte();
-      require(s < 28 || c < 16, "custom varint overflow");
-      n |= uint32_t(c & 127) << s;
-      if (!(c & 128)) return n;
-    }
-    throw Error("custom varint overflow");
-  }
-  View take(size_t n) {
-    require(n <= remaining(), "truncated custom span");
-    auto v = data.subspan(pos, n);
-    pos += n;
-    return v;
-  }
-  void done() const { require(remaining() == 0, "trailing custom data"); }
-};
-
-struct Model {
-  std::array<uint32_t, 256> hist{};
-  std::array<uint16_t, 256> freq{}, start{};
-  void normalize() {
-    uint64_t total = 0;
-    for (auto n : hist) total += n;
-    if (!total) {
-      freq[0] = 4096;
-      return;
-    }
-    int sum = 0;
-    for (unsigned s = 0; s < 256; ++s)
-      if (hist[s]) {
-        // Nearest rounding avoids systematically moving every fractional
-        // frequency into the most common symbol during sum correction.
-        freq[s] = uint16_t(std::max<uint64_t>(1, (uint64_t(hist[s]) * 4096 + total / 2) / total));
-        sum += freq[s];
-      }
-    while (sum != 4096) {
-      auto it = std::max_element(freq.begin(), freq.end());
-      if (sum < 4096) {
-        *it += uint16_t(4096 - sum);
-        sum = 4096;
-      } else {
-        int d = std::min(sum - 4096, int(*it) - 1);
-        require(d > 0, "custom normalization");
-        *it -= d;
-        sum -= d;
-      }
-    }
-    unsigned at = 0;
-    for (unsigned s = 0; s < 256; ++s) {
-      start[s] = uint16_t(at);
-      at += freq[s];
-    }
-  }
-};
-
+#include "codec_types.h"
 #include "mask_codec.h"
 #include "static_context.h"
+
+namespace slpz_custom {
 
 // Context IDs are derived from the reconstructed plane layout, never stored
 // once per literal. A model is serialized only when its actual size wins.
@@ -839,8 +718,15 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
   append(out, a);
   return out;
 }
-inline Bytes masked_decode(Reader& r, uint32_t count, View profiles, Bytes* destination = nullptr,
-                           std::span<const uint32_t> indexes = {}) {
+// Borrow a fully sized destination, optionally scattering into selected planes.
+inline void masked_decode_into(Reader& r, uint32_t count, View profiles, Bytes& destination,
+                               std::span<const uint32_t> indexes = {}) {
+  require(indexes.empty() || indexes.size() == profiles.size(), "mask destination indexes");
+  if (indexes.empty())
+    require(uint64_t(count) * profiles.size() <= destination.size(), "mask destination size");
+  else
+    for (uint32_t index : indexes)
+      require((uint64_t(index) + 1) * count <= destination.size(), "mask destination plane");
   auto bases = r.take(profiles.size() * 2);
   size_t width = (size_t(count) + 7) / 8;
   unsigned binary = r.byte();
@@ -874,16 +760,14 @@ inline Bytes masked_decode(Reader& r, uint32_t count, View profiles, Bytes* dest
   require(mode <= 1, "mask value coder");
   Bytes values = mode ? unchannel(r, total, contexts) : lz_decode(r, narrow(total), contexts, 1);
   require(values.size() == total, "mask values");
-  // Restore rich planes directly into the caller's final plane layout when
-  // available, avoiding an intermediate allocation and copy.
-  Bytes out;
-  if (!destination) {
-    out.resize(size_t(count) * profiles.size());
-    destination = &out;
-  }
   values.resize(total + 8);
-  restore_exceptions(mask, values, count, bases, *destination, indexes);
-  return out;
+  restore_exceptions(mask, values, count, bases, destination, indexes);
+}
+// Owning convenience API for a compact plane layout.
+inline Bytes masked_decode(Reader& r, uint32_t count, View profiles) {
+  Bytes output(narrow(uint64_t(count) * profiles.size()));
+  masked_decode_into(r, count, profiles, output);
+  return output;
 }
 
 // Preserve semantic plane boundaries. Very cheap planes get explicit modes;
@@ -988,7 +872,7 @@ inline Bytes decode_planes(View packed, uint32_t expected) {
     if (mode == 0)
       rich = lz_decode(r, n, profiles, count);
     else if (mode == 3)
-      masked_decode(r, count, profiles, &output, indexes);
+      masked_decode_into(r, count, profiles, output, indexes);
     if (mode == 0)
       for (size_t j = 0; j < indexes.size(); ++j)
         std::copy_n(rich.data() + j * count, count, output.data() + size_t(indexes[j]) * count);

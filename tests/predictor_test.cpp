@@ -1,14 +1,24 @@
-#define SLPZ_FUZZ 1
-#include "../slpz.cpp"
+#include "../slp.h"
+#include <algorithm>
+#include <cfenv>
+#include <cmath>
+#include <cstdio>
+#include <random>
+using namespace slpz;
 
 static size_t checks = 0;
-static void check(bool ok, const char* why) {
-  if (!ok) { fprintf(stderr, "predictor test: %s\n", why); abort(); }
+static void check(bool ok, const char *why) {
+  if (!ok) {
+    fprintf(stderr, "predictor test: %s\n", why);
+    abort();
+  }
   ++checks;
 }
-static void word(uint8_t* p, uint32_t n) {
-  p[0] = uint8_t(n >> 24); p[1] = uint8_t(n >> 16);
-  p[2] = uint8_t(n >> 8); p[3] = uint8_t(n);
+static void word(uint8_t *p, uint32_t n) {
+  p[0] = uint8_t(n >> 24);
+  p[1] = uint8_t(n >> 16);
+  p[2] = uint8_t(n >> 8);
+  p[3] = uint8_t(n);
 }
 // Preserve the original floating-point mapping as an independent oracle.
 static uint32_t integer_grid_reference(uint32_t value) {
@@ -20,7 +30,8 @@ static uint32_t integer_grid_reference(uint32_t value) {
     return u;
   }
   uint32_t magnitude = value & 0x7fffffffu;
-  if (magnitude > 0x45800000u) return value;
+  if (magnitude > 0x45800000u)
+    return value;
   float f;
   memcpy(&f, &magnitude, 4);
   unsigned n = unsigned(f);
@@ -51,14 +62,18 @@ int main() {
         check(lcg_advance(start, k) == scalar, "LCG jump");
         check(lcg_distance(start, scalar) == k, "LCG bounded distance");
         check(lcg_distance(start, scalar ^ (1u << 13)) == UINT32_MAX, "LCG alias accepted");
-      } else check(lcg_distance(start, scalar) == UINT32_MAX, "LCG out-of-window distance");
+      } else
+        check(lcg_distance(start, scalar) == UINT32_MAX, "LCG out-of-window distance");
       scalar = lcg_next(scalar);
     }
   }
   for (unsigned trial = 0; trial < 4096; ++trial) {
     uint32_t a = random(), b = random(), scalar = a, expected = UINT32_MAX;
     for (unsigned k = 0; k <= kSeedCap; ++k) {
-      if (scalar == b) { expected = k; break; }
+      if (scalar == b) {
+        expected = k;
+        break;
+      }
       scalar = lcg_next(scalar);
     }
     check(lcg_distance(a, b) == expected, "LCG random pair");
@@ -76,18 +91,20 @@ int main() {
     for (uint32_t near : {bits - 1, bits, bits + 1})
       check(integer_grid(near) == integer_grid_reference(near), "integer boundary oracle");
   }
-  const uint32_t special[] = {0, 0x80000000, 0x7f800000, 0xff800000,
-      0x7fc01234, 0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
+  const uint32_t special[] = {0,          0x80000000, 0x7f800000, 0xff800000, 0x7fc01234,
+                              0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
   for (unsigned size :
        {28u, 29u, 51u, 59u, 63u, 64u, 65u, 66u, 67u, 68u, 71u, 72u, 76u, 84u, 100u}) {
     for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
       Buf original;
       original.resize(size_t(size) * count);
-      for (auto& b : original) b = uint8_t(random());
+      for (auto &b : original)
+        b = uint8_t(random());
       for (unsigned i = 0; i < count; ++i)
         for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 33u, 52u, 56u, 60u, 64u, 68u})
           if (offset + 4 <= size && i % 2 == 0)
-            word(original.data() + size_t(i) * size + offset, special[(i + offset) % std::size(special)]);
+            word(original.data() + size_t(i) * size + offset,
+                 special[(i + offset) % std::size(special)]);
       auto records = original;
       motion_predict(records.data(), count, size, false);
       if (size >= 29 && size < 72) {
@@ -96,7 +113,7 @@ int main() {
         float positions[2][3] = {};
         for (unsigned i = 0; i < count; ++i) {
           for (unsigned j = 0; j < 2; ++j) {
-            auto& h = positions[j];
+            auto &h = positions[j];
             volatile float v0 = h[0] - h[1], v1 = h[1] - h[2];
             volatile float acceleration = v0 - v1;
             volatile float velocity = v0 + acceleration;
@@ -106,16 +123,18 @@ int main() {
             memcpy(&bits, &prediction, 4);
             size_t offset = size_t(i) * size + 9 + 4 * j;
             uint32_t actual = be32(original.data() + offset), delta = actual - bits;
-            check(be32(records.data() + offset) ==
-                      ((delta << 1) ^ (0u - (delta >> 31))), "quadratic scalar oracle");
-            h[2] = h[1]; h[1] = h[0];
+            check(be32(records.data() + offset) == ((delta << 1) ^ (0u - (delta >> 31))),
+                  "quadratic scalar oracle");
+            h[2] = h[1];
+            h[1] = h[0];
             memcpy(&h[0], &actual, 4);
           }
         }
       }
       if (size >= 29) {
         for (unsigned offset : {21u, 25u, 60u, 64u}) {
-          if (offset + 4 > size) continue;
+          if (offset + 4 > size)
+            continue;
           uint32_t previous = 0, older = 0;
           for (unsigned i = 0; i < count; ++i) {
             uint32_t prediction = previous;
@@ -140,7 +159,7 @@ int main() {
       if (size >= 72) {
         float previous[2] = {};
         for (unsigned i = 0; i < count; ++i) {
-          const auto* source = original.data() + size_t(i) * size;
+          const auto *source = original.data() + size_t(i) * size;
           for (unsigned j = 0; j < 2; ++j) {
             volatile float speed = read_float(source + (j ? 56 : (source[46] ? 52 : 68))) +
                                    read_float(source + 60 + 4 * j);
@@ -156,7 +175,8 @@ int main() {
           }
         }
       }
-      if (size < 29u) check(records == original, "predictor eligibility");
+      if (size < 29u)
+        check(records == original, "predictor eligibility");
       motion_predict(records.data(), count, size, true);
       check(records == original, "numeric predictor roundtrip");
       input_predict(records.data(), count, size, false);
