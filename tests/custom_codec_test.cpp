@@ -10,6 +10,46 @@ int main(int argc, char **argv) {
   std::mt19937 random(716018);
   size_t checks = 0;
   std::array<size_t, 6> packet_modes{};
+  auto check_statistics = [&](View input) {
+    std::array<uint32_t, 256> expected{}, actual;
+    actual.fill(UINT32_MAX); // The helper must overwrite every output bin.
+    uint32_t runs = 0;
+    for (size_t i = 0; i < input.size(); ++i) {
+      ++expected[input[i]];
+      runs += i == 0 || input[i] != input[i - 1];
+    }
+    require(histogram_runs(input, actual) == runs && actual == expected,
+            "byte histogram/run oracle");
+    auto maximum = *std::max_element(expected.begin(), expected.end());
+    bool special = !input.empty() &&
+                   (input.size() - maximum <= input.size() / 128 || runs <= input.size() / 128);
+    require(sparse_or_few_runs(input) == special, "special plane trial oracle");
+    checks += 2;
+  };
+  // Exercise threshold changes, block tails, first-byte outliers, and a
+  // candidate prefix whose majority differs from the full plane's majority.
+  for (size_t n : {1u, 7u, 8u, 9u, 63u, 64u, 65u, 127u, 128u, 129u, 255u, 256u, 257u, 1023u, 1024u,
+                   1025u, 8193u}) {
+    size_t limit = n / 128;
+    for (uint8_t base : {0u, 37u, 255u}) {
+      for (size_t exceptions : {limit, limit + 1, 2 * limit + 1}) {
+        Bytes input(n, base);
+        for (size_t i = 0; i < exceptions; ++i) {
+          input[i] = base ^ 127;
+        }
+        check_statistics(input);
+        std::shuffle(input.begin(), input.end(), random);
+        check_statistics(input);
+      }
+      for (size_t runs : {std::max<size_t>(1, limit), limit + 1}) {
+        Bytes input(n);
+        for (size_t i = 0; i < n; ++i) {
+          input[i] = uint8_t(base + i * runs / n);
+        }
+        check_statistics(input);
+      }
+    }
+  }
   for (unsigned n : {0, 1, 2, 3, 7, 15, 31, 255, 1024, 4096, 16384, 100000}) {
     for (unsigned pattern = 0; pattern < 8; ++pattern) {
       Bytes input(n);
@@ -23,6 +63,7 @@ int main(int argc, char **argv) {
                    : pattern == 6 ? ((i / 1024) % 2 ? i % 19 : random())
                                   : uint8_t(i * 41);
       }
+      check_statistics(input);
       for (auto profile : {Generic, Controller, FloatLow, Counter, Rng}) {
         auto packed = encode(input, profile);
         ++packet_modes.at(packed[0]);

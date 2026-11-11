@@ -3,6 +3,7 @@
 #include "compressor.h"
 #else
 #include "../../archive.h"
+#include "../../platform.h"
 #endif
 #include <algorithm>
 #include <array>
@@ -163,8 +164,11 @@ int main(int argc, char **argv) {
       if (i) {
         std::cout << ',';
       }
-      std::cout << "{\"bytes\":" << compressed[i].size() << ",\"error\":" << std::quoted(errors[i])
-                << '}';
+      std::cout << "{\"bytes\":" << compressed[i].size();
+#ifndef BENCH_SLIPPC
+      std::cout << ",\"packed_sha1\":" << std::quoted(slippack::sha1(compressed[i]));
+#endif
+      std::cout << ",\"error\":" << std::quoted(errors[i]) << '}';
     }
     std::cout << "]}" << std::endl;
   }

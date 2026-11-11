@@ -142,10 +142,29 @@ commits used for those studies. Earlier speed studies are under
 `benchmarks/2026-11-09-speed/`; all benchmark sets were examined during
 development, so those results are not independent held-out estimates.
 
+## Encoding speed
+
+The latest encoder changes increase default-level throughput by **12–24%**
+on the existing replay corpus, with identical compressed output. Nine-run
+medians on an Apple M4 Max, one replay per archive:
+
+| Inputs | Workers | Before MB/s | After MB/s | Encode gain |
+|---|---:|---:|---:|---:|
+| 120 replays | 1 | 215.4 | 247.9 | 15.1% |
+| 120 replays | 8 | 1645.0 | 1848.9 | 12.4% |
+| 401 replays | 1 | 216.5 | 267.6 | 23.6% |
+| 401 replays | 8 | 1695.9 | 2053.5 | 21.1% |
+
+The changes remove repeated counter dependencies and stop unnecessary plane
+scans early. The decoder and v1 format are unchanged. See the
+[benchmark method, all levels, and raw results](benchmarks/2026-11-10-encode-speed/README.md).
+
 ## Single-replay comparison
 
-On an Apple M4 Max, 120 individually compressed replays (313 MB), one worker,
-five-run medians, with inputs in RAM and exact round-trip verification:
+This four-tool comparison used Slippack at `9bffdb5`, before the encoding
+optimizations above. On an Apple M4 Max, 120 individually compressed replays
+(313 MB), one worker, five-run medians, with inputs in RAM and exact round-trip
+verification:
 
 | Matched set | Tool / setting | Packed size / original | Encode MB/s | Decode MB/s |
 |---|---|---:|---:|---:|

@@ -135,6 +135,15 @@ Ordinary step counts exceeding 4096 are rejected; the existing exception code
 through and beyond the cap for random seeds, and unrelated/aliased states
 against the original scalar stepper.
 
+## Encoder scan costs
+
+Byte histograms use independent counting lanes and preserve exact frequencies
+and run counts. Sparse/run plane screening uses a majority candidate from the
+first `2 * floor(count / 128) + 1` bytes, then counts exceptions and runs in
+bounded blocks. A plane qualifying for the existing sparsity threshold must
+have that value as the prefix majority. Scanning can stop once both thresholds
+are exceeded, preserving the encoder's choices and compressed bytes.
+
 ## Field dictionaries
 
 The encoder sorts each dictionary by the original big-endian field

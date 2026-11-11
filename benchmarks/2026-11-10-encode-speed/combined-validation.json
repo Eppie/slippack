@@ -1,0 +1,26 @@
+[
+  {
+    "level": 1,
+    "files": 521,
+    "bytes": 51628453,
+    "packed_sha256": "6622233cee24d4702a399790e4848904865ba8759999aa0a647e44b1cf136cf4"
+  },
+  {
+    "level": 3,
+    "files": 521,
+    "bytes": 50672315,
+    "packed_sha256": "4c03902271b1109120cc39f93495dc95a7c1a8e0a97d44724f66671dea073ca8"
+  },
+  {
+    "level": 7,
+    "files": 521,
+    "bytes": 50583503,
+    "packed_sha256": "fa2636689dace426ebb8b714af0ac8d997af42b97bdf0a5e24db94667736d04b"
+  },
+  {
+    "level": 9,
+    "files": 521,
+    "bytes": 50477834,
+    "packed_sha256": "476e352403cefb9f704f204718a3b06504211dfd2964d4831844298ec99050cb"
+  }
+]

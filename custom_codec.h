@@ -539,6 +539,35 @@ inline bool is_constant(View input) {
   return true;
 }
 
+// Independent lanes avoid a serial counter dependency on repeated bytes.
+// Fill every histogram bin and return the number of adjacent-value runs.
+inline uint32_t histogram_runs(View input, std::array<uint32_t, 256> &hist) {
+  std::array<std::array<uint32_t, 256>, 8> lanes{};
+  uint32_t runs = !input.empty();
+  size_t i = 0;
+  if (!input.empty()) {
+    ++lanes[0][input[0]];
+    i = 1;
+  }
+  for (; input.size() - i >= 8; i += 8) {
+    for (unsigned k = 0; k < 8; ++k) {
+      ++lanes[k][input[i + k]];
+      runs += input[i + k] != input[i + k - 1];
+    }
+  }
+  for (; i < input.size(); ++i) {
+    ++lanes[0][input[i]];
+    runs += input[i] != input[i - 1];
+  }
+  for (size_t b = 0; b < hist.size(); ++b) {
+    hist[b] = 0;
+    for (const auto &lane : lanes) {
+      hist[b] += lane[b];
+    }
+  }
+  return runs;
+}
+
 // Small specialized modes are selected by encoded byte count, including
 // their headers. Raw storage is always an escape for incompressible input.
 inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
@@ -551,12 +580,8 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
   if (input.empty()) {
     return best;
   }
-  std::array<uint32_t, 256> hist{};
-  uint32_t runs = 0;
-  for (size_t i = 0; i < input.size(); ++i) {
-    ++hist[input[i]];
-    runs += i == 0 || input[i] != input[i - 1];
-  }
+  std::array<uint32_t, 256> hist;
+  uint32_t runs = histogram_runs(input, hist);
   uint8_t base = uint8_t(std::max_element(hist.begin(), hist.end()) - hist.begin());
   if (hist[base] == input.size()) {
     return Bytes{1, base};
@@ -882,6 +907,40 @@ inline Bytes masked_decode(Reader &r, uint32_t count, View profiles) {
   return output;
 }
 
+// Any symbol occupying all but limit bytes must be the majority in a
+// prefix of 2*limit+1 bytes. Check that candidate and the run threshold in
+// bounded blocks, stopping as soon as neither specialized mode can qualify.
+inline bool sparse_or_few_runs(View input) {
+  if (input.empty()) {
+    return false;
+  }
+  const size_t limit = input.size() / 128;
+  uint8_t candidate = 0;
+  unsigned balance = 0;
+  for (size_t i = 0; i < 2 * limit + 1; ++i) {
+    if (!balance) {
+      candidate = input[i];
+    }
+    if (input[i] == candidate) {
+      ++balance;
+    } else {
+      --balance;
+    }
+  }
+  size_t exceptions = input[0] != candidate, runs = 1;
+  for (size_t i = 1; i < input.size();) {
+    const size_t end = std::min(i + 64, input.size());
+    for (; i < end; ++i) {
+      exceptions += input[i] != candidate;
+      runs += input[i] != input[i - 1];
+    }
+    if (exceptions > limit && runs > limit) {
+      return false;
+    }
+  }
+  return exceptions <= limit || runs <= limit;
+}
+
 // Preserve semantic plane boundaries. Very cheap planes get explicit modes;
 // remaining planes share an LZ dictionary with field-conditioned literals.
 inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned depth = 8) {
@@ -912,17 +971,8 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
         }
         possible = *std::max_element(hist, hist + 256) >= 172 || runs <= 24;
       }
-      if (possible) {
-        uint32_t counts[256] = {};
-        uint32_t runs = 0;
-        for (uint32_t i = 0; i < count; ++i) {
-          counts[plane[i]]++;
-          runs += i == 0 || plane[i] != plane[i - 1];
-        }
-        uint32_t max = *std::max_element(counts, counts + 256);
-        if (max == count || count - max <= count / 128 || runs <= count / 128) {
-          special = encode(plane, Profile(profiles[j]), 0);
-        }
+      if (possible && sparse_or_few_runs(plane)) {
+        special = encode(plane, Profile(profiles[j]), 0);
       }
     }
     if (!special.empty() && special[0] >= 1 && special[0] <= 3) {

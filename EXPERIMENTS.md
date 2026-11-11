@@ -604,3 +604,27 @@ referenced by the tracked lists under `benchmarks/2026-11-09-speed/`. No replay
 payloads are included in this repository. The JSON report records every selected
 filename, source SHA-256, compressed size, coverage failure, and timing sample:
 [raw results](benchmarks/2026-11-10-single-file/results.json).
+
+## 2026-11-10 — faster encoding with identical v1 output
+
+Against `7ca9b4e`, default-level encoding throughput increased 15.1% with one
+worker and 12.4% with eight workers on the 120-replay comparison set. On the
+additional 401 replays, the gains were 23.6% and 21.1%. These are nine-run medians
+from interleaved baseline/candidate runs; see the raw samples for variability.
+
+Eight independent frequency counters remove the repeated-byte update
+bottleneck. Exact sparse/run screening uses a prefix-majority candidate and
+stops after both existing thresholds become impossible. It preserves the
+previous decisions; no wire-format, compression-level, or decoder changes are
+needed. Dictionary sorting remains unchanged.
+
+All 521 replays round-tripped exactly. Each individual compressed file matched
+the baseline fingerprint at every measured setting. Direct byte comparisons
+also matched for combined 521-replay archives at levels 1, 3, 7, and 9. The full
+test suite, formatting check, and custom-codec ASan/UBSan run passed. New scalar
+oracles cover histogram counts, runs, threshold boundaries, and misleading
+prefix candidates.
+
+[Method, throughput tables, and reproduction](benchmarks/2026-11-10-encode-speed/README.md)
+include input/source/binary hashes and every timing sample. The older four-tool
+tables above retain their original measurements.
