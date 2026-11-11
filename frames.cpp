@@ -25,8 +25,9 @@ Bytes custom_unframe(Reader &r, bool planes) {
   uint32_t comp = r.u32(), orig = r.u32();
   require(orig <= r.output_limit, "frame exceeds output limit");
   auto packed = r.bytes(comp);
-  if (planes)
+  if (planes) {
     return slpz_custom::decode_planes(packed, orig);
+  }
   require(!packed.empty() && packed[0] < slpz_custom::ProfileCount, "corrupt custom profile");
   return slpz_custom::decode(packed.subspan(1), orig, slpz_custom::Profile(packed[0]));
 }

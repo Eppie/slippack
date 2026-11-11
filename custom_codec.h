@@ -17,23 +17,26 @@ inline Bytes ans_candidate(View input, View contexts) {
     models[c].hist[input[i]]++;
   }
   Bytes result{uint8_t(nc == 1 ? 1 : 2)};
-  for (auto& m : models) {
+  for (auto &m : models) {
     m.normalize();
     unsigned used = 0;
-    for (auto f : m.freq) used += f != 0;
+    for (auto f : m.freq) {
+      used += f != 0;
+    }
     varint(result, used);
-    for (unsigned s = 0; s < 256; ++s)
+    for (unsigned s = 0; s < 256; ++s) {
       if (m.freq[s]) {
         result.push_back(uint8_t(s));
         varint(result, m.freq[s]);
       }
+    }
   }
   constexpr uint32_t low = 1u << 23;
   uint32_t states[4] = {low, low, low, low};
   Bytes emitted;
   emitted.reserve(input.size());
   for (size_t i = input.size(); i-- > 0;) {
-    auto& m = models[contexts.empty() ? 0 : contexts[i]];
+    auto &m = models[contexts.empty() ? 0 : contexts[i]];
     uint32_t f = m.freq[input[i]], &x = states[i & 3];
     uint32_t limit = ((low >> 12) << 8) * f;
     while (x >= limit) {
@@ -42,11 +45,13 @@ inline Bytes ans_candidate(View input, View contexts) {
     }
     x = (x / f) * 4096 + x % f + m.start[input[i]];
   }
-  for (auto x : states) u32(result, x);
+  for (auto x : states) {
+    u32(result, x);
+  }
   result.insert(result.end(), emitted.rbegin(), emitted.rend());
   return result;
 }
-inline void channel(Bytes& out, View input, View contexts = {}) {
+inline void channel(Bytes &out, View input, View contexts = {}) {
   Bytes best{0};
   append(best, input);
   if (!input.empty()) {
@@ -56,15 +61,16 @@ inline void channel(Bytes& out, View input, View contexts = {}) {
       if (input.size() >= 2048) {
         best = Bytes{4};
         append(best, candidate);
-      } else
+      } else {
         best = std::move(candidate);
+      }
     }
   }
   varint(out, narrow(best.size()));
   varint(out, narrow(input.size()));
   append(out, best);
 }
-inline Bytes unchannel(Reader& outer, size_t limit, View contexts = {}) {
+inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
   uint32_t packed = outer.var(), n = outer.var();
   require(n <= limit, "custom channel size");
   Reader r{outer.take(packed)};
@@ -85,7 +91,7 @@ inline Bytes unchannel(Reader& outer, size_t limit, View contexts = {}) {
   std::vector<Model> models(nc);
   Bytes lookup(nc * 4096);
   for (unsigned c = 0; c < nc; ++c) {
-    auto& m = models[c];
+    auto &m = models[c];
     unsigned used = r.var();
     require(used >= 1 && used <= 256, "custom alphabet size");
     for (unsigned j = 0; j < used; ++j) {
@@ -103,7 +109,7 @@ inline Bytes unchannel(Reader& outer, size_t limit, View contexts = {}) {
     require(at == 4096, "custom model sum");
   }
   uint32_t states[4];
-  for (auto& x : states) {
+  for (auto &x : states) {
     x = r.word();
     require(x >= (1u << 23) && x < (1u << 31), "custom ANS state");
   }
@@ -111,14 +117,18 @@ inline Bytes unchannel(Reader& outer, size_t limit, View contexts = {}) {
   for (size_t i = 0; i < n; ++i) {
     unsigned c = mode == 1 ? 0 : contexts[i];
     require(c < nc, "custom context ID");
-    auto& m = models[c];
-    uint32_t& x = states[i & 3];
+    auto &m = models[c];
+    uint32_t &x = states[i & 3];
     unsigned slot = x & 4095, s = lookup[c * 4096 + slot];
     output[i] = uint8_t(s);
     x = m.freq[s] * (x >> 12) + slot - m.start[s];
-    while (x < (1u << 23)) x = (x << 8) | r.byte();
+    while (x < (1u << 23)) {
+      x = (x << 8) | r.byte();
+    }
   }
-  for (auto x : states) require(x == (1u << 23), "custom ANS terminal state");
+  for (auto x : states) {
+    require(x == (1u << 23), "custom ANS terminal state");
+  }
   r.done();
   return output;
 }
@@ -137,7 +147,9 @@ struct BitWriter {
     }
   }
   void finish() {
-    if (bits) data.push_back(uint8_t(pending));
+    if (bits) {
+      data.push_back(uint8_t(pending));
+    }
     bits = 0;
     pending = 0;
   }
@@ -162,7 +174,7 @@ struct BitReader {
     require(pending == 0, "custom padding");
   }
 };
-inline void number(Bytes& codes, BitWriter& bits, uint32_t n) {
+inline void number(Bytes &codes, BitWriter &bits, uint32_t n) {
   if (n < 16) {
     codes.push_back(uint8_t(n));
     return;
@@ -171,15 +183,20 @@ inline void number(Bytes& codes, BitWriter& bits, uint32_t n) {
   codes.push_back(uint8_t(16 + k - 4));
   bits.put(n - (1u << k), k);
 }
-inline uint32_t unnumber(Reader& codes, BitReader& bits) {
+inline uint32_t unnumber(Reader &codes, BitReader &bits) {
   unsigned c = codes.byte();
-  if (c < 16) return c;
+  if (c < 16) {
+    return c;
+  }
   require(c <= 43, "custom number code");
   unsigned k = c - 16 + 4;
   return (1u << k) + bits.get(k);
 }
 inline uint8_t context(View profiles, uint32_t stride, size_t position, uint8_t previous) {
-  uint8_t p = profiles.empty() ? uint8_t(Generic) : profiles[stride == 1 ? position : stride ? position / stride : 0];
+  uint8_t p = profiles.empty() ? uint8_t(Generic)
+                               : profiles[stride == 1 ? position
+                                          : stride    ? position / stride
+                                                      : 0];
   return p == Rng && (previous & 128) ? uint8_t(RngContinuation) : p;
 }
 
@@ -195,10 +212,8 @@ struct Matcher {
   std::array<uint32_t, 4096> short_head;
   unsigned depth, hash_shift;
   explicit Matcher(View v, unsigned search)
-      : data(v),
-        head(std::bit_ceil(std::clamp<size_t>(v.size() * 2, 64, 65536)), UINT32_MAX),
-        previous(new uint32_t[v.size()]),
-        depth(search) {
+      : data(v), head(std::bit_ceil(std::clamp<size_t>(v.size() * 2, 64, 65536)), UINT32_MAX),
+        previous(new uint32_t[v.size()]), depth(search) {
     hash_shift = 32 - std::countr_zero(head.size());
     short_head.fill(UINT32_MAX);
   }
@@ -208,7 +223,9 @@ struct Matcher {
     return (x * 2654435761u) >> hash_shift;
   }
   void insert(uint32_t i) {
-    if (size_t(i) + 4 > data.size()) return;
+    if (size_t(i) + 4 > data.size()) {
+      return;
+    }
     uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
     short_head[(key * 2654435761u) >> 20] = i;
     unsigned h = hash(i);
@@ -221,68 +238,100 @@ struct Matcher {
       uint64_t x, y;
       std::memcpy(&x, data.data() + a + n, 8);
       std::memcpy(&y, data.data() + b + n, 8);
-      if (x != y)
+      if (x != y) {
         return n + (std::endian::native == std::endian::little ? std::countr_zero(x ^ y)
                                                                : std::countl_zero(x ^ y)) /
                        8;
+      }
       n += 8;
     }
-    while (n < max && data[a + n] == data[b + n]) ++n;
+    while (n < max && data[a + n] == data[b + n]) {
+      ++n;
+    }
     return n;
   }
-  Match find(uint32_t i, const std::array<uint32_t, 4>& recent) const {
+  Match find(uint32_t i, const std::array<uint32_t, 4> &recent) const {
     Match best;
-    if (size_t(i) + 4 > data.size()) return best;
+    if (size_t(i) + 4 > data.size()) {
+      return best;
+    }
     uint32_t prefix;
     std::memcpy(&prefix, data.data() + i, 4);
     auto consider = [&](uint32_t pos, bool repeat) {
-      if (pos >= i || i - pos > (1u << 20)) return;
+      if (pos >= i || i - pos > (1u << 20)) {
+        return;
+      }
       uint32_t other;
       std::memcpy(&other, data.data() + pos, 4);
       constexpr uint32_t mask =
           std::endian::native == std::endian::little ? 0xffffffu : 0xffffff00u;
-      if ((prefix ^ other) & mask) return;
+      if ((prefix ^ other) & mask) {
+        return;
+      }
       int cost = repeat ? 3 : int(32 - std::countl_zero(i - pos)) + 7;
       uint32_t need = std::max(3, (best.score + cost) / kMatchByteCost + 1);
-      if (need > data.size() - i || data[i + need - 1] != data[pos + need - 1]) return;
+      if (need > data.size() - i || data[i + need - 1] != data[pos + need - 1]) {
+        return;
+      }
       uint32_t n = length(i, pos);
-      if (n < need) return;
+      if (n < need) {
+        return;
+      }
       int score = int(std::min(n, 1u << 27)) * kMatchByteCost - cost;
-      if (score > best.score) best = {n, i - pos, score};
+      if (score > best.score) {
+        best = {n, i - pos, score};
+      }
     };
     for (auto distance : recent) {
-      if (distance <= i) consider(i - distance, true);
-      if (best.length >= 128) break;
+      if (distance <= i) {
+        consider(i - distance, true);
+      }
+      if (best.length >= 128) {
+        break;
+      }
     }
     uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
     auto short_pos = short_head[(key * 2654435761u) >> 20];
-    if (short_pos < i && i - short_pos < 1024) consider(short_pos, false);
-    if (best.length >= 128) return best;
+    if (short_pos < i && i - short_pos < 1024) {
+      consider(short_pos, false);
+    }
+    if (best.length >= 128) {
+      return best;
+    }
     uint32_t pos = head[hash(i)];
     for (unsigned d = 0; d < depth && pos != UINT32_MAX; ++d) {
-      if (i - pos > (1u << 20)) break;
+      if (i - pos > (1u << 20)) {
+        break;
+      }
       consider(pos, false);
-      if (best.length >= 128) break;
+      if (best.length >= 128) {
+        break;
+      }
       pos = previous[pos];
     }
     return best;
   }
 };
-inline void move_recent(std::array<uint32_t, 4>& recent, uint32_t d) {
+inline void move_recent(std::array<uint32_t, 4> &recent, uint32_t d) {
   unsigned found = 3;
-  for (unsigned k = 0; k < 4; ++k)
+  for (unsigned k = 0; k < 4; ++k) {
     if (recent[k] == d) {
       found = k;
       break;
     }
-  for (unsigned k = found; k > 0; --k) recent[k] = recent[k - 1];
+  }
+  for (unsigned k = found; k > 0; --k) {
+    recent[k] = recent[k - 1];
+  }
   recent[0] = d;
 }
 inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsigned depth = 8) {
   require(profiles.empty() ||
               (stride ? uint64_t(stride) * profiles.size() == input.size() : profiles.size() == 1),
           "custom field shape");
-  for (auto p : profiles) require(p < ProfileCount, "custom profile");
+  for (auto p : profiles) {
+    require(p < ProfileCount, "custom profile");
+  }
   Bytes literals, residuals, contexts, litlengths, lengths, distances;
   literals.reserve(input.size());
   residuals.reserve(input.size());
@@ -326,14 +375,15 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
     literal_run(i);
     number(lengths, extra, m.length - 3);
     unsigned rep = 4;
-    for (unsigned k = 0; k < 4; ++k)
+    for (unsigned k = 0; k < 4; ++k) {
       if (recent[k] == m.distance) {
         rep = k;
         break;
       }
-    if (rep < 4)
+    }
+    if (rep < 4) {
       distances.push_back(uint8_t(rep));
-    else {
+    } else {
       unsigned k = 31 - std::countl_zero(m.distance);
       distances.push_back(uint8_t(k + 4));
       extra.put(m.distance - (1u << k), k);
@@ -343,7 +393,9 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
     uint32_t end = i + m.length;
     for (uint32_t p = i + 1; p < end; ++p) {
       matcher.insert(p);
-      if (m.length >= 64 && p == i + 16) p = end - 17;
+      if (m.length >= 64 && p == i + 16) {
+        p = end - 17;
+      }
     }
     i = end;
     last = i;
@@ -362,15 +414,19 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
   Bytes raw_literals, predicted_literals;
   auto literal_contexts = profiles.empty() ? View{} : View(contexts);
   bool favor_prediction = depth >= 4 && context_cost(predicted_hist) < context_cost(raw_hist);
-  if (!favor_prediction || depth >= 24) channel(raw_literals, literals, literal_contexts);
-  if (favor_prediction || depth >= 24) channel(predicted_literals, residuals, literal_contexts);
+  if (!favor_prediction || depth >= 24) {
+    channel(raw_literals, literals, literal_contexts);
+  }
+  if (favor_prediction || depth >= 24) {
+    channel(predicted_literals, residuals, literal_contexts);
+  }
   bool predict = !predicted_literals.empty() &&
                  (raw_literals.empty() || predicted_literals.size() < raw_literals.size());
   payload.push_back(predict ? 1 : 0);
   append(payload, predict ? View(predicted_literals) : View(raw_literals));
   return payload;
 }
-inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t stride = 0) {
+inline Bytes lz_decode(Reader &r, uint32_t n, View profiles = {}, uint32_t stride = 0) {
   uint32_t matches = r.var();
   require(matches <= n / 3, "custom match count");
   auto ll = unchannel(r, size_t(matches) + 1), ml = unchannel(r, matches),
@@ -399,8 +455,11 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
   for (uint32_t i = 0; i <= matches; ++i) {
     uint32_t lit = unnumber(lr, bits);
     require(lit <= n - pos, "custom literal length");
-    if (needs_contexts && !profiles.empty())
-      for (uint32_t j = 0; j < lit; ++j) contexts.push_back(context(profiles, stride, pos + j, 0));
+    if (needs_contexts && !profiles.empty()) {
+      for (uint32_t j = 0; j < lit; ++j) {
+        contexts.push_back(context(profiles, stride, pos + j, 0));
+      }
+    }
     pos += lit;
     total_literals += lit;
     uint32_t length = 0, distance = 0;
@@ -435,14 +494,15 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
         output[at] =
             literals[lp + j] ^ (at >= previous_distance ? output[at - previous_distance] : 0);
       }
-    } else if (t.literals)
+    } else if (t.literals) {
       std::memcpy(output.data() + pos, literals.data() + lp, t.literals);
+    }
     pos += t.literals;
     lp += t.literals;
     if (t.length) {
-      if (t.distance == 1)
+      if (t.distance == 1) {
         std::memset(output.data() + pos, output[pos - 1], t.length);
-      else {
+      } else {
         size_t first = std::min(t.distance, t.length);
         std::memcpy(output.data() + pos, output.data() + pos - t.distance, first);
         for (size_t done = first; done < t.length;) {
@@ -459,15 +519,23 @@ inline Bytes lz_decode(Reader& r, uint32_t n, View profiles = {}, uint32_t strid
 }
 
 inline bool is_constant(View input) {
-  if (input.empty()) return false;
+  if (input.empty()) {
+    return false;
+  }
   const uint64_t word = uint64_t(input[0]) * 0x0101010101010101ULL;
   size_t i = 0;
   for (; i + 8 <= input.size(); i += 8) {
     uint64_t value;
     std::memcpy(&value, input.data() + i, 8);
-    if (value != word) return false;
+    if (value != word) {
+      return false;
+    }
   }
-  for (; i < input.size(); ++i) if (input[i] != input[0]) return false;
+  for (; i < input.size(); ++i) {
+    if (input[i] != input[0]) {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -475,10 +543,14 @@ inline bool is_constant(View input) {
 // their headers. Raw storage is always an escape for incompressible input.
 inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
   narrow(input.size());
-  if (is_constant(input)) return Bytes{1, input[0]};
+  if (is_constant(input)) {
+    return Bytes{1, input[0]};
+  }
   Bytes best{0};
   append(best, input);
-  if (input.empty()) return best;
+  if (input.empty()) {
+    return best;
+  }
   std::array<uint32_t, 256> hist{};
   uint32_t runs = 0;
   for (size_t i = 0; i < input.size(); ++i) {
@@ -486,19 +558,24 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
     runs += i == 0 || input[i] != input[i - 1];
   }
   uint8_t base = uint8_t(std::max_element(hist.begin(), hist.end()) - hist.begin());
-  if (hist[base] == input.size()) return Bytes{1, base};
+  if (hist[base] == input.size()) {
+    return Bytes{1, base};
+  }
   auto choose = [&](Bytes b) {
-    if (b.size() < best.size()) best = std::move(b);
+    if (b.size() < best.size()) {
+      best = std::move(b);
+    }
   };
   if (input.size() - hist[base] <= input.size() / 16) {
     Bytes gaps, values;
     size_t previous = 0;
-    for (size_t i = 0; i < input.size(); ++i)
+    for (size_t i = 0; i < input.size(); ++i) {
       if (input[i] != base) {
         varint(gaps, narrow(i - previous));
         values.push_back(input[i]);
         previous = i + 1;
       }
+    }
     Bytes b{2, base};
     varint(b, narrow(values.size()));
     channel(b, gaps);
@@ -509,7 +586,9 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
     Bytes lengths, values;
     for (size_t i = 0; i < input.size();) {
       size_t j = i + 1;
-      while (j < input.size() && input[j] == input[i]) ++j;
+      while (j < input.size() && input[j] == input[i]) {
+        ++j;
+      }
       values.push_back(input[i]);
       varint(lengths, narrow(j - i - 1));
       i = j;
@@ -578,8 +657,9 @@ inline Bytes decode(View packed, uint32_t n, Profile profile = Generic) {
   } else if (mode == 4) {
     Bytes p{uint8_t(profile)};
     output = lz_decode(r, n, p);
-  } else
+  } else {
     throw Error("custom payload mode");
+  }
   r.done();
   return output;
 }
@@ -587,16 +667,23 @@ inline Bytes decode(View packed, uint32_t n, Profile profile = Generic) {
 inline uint8_t dominant_byte(View input) {
   size_t zeros = 0, i = 0;
 #if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
-  for (; i + 16 <= input.size(); i += 16)
+  for (; i + 16 <= input.size(); i += 16) {
     zeros += vaddvq_u8(vshrq_n_u8(vceqq_u8(vld1q_u8(input.data() + i), vdupq_n_u8(0)), 7));
+  }
 #endif
-  for (; i < input.size(); ++i) zeros += input[i] == 0;
-  if (zeros * 2 >= input.size()) return 0;
+  for (; i < input.size(); ++i) {
+    zeros += input[i] == 0;
+  }
+  if (zeros * 2 >= input.size()) {
+    return 0;
+  }
   std::array<uint32_t, 256> h{};
-  for (auto b : input) ++h[b];
+  for (auto b : input) {
+    ++h[b];
+  }
   return uint8_t(std::max_element(h.begin(), h.end()) - h.begin());
 }
-inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes& out,
+inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes &out,
                                std::span<const uint32_t> indexes = {}) {
   size_t width = (size_t(count) + 7) / 8, v = 0;
 #if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
@@ -606,8 +693,11 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
     UnpackTable() {
       for (unsigned m = 0; m < 256; ++m) {
         indexes[m].fill(255);
-        for (unsigned k = 0; k < 8; ++k)
-          if (m & (1u << k)) indexes[m][k] = counts[m]++;
+        for (unsigned k = 0; k < 8; ++k) {
+          if (m & (1u << k)) {
+            indexes[m][k] = counts[m]++;
+          }
+        }
       }
     }
   };
@@ -616,7 +706,7 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
   for (size_t j = 0; j < bases.size() / 2; ++j) {
     size_t i = 0;
     uint8_t base = bases[j * 2];
-    uint8_t* destination = out.data() + size_t(indexes.empty() ? j : indexes[j]) * count;
+    uint8_t *destination = out.data() + size_t(indexes.empty() ? j : indexes[j]) * count;
 #if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
     auto constant = vdup_n_u8(base), missing = vdup_n_u8(255);
     for (; i + 8 <= count; i += 8) {
@@ -628,12 +718,13 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
       v += table.counts[bits];
     }
 #endif
-    for (; i < count; ++i)
+    for (; i < count; ++i) {
       destination[i] = (masks[j * width + i / 8] >> (i % 8)) & 1 ? values[v++] : base;
+    }
   }
 }
 
-inline void extract_exceptions(View plane, uint8_t base, Bytes& mask, Bytes& values) {
+inline void extract_exceptions(View plane, uint8_t base, Bytes &mask, Bytes &values) {
   size_t start = values.size(), used = start, i = 0;
   values.resize(start + plane.size() + 8);
 #if defined(__aarch64__) && !defined(SLPZ_CUSTOM_SCALAR)
@@ -643,8 +734,11 @@ inline void extract_exceptions(View plane, uint8_t base, Bytes& mask, Bytes& val
     PackTable() {
       for (unsigned m = 0; m < 256; ++m) {
         indexes[m].fill(255);
-        for (unsigned k = 0; k < 8; ++k)
-          if (m & (1u << k)) indexes[m][counts[m]++] = uint8_t(k);
+        for (unsigned k = 0; k < 8; ++k) {
+          if (m & (1u << k)) {
+            indexes[m][counts[m]++] = uint8_t(k);
+          }
+        }
       }
     }
   };
@@ -660,11 +754,12 @@ inline void extract_exceptions(View plane, uint8_t base, Bytes& mask, Bytes& val
     used += table.counts[bits];
   }
 #endif
-  for (; i < plane.size(); ++i)
+  for (; i < plane.size(); ++i) {
     if (plane[i] != base) {
       mask[i / 8] |= 1u << (i % 8);
       values[used++] = plane[i];
     }
+  }
   values.resize(used);
 }
 
@@ -686,12 +781,15 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
     extract_exceptions(plane, base, mask, values);
     contexts.insert(contexts.end(), values.size() - start, profiles[j]);
     unsigned best = 0;
-    for (auto v : mask) best += std::popcount(v);
+    for (auto v : mask) {
+      best += std::popcount(v);
+    }
     unsigned ref = 0;
     for (unsigned back = 1; back <= std::min<size_t>(j, 8); ++back) {
       unsigned delta = 0;
-      for (size_t i = 0; i < width; ++i)
+      for (size_t i = 0; i < width; ++i) {
         delta += std::popcount(uint8_t(mask[i] ^ original[(j - back) * width + i]));
+      }
       if (delta < best) {
         best = delta;
         ref = back;
@@ -699,16 +797,20 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
     }
     bases.push_back(ref);
     refs.push_back(ref);
-    for (size_t i = 0; i < width; ++i)
+    for (size_t i = 0; i < width; ++i) {
       masks.push_back(mask[i] ^ (ref ? original[(j - ref) * width + i] : 0));
+    }
     append(original, mask);
   }
   Bytes m;
-  if (count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4)
+  if (count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4) {
     m = encode(masks, Generic, depth);
+  }
   auto ma = encode_presence4(original, count, profiles, refs);
   bool binary = m.empty() || ma.size() < m.size();
-  if (binary) m = std::move(ma);
+  if (binary) {
+    m = std::move(ma);
+  }
   Bytes out = bases;
   out.push_back(binary ? 4 : 0);
   varint(out, narrow(m.size()));
@@ -719,14 +821,16 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
   return out;
 }
 // Borrow a fully sized destination, optionally scattering into selected planes.
-inline void masked_decode_into(Reader& r, uint32_t count, View profiles, Bytes& destination,
+inline void masked_decode_into(Reader &r, uint32_t count, View profiles, Bytes &destination,
                                std::span<const uint32_t> indexes = {}) {
   require(indexes.empty() || indexes.size() == profiles.size(), "mask destination indexes");
-  if (indexes.empty())
+  if (indexes.empty()) {
     require(uint64_t(count) * profiles.size() <= destination.size(), "mask destination size");
-  else
-    for (uint32_t index : indexes)
+  } else {
+    for (uint32_t index : indexes) {
       require((uint64_t(index) + 1) * count <= destination.size(), "mask destination plane");
+    }
+  }
   auto bases = r.take(profiles.size() * 2);
   size_t width = (size_t(count) + 7) / 8;
   unsigned binary = r.byte();
@@ -743,16 +847,24 @@ inline void masked_decode_into(Reader& r, uint32_t count, View profiles, Bytes& 
     mask = binary == 4 ? decode_presence4(m, count, profiles, refs)
                        : decode_presence(m, count, profiles, refs);
     m.done();
-  } else
+  } else {
     mask = decode(data, narrow(width * profiles.size()));
+  }
   Bytes contexts;
   size_t total = 0;
   for (size_t j = 0; j < profiles.size(); ++j) {
-    if (!binary && refs[j])
-      for (size_t i = 0; i < width; ++i) mask[j * width + i] ^= mask[(j - refs[j]) * width + i];
-    if (count % 8) require(!(mask[j * width + width - 1] >> (count % 8)), "mask padding");
+    if (!binary && refs[j]) {
+      for (size_t i = 0; i < width; ++i) {
+        mask[j * width + i] ^= mask[(j - refs[j]) * width + i];
+      }
+    }
+    if (count % 8) {
+      require(!(mask[j * width + width - 1] >> (count % 8)), "mask padding");
+    }
     unsigned nonzero = 0;
-    for (size_t i = 0; i < width; ++i) nonzero += std::popcount(mask[j * width + i]);
+    for (size_t i = 0; i < width; ++i) {
+      nonzero += std::popcount(mask[j * width + i]);
+    }
     total += nonzero;
     contexts.insert(contexts.end(), nonzero, profiles[j]);
   }
@@ -764,7 +876,7 @@ inline void masked_decode_into(Reader& r, uint32_t count, View profiles, Bytes& 
   restore_exceptions(mask, values, count, bases, destination, indexes);
 }
 // Owning convenience API for a compact plane layout.
-inline Bytes masked_decode(Reader& r, uint32_t count, View profiles) {
+inline Bytes masked_decode(Reader &r, uint32_t count, View profiles) {
   Bytes output(narrow(uint64_t(count) * profiles.size()));
   masked_decode_into(r, count, profiles, output);
   return output;
@@ -783,19 +895,21 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
     require(profiles[j] < ProfileCount, "custom profile");
     auto plane = data.subspan(j * count, count);
     Bytes special;
-    if (is_constant(plane)) special = Bytes{1, plane[0]};
-    else if (count) {
+    if (is_constant(plane)) {
+      special = Bytes{1, plane[0]};
+    } else if (count) {
       // A cheap screen avoids full histograms for clearly rich planes.
       // Borderline planes still get the exact sparse/run-mode trial.
       bool possible = true;
       if (count >= 1024) {
         uint32_t hist[256] = {}, runs = 0;
-        for (unsigned at : {0u, (count - 64) / 2, count - 64})
+        for (unsigned at : {0u, (count - 64) / 2, count - 64}) {
           for (unsigned i = 0; i < 64; ++i) {
             uint8_t v = plane[at + i];
             ++hist[v];
             runs += i == 0 || v != plane[at + i - 1];
           }
+        }
         possible = *std::max_element(hist, hist + 256) >= 172 || runs <= 24;
       }
       if (possible) {
@@ -806,8 +920,9 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
           runs += i == 0 || plane[i] != plane[i - 1];
         }
         uint32_t max = *std::max_element(counts, counts + 256);
-        if (max == count || count - max <= count / 128 || runs <= count / 128)
+        if (max == count || count - max <= count / 128 || runs <= count / 128) {
           special = encode(plane, Profile(profiles[j]), 0);
+        }
       }
     }
     if (!special.empty() && special[0] >= 1 && special[0] <= 3) {
@@ -826,10 +941,13 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
     uint8_t mode = 0;
     // Large float/controller packets favor the shared presence representation.
     // Retain the direct trial for controller packets at the deepest preset.
-    bool mask_only = rich.size() >= 32768 &&
-                     (std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4 ||
-                      (depth < 24 && std::count(rich_profiles.begin(), rich_profiles.end(), Controller) >= 4));
-    if (!mask_only) winner = lz_encode(rich, rich_profiles, count, depth);
+    bool mask_only =
+        rich.size() >= 32768 &&
+        (std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4 ||
+         (depth < 24 && std::count(rich_profiles.begin(), rich_profiles.end(), Controller) >= 4));
+    if (!mask_only) {
+      winner = lz_encode(rich, rich_profiles, count, depth);
+    }
 
     auto a = masked_encode(rich, count, rich_profiles, depth);
     if (winner.empty() || a.size() < winner.size()) {
@@ -845,7 +963,9 @@ inline Bytes decode_planes(View packed, uint32_t expected) {
   Reader r{packed};
   uint32_t planes = r.var();
   bool extended = planes == 65536;
-  if (extended) planes = r.var();
+  if (extended) {
+    planes = r.var();
+  }
   uint32_t count = r.var();
   require(uint64_t(planes) * count == expected && planes <= 65535, "custom plane dimensions");
   Bytes output(expected), profiles;
@@ -869,15 +989,18 @@ inline Bytes decode_planes(View packed, uint32_t expected) {
     unsigned mode = extended ? r.byte() : 0;
     require(mode == 0 || mode == 3, "custom plane coder");
     Bytes rich;
-    if (mode == 0)
+    if (mode == 0) {
       rich = lz_decode(r, n, profiles, count);
-    else if (mode == 3)
+    } else if (mode == 3) {
       masked_decode_into(r, count, profiles, output, indexes);
-    if (mode == 0)
-      for (size_t j = 0; j < indexes.size(); ++j)
+    }
+    if (mode == 0) {
+      for (size_t j = 0; j < indexes.size(); ++j) {
         std::copy_n(rich.data() + j * count, count, output.data() + size_t(indexes[j]) * count);
+      }
+    }
   }
   r.done();
   return output;
 }
-}  // namespace slpz_custom
+} // namespace slpz_custom

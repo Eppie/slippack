@@ -24,12 +24,14 @@ std::string archive_name(std::string_view name) {
     auto part = name.substr(at, slash == name.npos ? name.size() - at : slash - at);
     require(part != "..", "unsafe archive path (parent traversal)");
     if (!part.empty() && part != ".") {
-      if (!result.empty())
+      if (!result.empty()) {
         result += '/';
+      }
       result += part;
     }
-    if (slash == name.npos)
+    if (slash == name.npos) {
       break;
+    }
     at = slash + 1;
   }
   require(!result.empty() && name.back() != '/', "unsafe archive path");
@@ -38,9 +40,11 @@ std::string archive_name(std::string_view name) {
 static void validate_names(const std::vector<std::string> &names) {
   std::set<std::string> files(names.begin(), names.end());
   require(files.size() == names.size(), "duplicate archive path");
-  for (const auto &name : names)
-    for (size_t slash = name.find('/'); slash != name.npos; slash = name.find('/', slash + 1))
+  for (const auto &name : names) {
+    for (size_t slash = name.find('/'); slash != name.npos; slash = name.find('/', slash + 1)) {
       require(!files.contains(name.substr(0, slash)), "archive file/directory conflict");
+    }
+  }
 }
 class PhaseTimer {
   const PhaseObserver &observe_;
@@ -50,8 +54,9 @@ public:
   explicit PhaseTimer(const PhaseObserver &observe) : observe_(observe) {}
   void operator()(const char *phase) {
     auto now = std::chrono::steady_clock::now();
-    if (observe_)
+    if (observe_) {
       observe_(phase, std::chrono::duration<double>(now - start_).count());
+    }
     start_ = now;
   }
 };
@@ -74,20 +79,24 @@ static void pack_blob(std::span<const uint8_t> data, int level, Buf &blob,
   blob.put_u8(kCustom);
   const auto &winner = usePpc ? ppc : flat;
   blob.put_bytes(winner.data(), winner.size());
-  if (stat)
+  if (stat) {
     *stat += blob.size() - before;
+  }
 }
 
 // Modes 0, 2 and 4 are single custom frames; mode 3 is chunked below.
 static std::vector<uint8_t> unpack_blob(Reader &r) {
   uint8_t mode = r.u8();
-  if (mode == 0)
+  if (mode == 0) {
     return custom_unframe(r);
-  if (mode != 2 && mode != 4)
+  }
+  if (mode != 2 && mode != 4) {
     fail("corrupt archive (blob mode)");
+  }
   auto out = small_decompress(r);
-  if (mode == 4)
+  if (mode == 4) {
     ppc_branch_xform(out.data(), out.size() / 4, true);
+  }
   return out;
 }
 
@@ -171,8 +180,9 @@ static void plan_blob(FilePlan &fp, std::span<const uint8_t> data, int level,
     size_t at = b.size();
     b.put_u8(0);
     custom_frame(data, b, slpz_custom::Generic, level);
-    if (stat)
+    if (stat) {
       *stat += b.size() - at;
+    }
   } else if (data.size() < kChunk) {
     fp.tasks.push_back({&fp, fp.defer(), BlobTrialWork{data}, stat, data.size()});
   } else {
@@ -193,8 +203,9 @@ static void plan_blob(FilePlan &fp, std::span<const uint8_t> data, int level,
     b.put_u8(kCustom);
     b.put_u8(xform);
     b.put_u32(n);
-    if (stat)
+    if (stat) {
       *stat += 7;
+    }
     for (uint32_t i = 0; i < n; i++) {
       size_t off = (size_t)i * kChunk;
       auto chunk = data.subspan(off, std::min(kChunk, data.size() - off));
@@ -236,10 +247,12 @@ static void plan_compress(FilePlan &fp, int level) {
   fp.gCounts.resize(fp.slp.streams.size());
   EventStream *pre = nullptr, *post = nullptr;
   for (auto &st : fp.slp.streams) {
-    if (st.cmd == 0x37)
+    if (st.cmd == 0x37) {
       pre = &st;
-    if (st.cmd == 0x38)
+    }
+    if (st.cmd == 0x38) {
       post = &st;
+    }
   }
   bool xpred = false;
   if (pre && post && cross_pred_eligible(pre->recSize, pre->count, post->recSize, post->count)) {
@@ -259,8 +272,9 @@ static void plan_compress(FilePlan &fp, int level) {
     auto &st = fp.slp.streams[s];
     auto *stat = stats ? &stats->byCmd[st.cmd] : nullptr;
     uint8_t flags = 0;
-    if (xpred && st.cmd == 0x37)
+    if (xpred && st.cmd == 0x37) {
       flags |= 4;
+    }
     Buf seedStream;
     uint32_t seedOff = seed_offset_for(st.cmd, st.recSize);
     // small side-event streams (game start, gecko lists, message splits...)
@@ -311,13 +325,17 @@ static void plan_compress(FilePlan &fp, int level) {
       }
     }
     if (grouped) {
-      if (st.cmd == 0x37 && st.recSize >= 59)
+      if (st.cmd == 0x37 && st.recSize >= 59) {
         flags |= 32;
-      if (st.cmd == 0x38 && st.recSize >= 29u)
+      }
+      if (st.cmd == 0x38 && st.recSize >= 29u) {
         flags |= 16;
+      }
     }
-    if (seedOff && fold_seeds(st, seedOff, seedStream, grouped ? selector.data() : nullptr, stats))
+    if (seedOff &&
+        fold_seeds(st, seedOff, seedStream, grouped ? selector.data() : nullptr, stats)) {
       flags |= 2;
+    }
     {
       Buf &b = fp.live();
       b.put_u8(st.cmd);
@@ -327,8 +345,9 @@ static void plan_compress(FilePlan &fp, int level) {
       if (flags & 2) {
         size_t before = b.size();
         small_compress(seedStream, level, b, slpz_custom::Rng);
-        if (stats)
+        if (stats) {
           stats->seeds += b.size() - before;
+        }
       }
     }
     if (!grouped) {
@@ -339,12 +358,14 @@ static void plan_compress(FilePlan &fp, int level) {
       Buf &b = fp.live();
       size_t before = b.size();
       small_compress(selector, level, b, slpz_custom::Discrete);
-      if (stats)
+      if (stats) {
         stats->selector += b.size() - before;
+      }
       b.put_u8((uint8_t)keys.size());
     }
-    for (uint32_t g = 0; g < keys.size(); g++)
+    for (uint32_t g = 0; g < keys.size(); g++) {
       fp.tasks.push_back({&fp, fp.defer(), GroupWork{s, g}, stat, (size_t)counts[g] * st.recSize});
+    }
   }
 }
 static void run_pack_task(PackTask &t, int level) {
@@ -354,8 +375,9 @@ static void run_pack_task(PackTask &t, int level) {
         using Work = std::decay_t<decltype(work)>;
         if constexpr (std::is_same_v<Work, RawWork>) {
           auto n = custom_frame(work.data, out, slpz_custom::Generic, level);
-          if (t.stat)
+          if (t.stat) {
             *t.stat += n;
+          }
         } else if constexpr (std::is_same_v<Work, BlobTrialWork>) {
           pack_blob(work.data, level, out, t.stat);
         } else if constexpr (std::is_same_v<Work, BlobFrameWork>) {
@@ -364,10 +386,12 @@ static void run_pack_task(PackTask &t, int level) {
             Bytes transformed(work.data.begin(), work.data.end());
             ppc_branch_xform(transformed.data(), transformed.size() / 4, false);
             custom_frame(transformed, out, slpz_custom::Generic, level);
-          } else
+          } else {
             custom_frame(work.data, out, slpz_custom::Generic, level);
-          if (t.stat)
+          }
+          if (t.stat) {
             *t.stat += out.size() - at;
+          }
         } else {
           auto &st = t.fp->slp.streams[work.stream];
           if constexpr (std::is_same_v<Work, RecordWork>) {
@@ -377,14 +401,18 @@ static void run_pack_task(PackTask &t, int level) {
             uint32_t count = t.fp->gCounts[work.stream][work.group];
             Buf group;
             group.reserve(size_t(count) * st.recSize);
-            for (uint32_t i = 0; i < st.count; ++i)
-              if (sel[i] == work.group)
+            for (uint32_t i = 0; i < st.count; ++i) {
+              if (sel[i] == work.group) {
                 group.put_bytes(st.records.data() + size_t(i) * st.recSize, st.recSize);
+              }
+            }
             out.put_u32(count);
-            if (st.cmd == 0x37)
+            if (st.cmd == 0x37) {
               input_predict(group.data(), count, st.recSize, false);
-            if (st.cmd == 0x38)
+            }
+            if (st.cmd == 0x38) {
               motion_predict(group.data(), count, st.recSize, false);
+            }
             pack_records(group, count, st.recSize, level, out, t.stat, st.cmd);
           }
         }
@@ -448,8 +476,9 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
         }
         if (t) {
           run_pack_task(*t, level);
-          if (t->fp->pending.fetch_sub(1) == 1)
+          if (t->fp->pending.fetch_sub(1) == 1) {
             retire(*t->fp);
+          }
         } else if (fi != SIZE_MAX) {
           plan_compress(plans[fi], level);
           plans[fi].pending.store((uint32_t)plans[fi].tasks.size());
@@ -484,14 +513,15 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
     Buf packed;
   };
   std::vector<Pool> pools;
-  for (auto &p : plans)
+  for (auto &p : plans) {
     for (auto &ps : p.pooled) {
       Pool *pl = nullptr;
-      for (auto &q : pools)
+      for (auto &q : pools) {
         if (q.cmd == ps.cmd && q.recSize == ps.recSize) {
           pl = &q;
           break;
         }
+      }
       if (!pl) {
         pools.push_back({ps.cmd, ps.recSize, 0, {}, {}});
         pl = &pools.back();
@@ -501,6 +531,7 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
       pl->records.put_bytes(ps.records.data(), ps.records.size());
       ps.records = Buf();
     }
+  }
   parallel_for(pools.size(), threads, [&](size_t i) {
     auto &pl = pools[i];
     pack_records(pl.records, pl.total, pl.recSize, level, pl.packed,
@@ -524,21 +555,24 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
   uint64_t totalIn = 0;
   for (auto &p : plans) {
     uint64_t blobLen = 0;
-    for (auto &piece : p.pieces)
+    for (auto &piece : p.pieces) {
       blobLen += piece.size();
+    }
     out.put_u32((uint32_t)p.storedName.size());
     out.put_bytes(p.storedName.data(), p.storedName.size());
     out.put_u64(p.origSize);
     out.put_u64(blobLen);
-    for (auto &piece : p.pieces)
+    for (auto &piece : p.pieces) {
       out.put_bytes(piece.data(), piece.size());
+    }
     totalIn += p.origSize;
   }
   lap("assemble");
   Statistics snapshot;
   if (stats) {
-    for (unsigned c = 0; c < 256; ++c)
+    for (unsigned c = 0; c < 256; ++c) {
       snapshot.by_command[c] = stats->byCmd[c].load();
+    }
     snapshot.order = stats->order.load();
     snapshot.suffix = stats->suffix.load();
     snapshot.tail = stats->tail.load();
@@ -630,8 +664,9 @@ static uint64_t scan_blob(Reader &r, BlobPlan &bp, MetadataBudget &metadata) {
   bp.mode = r.u8();
   uint64_t output = 0;
   if (bp.mode == 0 || bp.mode == 2 || bp.mode == 4) {
-    if (bp.mode)
+    if (bp.mode) {
       require(r.u8() == kCustom, "corrupt blob codec");
+    }
     output = frame_size(skip_frame(r));
     bp.span = {start, size_t(r.p - start)};
   } else if (bp.mode == 3) {
@@ -649,8 +684,9 @@ static uint64_t scan_blob(Reader &r, BlobPlan &bp, MetadataBudget &metadata) {
       bp.chunks.push_back(frame);
     }
     bp.chunkOut.resize(bp.chunks.size());
-  } else
+  } else {
     fail("corrupt blob mode");
+  }
   return output;
 }
 
@@ -704,8 +740,9 @@ static void scan_decompress(DecPlan &dp, const DecodeLimits &limits, MetadataBud
     events += st.count;
     output += uint64_t(st.recSize + 1) * st.count;
     require(output <= dp.origSize && events <= limits.records, "corrupt record output size");
-    if (st.flags & 8)
+    if (st.flags & 8) {
       continue;
+    }
     if (st.flags & 2) {
       st.seedFrame = side_frame();
       require(frame_size(st.seedFrame) <= uint64_t(st.count) * 6, "corrupt seed stream size");
@@ -734,8 +771,9 @@ static void scan_decompress(DecPlan &dp, const DecodeLimits &limits, MetadataBud
   r.done();
 }
 static void prepare_file(DecPlan &dp, MetadataBudget &metadata) {
-  if (dp.raw)
+  if (dp.raw) {
     return;
+  }
   metadata.claim(dp.sideBytes);
   Reader order(dp.orderFrame);
   dp.order = custom_unframe(order);
@@ -782,8 +820,9 @@ struct DecTask {
               Reader r(blob.chunks[index]);
               auto &out = blob.chunkOut[index];
               out = custom_unframe(r);
-              if (blob.xform)
+              if (blob.xform) {
                 ppc_branch_xform(out.data(), out.size() / 4, true);
+              }
             },
             blob.chunks[index].size()};
   }
@@ -794,24 +833,29 @@ struct DecTask {
               auto count = stream.gCounts[group];
               auto &out = stream.recs[group];
               unpack_records(r, count, stream.recSize, out);
-              if (stream.flags & 16)
+              if (stream.flags & 16) {
                 motion_predict(out.data(), count, stream.recSize, true);
-              if (stream.flags & 32)
+              }
+              if (stream.flags & 32) {
                 input_predict(out.data(), count, stream.recSize, true);
+              }
             },
             size_t(stream.gCounts[group]) * stream.recSize};
   }
 };
 
 static void finish_blob(BlobPlan &bp) {
-  if (bp.mode != 3)
+  if (bp.mode != 3) {
     return;
+  }
   size_t total = 0;
-  for (auto &c : bp.chunkOut)
+  for (auto &c : bp.chunkOut) {
     total += c.size();
+  }
   bp.out.reserve(total);
-  for (auto &c : bp.chunkOut)
+  for (auto &c : bp.chunkOut) {
     bp.out.insert(bp.out.end(), c.begin(), c.end());
+  }
 }
 
 // Copy grouped records straight into their final event positions. Small
@@ -819,15 +863,17 @@ static void finish_blob(BlobPlan &bp) {
 // the destination record is still hot in cache.
 static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
   if (dp.raw) {
-    if (dp.outData.size() != dp.origSize)
+    if (dp.outData.size() != dp.origSize) {
       fail("size mismatch for " + dp.storedName);
+    }
     return;
   }
   finish_blob(dp.suffix);
   finish_blob(dp.tail);
   int16_t idxOf[256];
-  for (auto &i : idxOf)
+  for (auto &i : idxOf) {
     i = -1;
+  }
   struct Source {
     std::vector<const uint8_t *> records, predictions;
     std::vector<size_t> seedCursors;
@@ -838,31 +884,39 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
   for (size_t j = 0; j < dp.streams.size(); ++j) {
     auto &st = dp.streams[j];
     auto &src = sources[j];
-    if (idxOf[st.cmd] >= 0)
+    if (idxOf[st.cmd] >= 0) {
       fail("corrupt archive (duplicate stream)");
+    }
     idxOf[st.cmd] = int16_t(j);
     rawSize += size_t(st.recSize) * st.count + st.count;
     src.records.resize(st.count);
     if (st.flags & 8) {
-      if (st.poolIdx < 0)
+      if (st.poolIdx < 0) {
         fail("corrupt archive (pool ref)");
+      }
       auto &pl = pools[size_t(st.poolIdx)];
       const uint8_t *base = pl.records.data();
-      if (st.recSize)
+      if (st.recSize) {
         base += st.poolOff * st.recSize;
-      for (unsigned i = 0; i < st.count; ++i)
+      }
+      for (unsigned i = 0; i < st.count; ++i) {
         src.records[i] = st.recSize ? base + size_t(i) * st.recSize : base;
+      }
     } else {
-      if (st.recs.size() != st.gCounts.size())
+      if (st.recs.size() != st.gCounts.size()) {
         fail("corrupt archive (groups)");
-      for (size_t g = 0; g < st.recs.size(); ++g)
-        if (st.recs[g].size() != size_t(st.gCounts[g]) * st.recSize)
+      }
+      for (size_t g = 0; g < st.recs.size(); ++g) {
+        if (st.recs[g].size() != size_t(st.gCounts[g]) * st.recSize) {
           fail("corrupt archive (group size)");
+        }
+      }
       std::vector<uint32_t> used(st.recs.size());
       for (unsigned i = 0; i < st.count; ++i) {
         unsigned g = st.flags & 1 ? st.selector[i] : 0;
-        if (g >= used.size() || used[g] >= st.gCounts[g])
+        if (g >= used.size() || used[g] >= st.gCounts[g]) {
           fail("corrupt archive (selector count)");
+        }
         const uint8_t *base = st.recs[g].data();
         src.records[i] = st.recSize ? base + size_t(used[g]) * st.recSize : base;
         ++used[g];
@@ -870,8 +924,9 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
     }
     if (st.flags & 2) {
       src.seedOffset = seed_offset_for(st.cmd, st.recSize);
-      if (!src.seedOffset)
+      if (!src.seedOffset) {
         fail("corrupt archive (seed flag on seedless cmd)");
+      }
       bool grouped = st.flags & 1;
       unsigned groups = grouped ? unsigned(st.gCounts.size()) : 1;
       src.seedCursors.resize(groups);
@@ -882,10 +937,12 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
         for (unsigned i = 0; i < n; ++i) {
           uint32_t k = get_varint(st.seedStream, pos);
           require(k <= kSeedException, "corrupt seed step count");
-          if (k == kSeedException)
+          if (k == kSeedException) {
             pos += 4;
-          if (pos > st.seedStream.size())
+          }
+          if (pos > st.seedStream.size()) {
             fail("corrupt archive (seed stream)");
+          }
         }
       }
       require(pos == st.seedStream.size(), "corrupt trailing seed bytes");
@@ -893,14 +950,17 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
   }
   for (size_t j = 0; j < dp.streams.size(); ++j) {
     auto &pre = dp.streams[j];
-    if (!(pre.flags & 4))
+    if (!(pre.flags & 4)) {
       continue;
-    if (pre.cmd != 0x37 || idxOf[0x38] < 0)
+    }
+    if (pre.cmd != 0x37 || idxOf[0x38] < 0) {
       fail("corrupt archive (xpred flag)");
+    }
     unsigned postIdx = idxOf[0x38];
     auto &post = dp.streams[postIdx];
-    if (!cross_pred_eligible(pre.recSize, pre.count, post.recSize, post.count))
+    if (!cross_pred_eligible(pre.recSize, pre.count, post.recSize, post.count)) {
       fail("corrupt archive (xpred shape)");
+    }
     auto &predictions = sources[j].predictions;
     predictions.resize(pre.count, nullptr);
     static thread_local std::array<uint32_t, 65536> heads{};
@@ -921,8 +981,9 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
     for (unsigned i = 0; i < pre.count; ++i) {
       const uint8_t *p = sources[j].records[i];
       uint16_t k = uint16_t(p[4] << 8 | p[5]);
-      if (!heads[k])
+      if (!heads[k]) {
         continue;
+      }
       if (!seen[k]) {
         seen[k] = true;
         continue;
@@ -931,15 +992,17 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
       predictions[i] = sources[postIdx].records[at];
       heads[k] = next[at];
     }
-    for (auto k : keys)
+    for (auto k : keys) {
       heads[k] = 0;
+    }
   }
   auto &out = dp.outData;
   out.resize(dp.prefix.size() + rawSize + dp.suffix.out.size());
   uint8_t *dest = out.data();
   auto append = [&](std::span<const uint8_t> part) {
-    if (!part.empty())
+    if (!part.empty()) {
       memcpy(dest, part.data(), part.size());
+    }
     dest += part.size();
   };
   append(dp.prefix);
@@ -947,50 +1010,60 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
   append(dp.ep);
   for (uint8_t cmd : dp.order) {
     int16_t j = idxOf[cmd];
-    if (j < 0)
+    if (j < 0) {
       fail("corrupt archive (order stream)");
+    }
     auto &st = dp.streams[size_t(j)];
     auto &src = sources[size_t(j)];
     unsigned i = src.at++;
-    if (i >= st.count)
+    if (i >= st.count) {
       fail("corrupt archive (order count)");
+    }
     *dest++ = cmd;
-    if (st.recSize)
+    if (st.recSize) {
       memcpy(dest, src.records[i], st.recSize);
+    }
     if (src.seedOffset) {
       unsigned g = st.flags & 1 ? st.selector[i] : 0;
-      if (g >= src.seedCursors.size())
+      if (g >= src.seedCursors.size()) {
         fail("corrupt archive (seed group)");
+      }
       auto &cursor = src.seedCursors[g];
       uint32_t k = get_varint(st.seedStream, cursor);
       if (k == kSeedException) {
         Reader seed(View(st.seedStream).subspan(cursor));
         src.seed = seed.u32();
         cursor += 4;
-      } else
+      } else {
         src.seed = lcg_advance(src.seed, k);
+      }
       auto *p = dest + src.seedOffset;
       p[0] = src.seed >> 24;
       p[1] = src.seed >> 16;
       p[2] = src.seed >> 8;
       p[3] = src.seed;
     }
-    if (!src.predictions.empty())
+    if (!src.predictions.empty()) {
       if (const uint8_t *q = src.predictions[i]) {
-        for (unsigned k = 0; k < kLenA; ++k)
+        for (unsigned k = 0; k < kLenA; ++k) {
           dest[kPreA + k] ^= q[kPostA + k];
-        for (unsigned k = 0; k < kLenB; ++k)
+        }
+        for (unsigned k = 0; k < kLenB; ++k) {
           dest[kPreB + k] ^= q[kPostB + k];
+        }
       }
+    }
     dest += st.recSize;
   }
   append(dp.tail.out);
   append(dp.suffix.out);
-  if (dest != out.data() + out.size() || out.size() != dp.origSize)
+  if (dest != out.data() + out.size() || out.size() != dp.origSize) {
     fail("size mismatch for " + dp.storedName);
+  }
   for (size_t j = 0; j < dp.streams.size(); ++j) {
-    if (sources[j].at != dp.streams[j].count)
+    if (sources[j].at != dp.streams[j].count) {
       fail("corrupt archive (order count)");
+    }
     dp.streams[j].recs.clear();
     dp.streams[j].recs.shrink_to_fit();
   }
@@ -1005,12 +1078,14 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   DecodeResult result;
   Reader r(arc);
   r.output_limit = options.limits.frame_bytes;
-  if (r.u32() != kMagic)
+  if (r.u32() != kMagic) {
     fail("not a slpz archive");
+  }
   uint8_t version = r.u8(), flags = r.u8();
-  if ((version != kVersion && version != kOriginalVersion) || flags != 1)
+  if ((version != kVersion && version != kOriginalVersion) || flags != 1) {
     fail("unsupported slpz format (requires v1 custom or its original v15 header; use the "
          "compatibility reader for older formats)");
+  }
   MetadataBudget metadata(options.limits.metadata_bytes);
   uint32_t nPools = r.u32();
   require(nPools <= options.limits.pools && nPools <= r.remaining() / 19,
@@ -1064,20 +1139,24 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
 
   // resolve pool slices in file order; each pooled stream is a dependency
   for (auto &dp : plans) {
-    if (dp.raw)
+    if (dp.raw) {
       continue;
+    }
     for (auto &st : dp.streams) {
-      if (!(st.flags & 8))
+      if (!(st.flags & 8)) {
         continue;
+      }
       DecPool *pl = nullptr;
-      for (size_t i = 0; i < pools.size(); i++)
+      for (size_t i = 0; i < pools.size(); i++) {
         if (pools[i].cmd == st.cmd && pools[i].recSize == st.recSize) {
           st.poolIdx = (int)i;
           pl = &pools[i];
           break;
         }
-      if (!pl || pl->cursor + st.count > pl->total)
+      }
+      if (!pl || pl->cursor + st.count > pl->total) {
         fail("corrupt archive (pool slice)");
+      }
       st.poolOff = pl->cursor;
       pl->cursor += st.count;
     }
@@ -1085,8 +1164,9 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
 
   // decode pools up front: they are small, live for the whole run, and every
   // wave below may reference them — no per-file dependency accounting needed
-  for (const auto &pool : pools)
+  for (const auto &pool : pools) {
     require(pool.cursor == pool.total, "corrupt unused pool records");
+  }
   parallel_for(pools.size(), threads, [&](size_t i) {
     auto &pool = pools[i];
     Reader r(pool.span);
@@ -1097,10 +1177,12 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   auto finish = [&](DecPlan &dp) {
     assemble_decompress(dp, pools);
     auto &entry = result.entries[size_t(&dp - plans.data())];
-    if (options.compute_hashes)
+    if (options.compute_hashes) {
       entry.sha1 = sha1(dp.outData);
-    if (sink)
+    }
+    if (sink) {
       sink({dp.storedName, std::move(dp.outData)});
+    }
     dp.release();
     metadata.release(dp.sideBytes);
   };
@@ -1111,30 +1193,36 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   while (next < plans.size()) {
     size_t first = next;
     uint64_t bytes = 0;
-    while (next < plans.size() && (next == first || bytes < kDecBudget))
+    while (next < plans.size() && (next == first || bytes < kDecBudget)) {
       bytes += plans[next++].origSize;
+    }
     parallel_for(next - first, threads,
                  [&](size_t i) { prepare_file(plans[first + i], metadata); });
     std::vector<DecTask> tasks;
     for (size_t index = first; index < next; ++index) {
       auto &dp = plans[index];
       size_t before = tasks.size();
-      if (dp.raw)
+      if (dp.raw) {
         tasks.push_back(DecTask::raw(dp));
-      else {
+      } else {
         for (auto *bp : {&dp.suffix, &dp.tail}) {
-          if (bp->mode == 3)
-            for (uint32_t i = 0; i < bp->chunks.size(); ++i)
+          if (bp->mode == 3) {
+            for (uint32_t i = 0; i < bp->chunks.size(); ++i) {
               tasks.push_back(DecTask::chunk(dp, *bp, i));
-          else if (!bp->span.empty())
+            }
+          } else if (!bp->span.empty()) {
             tasks.push_back(DecTask::blob(dp, *bp));
+          }
         }
-        for (auto &stream : dp.streams)
-          for (uint32_t group = 0; group < stream.spans.size(); ++group)
+        for (auto &stream : dp.streams) {
+          for (uint32_t group = 0; group < stream.spans.size(); ++group) {
             tasks.push_back(DecTask::records(dp, stream, group));
+          }
+        }
       }
-      if (tasks.size() == before)
+      if (tasks.size() == before) {
         tasks.emplace_back(dp, [] {}, 0);
+      }
       dp.pending.store(narrow(tasks.size() - before));
     }
     std::sort(tasks.begin(), tasks.end(),
@@ -1142,11 +1230,13 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
     parallel_for(tasks.size(), threads, [&](size_t i) {
       auto &t = tasks[i];
       t.run();
-      if (t.owner->pending.fetch_sub(1) == 1)
+      if (t.owner->pending.fetch_sub(1) == 1) {
         finish(*t.owner);
+      }
     });
-    if (next < plans.size())
+    if (next < plans.size()) {
       release_unused_memory();
+    }
   }
   lap("decode+assemble");
   return result;

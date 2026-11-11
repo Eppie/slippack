@@ -21,8 +21,9 @@ class Fd {
 public:
   explicit Fd(int value = -1) : value_(value) {}
   ~Fd() {
-    if (value_ >= 0)
+    if (value_ >= 0) {
       ::close(value_);
+    }
   }
   Fd(const Fd &) = delete;
   Fd &operator=(const Fd &) = delete;
@@ -34,8 +35,9 @@ public:
   int get() const { return value_; }
   void close_checked() {
     auto fd = std::exchange(value_, -1);
-    if (::close(fd) != 0)
+    if (::close(fd) != 0) {
       fail("cannot close output file");
+    }
   }
 };
 [[noreturn]] void io_error(const std::string &operation) {
@@ -44,12 +46,14 @@ public:
 Fd descend(int parent, const std::string &name, bool create) {
   int fd = ::openat(parent, name.c_str(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
   if (fd < 0 && errno == ENOENT && create) {
-    if (::mkdirat(parent, name.c_str(), 0755) != 0 && errno != EEXIST)
+    if (::mkdirat(parent, name.c_str(), 0755) != 0 && errno != EEXIST) {
       io_error("cannot create directory " + name);
+    }
     fd = ::openat(parent, name.c_str(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
   }
-  if (fd < 0)
+  if (fd < 0) {
     io_error("cannot safely open directory " + name);
+  }
   return Fd(fd);
 }
 Fd open_directory(const fs::path &path, bool create) {
@@ -57,12 +61,14 @@ Fd open_directory(const fs::path &path, bool create) {
   // Descendants from archive names are opened only with openat/O_NOFOLLOW.
   const auto resolved = fs::weakly_canonical(fs::absolute(path.empty() ? fs::path(".") : path));
   Fd current(::open(resolved.is_absolute() ? "/" : ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC));
-  if (current.get() < 0)
+  if (current.get() < 0) {
     io_error("cannot open output root");
+  }
   for (const auto &part : resolved) {
     auto name = part.string();
-    if (name == "/" || name == "." || name.empty())
+    if (name == "/" || name == "." || name.empty()) {
       continue;
+    }
     current = descend(current.get(), name, create);
   }
   return current;
@@ -70,11 +76,13 @@ Fd open_directory(const fs::path &path, bool create) {
 void atomic_write(int parent, const std::string &name, View data, Overwrite policy) {
   struct stat status;
   if (::fstatat(parent, name.c_str(), &status, AT_SYMLINK_NOFOLLOW) == 0) {
-    if (policy != Overwrite::Replace)
+    if (policy != Overwrite::Replace) {
       fail("output exists: " + name);
+    }
     require(S_ISREG(status.st_mode), "output is not a regular file");
-  } else if (errno != ENOENT)
+  } else if (errno != ENOENT) {
     io_error("cannot inspect output " + name);
+  }
   static std::atomic<uint64_t> sequence{0};
   std::string temporary;
   Fd output;
@@ -86,8 +94,9 @@ void atomic_write(int parent, const std::string &name, View data, Overwrite poli
       output = Fd(fd);
       break;
     }
-    if (errno != EEXIST)
+    if (errno != EEXIST) {
       io_error("cannot create temporary output");
+    }
   }
   require(output.get() >= 0, "cannot allocate temporary output name");
   struct Cleanup {
@@ -98,35 +107,42 @@ void atomic_write(int parent, const std::string &name, View data, Overwrite poli
   while (!data.empty()) {
     auto count = std::min<size_t>(data.size(), 1u << 30);
     ssize_t written = ::write(output.get(), data.data(), count);
-    if (written < 0 && errno == EINTR)
+    if (written < 0 && errno == EINTR) {
       continue;
-    if (written <= 0)
+    }
+    if (written <= 0) {
       io_error("cannot write output " + name);
+    }
     data = data.subspan(size_t(written));
   }
   output.close_checked();
   if (policy == Overwrite::Replace) {
-    if (::renameat(parent, temporary.c_str(), parent, name.c_str()) != 0)
+    if (::renameat(parent, temporary.c_str(), parent, name.c_str()) != 0) {
       io_error("cannot replace output " + name);
-  } else if (::linkat(parent, temporary.c_str(), parent, name.c_str(), 0) != 0)
+    }
+  } else if (::linkat(parent, temporary.c_str(), parent, name.c_str(), 0) != 0) {
     io_error("cannot install output " + name);
+  }
 }
 } // namespace
 
 Bytes read_file(const fs::path &path, uint64_t limit) {
   std::ifstream input(path, std::ios::binary | std::ios::ate);
-  if (!input)
+  if (!input) {
     fail("cannot open " + path.string());
+  }
   auto length = input.tellg();
   require(length >= 0 && uint64_t(length) <= limit && uint64_t(length) <= SIZE_MAX,
           "input exceeds size limit or cannot be sized");
   Bytes bytes{};
   bytes.resize(size_t(length));
   input.seekg(0);
-  if (!bytes.empty())
+  if (!bytes.empty()) {
     input.read(reinterpret_cast<char *>(bytes.data()), std::streamsize(bytes.size()));
-  if (!input)
+  }
+  if (!input) {
     fail("short read on " + path.string());
+  }
   return bytes;
 }
 void write_file(const fs::path &path, View data, Overwrite policy) {
@@ -136,14 +152,17 @@ void write_file(const fs::path &path, View data, Overwrite policy) {
 }
 std::string source_name(const fs::path &path) {
   auto normalized = path.lexically_normal();
-  if (normalized.is_absolute() || (!normalized.empty() && *normalized.begin() == ".."))
+  if (normalized.is_absolute() || (!normalized.empty() && *normalized.begin() == "..")) {
     normalized = normalized.filename();
+  }
   std::string name = normalized.generic_string();
   bool parent = false;
-  for (const auto &part : path)
+  for (const auto &part : path) {
     parent |= part == "..";
-  if (!path.is_absolute() && !parent)
+  }
+  if (!path.is_absolute() && !parent) {
     name = path.generic_string();
+  }
   archive_name(name); // validate, preserving harmless ./ prefixes verbatim
   return name;
 }
@@ -161,8 +180,9 @@ struct ExtractionWriter::Impl {
   Impl(const fs::path &directory, Overwrite overwrite)
       : root(open_directory(directory, true)), policy(overwrite) {
     try {
-      for (unsigned i = 0; i < 3; ++i)
+      for (unsigned i = 0; i < 3; ++i) {
         writers.emplace_back([this] { worker(); });
+      }
     } catch (...) {
       cancel();
       throw;
@@ -183,11 +203,13 @@ struct ExtractionWriter::Impl {
   void write(DecodedFile file) {
     auto name = archive_name(file.name);
     Fd parent(::dup(root.get()));
-    if (parent.get() < 0)
+    if (parent.get() < 0) {
       io_error("cannot duplicate output directory");
+    }
     size_t at = 0;
-    for (size_t slash; (slash = name.find('/', at)) != name.npos; at = slash + 1)
+    for (size_t slash; (slash = name.find('/', at)) != name.npos; at = slash + 1) {
       parent = descend(parent.get(), name.substr(at, slash - at), true);
+    }
     atomic_write(parent.get(), name.substr(at), file.bytes, policy);
   }
   void worker() noexcept {
@@ -197,8 +219,9 @@ struct ExtractionWriter::Impl {
         {
           std::unique_lock lock(mutex);
           ready.wait(lock, [&] { return done || !queue.empty(); });
-          if (queue.empty())
+          if (queue.empty()) {
             return;
+          }
           file = std::move(queue.front());
           queue.pop_front();
           queued_bytes -= file.bytes.size();
@@ -209,8 +232,9 @@ struct ExtractionWriter::Impl {
     } catch (...) {
       {
         std::lock_guard lock(mutex);
-        if (!error)
+        if (!error) {
           error = std::current_exception();
+        }
         done = true;
         queue.clear();
         queued_bytes = 0;
@@ -225,8 +249,9 @@ struct ExtractionWriter::Impl {
       return done || (queue.size() < 48 &&
                       (queue.empty() || queued_bytes + file.bytes.size() <= (256ull << 20)));
     });
-    if (error)
+    if (error) {
       std::rethrow_exception(error);
+    }
     require(!done, "output writer already closed");
     queued_bytes += file.bytes.size();
     queue.push_back(std::move(file));
@@ -240,8 +265,9 @@ struct ExtractionWriter::Impl {
     ready.notify_all();
     space.notify_all();
     writers.clear();
-    if (error)
+    if (error) {
       std::rethrow_exception(error);
+    }
   }
 };
 ExtractionWriter::ExtractionWriter(const fs::path &root, Overwrite policy)

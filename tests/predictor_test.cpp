@@ -30,8 +30,9 @@ static uint32_t integer_grid_reference(uint32_t value) {
     return u;
   }
   uint32_t magnitude = value & 0x7fffffffu;
-  if (magnitude > 0x45800000u)
+  if (magnitude > 0x45800000u) {
     return value;
+  }
   float f;
   memcpy(&f, &magnitude, 4);
   unsigned n = unsigned(f);
@@ -62,8 +63,9 @@ int main() {
         check(lcg_advance(start, k) == scalar, "LCG jump");
         check(lcg_distance(start, scalar) == k, "LCG bounded distance");
         check(lcg_distance(start, scalar ^ (1u << 13)) == UINT32_MAX, "LCG alias accepted");
-      } else
+      } else {
         check(lcg_distance(start, scalar) == UINT32_MAX, "LCG out-of-window distance");
+      }
       scalar = lcg_next(scalar);
     }
   }
@@ -88,8 +90,9 @@ int main() {
     float f = float(i);
     uint32_t bits;
     memcpy(&bits, &f, 4);
-    for (uint32_t near : {bits - 1, bits, bits + 1})
+    for (uint32_t near : {bits - 1, bits, bits + 1}) {
       check(integer_grid(near) == integer_grid_reference(near), "integer boundary oracle");
+    }
   }
   const uint32_t special[] = {0,          0x80000000, 0x7f800000, 0xff800000, 0x7fc01234,
                               0xffc05678, 0x7f801234, 0x00000001, 0x7f7fffff, 0xffffffff};
@@ -98,13 +101,17 @@ int main() {
     for (unsigned count : {0u, 1u, 2u, 17u, 257u}) {
       Buf original;
       original.resize(size_t(size) * count);
-      for (auto &b : original)
+      for (auto &b : original) {
         b = uint8_t(random());
-      for (unsigned i = 0; i < count; ++i)
-        for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 33u, 52u, 56u, 60u, 64u, 68u})
-          if (offset + 4 <= size && i % 2 == 0)
+      }
+      for (unsigned i = 0; i < count; ++i) {
+        for (unsigned offset : {9u, 13u, 17u, 21u, 25u, 33u, 52u, 56u, 60u, 64u, 68u}) {
+          if (offset + 4 <= size && i % 2 == 0) {
             word(original.data() + size_t(i) * size + offset,
                  special[(i + offset) % std::size(special)]);
+          }
+        }
+      }
       auto records = original;
       motion_predict(records.data(), count, size, false);
       if (size >= 29 && size < 72) {
@@ -133,8 +140,9 @@ int main() {
       }
       if (size >= 29) {
         for (unsigned offset : {21u, 25u, 60u, 64u}) {
-          if (offset + 4 > size)
+          if (offset + 4 > size) {
             continue;
+          }
           uint32_t previous = 0, older = 0;
           for (unsigned i = 0; i < count; ++i) {
             uint32_t prediction = previous;
@@ -175,8 +183,9 @@ int main() {
           }
         }
       }
-      if (size < 29u)
+      if (size < 29u) {
         check(records == original, "predictor eligibility");
+      }
       motion_predict(records.data(), count, size, true);
       check(records == original, "numeric predictor roundtrip");
       input_predict(records.data(), count, size, false);

@@ -143,6 +143,10 @@ legacy implementation; the latest code is on `custom-codec`.
 
 ## Validation and benchmarks
 
+Use `make format` to format all C++ code and insert braces around control-flow
+bodies, or `make check-format` to check without editing. These targets require
+clang-format 15 or newer; set `CLANG_FORMAT=/path/to/clang-format` if needed.
+
 `make check` covers custom packets, dictionary framing, scalar predictor
 oracles, exception propagation, concurrent/repeated library calls, path and
 symlink confinement, atomic overwrites, limits, exact extraction, unsupported-format

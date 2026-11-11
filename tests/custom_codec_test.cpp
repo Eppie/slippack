@@ -6,7 +6,7 @@
 #include <random>
 
 using namespace slpz_custom;
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   std::mt19937 random(716018);
   size_t checks = 0;
   std::array<size_t, 6> packet_modes{};
@@ -33,15 +33,15 @@ int main(int argc, char** argv) {
           auto path = std::filesystem::path(argv[1]) / std::to_string(checks);
           std::ofstream file(path, std::ios::binary);
           const uint8_t prefix[4] = {uint8_t(n), uint8_t(n >> 8), 0, uint8_t(profile)};
-          file.write(reinterpret_cast<const char*>(prefix), 4);
-          file.write(reinterpret_cast<const char*>(packed.data()), packed.size());
+          file.write(reinterpret_cast<const char *>(prefix), 4);
+          file.write(reinterpret_cast<const char *>(packed.data()), packed.size());
         }
         // Truncation must fail rather than overread or silently return a prefix.
         for (size_t cut : {size_t(0), packed.size() / 2, packed.size() - 1}) {
           try {
             (void)decode(View(packed).first(cut), n, profile);
             throw std::logic_error("accepted truncation");
-          } catch (const Error&) {
+          } catch (const Error &) {
           }
           ++checks;
         }
@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
           std::ofstream file(std::filesystem::path(argv[1]) / std::to_string(checks),
                              std::ios::binary);
           uint8_t prefix[4] = {uint8_t(planes.size()), uint8_t(planes.size() >> 8), 1, 0};
-          file.write(reinterpret_cast<const char*>(prefix), 4);
-          file.write(reinterpret_cast<const char*>(packed.data()), packed.size());
+          file.write(reinterpret_cast<const char *>(prefix), 4);
+          file.write(reinterpret_cast<const char *>(packed.data()), packed.size());
         }
       }
     }
@@ -112,7 +112,9 @@ int main(int argc, char** argv) {
                      : pattern == 2 ? bool(random() & 1)
                      : pattern == 3 ? i % 37 < 4
                                     : ((i / 7 + j) % 9 < 4);
-          if (bit) masks[j * width + i / 8] |= 1u << (i % 8);
+          if (bit) {
+            masks[j * width + i / 8] |= 1u << (i % 8);
+          }
         }
       }
       auto packed = encode_presence4(masks, count, labels, refs);
@@ -129,11 +131,12 @@ int main(int argc, char** argv) {
   for (unsigned count : {1u, 3u, 7u, 9u, 31u, 127u, 1000u, 4097u}) {
     Bytes data(count * 8),
         labels{FloatHigh, FloatLow, Controller, FloatLow, Discrete, FloatLow, Generic, FloatLow};
-    for (unsigned j = 0; j < 8; ++j)
+    for (unsigned j = 0; j < 8; ++j) {
       for (unsigned i = 0; i < count; ++i) {
         bool present = (i % 37 < 11) || (i % 101 == j);
         data[j * count + i] = present ? uint8_t(1 + random() % 255) : 0;
       }
+    }
     auto packed = masked_encode(data, count, labels, 8);
     Reader r{packed};
     require(masked_decode(r, count, labels) == data, "shared mask roundtrip");
@@ -144,7 +147,7 @@ int main(int argc, char** argv) {
         Reader bad{View(packed).first(cut)};
         (void)masked_decode(bad, count, labels);
         throw std::logic_error("accepted mask truncation");
-      } catch (const Error&) {
+      } catch (const Error &) {
       }
       ++checks;
     }
@@ -152,8 +155,11 @@ int main(int argc, char** argv) {
   // Exhaust all eight-lane masks, including a nonzero dominant value.
   for (unsigned bits = 0; bits < 256; ++bits) {
     Bytes plane(8, 93), mask(1, 0), values;
-    for (unsigned k = 0; k < 8; ++k)
-      if (bits & (1u << k)) plane[k] = uint8_t(k + 17);
+    for (unsigned k = 0; k < 8; ++k) {
+      if (bits & (1u << k)) {
+        plane[k] = uint8_t(k + 17);
+      }
+    }
     extract_exceptions(plane, 93, mask, values);
     require(mask[0] == bits, "SIMD mask extraction");
     require(values.size() == size_t(std::popcount(bits)), "SIMD compact count");
@@ -167,7 +173,9 @@ int main(int argc, char** argv) {
   // symbol whose cumulative interval contains that slot.
   for (unsigned rep = 0; rep < 128; ++rep) {
     std::array<uint16_t, 256> p;
-    for (auto& x : p) x = random() % 4097;
+    for (auto &x : p) {
+      x = random() % 4097;
+    }
     PresenceTable m;
     m.build(random() % 512, p);
     for (unsigned slot = 0; slot < 4096; ++slot) {
@@ -181,18 +189,22 @@ int main(int argc, char** argv) {
   require(decode_planes(field_planes, narrow(field_data.size())) == field_data,
           "distinct field distributions roundtrip");
   checks += 2;
-  for (auto count : packet_modes) require(count != 0, "packet mode not exercised");
+  for (auto count : packet_modes) {
+    require(count != 0, "packet mode not exercised");
+  }
   // Decoding corrupt data must stay bounded; accepted mutations may describe
   // different valid streams, so byte equality is not an oracle for this test.
   Bytes seed(8192);
-  for (size_t i = 0; i < seed.size(); ++i) seed[i] = uint8_t(random() % 16);
+  for (size_t i = 0; i < seed.size(); ++i) {
+    seed[i] = uint8_t(random() % 16);
+  }
   auto valid = encode(seed);
   for (unsigned i = 0; i < 1000; ++i) {
     auto mutated = valid;
     mutated[random() % mutated.size()] ^= uint8_t(1u << (random() % 8));
     try {
       (void)decode(mutated, narrow(seed.size()));
-    } catch (const Error&) {
+    } catch (const Error &) {
     }
     ++checks;
   }
@@ -201,7 +213,7 @@ int main(int argc, char** argv) {
     try {
       (void)decode(malformed, 16);
       throw std::logic_error("accepted invalid header");
-    } catch (const Error&) {
+    } catch (const Error &) {
     }
     ++checks;
   }

@@ -4,7 +4,9 @@
 namespace slpz_custom {
 // Two presence decisions per ANS symbol. Tables are derived deterministically
 // from the compact binary model, so no extra conditional histograms are stored.
-inline unsigned reverse2(unsigned v) { return ((v & 1) << 1) | ((v & 2) >> 1); }
+inline unsigned reverse2(unsigned v) {
+  return ((v & 1) << 1) | ((v & 2) >> 1);
+}
 inline unsigned above4(View masks, size_t start, size_t i, size_t width) {
   size_t byte = i / 8;
   unsigned v = (byte ? masks[start + byte - 1] : 0) | (unsigned(masks[start + byte]) << 8) |
@@ -13,7 +15,7 @@ inline unsigned above4(View masks, size_t start, size_t i, size_t width) {
 }
 struct PresenceTable {
   std::array<uint16_t, 4> freq{}, start{};
-  void build(unsigned key, const std::array<uint16_t, 256>& probs) {
+  void build(unsigned key, const std::array<uint16_t, 256> &probs) {
     unsigned cls = (key >> 8) * 128;
     unsigned sum = 0, max = 0;
     for (unsigned s = 0; s < 4; ++s) {
@@ -27,11 +29,13 @@ struct PresenceTable {
       }
       freq[s] = weight ? std::max<uint64_t>(1, weight >> 12) : 0;
       sum += freq[s];
-      if (freq[s] > freq[max]) max = s;
+      if (freq[s] > freq[max]) {
+        max = s;
+      }
     }
-    if (sum <= 4096)
+    if (sum <= 4096) {
       freq[max] += 4096 - sum;
-    else {
+    } else {
       unsigned need = sum - 4096;
       for (unsigned s = 0; need && s < 4; ++s) {
         unsigned take = std::min<unsigned>(need, freq[s] ? freq[s] - 1 : 0);
@@ -50,8 +54,12 @@ struct PresenceTable {
   unsigned symbol(unsigned slot) const {
     // Unchanged/changed pairs dominate these masks. Test both extremes first;
     // the two mixed pairs need the remaining comparison only occasionally.
-    if (slot < start[1]) return 0;
-    if (slot >= start[3]) return 3;
+    if (slot < start[1]) {
+      return 0;
+    }
+    if (slot >= start[3]) {
+      return 3;
+    }
     return slot < start[2] ? 1 : 2;
   }
 };
@@ -64,9 +72,10 @@ inline Bytes encode_presence(View masks, uint32_t count, View profiles, View ref
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned history = 0, cls = profiles[j] == FloatLow ? 128 : 0;
     for (size_t byte = 0; byte < width; ++byte) {
-      unsigned above = refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) |
-          (unsigned(masks[src + byte]) << 1) |
-          (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0)) : 0;
+      unsigned above =
+          refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) | (unsigned(masks[src + byte]) << 1) |
+                     (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0))
+                  : 0;
       unsigned current = masks[j * width + byte];
       unsigned pairs = std::min<size_t>(4, (count - byte * 8 + 1) / 2);
       for (unsigned k = 0; k < pairs; ++k) {
@@ -84,21 +93,30 @@ inline Bytes encode_presence(View masks, uint32_t count, View profiles, View ref
   }
   std::array<std::array<uint16_t, 256>, 2> candidates{};
   double costs[2] = {};
-  for (unsigned split = 0; split < 2; ++split)
+  for (unsigned split = 0; split < 2; ++split) {
     for (unsigned c = 0; c < (128u << split); ++c) {
       uint32_t a = hist[c][0] + (split ? 0 : hist[c + 128][0]),
                b = hist[c][1] + (split ? 0 : hist[c + 128][1]);
       unsigned p = a + b ? uint64_t(a) * 4096 / (a + b) : 4096;
-      if (a && b) p = std::clamp(p, 1u, 4095u);
+      if (a && b) {
+        p = std::clamp(p, 1u, 4095u);
+      }
       candidates[split][c] = p;
       costs[split] += p < 128 ? 8 : 16;
-      if (a) costs[split] += a * std::log2(4096. / p);
-      if (b) costs[split] += b * std::log2(4096. / (4096 - p));
+      if (a) {
+        costs[split] += a * std::log2(4096. / p);
+      }
+      if (b) {
+        costs[split] += b * std::log2(4096. / (4096 - p));
+      }
     }
+  }
   unsigned split = costs[1] < costs[0], nc = 128u << split, kmask = (256u << split) - 1;
-  auto& probs = candidates[split];
+  auto &probs = candidates[split];
   Bytes out{uint8_t(split)};
-  for (unsigned c = 0; c < nc; ++c) varint(out, probs[c]);
+  for (unsigned c = 0; c < nc; ++c) {
+    varint(out, probs[c]);
+  }
   std::vector<PresenceTable> tables(256u << split);
   std::vector<uint8_t> used(256u << split, 0);
   uint32_t state[4] = {1u << 23, 1u << 23, 1u << 23, 1u << 23};
@@ -109,7 +127,7 @@ inline Bytes encode_presence(View masks, uint32_t count, View profiles, View ref
       used[key] = 1;
       tables[key].build(key, probs);
     }
-    auto& m = tables[key];
+    auto &m = tables[key];
     uint32_t f = m.freq[s], &x = state[t & 3];
     require(f, "presence frequency");
     while (x >= ((1u << 23 >> 12) << 8) * f) {
@@ -118,11 +136,13 @@ inline Bytes encode_presence(View masks, uint32_t count, View profiles, View ref
     }
     x = x / f * 4096 + x % f + m.start[s];
   }
-  for (auto x : state) u32(out, x);
+  for (auto x : state) {
+    u32(out, x);
+  }
   out.insert(out.end(), bytes.rbegin(), bytes.rend());
   return out;
 }
-inline Bytes decode_presence(Reader& r, uint32_t count, View profiles, View refs) {
+inline Bytes decode_presence(Reader &r, uint32_t count, View profiles, View refs) {
   size_t planes = profiles.size(), width = (size_t(count) + 7) / 8;
   unsigned split = r.byte();
   require(split <= 1, "presence model");
@@ -133,7 +153,7 @@ inline Bytes decode_presence(Reader& r, uint32_t count, View profiles, View refs
     probs[c] = x;
   }
   uint32_t state[4];
-  for (auto& x : state) {
+  for (auto &x : state) {
     x = r.word();
     require(x >= (1u << 23) && x < (1u << 31), "presence state");
   }
@@ -145,19 +165,25 @@ inline Bytes decode_presence(Reader& r, uint32_t count, View profiles, View refs
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned history = 0, cls = split && profiles[j] == FloatLow ? 256 : 0;
     for (size_t byte = 0; byte < width; ++byte) {
-      unsigned above = refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) |
-          (unsigned(masks[src + byte]) << 1) |
-          (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0)) : 0;
+      unsigned above =
+          refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) | (unsigned(masks[src + byte]) << 1) |
+                     (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0))
+                  : 0;
       unsigned value = 0;
       unsigned pairs = std::min<size_t>(4, (count - byte * 8 + 1) / 2);
       for (unsigned k = 0; k < pairs; ++k) {
         unsigned key = history | ((above & 15) << 4) | cls;
-        if (!used[key]) {used[key] = 1; tables[key].build(key, probs);}
-        auto& m = tables[key];
+        if (!used[key]) {
+          used[key] = 1;
+          tables[key].build(key, probs);
+        }
+        auto &m = tables[key];
         uint32_t &x = state[t++ & 3], slot = x & 4095;
         unsigned s = m.symbol(slot);
         x = m.freq[s] * (x >> 12) + slot - m.start[s];
-        while (x < (1u << 23)) x = (x << 8) | r.byte();
+        while (x < (1u << 23)) {
+          x = (x << 8) | r.byte();
+        }
         value |= s << (k * 2);
         history = ((history << 2) | reverse2(s)) & 15;
         above >>= 2;
@@ -165,7 +191,9 @@ inline Bytes decode_presence(Reader& r, uint32_t count, View profiles, View refs
       masks[j * width + byte] = uint8_t(value);
     }
   }
-  for (auto x : state) require(x == (1u << 23), "presence terminal state");
+  for (auto x : state) {
+    require(x == (1u << 23), "presence terminal state");
+  }
   return masks;
 }
 
@@ -183,14 +211,14 @@ struct NibbleTable {
   std::array<uint64_t, 16> entries;
   unsigned start(unsigned s) const { return unsigned(entries[s] >> 32); }
   unsigned frequency(unsigned s) const { return unsigned(entries[s]); }
-  void build(unsigned key, const std::array<uint16_t, 256>& probs) {
+  void build(unsigned key, const std::array<uint16_t, 256> &probs) {
     std::array<uint32_t, 16> freq;
     unsigned cls = (key >> 10) * 128;
     unsigned sum = 0, max = 0;
     uint64_t weights[16];
     weights[0] = 1;
     unsigned above = (key >> 4) & 63;
-    for (unsigned k = 0; k < 4; ++k)
+    for (unsigned k = 0; k < 4; ++k) {
       for (unsigned v = 0; v < (1u << k); ++v) {
         unsigned rev = k ? reverse4(v) >> (4 - k) : 0;
         unsigned h = (((key & 15) << k) | rev) & 15;
@@ -198,15 +226,18 @@ struct NibbleTable {
         weights[v + (1u << k)] = weights[v] * (4096 - p);
         weights[v] *= p;
       }
+    }
     for (unsigned s = 0; s < 16; ++s) {
       uint64_t weight = weights[s];
       freq[s] = weight ? std::max<uint64_t>(1, (weight + (1ull << 31)) >> 32) : 0;
       sum += freq[s];
-      if (freq[s] > freq[max]) max = s;
+      if (freq[s] > freq[max]) {
+        max = s;
+      }
     }
-    if (sum <= 65536)
+    if (sum <= 65536) {
       freq[max] += 65536 - sum;
-    else {
+    } else {
       unsigned need = sum - 65536;
       for (unsigned s = 0; need && s < 16; ++s) {
         unsigned take = std::min<unsigned>(need, freq[s] ? freq[s] - 1 : 0);
@@ -257,26 +288,39 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       }
     }
   }
-  for (unsigned c = 0; c < 256; ++c)
-    for (unsigned v = 0; v < 2; ++v)
-      for (unsigned k = 0; k < 4; ++k) hist[c][v] += hist4[k][c][v];
+  for (unsigned c = 0; c < 256; ++c) {
+    for (unsigned v = 0; v < 2; ++v) {
+      for (unsigned k = 0; k < 4; ++k) {
+        hist[c][v] += hist4[k][c][v];
+      }
+    }
+  }
   std::array<std::array<uint16_t, 256>, 2> candidates{};
   double costs[2] = {};
-  for (unsigned split = 0; split < 2; ++split)
+  for (unsigned split = 0; split < 2; ++split) {
     for (unsigned c = 0; c < (128u << split); ++c) {
       uint32_t a = hist[c][0] + (split ? 0 : hist[c + 128][0]),
                b = hist[c][1] + (split ? 0 : hist[c + 128][1]);
       unsigned p = a + b ? uint64_t(a) * 4096 / (a + b) : 4096;
-      if (a && b) p = std::clamp(p, 1u, 4095u);
+      if (a && b) {
+        p = std::clamp(p, 1u, 4095u);
+      }
       candidates[split][c] = p;
       costs[split] += p < 128 ? 8 : 16;
-      if (a) costs[split] += a * std::log2(4096. / p);
-      if (b) costs[split] += b * std::log2(4096. / (4096 - p));
+      if (a) {
+        costs[split] += a * std::log2(4096. / p);
+      }
+      if (b) {
+        costs[split] += b * std::log2(4096. / (4096 - p));
+      }
     }
+  }
   unsigned split = costs[1] < costs[0], nc = 128u << split;
-  auto& probs = candidates[split];
+  auto &probs = candidates[split];
   Bytes out{uint8_t(split)};
-  for (unsigned c = 0; c < nc; ++c) varint(out, probs[c]);
+  for (unsigned c = 0; c < nc; ++c) {
+    varint(out, probs[c]);
+  }
   std::unique_ptr<NibbleTable[]> tables(new NibbleTable[1024u << split]);
   std::vector<uint8_t> used(1024u << split, 0);
   uint32_t state[4] = {1u << 23, 1u << 23, 1u << 23, 1u << 23};
@@ -303,10 +347,12 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
           used[key] = 1;
           tables[key].build(key, probs);
         }
-        auto& m = tables[key];
+        auto &m = tables[key];
         uint32_t f = m.frequency(s), &x = state[t & 3];
         require(f, "presence frequency");
-        if (f == 65536) continue;
+        if (f == 65536) {
+          continue;
+        }
         while (x >= ((1u << 23 >> 16) << 8) * f) {
           bytes.push_back(uint8_t(x));
           x >>= 8;
@@ -315,11 +361,13 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       }
     }
   }
-  for (auto x : state) u32(out, x);
+  for (auto x : state) {
+    u32(out, x);
+  }
   out.insert(out.end(), bytes.rbegin(), bytes.rend());
   return out;
 }
-inline Bytes decode_presence4(Reader& r, uint32_t count, View profiles, View refs) {
+inline Bytes decode_presence4(Reader &r, uint32_t count, View profiles, View refs) {
   size_t planes = profiles.size(), width = (size_t(count) + 7) / 8;
   unsigned split = r.byte();
   require(split <= 1, "presence model");
@@ -330,7 +378,7 @@ inline Bytes decode_presence4(Reader& r, uint32_t count, View profiles, View ref
     probs[c] = x;
   }
   uint32_t state[4];
-  for (auto& x : state) {
+  for (auto &x : state) {
     x = r.word();
     require(x >= (1u << 23) && x < (1u << 31), "presence state");
   }
@@ -354,14 +402,14 @@ inline Bytes decode_presence4(Reader& r, uint32_t count, View profiles, View ref
           used[key] = 1;
           tables[key].build(key, probs);
         }
-        auto& m = tables[key];
+        auto &m = tables[key];
         uint32_t &x = state[t++ & 3], slot = x & 65535;
         // Endpoint symbols expose their frequency through CDF boundaries.
         // A frequency of 65536 leaves the rANS state unchanged.
         unsigned s, start = 0, f = m.start(1);
-        if (slot < f)
+        if (slot < f) {
           s = 0;
-        else if (unsigned last = m.start(15); slot >= last) {
+        } else if (unsigned last = m.start(15); slot >= last) {
           s = 15;
           start = last;
           f = 65536 - last;
@@ -376,7 +424,9 @@ inline Bytes decode_presence4(Reader& r, uint32_t count, View profiles, View ref
         }
         if (f != 65536) {
           x = f * (x >> 16) + slot - start;
-          while (x < (1u << 23)) x = (x << 8) | r.byte();
+          while (x < (1u << 23)) {
+            x = (x << 8) | r.byte();
+          }
         }
         value |= s << (k * 4);
         history = ((s & 1) << 3) | ((s & 2) << 1) | ((s & 4) >> 1) | ((s & 8) >> 3);
@@ -385,8 +435,10 @@ inline Bytes decode_presence4(Reader& r, uint32_t count, View profiles, View ref
       masks[j * width + byte] = uint8_t(value);
     }
   }
-  for (auto x : state) require(x == (1u << 23), "presence terminal state");
+  for (auto x : state) {
+    require(x == (1u << 23), "presence terminal state");
+  }
   return masks;
 }
 
-}  // namespace slpz_custom
+} // namespace slpz_custom

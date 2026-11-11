@@ -26,8 +26,9 @@ std::string sha1(View data) {
   SHA1(data.data(), data.size(), digest);
 #endif
   char hex[41];
-  for (unsigned i = 0; i < 20; ++i)
+  for (unsigned i = 0; i < 20; ++i) {
     std::snprintf(hex + i * 2, 3, "%02x", digest[i]);
+  }
   return {hex, 40};
 }
 void release_unused_memory() {

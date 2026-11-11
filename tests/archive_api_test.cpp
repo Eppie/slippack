@@ -47,11 +47,12 @@ int main() {
   Bytes payload{'a', 'b', 'c'};
   std::vector<ArchiveInput> inputs;
   std::atomic<unsigned> loads{0};
-  for (unsigned i = 0; i < 80; ++i)
+  for (unsigned i = 0; i < 80; ++i) {
     inputs.push_back({"folder/file-" + std::to_string(i), [&] {
                         ++loads;
                         return payload;
                       }});
+  }
   EncodeOptions encode;
   encode.threads = 4;
   encode.collect_stats = true;
@@ -66,11 +67,13 @@ int main() {
   std::mutex mutex;
   std::set<std::string> names;
   auto result = decode_archive(packed.bytes, decode, [&](DecodedFile file) {
-    if (!std::equal(file.bytes.begin(), file.bytes.end(), payload.begin(), payload.end()))
+    if (!std::equal(file.bytes.begin(), file.bytes.end(), payload.begin(), payload.end())) {
       std::abort();
+    }
     std::lock_guard lock(mutex);
-    if (!names.insert(file.name).second)
+    if (!names.insert(file.name).second) {
       std::abort();
+    }
   });
   check(names.size() == inputs.size() && result.original_bytes == 240, "owned sink output");
   check(result.entries[0].sha1 == "a9993e364706816aba3e25717850c26c9cd0d89d", "SHA1 result");
@@ -89,11 +92,13 @@ int main() {
   // Multiple callers and recursive callbacks share no mutable operation state.
   auto operation = [&] {
     auto run = encode_archive(inputs, encode);
-    if (run.bytes != packed.bytes || run.statistics.misc != packed.statistics.misc)
+    if (run.bytes != packed.bytes || run.statistics.misc != packed.statistics.misc) {
       std::abort();
+    }
     auto restored = decode_archive(run.bytes, decode);
-    if (restored.entries.size() != inputs.size())
+    if (restored.entries.size() != inputs.size()) {
       std::abort();
+    }
   };
   auto a = std::async(std::launch::async, operation), b = std::async(std::launch::async, operation);
   operation();
@@ -102,8 +107,9 @@ int main() {
   ++checks;
   std::vector<ArchiveInput> recursive{{"recursive", [&] {
                                          auto inner = decode_archive(packed.bytes);
-                                         if (inner.entries.size() != inputs.size())
+                                         if (inner.entries.size() != inputs.size()) {
                                            std::abort();
+                                         }
                                          return payload;
                                        }}};
   auto nested = encode_archive(recursive);
@@ -121,11 +127,12 @@ int main() {
     check(reader.var() == value, "valid varint");
     reader.done();
   }
-  for (Bytes bytes : {Bytes{128}, Bytes{128, 128, 128, 128, 16}, Bytes{255, 255, 255, 255, 255}})
+  for (Bytes bytes : {Bytes{128}, Bytes{128, 128, 128, 128, 16}, Bytes{255, 255, 255, 255, 255}}) {
     rejects([&] {
       Reader reader(bytes);
       reader.var();
     });
+  }
   Bytes little;
   u32(little, 0x12345678);
   check(little == Bytes({0x78, 0x56, 0x34, 0x12}), "explicit endian encoding");
@@ -133,14 +140,16 @@ int main() {
   check(decode_archive(raw_archive("./one", payload, 3)).entries[0].name == "./one",
         "stored name preserved");
   auto tiny = raw_archive("one", payload, 3);
-  for (size_t length = 0; length < tiny.size(); ++length)
+  for (size_t length = 0; length < tiny.size(); ++length) {
     rejects([&] { decode_archive(View(tiny).first(length)); });
+  }
   auto trailing = tiny;
   trailing.push_back(0);
   rejects([&] { decode_archive(trailing); }, "trailing");
-  for (auto member :
-       {"../escape", "/absolute", "nested/../../escape", "C:drive", "folder\\file", "line\nbreak"})
+  for (auto member : {"../escape", "/absolute", "nested/../../escape", "C:drive", "folder\\file",
+                      "line\nbreak"}) {
     rejects([&] { decode_archive(raw_archive(member, payload, 3)); }, "unsafe");
+  }
   auto duplicate = inputs;
   duplicate[1].name = "folder/./file-0";
   rejects([&] { encode_archive(duplicate); }, "duplicate");
@@ -165,12 +174,14 @@ int main() {
   rejects([&] { decode_archive(tiny, limit); }, "file count");
   rejects([&] { decode_archive(raw_archive("wrong", payload, 4)); }, "raw file size");
   auto impossible = tiny;
-  for (unsigned i = 6; i < 10; ++i)
+  for (unsigned i = 6; i < 10; ++i) {
     impossible[i] = 255;
+  }
   rejects([&] { decode_archive(impossible); }, "pool count");
   impossible = tiny;
-  for (unsigned i = 10; i < 14; ++i)
+  for (unsigned i = 10; i < 14; ++i) {
     impossible[i] = 255;
+  }
   rejects([&] { decode_archive(impossible); }, "file count");
   decode.threads = 0;
   rejects([&] { decode_archive(tiny, decode); }, "threads");

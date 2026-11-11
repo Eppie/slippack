@@ -1,4 +1,5 @@
 CXX      ?= clang++
+CLANG_FORMAT ?= clang-format
 CXXFLAGS ?= -std=c++20 -O3 -Wall -Wextra
 UNAME_S  := $(shell uname -s)
 
@@ -43,4 +44,12 @@ clean:
 	rm -f slpz build/*.o build/*.d build/libslpz.a build/*_test
 
 -include $(wildcard build/*.d)
-.PHONY: clean check
+FORMAT_SOURCES := $(wildcard *.cpp *.h tests/*.cpp fuzz/*.cpp benchmarks/*/*.cpp benchmarks/*/*.h)
+
+format:
+	$(CLANG_FORMAT) -i $(FORMAT_SOURCES)
+
+check-format:
+	$(CLANG_FORMAT) --dry-run --Werror $(FORMAT_SOURCES)
+
+.PHONY: clean check format check-format

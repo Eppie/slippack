@@ -25,11 +25,11 @@ static inline void tile16(const uint8_t *src, size_t sStride, uint8_t *dst, size
 #if SLPZ_NEON
   uint8x16_t x[16];
   for (unsigned k = 0; k < 16; ++k) {
-    if (k >= Rows)
+    if (k >= Rows) {
       x[k] = vdupq_n_u8(0);
-    else if constexpr (Cols == 16)
+    } else if constexpr (Cols == 16) {
       x[k] = vld1q_u8(src + size_t(k) * sStride);
-    else {
+    } else {
       uint8_t row[16] = {};
       memcpy(row, src + size_t(k) * sStride, Cols);
       x[k] = vld1q_u8(row);
@@ -40,37 +40,42 @@ static inline void tile16(const uint8_t *src, size_t sStride, uint8_t *dst, size
     x[k] = lo;
     x[k + 1] = hi;
   }
-  for (int k = 0; k < 16; k++)
+  for (int k = 0; k < 16; k++) {
     if (!(k & 2)) {
       uint16x8_t a = vreinterpretq_u16_u8(x[k]), b = vreinterpretq_u16_u8(x[k | 2]);
       x[k] = vreinterpretq_u8_u16(vtrn1q_u16(a, b));
       x[k | 2] = vreinterpretq_u8_u16(vtrn2q_u16(a, b));
     }
-  for (int k = 0; k < 16; k++)
+  }
+  for (int k = 0; k < 16; k++) {
     if (!(k & 4)) {
       uint32x4_t a = vreinterpretq_u32_u8(x[k]), b = vreinterpretq_u32_u8(x[k | 4]);
       x[k] = vreinterpretq_u8_u32(vtrn1q_u32(a, b));
       x[k | 4] = vreinterpretq_u8_u32(vtrn2q_u32(a, b));
     }
-  for (int k = 0; k < 16; k++)
+  }
+  for (int k = 0; k < 16; k++) {
     if (!(k & 8)) {
       uint64x2_t a = vreinterpretq_u64_u8(x[k]), b = vreinterpretq_u64_u8(x[k | 8]);
       x[k] = vreinterpretq_u8_u64(vtrn1q_u64(a, b));
       x[k | 8] = vreinterpretq_u8_u64(vtrn2q_u64(a, b));
     }
+  }
   for (unsigned k = 0; k < Cols; ++k) {
-    if constexpr (Rows == 16)
+    if constexpr (Rows == 16) {
       vst1q_u8(dst + size_t(k) * dStride, x[k]);
-    else {
+    } else {
       uint8_t row[16];
       vst1q_u8(row, x[k]);
       memcpy(dst + size_t(k) * dStride, row, Rows);
     }
   }
 #else
-  for (size_t i = 0; i < Rows; i++)
-    for (size_t j = 0; j < Cols; j++)
+  for (size_t i = 0; i < Rows; i++) {
+    for (size_t j = 0; j < Cols; j++) {
       dst[j * dStride + i] = src[i * sStride + j];
+    }
+  }
 #endif
 }
 
@@ -79,15 +84,18 @@ static void transpose_fwd(std::span<const uint8_t> recs, uint32_t count, uint32_
   out.resize(recs.size());
   const uint8_t *in = recs.data();
   uint32_t iTiles = count & ~15u, jTiles = size & ~15u;
-  for (uint32_t j = 0; j < jTiles; j += 16)
-    for (uint32_t i = 0; i < iTiles; i += 16)
+  for (uint32_t j = 0; j < jTiles; j += 16) {
+    for (uint32_t i = 0; i < iTiles; i += 16) {
       tile16(in + (size_t)i * size + j, size, out.data() + (size_t)j * count + i, count);
+    }
+  }
   // Keep incomplete record-width tiles in the vector path, without reading
   // or writing outside the short edge of the source/destination.
   auto tail = [&]<unsigned W>() {
-    for (unsigned i = 0; i < iTiles; i += 16)
+    for (unsigned i = 0; i < iTiles; i += 16) {
       tile16<16, W>(in + size_t(i) * size + jTiles, size, out.data() + size_t(jTiles) * count + i,
                     count);
+    }
   };
   switch (size - jTiles) {
   case 1:
@@ -136,12 +144,16 @@ static void transpose_fwd(std::span<const uint8_t> recs, uint32_t count, uint32_
     tail.operator()<15>();
     break;
   }
-  for (uint32_t j = jTiles; j < size; j++)
-    for (uint32_t i = iTiles; i < count; i++)
+  for (uint32_t j = jTiles; j < size; j++) {
+    for (uint32_t i = iTiles; i < count; i++) {
       out[(size_t)j * count + i] = in[(size_t)i * size + j];
-  for (uint32_t j = 0; j < jTiles; j++)
-    for (uint32_t i = iTiles; i < count; i++)
+    }
+  }
+  for (uint32_t j = 0; j < jTiles; j++) {
+    for (uint32_t i = iTiles; i < count; i++) {
       out[(size_t)j * count + i] = in[(size_t)i * size + j];
+    }
+  }
 }
 
 // planes (size × count) → records (count × size)
@@ -149,14 +161,17 @@ static void transpose_rev(std::span<const uint8_t> planes, uint32_t count, uint3
                           uint8_t *out) {
   const uint8_t *in = planes.data();
   uint32_t iTiles = count & ~15u, jTiles = size & ~15u;
-  for (uint32_t i = 0; i < iTiles; i += 16)
-    for (uint32_t j = 0; j < jTiles; j += 16)
+  for (uint32_t i = 0; i < iTiles; i += 16) {
+    for (uint32_t j = 0; j < jTiles; j += 16) {
       tile16(in + (size_t)j * count + i, count, out + (size_t)i * size + j, size);
+    }
+  }
   // Keep incomplete record-width tiles in the vector path, without reading
   // or writing outside the short edge of the source/destination.
   auto tail = [&]<unsigned W>() {
-    for (unsigned i = 0; i < iTiles; i += 16)
+    for (unsigned i = 0; i < iTiles; i += 16) {
       tile16<W, 16>(in + size_t(jTiles) * count + i, count, out + size_t(i) * size + jTiles, size);
+    }
   };
   switch (size - jTiles) {
   case 1:
@@ -205,19 +220,24 @@ static void transpose_rev(std::span<const uint8_t> planes, uint32_t count, uint3
     tail.operator()<15>();
     break;
   }
-  for (uint32_t j = jTiles; j < size; j++)
-    for (uint32_t i = iTiles; i < count; i++)
+  for (uint32_t j = jTiles; j < size; j++) {
+    for (uint32_t i = iTiles; i < count; i++) {
       out[(size_t)i * size + j] = in[(size_t)j * count + i];
-  for (uint32_t j = 0; j < jTiles; j++)
-    for (uint32_t i = iTiles; i < count; i++)
+    }
+  }
+  for (uint32_t j = 0; j < jTiles; j++) {
+    for (uint32_t i = iTiles; i < count; i++) {
       out[(size_t)i * size + j] = in[(size_t)j * count + i];
+    }
+  }
 }
 
 // in-place p[i] -= p[i-1] (or ^=), processed back-to-front so reads see
 // original values; vector blocks stay 16 behind the last write.
 template <bool XOR> static void delta_fwd(uint8_t *p, size_t n) {
-  if (n < 2)
+  if (n < 2) {
     return;
+  }
 #if SLPZ_NEON
   size_t pos = n;
   while (pos >= 17) {
@@ -225,11 +245,13 @@ template <bool XOR> static void delta_fwd(uint8_t *p, size_t n) {
     uint8x16_t v = vld1q_u8(p + pos), vp = vld1q_u8(p + pos - 1);
     vst1q_u8(p + pos, XOR ? veorq_u8(v, vp) : vsubq_u8(v, vp));
   }
-  for (size_t i = pos; i-- > 1;)
+  for (size_t i = pos; i-- > 1;) {
     p[i] = XOR ? (uint8_t)(p[i] ^ p[i - 1]) : (uint8_t)(p[i] - p[i - 1]);
+  }
 #else
-  for (size_t i = n; i-- > 1;)
+  for (size_t i = n; i-- > 1;) {
     p[i] = XOR ? (uint8_t)(p[i] ^ p[i - 1]) : (uint8_t)(p[i] - p[i - 1]);
+  }
 #endif
 }
 
@@ -256,8 +278,9 @@ template <bool XOR> static void scan_rev(uint8_t *p, size_t n) {
     p[i] = c;
   }
 #else
-  for (size_t i = 1; i < n; i++)
+  for (size_t i = 1; i < n; i++) {
     p[i] = XOR ? (uint8_t)(p[i] ^ p[i - 1]) : (uint8_t)(p[i] + p[i - 1]);
+  }
 #endif
 }
 
@@ -270,8 +293,9 @@ static const float *xlog2x_lut() {
   static float *lut = [] {
     float *t = new float[N + 1];
     t[0] = 0.f;
-    for (uint32_t c = 1; c <= N; c++)
+    for (uint32_t c = 1; c <= N; c++) {
       t[c] = (float)c * std::log2f((float)c);
+    }
     return t;
   }();
   return lut;
@@ -280,8 +304,9 @@ static const float *xlog2x_lut() {
 // Return the transform with the lowest estimated order-0 entropy.
 static uint8_t choose_transform(const uint8_t *plane, uint32_t count) {
   // Constant planes have an explicit compact representation.
-  if (slpz_custom::is_constant({plane, count}))
+  if (slpz_custom::is_constant({plane, count})) {
     return T_PLAIN;
+  }
 
   uint32_t hist[3][256] = {};
   uint32_t m = 0;
@@ -289,8 +314,9 @@ static uint8_t choose_transform(const uint8_t *plane, uint32_t count) {
   uint32_t starts[3] = {0, count > 2 * kWin ? count / 2 : count,
                         count > 3 * kWin ? count - kWin : count};
   for (uint32_t s : starts) {
-    if (s >= count)
+    if (s >= count) {
       continue;
+    }
     uint32_t n = count - s < kWin ? count - s : kWin;
     const uint8_t *p = plane + s;
     uint8_t prev = 0;
@@ -307,18 +333,20 @@ static uint8_t choose_transform(const uint8_t *plane, uint32_t count) {
   float score[3];
   for (int t = 0; t < 3; t++) {
     float s = 0;
-    for (uint32_t c = 0; c < 256; c++)
+    for (uint32_t c = 0; c < 256; c++) {
       s += lut[hist[t][c]];
+    }
     score[t] = s; // maximize Σ c·log2 c  ⇔  minimize entropy
   }
   const float eps = 0.01f * (float)m;
   uint8_t t;
-  if (score[0] + eps >= score[1] && score[0] + eps >= score[2])
+  if (score[0] + eps >= score[1] && score[0] + eps >= score[2]) {
     t = T_PLAIN;
-  else if (score[1] + eps / 2 >= score[2])
+  } else if (score[1] + eps / 2 >= score[2]) {
     t = T_SUB;
-  else
+  } else {
     t = T_XOR;
+  }
   return t;
 }
 
@@ -335,41 +363,47 @@ struct U32Set {
   uint32_t n = 0, lastKey = 0;
   int lastId = -1;
   int find_or_insert(uint32_t k) {
-    if (lastId >= 0 && lastKey == k)
+    if (lastId >= 0 && lastKey == k) {
       return lastId;
+    }
     lastKey = k;
     lastId = -1;
     uint32_t h = (k * 2654435761u) >> 22;
     for (;; h = (h + 1) & (N - 1)) {
       if (!used[h]) {
-        if (n >= 256)
+        if (n >= 256) {
           return -1;
+        }
         used[h] = 1;
         keys[h] = k;
         idx[h] = (uint8_t)n++;
         return lastId = idx[h];
       }
-      if (keys[h] == k)
+      if (keys[h] == k) {
         return lastId = idx[h];
+      }
     }
   }
 };
 
 void sort_dictionaries(std::vector<DictField> &fields) {
   for (auto &f : fields) {
-    if (f.vals.size() < 2)
+    if (f.vals.size() < 2) {
       continue;
+    }
     std::array<uint16_t, 256> order;
     std::array<uint32_t, 256> keys;
     std::array<uint8_t, 256> remap;
     for (size_t i = 0; i < f.vals.size(); ++i) {
       order[i] = uint16_t(i);
       keys[i] = 0;
-      for (unsigned b = 0; b < f.width; ++b)
+      for (unsigned b = 0; b < f.width; ++b) {
         keys[i] = (keys[i] << 8) | uint8_t(f.vals[i] >> (8 * b));
+      }
     }
-    if (std::is_sorted(keys.begin(), keys.begin() + f.vals.size()))
+    if (std::is_sorted(keys.begin(), keys.begin() + f.vals.size())) {
       continue;
+    }
     std::sort(order.begin(), order.begin() + f.vals.size(),
               [&](unsigned a, unsigned b) { return keys[a] < keys[b]; });
     auto old = f.vals;
@@ -377,8 +411,9 @@ void sort_dictionaries(std::vector<DictField> &fields) {
       f.vals[i] = old[order[i]];
       remap[order[i]] = uint8_t(i);
     }
-    for (auto &id : f.idx)
+    for (auto &id : f.idx) {
       id = remap[id];
+    }
   }
 }
 
@@ -387,8 +422,9 @@ void sort_dictionaries(std::vector<DictField> &fields) {
 Buf dictionary_forward(const std::vector<DictField> &fields, uint8_t transform) {
   Buf result;
   size_t bytes = 0;
-  for (const auto &f : fields)
+  for (const auto &f : fields) {
     bytes += f.vals.size() * f.width;
+  }
   result.reserve(bytes);
   for (const auto &f : fields) {
     std::array<uint32_t, 256> deltas;
@@ -396,8 +432,9 @@ Buf dictionary_forward(const std::vector<DictField> &fields, uint8_t transform) 
       uint32_t previous = 0;
       for (size_t i = 0; i < f.vals.size(); ++i) {
         uint32_t value = 0;
-        for (unsigned b = 0; b < f.width; ++b)
+        for (unsigned b = 0; b < f.width; ++b) {
           value = (value << 8) | uint8_t(f.vals[i] >> (8 * b));
+        }
         deltas[i] = value - previous;
         previous = value;
       }
@@ -426,10 +463,11 @@ void dictionary_reverse(std::span<const uint8_t> data, uint8_t transform,
       uint8_t previous = 0;
       for (auto &v : f.vals) {
         uint8_t value = data[at++];
-        if (transform == 2)
+        if (transform == 2) {
           value ^= previous;
-        else if (transform == 3)
+        } else if (transform == 3) {
           value += previous;
+        }
         v = (v & ~(255u << (8 * b))) | (uint32_t(value) << (8 * b));
         previous = value;
       }
@@ -438,13 +476,15 @@ void dictionary_reverse(std::span<const uint8_t> data, uint8_t transform,
       uint32_t previous = 0;
       for (auto &v : f.vals) {
         uint32_t delta = 0;
-        for (unsigned b = 0; b < f.width; ++b)
+        for (unsigned b = 0; b < f.width; ++b) {
           delta = (delta << 8) | uint8_t(v >> (8 * b));
+        }
         uint32_t value = previous + delta;
         previous = value;
         v = 0;
-        for (unsigned b = 0; b < f.width; ++b)
+        for (unsigned b = 0; b < f.width; ++b) {
           v |= uint32_t(uint8_t(value >> (8 * (f.width - 1 - b)))) << (8 * b);
+        }
       }
     }
   }
@@ -466,30 +506,38 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
     std::vector<uint8_t> covered(size, 0), constant(size, 0);
     std::vector<unsigned> alphabets(size, 0);
     constexpr unsigned limit = 128;
-    for (unsigned o = 0; o < size; ++o)
+    for (unsigned o = 0; o < size; ++o) {
       constant[o] = slpz_custom::is_constant({planes.data() + size_t(o) * count, count});
+    }
     Buf idxPlane;
     // Preserve complete semantic fields before considering sliding windows.
     std::vector<std::pair<unsigned, unsigned>> trials;
     trials.reserve(size_t(size) * 2 + 16);
-    for (unsigned offset : semantic_fields(cmd))
-      if (offset + 4 <= size)
+    for (unsigned offset : semantic_fields(cmd)) {
+      if (offset + 4 <= size) {
         trials.emplace_back(4, offset);
-    for (unsigned width : {4u, 2u})
-      for (unsigned w = 0; w + width <= size; ++w)
+      }
+    }
+    for (unsigned width : {4u, 2u}) {
+      for (unsigned w = 0; w + width <= size; ++w) {
         trials.emplace_back(width, w);
+      }
+    }
     for (auto [width, w] : trials) {
       bool free = true;
-      for (uint32_t b = 0; b < width; b++)
+      for (uint32_t b = 0; b < width; b++) {
         free = free && !covered[w + b];
-      if (!free)
+      }
+      if (!free) {
         continue;
+      }
       unsigned changing = 0, changingOffset = 0;
-      for (unsigned b = 0; b < width; ++b)
+      for (unsigned b = 0; b < width; ++b) {
         if (!constant[w + b]) {
           ++changing;
           changingOffset = w + b;
         }
+      }
       // A large alphabet in one varying byte gains little from a dictionary:
       // explicit constant planes already represent its fixed neighbours.
       if (changing == 1) {
@@ -500,19 +548,22 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
             uint8_t v = planes[size_t(changingOffset) * count + i];
             if (!seen[v]) {
               seen[v] = true;
-              if (++distinct == limit)
+              if (++distinct == limit) {
                 break;
+              }
             }
           }
           alphabets[changingOffset] = distinct;
         }
-        if (alphabets[changingOffset] >= limit)
+        if (alphabets[changingOffset] >= limit) {
           continue;
+        }
       }
       U32Set set;
       idxPlane.clear();
-      if (changing)
+      if (changing) {
         idxPlane.resize(count);
+      }
       bool ok = true;
       if (changing == 0) {
         uint32_t v = little_word(recs.data() + w, width);
@@ -549,14 +600,17 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       if (ok && fields.size() < 255 && set.n * width <= (size_t)count * (width / 2)) {
         DictField f{(uint16_t)w, uint8_t(width), {}, {}};
         f.vals.resize(set.n);
-        for (uint32_t h = 0; h < U32Set::N; h++)
-          if (set.used[h])
+        for (uint32_t h = 0; h < U32Set::N; h++) {
+          if (set.used[h]) {
             f.vals[set.idx[h]] = set.keys[h];
+          }
+        }
         f.idx = idxPlane;
         fields.push_back(std::move(f));
         widthAt[w] = width;
-        for (uint32_t b = 0; b < width; b++)
+        for (uint32_t b = 0; b < width; b++) {
           covered[w + b] = 1;
+        }
       }
     }
     std::sort(fields.begin(), fields.end(),
@@ -566,16 +620,18 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
   sort_dictionaries(fields);
 
   uint32_t nOut = size;
-  for (auto &f : fields)
+  for (auto &f : fields) {
     nOut -= f.width - 1 + implicit_dictionary(f);
+  }
   Buf out;
   out.reserve((size_t)nOut * count);
   {
     size_t fi = 0;
     for (uint32_t o = 0; o < size;) {
       if (widthAt[o]) {
-        if (!implicit_dictionary(fields[fi]))
+        if (!implicit_dictionary(fields[fi])) {
           out.put_bytes(fields[fi].idx.data(), count);
+        }
         o += fields[fi].width;
         fi++;
       } else {
@@ -585,15 +641,17 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
     }
   }
 
-  if (fields.size() > 255)
+  if (fields.size() > 255) {
     fail("internal: dict field count overflow");
+  }
   // Dictionary descriptors remain directly scannable; only value bytes are
   // compressed. The first width byte marks the new representation.
   Buf dictionary;
   uint8_t dictionaryTransform = 0;
   size_t dictionaryBytes = 0;
-  for (const auto &f : fields)
+  for (const auto &f : fields) {
     dictionaryBytes += f.vals.size() * f.width;
+  }
   if (dictionaryBytes >= 128) {
     Buf candidates[4];
     unsigned best = 0;
@@ -601,8 +659,9 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
     for (unsigned t = 0; t < 4; ++t) {
       candidates[t] = dictionary_forward(fields, uint8_t(t + 1));
       std::array<uint32_t, 256> hist{};
-      for (auto b : candidates[t])
+      for (auto b : candidates[t]) {
         ++hist[b];
+      }
       double c = slpz_custom::context_cost(hist);
       if (c < cost) {
         cost = c;
@@ -610,8 +669,9 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       }
     }
     small_compress(candidates[best], std::min(level, 3), dictionary, slpz_custom::Discrete);
-    if (dictionary.size() < dictionaryBytes)
+    if (dictionary.size() < dictionaryBytes) {
       dictionaryTransform = uint8_t(best + 1);
+    }
   }
   blob.put_u8(uint8_t(fields.size()));
   for (size_t j = 0; j < fields.size(); ++j) {
@@ -621,39 +681,48 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
     blob.put_u8(uint8_t(f.offset));
     blob.put_u8(uint8_t(f.offset >> 8));
     blob.put_u8(uint8_t(f.vals.size() - 1));
-    if (!dictionaryTransform)
-      for (uint32_t v : f.vals)
-        for (unsigned byte = 0; byte < f.width; ++byte)
+    if (!dictionaryTransform) {
+      for (uint32_t v : f.vals) {
+        for (unsigned byte = 0; byte < f.width; ++byte) {
           blob.put_u8(uint8_t(v >> (8 * byte)));
+        }
+      }
+    }
   }
-  if (dictionaryTransform)
+  if (dictionaryTransform) {
     blob.put_bytes(dictionary.data(), dictionary.size());
+  }
   std::vector<uint8_t> profiles;
   for (uint32_t offset = 0; offset < size;) {
     bool constant = false;
-    if (widthAt[offset])
-      for (auto &f : fields)
+    if (widthAt[offset]) {
+      for (auto &f : fields) {
         if (f.offset == offset) {
           constant = implicit_dictionary(f);
           break;
         }
-    if (!constant)
+      }
+    }
+    if (!constant) {
       profiles.push_back(field_profile(cmd, offset, widthAt[offset] != 0));
+    }
     offset += widthAt[offset] ? widthAt[offset] : 1;
   }
   for (uint32_t j = 0; j < nOut; j++) {
     uint8_t *pl = out.data() + (size_t)j * count;
     uint8_t t = count >= 8 ? choose_transform(pl, count) : T_PLAIN;
-    if (t == T_SUB)
+    if (t == T_SUB) {
       delta_fwd<false>(pl, count);
-    else if (t == T_XOR)
+    } else if (t == T_XOR) {
       delta_fwd<true>(pl, count);
+    }
     blob.put_u8(t);
   }
   blob.put_u8(2);
   custom_planes_frame(out, count, profiles, level, blob);
-  if (stat)
+  if (stat) {
     *stat += blob.size() - blobAt;
+  }
 }
 
 // Validate the index plane once, then expand at a fixed field width. Small
@@ -662,46 +731,56 @@ template <unsigned W>
 void expand_dictionary(const DictField &f, const uint8_t *indexes, uint32_t count,
                        uint8_t *output) {
   if (implicit_dictionary(f)) {
-    for (unsigned b = 0; b < W; ++b)
+    for (unsigned b = 0; b < W; ++b) {
       memset(output + size_t(b) * count, uint8_t(f.vals[0] >> (8 * b)), count);
+    }
     return;
   }
   unsigned maximum = 0, i = 0;
 #if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
   auto maxes = vdupq_n_u8(0);
-  for (; i + 16 <= count; i += 16)
+  for (; i + 16 <= count; i += 16) {
     maxes = vmaxq_u8(maxes, vld1q_u8(indexes + i));
+  }
   maximum = vmaxvq_u8(maxes);
 #endif
-  for (; i < count; ++i)
+  for (; i < count; ++i) {
     maximum = std::max(maximum, unsigned(indexes[i]));
-  if (maximum >= f.vals.size())
+  }
+  if (maximum >= f.vals.size()) {
     fail("corrupt archive (dict index)");
+  }
 
   i = 0;
 #if SLPZ_NEON && !defined(SLPZ_CUSTOM_SCALAR)
   if (f.vals.size() <= 64) {
     uint8_t tables[W][64] = {};
-    for (unsigned v = 0; v < f.vals.size(); ++v)
-      for (unsigned b = 0; b < W; ++b)
+    for (unsigned v = 0; v < f.vals.size(); ++v) {
+      for (unsigned b = 0; b < W; ++b) {
         tables[b][v] = uint8_t(f.vals[v] >> (8 * b));
+      }
+    }
     if (f.vals.size() <= 16) {
       uint8x16_t table[W];
-      for (unsigned b = 0; b < W; ++b)
+      for (unsigned b = 0; b < W; ++b) {
         table[b] = vld1q_u8(tables[b]);
+      }
       for (; i + 16 <= count; i += 16) {
         auto ids = vld1q_u8(indexes + i);
-        for (unsigned b = 0; b < W; ++b)
+        for (unsigned b = 0; b < W; ++b) {
           vst1q_u8(output + size_t(b) * count + i, vqtbl1q_u8(table[b], ids));
+        }
       }
     } else {
       uint8x16x4_t table[W];
-      for (unsigned b = 0; b < W; ++b)
+      for (unsigned b = 0; b < W; ++b) {
         table[b] = vld1q_u8_x4(tables[b]);
+      }
       for (; i + 16 <= count; i += 16) {
         auto ids = vld1q_u8(indexes + i);
-        for (unsigned b = 0; b < W; ++b)
+        for (unsigned b = 0; b < W; ++b) {
           vst1q_u8(output + size_t(b) * count + i, vqtbl4q_u8(table[b], ids));
+        }
       }
     }
   }
@@ -711,26 +790,31 @@ void expand_dictionary(const DictField &f, const uint8_t *indexes, uint32_t coun
     for (; i + 16 <= count; i += 16) {
       if constexpr (W == 4) {
         uint32_t values[16];
-        for (unsigned k = 0; k < 16; ++k)
+        for (unsigned k = 0; k < 16; ++k) {
           values[k] = f.vals[indexes[i + k]];
+        }
         auto columns = vld4q_u8(reinterpret_cast<const uint8_t *>(values));
-        for (unsigned b = 0; b < 4; ++b)
+        for (unsigned b = 0; b < 4; ++b) {
           vst1q_u8(output + size_t(b) * count + i, columns.val[b]);
+        }
       } else {
         uint16_t values[16];
-        for (unsigned k = 0; k < 16; ++k)
+        for (unsigned k = 0; k < 16; ++k) {
           values[k] = uint16_t(f.vals[indexes[i + k]]);
+        }
         auto columns = vld2q_u8(reinterpret_cast<const uint8_t *>(values));
-        for (unsigned b = 0; b < 2; ++b)
+        for (unsigned b = 0; b < 2; ++b) {
           vst1q_u8(output + size_t(b) * count + i, columns.val[b]);
+        }
       }
     }
   }
 #endif
   for (; i < count; ++i) {
     uint32_t value = f.vals[indexes[i]];
-    for (unsigned b = 0; b < W; ++b)
+    for (unsigned b = 0; b < W; ++b) {
       output[size_t(b) * count + i] = uint8_t(value >> (8 * b));
+    }
   }
 }
 
@@ -755,30 +839,36 @@ static RecordPacket read_record_packet(Reader &r, uint32_t size, uint64_t count)
     f.width = r.u8();
     if (j == 0 && (f.width & 128)) {
       dictionaryTransform = (f.width >> 4) & 7;
-      if (!dictionaryTransform || dictionaryTransform > 4)
+      if (!dictionaryTransform || dictionaryTransform > 4) {
         fail("corrupt dictionary transform");
+      }
       f.width &= 15;
     }
     f.offset = r.u8();
     f.offset |= uint16_t(r.u8()) << 8;
     uint32_t nVals = uint32_t(r.u8()) + 1;
-    if ((f.width != 2 && f.width != 4) || f.offset + f.width > size)
+    if ((f.width != 2 && f.width != 4) || f.offset + f.width > size) {
       fail("corrupt archive (dict field)");
+    }
     for (unsigned b = 0; b < f.width; ++b) {
-      if (covered[f.offset + b])
+      if (covered[f.offset + b]) {
         fail("corrupt archive (dict overlap)");
+      }
       covered[f.offset + b] = true;
     }
     f.vals.resize(nVals);
     dictionaryBytes += nVals * f.width;
     if (!dictionaryTransform) {
       auto raw = r.bytes(nVals * f.width);
-      for (uint32_t v = 0; v < nVals; ++v)
-        for (unsigned byte = 0; byte < f.width; ++byte)
+      for (uint32_t v = 0; v < nVals; ++v) {
+        for (unsigned byte = 0; byte < f.width; ++byte) {
           f.vals[v] |= uint32_t(raw[size_t(v) * f.width + byte]) << (byte * 8);
+        }
+      }
     }
-    if (nOut < f.width)
+    if (nOut < f.width) {
       fail("corrupt archive (dict count)");
+    }
     nOut -= f.width - 1 + implicit_dictionary(f);
   }
   View dictionaryFrame;
@@ -788,8 +878,9 @@ static RecordPacket read_record_packet(Reader &r, uint32_t size, uint64_t count)
     require(frame_size(dictionaryFrame) == dictionaryBytes, "corrupt dictionary frame size");
   }
   auto selectors = r.bytes(nOut);
-  for (auto selector : selectors)
+  for (auto selector : selectors) {
     require(selector <= T_XOR, "corrupt plane transform");
+  }
   require(r.u8() == 2, "corrupt archive (layout id)");
   auto planes = skip_frame(r);
   if (count != UINT64_MAX) {
@@ -815,17 +906,19 @@ void unpack_records(Reader &r, uint32_t count, uint32_t size, RecordBuffer &reco
   for (uint32_t j = 0; j < nOut; j++) {
     uint8_t *pl = out.data() + (size_t)j * count;
     uint8_t t = sel[j] & 3;
-    if (t == T_SUB)
+    if (t == T_SUB) {
       scan_rev<false>(pl, count);
-    else if (t == T_XOR)
+    } else if (t == T_XOR) {
       scan_rev<true>(pl, count);
+    }
   }
 
   // Expand and transpose one cache-sized block, avoiding a full-sized plane
   // allocation and its extra memory traffic.
   std::vector<const DictField *> fieldAt(size, nullptr);
-  for (auto &f : fields)
+  for (auto &f : fields) {
     fieldAt[f.offset] = &f;
+  }
   static const unsigned block = 512;
   OutputBytes planes(size_t(std::min(block, count)) * size);
   records.resize(size_t(count) * size);
@@ -834,23 +927,26 @@ void unpack_records(Reader &r, uint32_t count, uint32_t size, RecordBuffer &reco
     size_t srcAt = 0;
     for (unsigned o = 0; o < size;) {
       bool constant = fieldAt[o] && implicit_dictionary(*fieldAt[o]);
-      if (!constant && srcAt + count > out.size())
+      if (!constant && srcAt + count > out.size()) {
         fail("corrupt archive (plane underrun)");
+      }
       const uint8_t *pl = constant ? nullptr : out.data() + srcAt + at;
       auto *dest = planes.data() + size_t(o) * take;
       if (fieldAt[o]) {
         const auto &f = *fieldAt[o];
-        if (f.width == 4)
+        if (f.width == 4) {
           expand_dictionary<4>(f, pl, take, dest);
-        else
+        } else {
           expand_dictionary<2>(f, pl, take, dest);
+        }
         o += f.width;
       } else {
         memcpy(dest, pl, take);
         ++o;
       }
-      if (!constant)
+      if (!constant) {
         srcAt += count;
+      }
     }
     transpose_rev({planes.data(), size_t(take) * size}, take, size,
                   records.data() + size_t(at) * size);
@@ -861,8 +957,9 @@ int cmd_selftest() {
   std::mt19937 rng(1234);
   auto rnd = [&](size_t n) {
     std::vector<uint8_t> v(n);
-    for (auto &b : v)
+    for (auto &b : v) {
       b = (uint8_t)rng();
+    }
     return v;
   };
   int fails = 0;
@@ -878,12 +975,14 @@ int cmd_selftest() {
       auto recs = rnd((size_t)count * size);
       Buf planes;
       transpose_fwd(recs, count, size, planes);
-      for (uint32_t i = 0; i < count && !fails; i++)
-        for (uint32_t j = 0; j < size; j++)
+      for (uint32_t i = 0; i < count && !fails; i++) {
+        for (uint32_t j = 0; j < size; j++) {
           if (planes[(size_t)j * count + i] != recs[(size_t)i * size + j]) {
             check(false, "transpose_fwd", count, size);
             break;
           }
+        }
+      }
       std::vector<uint8_t> back(recs.size());
       transpose_rev(planes, count, size, back.data());
       check(memcmp(back.data(), recs.data(), recs.size()) == 0, "transpose_rev", count, size);
@@ -895,16 +994,18 @@ int cmd_selftest() {
     delta_fwd<false>(v.data(), n);
     // scalar reference for encode
     auto ref = orig;
-    for (size_t i = n; i-- > 1;)
+    for (size_t i = n; i-- > 1;) {
       ref[i] = (uint8_t)(ref[i] - ref[i - 1]);
+    }
     check(v == ref, "delta_fwd/sub", n, 0);
     scan_rev<false>(v.data(), n);
     check(v == orig, "scan_rev/sub", n, 0);
     v = orig;
     delta_fwd<true>(v.data(), n);
     ref = orig;
-    for (size_t i = n; i-- > 1;)
+    for (size_t i = n; i-- > 1;) {
       ref[i] = (uint8_t)(ref[i] ^ ref[i - 1]);
+    }
     check(v == ref, "delta_fwd/xor", n, 0);
     scan_rev<true>(v.data(), n);
     check(v == orig, "scan_rev/xor", n, 0);
@@ -937,18 +1038,21 @@ int cmd_selftest() {
                                {70, 12}}) {
       std::vector<uint8_t> recs((size_t)count * size);
       uint32_t v = 12345;
-      for (uint32_t i = 0; i < count; i++)
+      for (uint32_t i = 0; i < count; i++) {
         for (uint32_t j = 0; j < size; j++) {
           v = v * 1103515245 + 12345;
           uint8_t b = (j % 3 == 0)   ? (uint8_t)(v >> 24)
                       : (j % 3 == 1) ? (uint8_t)(i >> 3)
                                      : (uint8_t)((v >> 28) + i);
-          if (j >= 4 && j < 8 && size >= 8)
+          if (j >= 4 && j < 8 && size >= 8) {
             b = (uint8_t)(((i % 23) * 41) + j); // 23 distinct u32s
-          if (j >= 8 && j < 10 && size >= 10)
+          }
+          if (j >= 8 && j < 10 && size >= 10) {
             b = (uint8_t)(((i % 11) * 3) + j); // 11 distinct u16s
+          }
           recs[(size_t)i * size + j] = b;
         }
+      }
       for (int level : {3, 12}) {
         Buf blob;
         pack_records(recs, count, size, level, blob, nullptr);

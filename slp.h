@@ -20,8 +20,9 @@ struct LcgTables {
       seed = lcg_next(seed);
     }
     jumps[0] = {1, 0};
-    for (unsigned k = 1; k < jumps.size(); ++k)
+    for (unsigned k = 1; k < jumps.size(); ++k) {
       jumps[k] = {jumps[k - 1].multiply * 214013u, lcg_next(jumps[k - 1].add)};
+    }
   }
 };
 struct EventStream {

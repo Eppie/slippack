@@ -47,20 +47,22 @@ struct Model {
   std::array<uint16_t, 256> freq{}, start{};
   void normalize() {
     uint64_t total = 0;
-    for (auto n : hist)
+    for (auto n : hist) {
       total += n;
+    }
     if (!total) {
       freq[0] = 4096;
       return;
     }
     int sum = 0;
-    for (unsigned s = 0; s < 256; ++s)
+    for (unsigned s = 0; s < 256; ++s) {
       if (hist[s]) {
         // Nearest rounding avoids systematically moving every fractional
         // frequency into the most common symbol during sum correction.
         freq[s] = uint16_t(std::max<uint64_t>(1, (uint64_t(hist[s]) * 4096 + total / 2) / total));
         sum += freq[s];
       }
+    }
     while (sum != 4096) {
       auto it = std::max_element(freq.begin(), freq.end());
       if (sum < 4096) {

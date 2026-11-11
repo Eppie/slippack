@@ -57,8 +57,9 @@ std::vector<std::span<const uint8_t>> split(const uint8_t *data, size_t size) {
     files.emplace_back(data + pos, len);
     pos += len;
   }
-  if (files.empty())
+  if (files.empty()) {
     files.emplace_back(data, size);
+  }
   return files;
 }
 } // namespace
@@ -66,23 +67,27 @@ std::vector<std::span<const uint8_t>> split(const uint8_t *data, size_t size) {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   auto files = split(data, size);
   std::vector<ArchiveInput> inputs;
-  for (size_t i = 0; i < files.size(); ++i)
+  for (size_t i = 0; i < files.size(); ++i) {
     inputs.push_back({"file-" + std::to_string(i),
                       [view = files[i]] { return Bytes(view.begin(), view.end()); }});
+  }
   EncodeOptions encode;
-  if (const char *level = std::getenv("SLPZ_FUZZ_LEVEL"))
+  if (const char *level = std::getenv("SLPZ_FUZZ_LEVEL")) {
     encode.level = std::atoi(level);
+  }
   auto packed = encode_archive(inputs, encode);
   size_t decoded = 0;
   decode_archive(packed.bytes, {}, [&](DecodedFile file) {
     auto index = size_t(std::stoul(file.name.substr(5)));
     if (index >= files.size() || file.bytes.size() != files[index].size() ||
-        !std::equal(file.bytes.begin(), file.bytes.end(), files[index].begin()))
+        !std::equal(file.bytes.begin(), file.bytes.end(), files[index].begin())) {
       std::abort();
+    }
     ++decoded;
   });
-  if (decoded != files.size())
+  if (decoded != files.size()) {
     std::abort();
+  }
   return 0;
 }
 #endif
@@ -91,8 +96,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 // bounded inputs keep mutations focused on dictionary values and indexes.
 #if FUZZ_TARGET == 3
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  if (size < 8)
+  if (size < 8) {
     return 0;
+  }
   unsigned width = (data[0] & 1) ? 4 : 2;
   unsigned nvals = std::min<size_t>(256, (size - 4) / width);
   unsigned count = 512 + data[1];
@@ -107,8 +113,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   auto dictionary = dictionary_forward(fields, transform);
   std::fill(restored[0].vals.begin(), restored[0].vals.end(), 0);
   dictionary_reverse(dictionary, transform, restored);
-  if (restored[0].vals != f.vals)
+  if (restored[0].vals != f.vals) {
     abort();
+  }
   Buf records;
   for (unsigned i = 0; i < count; ++i) {
     auto value = f.vals[data[4 + i % (size - 4)] % nvals];
@@ -119,12 +126,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   Reader r{packed.data(), packed.data() + packed.size()};
   std::vector<uint8_t> output;
   unpack_records(r, count, width, output);
-  if (r.p != r.end || output != records)
+  if (r.p != r.end || output != records) {
     abort();
+  }
   Reader scanner{packed.data(), packed.data() + packed.size()};
   auto span = skip_packed(scanner, width);
-  if (span.size() != packed.size())
+  if (span.size() != packed.size()) {
     abort();
+  }
   return 0;
 }
 #endif
@@ -133,14 +142,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 // Exercise current predictors across old and new Slippi record sizes.
 #if FUZZ_TARGET == 4
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t length) {
-  if (length < 4)
+  if (length < 4) {
     return 0;
+  }
   const uint32_t widths[] = {28, 29, 51, 59, 63, 64, 65, 66, 67, 68, 71, 72, 76, 84};
   uint32_t width = widths[data[1] % std::size(widths)], count = 1 + data[0];
   Buf original;
   original.resize(size_t(width) * count);
-  for (size_t i = 0; i < original.size(); ++i)
+  for (size_t i = 0; i < original.size(); ++i) {
     original[i] = data[3 + i % (length - 3)];
+  }
   auto records = original;
   motion_predict(records.data(), count, width, false);
   Buf packed;
@@ -148,15 +159,18 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t length) {
   Reader r{packed.data(), packed.data() + packed.size()};
   std::vector<uint8_t> restored;
   unpack_records(r, count, width, restored);
-  if (r.p != r.end || restored != records)
+  if (r.p != r.end || restored != records) {
     abort();
+  }
   motion_predict(restored.data(), count, width, true);
-  if (restored != original)
+  if (restored != original) {
     abort();
+  }
   input_predict(restored.data(), count, width, false);
   input_predict(restored.data(), count, width, true);
-  if (restored != original)
+  if (restored != original) {
     abort();
+  }
   return 0;
 }
 #endif

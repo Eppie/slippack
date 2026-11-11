@@ -15,8 +15,9 @@ struct Error : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 inline void require(bool ok, const char *why) {
-  if (!ok)
+  if (!ok) {
     throw Error(why);
+  }
 }
 [[noreturn]] inline void fail(const std::string &why) {
   throw Error(why);
@@ -26,8 +27,9 @@ inline uint32_t narrow(size_t n) {
   return uint32_t(n);
 }
 inline void u32(Bytes &b, uint32_t n) {
-  for (unsigned i = 0; i < 4; ++i)
+  for (unsigned i = 0; i < 4; ++i) {
     b.push_back(uint8_t(n >> (8 * i)));
+  }
 }
 inline void varint(Bytes &b, uint32_t n) {
   while (n >= 128) {
@@ -37,15 +39,17 @@ inline void varint(Bytes &b, uint32_t n) {
   b.push_back(uint8_t(n));
 }
 inline void append(Bytes &b, View v) {
-  if (!v.empty())
+  if (!v.empty()) {
     b.insert(b.end(), v.begin(), v.end());
+  }
 }
 struct Buf : Bytes {
   void put_u8(uint8_t v) { push_back(v); }
   void put_u32(uint32_t v) { slpz::u32(*this, v); }
   void put_u64(uint64_t v) {
-    for (unsigned i = 0; i < 8; ++i)
+    for (unsigned i = 0; i < 8; ++i) {
       push_back(uint8_t(v >> (8 * i)));
+    }
   }
   void put_bytes(const void *p, size_t n) {
     if (n) {
@@ -57,8 +61,9 @@ struct Buf : Bytes {
 // Read a 2- or 4-byte little-endian field from an already bounded buffer.
 inline uint32_t little_word(const uint8_t *bytes, unsigned width) {
   uint32_t value = uint32_t(bytes[0]) | (uint32_t(bytes[1]) << 8);
-  if (width == 4)
+  if (width == 4) {
     value |= (uint32_t(bytes[2]) << 16) | (uint32_t(bytes[3]) << 24);
+  }
   return value;
 }
 // Borrows the input. Copies retain their independent cursor and output limit.
@@ -91,16 +96,18 @@ struct Reader {
       uint8_t c = byte();
       require(shift < 28 || c < 16, "corrupt data (varint overflow)");
       n |= uint32_t(c & 127) << shift;
-      if (!(c & 128))
+      if (!(c & 128)) {
         return n;
+      }
     }
     throw Error("corrupt data (varint overflow)");
   }
   View take(size_t n) {
     require(avail(n), "corrupt data (truncated span)");
     View result(p, n);
-    if (n)
+    if (n) {
       p += n;
+    }
     return result;
   }
   View bytes(size_t n) { return take(n); }

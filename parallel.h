@@ -17,8 +17,9 @@ public:
   JoiningThread(JoiningThread &&) noexcept = default;
   JoiningThread(const JoiningThread &) = delete;
   ~JoiningThread() {
-    if (thread_.joinable())
+    if (thread_.joinable()) {
       thread_.join();
+    }
   }
 };
 class FailureState {
@@ -30,13 +31,15 @@ public:
   bool stopped() const { return stopped_.load(std::memory_order_relaxed); }
   void capture() noexcept {
     std::lock_guard lock(mutex_);
-    if (!error_)
+    if (!error_) {
       error_ = std::current_exception();
+    }
     stopped_.store(true, std::memory_order_relaxed);
   }
   void rethrow() const {
-    if (error_)
+    if (error_) {
       std::rethrow_exception(error_);
+    }
   }
 };
 class RoundingGuard {
@@ -64,8 +67,9 @@ template <class Fn> void run_workers(int threads, Fn work) {
   };
   std::vector<JoiningThread> pool;
   try {
-    for (int t = 1; t < threads; ++t)
+    for (int t = 1; t < threads; ++t) {
       pool.emplace_back(worker);
+    }
     worker();
   } catch (...) {
     failure.capture();
@@ -74,14 +78,16 @@ template <class Fn> void run_workers(int threads, Fn work) {
   failure.rethrow();
 }
 template <class Fn> void parallel_for(size_t count, int threads, Fn work) {
-  if (!count)
+  if (!count) {
     return;
+  }
   std::atomic<size_t> next{0};
   run_workers(int(std::min<size_t>(count, threads)), [&](FailureState &failure) {
     while (!failure.stopped()) {
       auto i = next.fetch_add(1);
-      if (i >= count)
+      if (i >= count) {
         return;
+      }
       work(i);
     }
   });

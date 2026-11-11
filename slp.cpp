@@ -22,44 +22,58 @@ namespace slpz {
 std::span<const uint16_t> semantic_fields(uint8_t cmd) {
   static constexpr uint16_t pre[] = {12, 16, 20, 24, 28, 32, 36, 40, 50, 54, 59};
   static constexpr uint16_t post[] = {9, 13, 17, 21, 25, 33, 42, 52, 56, 60, 64, 68, 72, 76, 80};
-  if (cmd == 0x37)
+  if (cmd == 0x37) {
     return pre;
-  if (cmd == 0x38)
+  }
+  if (cmd == 0x38) {
     return post;
+  }
   return {};
 }
 uint8_t field_profile(uint8_t cmd, uint32_t offset, bool dictionary) {
   using namespace slpz_custom;
-  if (dictionary)
+  if (dictionary) {
     return cmd == 0x37 && offset >= 24 ? Controller : Discrete;
-  if ((cmd == 0x37 || cmd == 0x38 || cmd == 0x3A || cmd == 0x3C) && offset < 4)
+  }
+  if ((cmd == 0x37 || cmd == 0x38 || cmd == 0x3A || cmd == 0x3C) && offset < 4) {
     return Counter;
+  }
   if (cmd == 0x37) {
-    if (offset >= 24 && offset < 59)
+    if (offset >= 24 && offset < 59) {
       return Controller;
-    if (offset >= 63)
+    }
+    if (offset >= 63) {
       return Controller;
-    for (uint32_t start : semantic_fields(cmd))
-      if (offset >= start && offset < start + 4)
+    }
+    for (uint32_t start : semantic_fields(cmd)) {
+      if (offset >= start && offset < start + 4) {
         return offset - start < 2 ? FloatHigh : FloatLow;
-    if (offset >= 6 && offset < 10)
+      }
+    }
+    if (offset >= 6 && offset < 10) {
       return Rng;
+    }
   } else if (cmd == 0x38) {
-    for (uint32_t start : semantic_fields(cmd))
-      if (offset >= start && offset < start + 4)
+    for (uint32_t start : semantic_fields(cmd)) {
+      if (offset >= start && offset < start + 4) {
         return offset - start < 2 ? FloatHigh : FloatLow;
-  } else if (cmd == 0x3A && offset >= 4 && offset < 8)
+      }
+    }
+  } else if (cmd == 0x3A && offset >= 4 && offset < 8) {
     return Rng;
+  }
   return Generic;
 }
 
 // seed field location per command: pre-frame (0x37) at offset 6,
 // frame start (0x3A) at offset 4; 0 = command carries no seed
 uint32_t seed_offset_for(uint8_t cmd, uint32_t recSize) {
-  if (cmd == 0x37 && recSize >= 10)
+  if (cmd == 0x37 && recSize >= 10) {
     return 6;
-  if (cmd == 0x3A && recSize >= 8)
+  }
+  if (cmd == 0x3A && recSize >= 8) {
     return 4;
+  }
   return 0;
 }
 
@@ -68,32 +82,38 @@ const LcgTables &lcg_tables() {
   return tables;
 }
 uint32_t lcg_advance(uint32_t seed, uint32_t steps) {
-  if (steps > kSeedCap)
+  if (steps > kSeedCap) {
     fail("corrupt archive (seed step count)");
-  if (!steps)
+  }
+  if (!steps) {
     return seed;
+  }
   const auto &jump = lcg_tables().jumps[steps];
   return jump.multiply * seed + jump.add;
 }
 // Low 13 bits visit all 8192 states, so they identify at most one candidate
 // in the 0..4096 search window. Verify the full state before accepting it.
 uint32_t lcg_distance(uint32_t a, uint32_t b) {
-  if (a == b)
+  if (a == b) {
     return 0;
+  }
   const auto &table = lcg_tables();
   uint32_t k = (uint32_t(table.phase[b & 8191]) - table.phase[a & 8191]) & 8191;
-  if (k > kSeedCap)
+  if (k > kSeedCap) {
     return UINT32_MAX;
+  }
   const auto &jump = table.jumps[k];
   return jump.multiply * a + jump.add == b ? k : UINT32_MAX;
 }
 
 bool parse_slp(std::span<const uint8_t> file, ParsedSlp &out) {
   out = ParsedSlp{};
-  if (file.size() < kSlpHeaderLen + 2)
+  if (file.size() < kSlpHeaderLen + 2) {
     return false;
-  if (memcmp(file.data(), kSlpMagic, 11) != 0)
+  }
+  if (memcmp(file.data(), kSlpMagic, 11) != 0) {
     return false;
+  }
   uint32_t rawLen = be32(file.data() + 11);
 
   size_t rawStart = kSlpHeaderLen;
@@ -108,28 +128,34 @@ bool parse_slp(std::span<const uint8_t> file, ParsedSlp &out) {
 
   const uint8_t *p = file.data() + rawStart;
   const uint8_t *end = file.data() + rawEnd;
-  if (p >= end || *p != 0x35)
+  if (p >= end || *p != 0x35) {
     return false;
-  if (size_t(end - p) < 2)
+  }
+  if (size_t(end - p) < 2) {
     return false;
+  }
   uint8_t epSize = p[1]; // includes the size byte itself
-  if (epSize < 1 || (epSize - 1) % 3 != 0 || size_t(end - p) < size_t(1 + epSize))
+  if (epSize < 1 || (epSize - 1) % 3 != 0 || size_t(end - p) < size_t(1 + epSize)) {
     return false;
+  }
   out.payloadsEvent = std::span<const uint8_t>(p + 1, epSize);
 
   int32_t sizeOf[256];
-  for (auto &s : sizeOf)
+  for (auto &s : sizeOf) {
     s = -1;
+  }
   int16_t idxOf[256];
-  for (auto &i : idxOf)
+  for (auto &i : idxOf) {
     i = -1;
+  }
   for (const uint8_t *t = p + 2; t < p + 1 + epSize; t += 3) {
     uint8_t cmd = t[0];
     int32_t sz = be16(t + 1);
     // corrupt files can redeclare a command with a different size; the stream
     // would keep the first recSize while records append at the last → OOB
-    if (sizeOf[cmd] >= 0 && sizeOf[cmd] != sz)
+    if (sizeOf[cmd] >= 0 && sizeOf[cmd] != sz) {
       return false;
+    }
     sizeOf[cmd] = sz;
     if (idxOf[cmd] < 0) {
       idxOf[cmd] = (int16_t)out.streams.size();
@@ -143,8 +169,9 @@ bool parse_slp(std::span<const uint8_t> file, ParsedSlp &out) {
     for (const uint8_t *q = p; q < end;) {
       uint8_t cmd = *q;
       int32_t sz = sizeOf[cmd];
-      if (sz < 0 || size_t(end - q) <= size_t(sz))
+      if (sz < 0 || size_t(end - q) <= size_t(sz)) {
         break;
+      }
       ++out.streams[size_t(idxOf[cmd])].count;
       ++events;
       q += 1 + sz;
@@ -158,8 +185,9 @@ bool parse_slp(std::span<const uint8_t> file, ParsedSlp &out) {
   while (p < end) {
     uint8_t cmd = *p;
     int32_t sz = sizeOf[cmd];
-    if (sz < 0 || size_t(end - p) <= size_t(sz))
+    if (sz < 0 || size_t(end - p) <= size_t(sz)) {
       break; // rest becomes tail
+    }
     auto &st = out.streams[(size_t)idxOf[cmd]];
     st.records.put_bytes(p + 1, (size_t)sz);
     st.count++;
@@ -189,17 +217,21 @@ bool splittable(uint8_t cmd, uint32_t recSize) {
 // more periodic than the interleaved sequence (measured -21%).
 bool fold_seeds(EventStream &st, uint32_t seedOff, Buf &seedStream, const uint8_t *groupSel,
                 Stats *stats) {
-  if (st.count < 2)
+  if (st.count < 2) {
     return false;
+  }
   auto seed_at = [&](uint32_t i) {
     return be32(st.records.data() + (size_t)i * st.recSize + seedOff);
   };
   uint32_t probes = st.count - 1 < 32 ? st.count - 1 : 32, hits = 0;
-  for (uint32_t i = 0; i < probes; i++)
-    if (lcg_distance(seed_at(i), seed_at(i + 1)) != UINT32_MAX)
+  for (uint32_t i = 0; i < probes; i++) {
+    if (lcg_distance(seed_at(i), seed_at(i + 1)) != UINT32_MAX) {
       hits++;
-  if (hits * 4 < probes * 3)
+    }
+  }
+  if (hits * 4 < probes * 3) {
     return false;
+  }
 
   std::vector<uint32_t> ks(st.count), raw(st.count);
   uint32_t prev = 0;
@@ -209,17 +241,20 @@ bool fold_seeds(EventStream &st, uint32_t seedOff, Buf &seedStream, const uint8_
     uint32_t seed = be32(rec + seedOff);
     ks[i] = i == 0 ? UINT32_MAX : lcg_distance(prev, seed);
     raw[i] = seed;
-    if (stats)
+    if (stats) {
       (ks[i] == UINT32_MAX ? stats->seedMiss : stats->seedHit)++;
+    }
     memset(rec + seedOff, 0, 4);
     prev = seed;
-    if (groupSel && groupSel[i] > maxG)
+    if (groupSel && groupSel[i] > maxG) {
       maxG = groupSel[i];
+    }
   }
   for (uint32_t g = 0; g <= (groupSel ? (uint32_t)maxG : 0u); g++) {
     for (uint32_t i = 0; i < st.count; i++) {
-      if (groupSel && groupSel[i] != g)
+      if (groupSel && groupSel[i] != g) {
         continue;
+      }
       if (ks[i] == UINT32_MAX) {
         varint(seedStream, kSeedException);
         seedStream.put_u32(raw[i]); // LE raw
@@ -269,8 +304,9 @@ static uint32_t cross_pred_records(Pre pre, uint32_t preCount, Post post, uint32
   for (uint32_t i = 0; i < limit; i++) {
     uint8_t *p = pre(i);
     uint16_t k = (uint16_t)(p[4] << 8 | p[5]);
-    if (!keyIdx[k])
+    if (!keyIdx[k]) {
       continue;
+    }
     if (!occ[k]) {
       occ[k] = true;
       continue;
@@ -283,15 +319,19 @@ static uint32_t cross_pred_records(Pre pre, uint32_t preCount, Post post, uint32
       hits += memcmp(p + kPreA, q + kPostA, kLenA) == 0;
       continue;
     }
-    for (uint32_t b = 0; b < kLenA; b++)
+    for (uint32_t b = 0; b < kLenA; b++) {
       p[kPreA + b] ^= q[kPostA + b];
-    for (uint32_t b = 0; b < kLenB; b++)
+    }
+    for (uint32_t b = 0; b < kLenB; b++) {
       p[kPreB + b] ^= q[kPostB + b];
+    }
   }
-  for (auto k : keys)
+  for (auto k : keys) {
     keyIdx[k] = 0;
-  if (pairsOut)
+  }
+  if (pairsOut) {
     *pairsOut = pairs;
+  }
   return hits;
 }
 
@@ -314,14 +354,16 @@ void ppc_branch_xform(uint8_t *p, size_t nWords, bool inverse) {
     uint32_t v = be32(w);
     uint32_t op = v >> 26;
     if (op == 18) {
-      if (v & 2)
+      if (v & 2) {
         continue; // AA=1: already absolute
+      }
       uint32_t li = (v >> 2) & 0xFFFFFF;
       uint32_t t = (inverse ? li - (uint32_t)i : li + (uint32_t)i) & 0xFFFFFF;
       v = (v & 0xFC000003u) | (t << 2);
     } else if (op == 16) {
-      if (v & 2)
+      if (v & 2) {
         continue;
+      }
       uint32_t bd = (v >> 2) & 0x3FFF;
       uint32_t t = (inverse ? bd - (uint32_t)i : bd + (uint32_t)i) & 0x3FFF;
       v = (v & 0xFFFF0003u) | (t << 2);
@@ -360,8 +402,9 @@ uint32_t integer_grid(uint32_t value) {
     return u;
   }
   uint32_t magnitude = value & 0x7fffffffu;
-  if (magnitude < 0x3f800000u || magnitude > 0x45800000u)
+  if (magnitude < 0x3f800000u || magnitude > 0x45800000u) {
     return value;
+  }
   // Exact integral values have no significand bits below the units position.
   unsigned shift = 150 - (magnitude >> 23);
   uint32_t mantissa = (magnitude & 0x7fffffu) | 0x800000u;
@@ -370,8 +413,9 @@ uint32_t integer_grid(uint32_t value) {
 }
 template <bool inverse>
 static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
-  if (size < 29u)
+  if (size < 29u) {
     return;
+  }
   float prev[2] = {}, velocity[2] = {}, acceleration[2] = {};
   // Percent, shield, and attack velocity fields use first differences of
   // their unsigned bit patterns. Skip fields absent in older record sizes.
@@ -390,8 +434,9 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
   };
   auto transform = [&](uint8_t *r) {
     auto field = [&]<unsigned K, unsigned O>() {
-      if (O + 4 > size)
+      if (O + 4 > size) {
         return;
+      }
       uint32_t prediction = last[K];
       if constexpr (K >= 2) {
         float x, y;
@@ -437,9 +482,9 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       vst1_u8(r + offset, vrev32_u8(vreinterpret_u8_u32(code)));
     };
     pair(21, 0, false);
-    if (size >= 68)
+    if (size >= 68) {
       pair(60, 2, true);
-    else {
+    } else {
       field.template operator()<2, 60>();
       field.template operator()<3, 64>();
     }
@@ -465,19 +510,21 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       memcpy(&prediction, &safe, 4);
       prediction = integer_grid(prediction);
       uint32_t v = be32(r + 33);
-      if constexpr (!inverse)
+      if constexpr (!inverse) {
         v = integer_grid(v);
+      }
       uint32_t actual = inverse ? prediction + ((v >> 1) ^ (0u - (v & 1))) : v;
       uint32_t d = v - prediction, code = (d << 1) ^ (0u - (d >> 31));
       actual = integer_grid(actual);
-      if constexpr (inverse)
+      if constexpr (inverse) {
         code = actual;
+      }
       if (state < 1024) {
         float a;
         memcpy(&a, &actual, 4);
-        if (state != lastState)
+        if (state != lastState) {
           starts[state] = a;
-        else if (a > x) {
+        } else if (a > x) {
           volatile float d = a - x;
           steps[state] = d;
         }
@@ -496,14 +543,16 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
     auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
     for (uint32_t i = 0; i < count; ++i) {
       auto *r = data + size_t(i) * size;
-      if constexpr (inverse)
+      if constexpr (inverse) {
         transform(r);
+      }
       float32x2_t self = {read_float(r + (r[46] ? 52 : 68)), read_float(r + 56)};
       uint32x2_t attack;
-      if constexpr (inverse)
+      if constexpr (inverse) {
         attack = vld1_u32(last + 2);
-      else
+      } else {
         attack = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 60)));
+      }
       auto pred =
           vreinterpret_u32_f32(vadd_f32(position, vadd_f32(self, vreinterpret_f32_u32(attack))));
       pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
@@ -520,8 +569,9 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       }
       vst1_u8(r + 9, vrev32_u8(vreinterpret_u8_u32(code)));
       position = vreinterpret_f32_u32(actual);
-      if constexpr (!inverse)
+      if constexpr (!inverse) {
         transform(r);
+      }
     }
     return;
   }
@@ -534,8 +584,9 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
     auto signMask = vdup_n_u32(0x7fffffffu), infinity = vdup_n_u32(0x7f800000u);
     for (uint32_t i = 0; i < count; ++i) {
       auto *r = data + size_t(i) * size;
-      if constexpr (inverse)
+      if constexpr (inverse) {
         transform(r);
+      }
       auto pred = vreinterpret_u32_f32(vadd_f32(position, vadd_f32(speed, accel)));
       pred = vand_u32(pred, vclt_u32(vand_u32(pred, signMask), infinity));
       auto input = vreinterpret_u32_u8(vrev32_u8(vld1_u8(r + 9)));
@@ -554,16 +605,18 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       accel = vsub_f32(nextSpeed, speed);
       speed = nextSpeed;
       position = current;
-      if constexpr (!inverse)
+      if constexpr (!inverse) {
         transform(r);
+      }
     }
     return;
   }
 #endif
   for (uint32_t i = 0; i < count; i++) {
     uint8_t *r = data + (size_t)i * size;
-    if constexpr (inverse)
+    if constexpr (inverse) {
       transform(r);
+    }
     float pred[2] = {};
     if (size >= 72) {
       volatile float vx = read_float(r + (r[46] ? 52 : 68)) + read_float(r + 60);
@@ -601,15 +654,17 @@ static void motion_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       }
       memcpy(prev + j, &decoded, 4);
     }
-    if constexpr (!inverse)
+    if constexpr (!inverse) {
       transform(r);
+    }
   }
 }
 void motion_predict(uint8_t *data, uint32_t count, uint32_t size, bool inverse) {
-  if (inverse)
+  if (inverse) {
     motion_predict_impl<true>(data, count, size);
-  else
+  } else {
     motion_predict_impl<false>(data, count, size);
+  }
 }
 // Swap each exact q/80 controller value with its small zigzag code. The
 // explicit binary32 table makes the permutation independent of float division.
@@ -638,11 +693,13 @@ uint32_t controller_grid(uint32_t value) {
       0x3f600000u, 0xbf633333u, 0x3f633333u, 0xbf666666u, 0x3f666666u, 0xbf69999au, 0x3f69999au,
       0xbf6ccccdu, 0x3f6ccccdu, 0xbf700000u, 0x3f700000u, 0xbf733333u, 0x3f733333u, 0xbf766666u,
       0x3f766666u, 0xbf79999au, 0x3f79999au, 0xbf7ccccdu, 0x3f7ccccdu, 0xbf800000u, 0x3f800000u};
-  if (value <= 160)
+  if (value <= 160) {
     return grid[value];
+  }
   uint32_t magnitude = value & 0x7fffffffu;
-  if (magnitude > 0x3f800000u)
+  if (magnitude > 0x3f800000u) {
     return value;
+  }
   float f;
   memcpy(&f, &magnitude, 4);
   unsigned q = unsigned(f * 80.f + 0.5f), code = q * 2 - (value >> 31);
@@ -650,8 +707,9 @@ uint32_t controller_grid(uint32_t value) {
 }
 template <bool inverse>
 static void input_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
-  if (size < 59)
+  if (size < 59) {
     return;
+  }
   uint32_t table[4][256] = {};
   constexpr unsigned bits = 12;
   unsigned slots = 1u << bits;
@@ -670,25 +728,29 @@ static void input_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
   const uint32_t offsets[4] = {24, 28, 32, 36}, raw[4] = {58, 63, 64, 65};
   for (uint32_t i = 0; i < count; i++) {
     uint8_t *r = data + (size_t)i * size;
-    if constexpr (!inverse)
+    if constexpr (!inverse) {
       map(r);
+    }
     // Processed and physical button copies; float trigger vs max(L,R).
     r[46] ^= r[48];
     r[47] ^= r[49];
     const uint8_t *pred = be32(r + 50) >= be32(r + 54) ? r + 50 : r + 54;
-    for (uint32_t j = 0; j < 4; j++)
-      r[40 + j] ^= pred[j];
     for (uint32_t j = 0; j < 4; j++) {
-      if (raw[j] >= size)
+      r[40 + j] ^= pred[j];
+    }
+    for (uint32_t j = 0; j < 4; j++) {
+      if (raw[j] >= size) {
         continue;
+      }
       uint8_t *f = r + offsets[j];
       uint8_t key = r[raw[j]];
       unsigned other = j ^ 1;
       uint32_t pairKey = key;
-      if (raw[other] < size)
+      if (raw[other] < size) {
         pairKey |= uint32_t(r[raw[other]]) << 8;
-      else
+      } else {
         pairKey ^= (be32(r + offsets[other]) & 0x7fffffffu) * 2246822519u;
+      }
       unsigned index = j * slots + ((pairKey * 2654435761u) >> (32 - bits));
       uint32_t v = be32(f),
                prediction = pair[index] != UINT64_MAX && uint32_t(pair[index] >> 32) == pairKey
@@ -704,15 +766,17 @@ static void input_predict_impl(uint8_t *data, uint32_t count, uint32_t size) {
       f[2] = uint8_t(code >> 8);
       f[3] = uint8_t(code);
     }
-    if constexpr (inverse)
+    if constexpr (inverse) {
       map(r);
+    }
   }
 }
 void input_predict(uint8_t *data, uint32_t count, uint32_t size, bool inverse) {
-  if (inverse)
+  if (inverse) {
     input_predict_impl<true>(data, count, size);
-  else
+  } else {
     input_predict_impl<false>(data, count, size);
+  }
 }
 
 } // namespace slpz

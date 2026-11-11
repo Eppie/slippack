@@ -12,21 +12,26 @@ struct ContextTree {
 inline double count_entropy(uint32_t n) {
   static const auto table = []() {
     std::array<double, 65536> t{};
-    for (unsigned i = 1; i < t.size(); ++i) t[i] = double(i) * std::log2(double(i));
+    for (unsigned i = 1; i < t.size(); ++i) {
+      t[i] = double(i) * std::log2(double(i));
+    }
     return t;
   }();
   return n < table.size() ? table[n] : double(n) * std::log2(double(n));
 }
-inline double context_cost(const std::array<uint32_t, 256>& h) {
+inline double context_cost(const std::array<uint32_t, 256> &h) {
   double c = 0;
   uint32_t n = 0, used = 0;
-  for (auto x : h)
+  for (auto x : h) {
     if (x) {
       n += x;
       c -= count_entropy(x);
       ++used;
     }
-  if (n) c += count_entropy(n);
+  }
+  if (n) {
+    c += count_entropy(n);
+  }
   return c + 16 + used * 19;
 }
 inline Bytes context_encode(View input, View contexts) {
@@ -40,27 +45,40 @@ inline Bytes context_encode(View input, View contexts) {
       ++merged[input[i]];
     }
     double separate = 0;
-    for (auto& h : hist) separate += context_cost(h);
-    if (separate >= context_cost(merged)) contexts = {};
+    for (auto &h : hist) {
+      separate += context_cost(h);
+    }
+    if (separate >= context_cost(merged)) {
+      contexts = {};
+    }
   }
   const unsigned nc = contexts.empty() ? 1 : ProfileCount;
   std::array<unsigned, ProfileCount> ids{}, counts{};
-  if (contexts.empty())
+  if (contexts.empty()) {
     counts[0] = input.size();
-  else
-    for (auto c : contexts) ++counts[c];
+  } else {
+    for (auto c : contexts) {
+      ++counts[c];
+    }
+  }
   unsigned active = 0;
-  for (unsigned c = 0; c < nc; ++c)
-    if (counts[c]) ids[c] = active++;
+  for (unsigned c = 0; c < nc; ++c) {
+    if (counts[c]) {
+      ids[c] = active++;
+    }
+  }
   // Only these boundaries are candidates for tree splits. Aggregate history
   // directly into their intervals instead of constructing 256 histograms.
-  constexpr unsigned edges[] = {0, 1, 2, 4, 8, 16, 32, 64, 96, 128,
+  constexpr unsigned edges[] = {0,   1,   2,   4,   8,   16,  32,  64,  96, 128,
                                 160, 192, 224, 240, 248, 252, 254, 255, 256};
   constexpr unsigned bins = std::size(edges) - 1;
   static const auto bucket = [=] {
     std::array<uint8_t, 256> out{};
-    for (unsigned b = 0; b < bins; ++b)
-      for (unsigned p = edges[b]; p < edges[b + 1]; ++p) out[p] = uint8_t(b);
+    for (unsigned b = 0; b < bins; ++b) {
+      for (unsigned p = edges[b]; p < edges[b + 1]; ++p) {
+        out[p] = uint8_t(b);
+      }
+    }
     return out;
   }();
   std::vector<std::array<uint32_t, 256>> h(active * bins);
@@ -82,10 +100,15 @@ inline Bytes context_encode(View input, View contexts) {
   for (unsigned c = 0; c < nc; ++c) {
     ContextTree root;
     root.end = bins;
-    if (counts[c])
-      for (unsigned p = 0; p < bins; ++p)
-        if (prior_counts[ids[c] * bins + p])
-          for (unsigned b = 0; b < 256; ++b) root.hist[b] += h[ids[c] * bins + p][b];
+    if (counts[c]) {
+      for (unsigned p = 0; p < bins; ++p) {
+        if (prior_counts[ids[c] * bins + p]) {
+          for (unsigned b = 0; b < 256; ++b) {
+            root.hist[b] += h[ids[c] * bins + p][b];
+          }
+        }
+      }
+    }
     root.cost = context_cost(root.hist);
     std::vector<ContextTree> leaves{root};
     for (size_t k = 0; counts[c] && k < leaves.size(); ++k) {
@@ -105,12 +128,16 @@ inline Bytes context_encode(View input, View contexts) {
       }
 
       for (unsigned p = cur.begin; p + 1 < cur.end; ++p) {
-        if (!prior_counts[ids[c] * bins + p]) continue;
+        if (!prior_counts[ids[c] * bins + p]) {
+          continue;
+        }
         for (unsigned b = 0; b < 256; ++b) {
           uint32_t v = h[ids[c] * bins + p][b];
-          if (!v) continue;
-          auto& l = left.hist[b];
-          auto& r = right.hist[b];
+          if (!v) {
+            continue;
+          }
+          auto &l = left.hist[b];
+          auto &r = right.hist[b];
           lu += l == 0;
           le += count_entropy(l + v) - count_entropy(l);
           re += count_entropy(r - v) - count_entropy(r);
@@ -141,20 +168,25 @@ inline Bytes context_encode(View input, View contexts) {
       }
     }
     out.push_back(uint8_t(leaves.size()));
-    for (auto& leaf : leaves) {
+    for (auto &leaf : leaves) {
       out.push_back(uint8_t(edges[leaf.end] - 1));
       Model m;
       m.hist = leaf.hist;
       m.normalize();
-      for (unsigned p = edges[leaf.begin]; p < edges[leaf.end]; ++p) map[c * 256 + p] = uint16_t(models.size());
+      for (unsigned p = edges[leaf.begin]; p < edges[leaf.end]; ++p) {
+        map[c * 256 + p] = uint16_t(models.size());
+      }
       unsigned used = 0;
-      for (auto f : m.freq) used += f != 0;
+      for (auto f : m.freq) {
+        used += f != 0;
+      }
       varint(out, used);
-      for (unsigned b = 0; b < 256; ++b)
+      for (unsigned b = 0; b < 256; ++b) {
         if (m.freq[b]) {
           out.push_back(b);
           varint(out, m.freq[b]);
         }
+      }
       models.push_back(m);
     }
   }
@@ -163,7 +195,7 @@ inline Bytes context_encode(View input, View contexts) {
   for (size_t i = input.size(); i-- > 0;) {
     unsigned c = contexts.empty() ? 0 : contexts[i],
              prev = i && (contexts.empty() || contexts[i - 1] == c) ? input[i - 1] : 0;
-    auto& m = models[map[c * 256 + prev]];
+    auto &m = models[map[c * 256 + prev]];
     uint32_t f = m.freq[input[i]], &x = state[i & 3];
     while (x >= ((1u << 23 >> 12) << 8) * f) {
       bytes.push_back(uint8_t(x));
@@ -171,11 +203,13 @@ inline Bytes context_encode(View input, View contexts) {
     }
     x = x / f * 4096 + x % f + m.start[input[i]];
   }
-  for (auto x : state) u32(out, x);
+  for (auto x : state) {
+    u32(out, x);
+  }
   out.insert(out.end(), bytes.rbegin(), bytes.rend());
   return out;
 }
-inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
+inline Bytes context_decode(Reader &r, uint32_t n, View contexts) {
   unsigned nc = r.byte();
   require(nc == 1 || nc == ProfileCount, "context class count");
   require(nc == 1 || contexts.size() == n, "context dimensions");
@@ -191,7 +225,9 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
     for (unsigned j = 0; j < count; ++j) {
       unsigned end = unsigned(r.byte()) + 1;
       require(end > begin, "context tree range");
-      for (unsigned p = begin; p < end; ++p) map[c * 256 + p] = uint16_t(models.size());
+      for (unsigned p = begin; p < end; ++p) {
+        map[c * 256 + p] = uint16_t(models.size());
+      }
       begin = end;
       Model m;
       unsigned used = r.var();
@@ -209,7 +245,9 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
         size_t at = lookup.size();
         lookup.resize(at + m.freq[b]);
         uint32_t base = b | ((uint32_t(m.freq[b]) - 1) << 20);
-        for (unsigned j = 0; j < m.freq[b]; ++j) lookup[at + j] = base | (j << 8);
+        for (unsigned j = 0; j < m.freq[b]; ++j) {
+          lookup[at + j] = base | (j << 8);
+        }
       }
       require(sum == 4096, "context sum");
       models.push_back(m);
@@ -217,7 +255,7 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
     require(begin == 256, "context tree coverage");
   }
   uint32_t state[4];
-  for (auto& x : state) {
+  for (auto &x : state) {
     x = r.word();
     require(x >= (1u << 23) && x < (1u << 31), "context state");
   }
@@ -237,10 +275,14 @@ inline Bytes context_decode(Reader& r, uint32_t n, View contexts) {
     out[i] = b;
     previous = b;
     x = ((entry >> 20) + 1) * (x >> 12) + ((entry >> 8) & 4095);
-    while (x < (1u << 23)) x = (x << 8) | r.byte();
+    while (x < (1u << 23)) {
+      x = (x << 8) | r.byte();
+    }
   }
-  for (auto x : state) require(x == (1u << 23), "context terminal state");
+  for (auto x : state) {
+    require(x == (1u << 23), "context terminal state");
+  }
   return out;
 }
 
-}  // namespace slpz_custom
+} // namespace slpz_custom
