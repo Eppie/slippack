@@ -144,20 +144,28 @@ development, so those results are not independent held-out estimates.
 
 ## Encoding speed
 
-The latest encoder changes increase default-level throughput by **12–24%**
-on the existing replay corpus, with identical compressed output. Nine-run
-medians on an Apple M4 Max, one replay per archive:
+The latest changes improve default-level encoding throughput by **2–8%** over
+`cf99bea9`, with identical compressed output. Nine-run interleaved medians on
+an Apple M4 Max in high power mode on AC power, one replay per archive:
 
 | Inputs | Workers | Before MB/s | After MB/s | Encode gain |
 |---|---:|---:|---:|---:|
-| 120 replays | 1 | 215.4 | 247.9 | 15.1% |
-| 120 replays | 8 | 1645.0 | 1848.9 | 12.4% |
-| 401 replays | 1 | 216.5 | 267.6 | 23.6% |
-| 401 replays | 8 | 1695.9 | 2053.5 | 21.1% |
+| 120 replays | 1 | 298.7 | 306.4 | 2.6% |
+| 120 replays | 8 | 1869.8 | 2019.7 | 8.0% |
+| 401 replays | 1 | 284.7 | 290.8 | 2.2% |
+| 401 replays | 8 | 1985.7 | 2048.1 | 3.1% |
 
-The changes remove repeated counter dependencies and stop unnecessary plane
-scans early. The decoder and v1 format are unchanged. See the
-[benchmark method, all levels, and raw results](benchmarks/2026-11-10-encode-speed/README.md).
+The encoder partitions records into entity groups once and avoids unnecessary
+copies, literal labels, and dictionary scans. The decoder code and v1 format
+are unchanged; decode medians stayed within 1.2% of baseline. See the
+[method, validation, and raw results](benchmarks/2026-11-10-level3-memory/README.md)
+and [hardware profiling results](benchmarks/2026-11-10-level3-profiling/README.md).
+The earlier histogram and plane-screening improvements are documented in the
+[previous speed study](benchmarks/2026-11-10-encode-speed/README.md).
+
+In the fresh 120-file single-worker comparison, Slippack level 3 encodes at
+306.4 MB/s versus 550.3 MB/s for slpz fast. Slippack produces 12.9 MB versus
+42.1 MB, or 69.3% smaller output. Slpz remains faster at encoding and decoding.
 
 ## Single-replay comparison
 

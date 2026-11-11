@@ -75,6 +75,29 @@ def run(args, **kwargs):
     return subprocess.run([str(x) for x in args], capture_output=True, check=True, **kwargs)
 
 
+def check_group_partition(work):
+    # Uneven, interleaved item groups exercise stable partition boundaries.
+    # 255 groups is the format limit; the 256th must fall back to one stream.
+    for groups in (1, 2, 17, 255, 256):
+        raw = bytearray([0x35, 4, 0x3B, 0, 10])
+        for frame in range(19):
+            for group in reversed(range(groups)):
+                if frame == 0 or (frame + group) % 3:
+                    raw += bytes([0x3B]) + struct.pack('>IHI', frame, group, frame * 65537 + group)
+        original = b'{U\x03raw[$U#l' + struct.pack('>I', len(raw)) + raw
+        source = work / f'groups-{groups}.slp'
+        source.write_bytes(original)
+        packed = []
+        for threads in (1, 8):
+            archive = work / f'groups-{groups}-{threads}.slpc'
+            run([binary, 'c', '-l', 3, '-T', threads, '-o', archive, source])
+            destination = work / f'groups-{groups}-{threads}'
+            run([binary, 'x', '-T', threads, archive, '-d', destination])
+            assert (destination / source.name).read_bytes() == original
+            packed.append(archive.read_bytes())
+        assert packed[0] == packed[1], 'group task scheduling changed compressed output'
+
+
 def verify(archive, work, expected, fixtures, label):
     assert archive.read_bytes()[:6] == b'SLPC\x01\x01'
     result = run([binary, 'hash', archive, '-T', '2'], text=True)
@@ -103,6 +126,7 @@ def main():
         declaration = work / 'declaration.slpc'
         run([binary, 'c', '-o', declaration, 'declared-only.slp'], cwd=work)
         assert declaration.stat().st_size < 512, 'unused declarations expanded into empty planes'
+        check_group_partition(work)
         # Reject unsupported versions/flags before creating extracted files.
         original = golden.read_bytes()
         for version, flags in ([(v, f) for v in (0, *range(2, 17)) for f in (0, 1)]
@@ -115,7 +139,7 @@ def main():
             assert result.returncode == 1 and 'requires v1' in result.stderr
             assert not output.exists()
     print(f'archive integration: frozen v1 fixture, 4 levels, {len(fixtures)} fixtures, '
-          'exact hashes/extraction, and unsupported-format rejection passed')
+          'group partition boundaries, exact hashes/extraction, and unsupported-format rejection passed')
 
 
 if __name__ == '__main__':

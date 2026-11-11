@@ -1,0 +1,176 @@
+{
+  "counters-branch": {
+    "accepted": 360,
+    "rejected": 4,
+    "runs": {
+      "0": {
+        "files": 120,
+        "wall_ns": 1458779582,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4163753407,
+        "FIXED_INSTRUCTIONS": 16378815279,
+        "INST_BRANCH": 2436009864,
+        "BRANCH_MISPRED_NONSPEC": 39472866,
+        "BRANCH_COND_MISPRED_NONSPEC": 39470607,
+        "BRANCH_INDIR_MISPRED_NONSPEC": 2259
+      },
+      "1": {
+        "files": 120,
+        "wall_ns": 1444337085,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4122276747,
+        "FIXED_INSTRUCTIONS": 16258640287,
+        "INST_BRANCH": 2436003313,
+        "BRANCH_MISPRED_NONSPEC": 39458885,
+        "BRANCH_COND_MISPRED_NONSPEC": 39456539,
+        "BRANCH_INDIR_MISPRED_NONSPEC": 2346
+      },
+      "2": {
+        "files": 120,
+        "wall_ns": 1446666583,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4127958399,
+        "FIXED_INSTRUCTIONS": 16285034867,
+        "INST_BRANCH": 2435950212,
+        "BRANCH_MISPRED_NONSPEC": 39472741,
+        "BRANCH_COND_MISPRED_NONSPEC": 39470010,
+        "BRANCH_INDIR_MISPRED_NONSPEC": 2731
+      }
+    }
+  },
+  "counters-cache": {
+    "accepted": 360,
+    "rejected": 5,
+    "runs": {
+      "0": {
+        "files": 120,
+        "wall_ns": 1418807038,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4055837741,
+        "FIXED_INSTRUCTIONS": 16010834102,
+        "L1D_CACHE_MISS_LD": 179375917,
+        "L1D_CACHE_MISS_ST": 204830314,
+        "L1D_TLB_MISS": 21287792,
+        "L2_TLB_MISS_DATA": 3618832,
+        "INST_INT_LD": 3786278602,
+        "INST_SIMD_LD": 169194869
+      },
+      "1": {
+        "files": 120,
+        "wall_ns": 1425791252,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4073703955,
+        "FIXED_INSTRUCTIONS": 16093267335,
+        "L1D_CACHE_MISS_LD": 180125549,
+        "L1D_CACHE_MISS_ST": 204535912,
+        "L1D_TLB_MISS": 21006967,
+        "L2_TLB_MISS_DATA": 3210061,
+        "INST_INT_LD": 3786285119,
+        "INST_SIMD_LD": 169193983
+      },
+      "2": {
+        "files": 120,
+        "wall_ns": 1414567793,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4040037768,
+        "FIXED_INSTRUCTIONS": 15953841444,
+        "L1D_CACHE_MISS_LD": 180004537,
+        "L1D_CACHE_MISS_ST": 204527025,
+        "L1D_TLB_MISS": 19610467,
+        "L2_TLB_MISS_DATA": 3744746,
+        "INST_INT_LD": 3786290027,
+        "INST_SIMD_LD": 169194950
+      }
+    }
+  },
+  "counters-stall": {
+    "accepted": 360,
+    "rejected": 8,
+    "runs": {
+      "0": {
+        "files": 120,
+        "wall_ns": 1439300042,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4108940997,
+        "FIXED_INSTRUCTIONS": 16228515995,
+        "MAP_STALL": 746409585,
+        "MAP_STALL_DISPATCH": 706259386,
+        "MAP_DISPATCH_BUBBLE": 87262486,
+        "MAP_DISPATCH_BUBBLE_IC": 1436402,
+        "L1I_CACHE_MISS_DEMAND": 44122,
+        "CORE_ACTIVE_CYCLE": 3846420786
+      },
+      "1": {
+        "files": 120,
+        "wall_ns": 1446782542,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4129902507,
+        "FIXED_INSTRUCTIONS": 16251354514,
+        "MAP_STALL": 745915418,
+        "MAP_STALL_DISPATCH": 705538514,
+        "MAP_DISPATCH_BUBBLE": 88759250,
+        "MAP_DISPATCH_BUBBLE_IC": 1689760,
+        "L1I_CACHE_MISS_DEMAND": 49368,
+        "CORE_ACTIVE_CYCLE": 3849156259
+      },
+      "2": {
+        "files": 120,
+        "wall_ns": 1446460503,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4130089103,
+        "FIXED_INSTRUCTIONS": 16343516386,
+        "MAP_STALL": 747910291,
+        "MAP_STALL_DISPATCH": 707785722,
+        "MAP_DISPATCH_BUBBLE": 88286789,
+        "MAP_DISPATCH_BUBBLE_IC": 1495536,
+        "L1I_CACHE_MISS_DEMAND": 45126,
+        "CORE_ACTIVE_CYCLE": 3848955607
+      }
+    }
+  },
+  "counters-traffic": {
+    "accepted": 360,
+    "rejected": 10,
+    "runs": {
+      "0": {
+        "files": 120,
+        "wall_ns": 1451694914,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4147005555,
+        "FIXED_INSTRUCTIONS": 16293071196,
+        "INST_INT_LD": 3786323128,
+        "INST_SIMD_LD": 169186816,
+        "INST_INT_ST": 1295918638,
+        "INST_SIMD_ST": 133007216,
+        "L1D_CACHE_MISS_LD_NONSPEC": 71470934,
+        "MMU_TABLE_WALK_DATA": 3745084
+      },
+      "1": {
+        "files": 120,
+        "wall_ns": 1443906622,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4121283576,
+        "FIXED_INSTRUCTIONS": 16185471838,
+        "INST_INT_LD": 3786317856,
+        "INST_SIMD_LD": 169186847,
+        "INST_INT_ST": 1295936365,
+        "INST_SIMD_ST": 133007250,
+        "L1D_CACHE_MISS_LD_NONSPEC": 71039485,
+        "MMU_TABLE_WALK_DATA": 3487244
+      },
+      "2": {
+        "files": 120,
+        "wall_ns": 1448757793,
+        "bytes": 313007679,
+        "FIXED_CYCLES": 4132982644,
+        "FIXED_INSTRUCTIONS": 16229496813,
+        "INST_INT_LD": 3786285986,
+        "INST_SIMD_LD": 169186789,
+        "INST_INT_ST": 1295938522,
+        "INST_SIMD_ST": 133007209,
+        "L1D_CACHE_MISS_LD_NONSPEC": 71541605,
+        "MMU_TABLE_WALK_DATA": 3695154
+      }
+    }
+  }
+}

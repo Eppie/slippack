@@ -114,7 +114,9 @@ struct RecordWork {
   uint32_t stream;
 };
 struct GroupWork {
-  uint32_t stream, group;
+  uint32_t stream, count;
+  // Each task owns mutation of one disjoint range in its plan's grouped buffer.
+  std::span<uint8_t> records;
 };
 struct BlobFrameWork {
   View data;
@@ -150,8 +152,7 @@ struct FilePlan {
   ParsedSlp slp;
   std::vector<Buf> pieces;
   int curPiece = -1;
-  std::vector<Buf> selectors;                 // per stream (grouped only)
-  std::vector<std::vector<uint32_t>> gCounts; // per stream
+  std::vector<OutputBytes> grouped; // disjoint, stable record ranges for pack tasks
   std::vector<PackTask> tasks;
   std::vector<PooledStream> pooled; // records moved out for pooling
   std::atomic<uint32_t> pending{0}; // unfinished tasks
@@ -243,8 +244,7 @@ static void plan_compress(FilePlan &fp, int level) {
     }
   }
   fp.live().put_u8((uint8_t)fp.slp.streams.size());
-  fp.selectors.resize(fp.slp.streams.size());
-  fp.gCounts.resize(fp.slp.streams.size());
+  fp.grouped.resize(fp.slp.streams.size());
   EventStream *pre = nullptr, *post = nullptr;
   for (auto &st : fp.slp.streams) {
     if (st.cmd == 0x37) {
@@ -294,7 +294,7 @@ static void plan_compress(FilePlan &fp, int level) {
     // group records by the 2-byte entity key at payload offsets 4-5
     // (before seed folding: the seed stream is emitted group-ordered)
     std::vector<uint16_t> keys;
-    auto &counts = fp.gCounts[s];
+    std::vector<uint32_t> counts;
     bool grouped = false;
     if (splittable(st.cmd, st.recSize) && st.count > 0) {
       groupOf.assign(65536, -1);
@@ -315,7 +315,7 @@ static void plan_compress(FilePlan &fp, int level) {
         counts[(size_t)groupOf[key]]++;
       }
     }
-    auto &selector = fp.selectors[s];
+    Buf selector;
     if (grouped) {
       flags |= 1;
       selector.reserve(st.count);
@@ -363,8 +363,25 @@ static void plan_compress(FilePlan &fp, int level) {
       }
       b.put_u8((uint8_t)keys.size());
     }
-    for (uint32_t g = 0; g < keys.size(); g++) {
-      fp.tasks.push_back({&fp, fp.defer(), GroupWork{s, g}, stat, (size_t)counts[g] * st.recSize});
+    // Stable partition in one pass. A task can predict its range in place;
+    // it no longer rescans the full stream or allocates another record copy.
+    auto &groupedRecords = fp.grouped[s];
+    groupedRecords.resize(st.records.size());
+    std::vector<size_t> offsets(counts.size() + 1, 0);
+    for (size_t g = 0; g < counts.size(); ++g) {
+      offsets[g + 1] = offsets[g] + size_t(counts[g]) * st.recSize;
+    }
+    auto cursors = offsets;
+    for (uint32_t i = 0; i < st.count; ++i) {
+      auto &at = cursors[selector[i]];
+      std::memcpy(groupedRecords.data() + at, st.records.data() + size_t(i) * st.recSize,
+                  st.recSize);
+      at += st.recSize;
+    }
+    st.records = Buf();
+    for (uint32_t g = 0; g < keys.size(); ++g) {
+      auto records = std::span(groupedRecords).subspan(offsets[g], offsets[g + 1] - offsets[g]);
+      fp.tasks.push_back({&fp, fp.defer(), GroupWork{s, counts[g], records}, stat, records.size()});
     }
   }
 }
@@ -397,15 +414,8 @@ static void run_pack_task(PackTask &t, int level) {
           if constexpr (std::is_same_v<Work, RecordWork>) {
             pack_records(st.records, st.count, st.recSize, level, out, t.stat, st.cmd);
           } else {
-            auto &sel = t.fp->selectors[work.stream];
-            uint32_t count = t.fp->gCounts[work.stream][work.group];
-            Buf group;
-            group.reserve(size_t(count) * st.recSize);
-            for (uint32_t i = 0; i < st.count; ++i) {
-              if (sel[i] == work.group) {
-                group.put_bytes(st.records.data() + size_t(i) * st.recSize, st.recSize);
-              }
-            }
+            uint32_t count = work.count;
+            auto group = work.records;
             out.put_u32(count);
             if (st.cmd == 0x37) {
               input_predict(group.data(), count, st.recSize, false);
@@ -456,8 +466,7 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
       p.data = {};
       p.data.shrink_to_fit();
       p.slp = ParsedSlp();
-      p.selectors.clear();
-      p.gCounts.clear();
+      p.grouped.clear();
       retired.fetch_add(1);
     };
     auto worker = [&](FailureState &failure) {

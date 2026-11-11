@@ -358,6 +358,7 @@ static uint8_t choose_transform(const uint8_t *plane, uint32_t count) {
 struct U32Set {
   static constexpr uint32_t N = 1024; // ≤256 live entries → low load factor
   uint32_t keys[N];
+  uint32_t values[256]; // insertion order, ready to become the dictionary
   uint8_t idx[N];
   uint8_t used[N] = {};
   uint32_t n = 0, lastKey = 0;
@@ -376,6 +377,7 @@ struct U32Set {
         }
         used[h] = 1;
         keys[h] = k;
+        values[n] = k;
         idx[h] = (uint8_t)n++;
         return lastId = idx[h];
       }
@@ -599,12 +601,7 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       // pass runs first, so capping here keeps the highest-value fields.
       if (ok && fields.size() < 255 && set.n * width <= (size_t)count * (width / 2)) {
         DictField f{(uint16_t)w, uint8_t(width), {}, {}};
-        f.vals.resize(set.n);
-        for (uint32_t h = 0; h < U32Set::N; h++) {
-          if (set.used[h]) {
-            f.vals[set.idx[h]] = set.keys[h];
-          }
-        }
+        f.vals.assign(set.values, set.values + set.n);
         f.idx = idxPlane;
         fields.push_back(std::move(f));
         widthAt[w] = width;

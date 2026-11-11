@@ -1,0 +1,39 @@
+{
+  "baseline_commit": "cf99bea9ee37cc00eb0fd14a6ba87bf9002400c4",
+  "files": 521,
+  "raw_bytes": 1309548357,
+  "binary_sha256": {
+    "baseline": "56aeb463f448d3c6ee3d7dad7a3dee49e5ec132e93a4e59d9daf4b60245975d3",
+    "candidate": "0c8f17586cfb08af34580c02c39971aea00dd19bb0436d04aeff36922e428482"
+  },
+  "rows": [
+    {
+      "level": 1,
+      "bytes": 51628453,
+      "sha256": "6622233cee24d4702a399790e4848904865ba8759999aa0a647e44b1cf136cf4",
+      "direct_byte_comparison": true,
+      "all_member_sha1_match_sources": true
+    },
+    {
+      "level": 3,
+      "bytes": 50672315,
+      "sha256": "4c03902271b1109120cc39f93495dc95a7c1a8e0a97d44724f66671dea073ca8",
+      "direct_byte_comparison": true,
+      "all_member_sha1_match_sources": true
+    },
+    {
+      "level": 7,
+      "bytes": 50583503,
+      "sha256": "fa2636689dace426ebb8b714af0ac8d997af42b97bdf0a5e24db94667736d04b",
+      "direct_byte_comparison": true,
+      "all_member_sha1_match_sources": true
+    },
+    {
+      "level": 9,
+      "bytes": 50477834,
+      "sha256": "476e352403cefb9f704f204718a3b06504211dfd2964d4831844298ec99050cb",
+      "direct_byte_comparison": true,
+      "all_member_sha1_match_sources": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "baseline_commit": "cf99bea9ee37cc00eb0fd14a6ba87bf9002400c4",
+  "cpu_counter_commit": "68e13b4f2e8b20b52727e417dcc549bca98bc21e",
+  "level": 3,
+  "workers": 1,
+  "inputs": 120,
+  "raw_bytes": 313007679,
+  "counter_groups": [
+    "cache",
+    "branch",
+    "stall",
+    "traffic"
+  ],
+  "repetitions": 3,
+  "accepted_per_group": 360,
+  "rejected_per_group": {
+    "cache": 5,
+    "branch": 4,
+    "stall": 8,
+    "traffic": 10
+  },
+  "per_file_direct_byte_comparison": true,
+  "no_op_control_ipc": 9.9872773795821,
+  "no_op_control_note": "256 inline AArch64 nop instructions per loop iteration; not a useful-work throughput target.",
+  "files_sha256": {
+    "counter-baseline": "0946135db256a7da086bd0dcc0d70b98144c837346ce9ba1eca8b22533372641",
+    "perf.h": "15b9638d6ab830657a1cf38faa70bc1793e79dda7819de255d458bd101cbcd5d",
+    "original_counter_runner.cpp": "b3ba783bdcfbac9bbe292b036074d4ddea4e42b7c7552e01cfec88c0bf482c9f",
+    "published_counter_runner.cpp": "f17f7beb1a376bd824bb92538fda264b8781b35ca3dabdba04ffd65a5527e83b"
+  },
+  "power_mode": "Not recorded during profiling; these are not controlled power-mode speed comparisons.",
+  "harness_note": "The published harness differs from the measured source only in formatting and relative project include paths."
+}

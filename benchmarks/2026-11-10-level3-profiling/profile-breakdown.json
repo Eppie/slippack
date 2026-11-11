@@ -1,0 +1,22 @@
+{
+  "samples": 5455,
+  "buckets": {
+    "Other archive work": 1030,
+    "Record/dictionary preparation": 1004,
+    "Other plane compression": 675,
+    "Other LZ work": 555,
+    "LZ match search": 912,
+    "Entropy coding": 584,
+    "Presence mask encoding": 695
+  },
+  "inclusive": {
+    "Record packing inclusive": 4143,
+    "Record compression inclusive": 3028,
+    "LZ parsing/search": 1878,
+    "Match search": 912,
+    "Context entropy coding": 404,
+    "Basic entropy coding": 180,
+    "Presence masks": 695,
+    "Dictionary sorting": 92
+  }
+}

@@ -52,23 +52,25 @@ inline Bytes ans_candidate(View input, View contexts) {
   return result;
 }
 inline void channel(Bytes &out, View input, View contexts = {}) {
-  Bytes best{0};
-  append(best, input);
+  // Construct the raw fallback only if the compressed candidate loses.
+  Bytes candidate;
+  const bool contextual = input.size() >= 2048;
   if (!input.empty()) {
-    auto candidate =
-        input.size() >= 2048 ? context_encode(input, contexts) : ans_candidate(input, {});
-    if (candidate.size() + (input.size() >= 2048) < best.size()) {
-      if (input.size() >= 2048) {
-        best = Bytes{4};
-        append(best, candidate);
-      } else {
-        best = std::move(candidate);
-      }
-    }
+    candidate = contextual ? context_encode(input, contexts) : ans_candidate(input, {});
   }
-  varint(out, narrow(best.size()));
-  varint(out, narrow(input.size()));
-  append(out, best);
+  if (!candidate.empty() && candidate.size() + contextual < input.size() + 1) {
+    varint(out, narrow(candidate.size() + contextual));
+    varint(out, narrow(input.size()));
+    if (contextual) {
+      out.push_back(4);
+    }
+    append(out, candidate);
+  } else {
+    varint(out, narrow(input.size() + 1));
+    varint(out, narrow(input.size()));
+    out.push_back(0);
+    append(out, input);
+  }
 }
 inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
   uint32_t packed = outer.var(), n = outer.var();
@@ -332,10 +334,21 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
   for (auto p : profiles) {
     require(p < ProfileCount, "custom profile");
   }
+  const bool prepare_prediction = depth >= 4;
+  const bool compare_histograms = depth >= 4 && depth < 24;
+  // A single semantic class always merges into the generic context model.
+  // Avoid materializing a label for every literal in that case.
+  const bool varied_contexts =
+      !profiles.empty() &&
+      std::any_of(profiles.begin(), profiles.end(), [&](uint8_t p) { return p != profiles[0]; });
   Bytes literals, residuals, contexts, litlengths, lengths, distances;
   literals.reserve(input.size());
-  residuals.reserve(input.size());
-  contexts.reserve(input.size());
+  if (prepare_prediction) {
+    residuals.reserve(input.size());
+  }
+  if (varied_contexts) {
+    contexts.reserve(input.size());
+  }
   litlengths.reserve(input.size() / 8 + 1);
   lengths.reserve(input.size() / 8);
   distances.reserve(input.size() / 8);
@@ -348,10 +361,16 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
     number(litlengths, extra, end - last);
     for (uint32_t p = last; p < end; ++p) {
       literals.push_back(input[p]);
-      residuals.push_back(input[p] ^ (p >= recent[0] ? input[p - recent[0]] : 0));
-      ++raw_hist[literals.back()];
-      ++predicted_hist[residuals.back()];
-      contexts.push_back(context(profiles, stride, p, 0));
+      if (prepare_prediction) {
+        residuals.push_back(input[p] ^ (p >= recent[0] ? input[p - recent[0]] : 0));
+        if (compare_histograms) {
+          ++raw_hist[literals.back()];
+          ++predicted_hist[residuals.back()];
+        }
+      }
+      if (varied_contexts) {
+        contexts.push_back(context(profiles, stride, p, 0));
+      }
     }
   };
   uint32_t misses = 0;
@@ -412,8 +431,9 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
   // LZ literals use the semantic class at their original plane position.
   // RNG side streams have their own independent class/model.
   Bytes raw_literals, predicted_literals;
-  auto literal_contexts = profiles.empty() ? View{} : View(contexts);
-  bool favor_prediction = depth >= 4 && context_cost(predicted_hist) < context_cost(raw_hist);
+  auto literal_contexts = varied_contexts ? View(contexts) : View{};
+  bool favor_prediction =
+      compare_histograms && context_cost(predicted_hist) < context_cost(raw_hist);
   if (!favor_prediction || depth >= 24) {
     channel(raw_literals, literals, literal_contexts);
   }
@@ -575,10 +595,10 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
   if (is_constant(input)) {
     return Bytes{1, input[0]};
   }
-  Bytes best{0};
-  append(best, input);
+  Bytes best;
+  size_t best_size = input.size() + 1;
   if (input.empty()) {
-    return best;
+    return Bytes{0};
   }
   std::array<uint32_t, 256> hist;
   uint32_t runs = histogram_runs(input, hist);
@@ -587,7 +607,8 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
     return Bytes{1, base};
   }
   auto choose = [&](Bytes b) {
-    if (b.size() < best.size()) {
+    if (b.size() < best_size) {
+      best_size = b.size();
       best = std::move(b);
     }
   };
@@ -634,6 +655,10 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
     Bytes b{4};
     append(b, lz_encode(input, p, 0, depth));
     choose(std::move(b));
+  }
+  if (best.empty()) {
+    best.push_back(0);
+    append(best, input);
   }
   return best;
 }

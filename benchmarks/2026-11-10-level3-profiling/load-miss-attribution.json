@@ -1,0 +1,662 @@
+{
+  "event": "L1D_CACHE_MISS_LD_NONSPEC",
+  "sample_period": 20000,
+  "encoding_p_core_samples": 13340,
+  "functions": [
+    {
+      "name": "memory copies",
+      "samples": 3006,
+      "percent": 22.533733133433284
+    },
+    {
+      "name": "record transpose",
+      "samples": 2633,
+      "percent": 19.737631184407796
+    },
+    {
+      "name": "match search",
+      "samples": 1457,
+      "percent": 10.922038980509745
+    },
+    {
+      "name": "dictionary hash lookup",
+      "samples": 845,
+      "percent": 6.3343328335832085
+    },
+    {
+      "name": "slippack::pack_records",
+      "samples": 602,
+      "percent": 4.512743628185907
+    },
+    {
+      "name": "record field loads",
+      "samples": 411,
+      "percent": 3.08095952023988
+    },
+    {
+      "name": "unsigned int slippack::cross_pred_records<slippack::cross_pred_xor",
+      "samples": 391,
+      "percent": 2.9310344827586206
+    },
+    {
+      "name": "<deduplicated_symbol>",
+      "samples": 332,
+      "percent": 2.4887556221889056
+    },
+    {
+      "name": "std::__1::span<unsigned char const, 18446744073709551615ul>::size[abi:ne190102]",
+      "samples": 326,
+      "percent": 2.443778110944528
+    },
+    {
+      "name": "slippack::sort_dictionaries",
+      "samples": 293,
+      "percent": 2.1964017991004496
+    },
+    {
+      "name": "slippack_custom::is_constant",
+      "samples": 257,
+      "percent": 1.9265367316341828
+    },
+    {
+      "name": "std::__1::__wrap_iter<unsigned char*> std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::__insert_with_size[abi:ne190102]<unsigned char const*, unsigned char const*>",
+      "samples": 223,
+      "percent": 1.671664167916042
+    },
+    {
+      "name": "void slippack::delta_fwd<false>",
+      "samples": 215,
+      "percent": 1.6116941529235382
+    },
+    {
+      "name": "slippack_custom::context_encode",
+      "samples": 135,
+      "percent": 1.0119940029985008
+    },
+    {
+      "name": "slippack_custom::dominant_byte",
+      "samples": 134,
+      "percent": 1.0044977511244377
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::push_back[abi:ne190102]",
+      "samples": 131,
+      "percent": 0.9820089955022488
+    },
+    {
+      "name": "slippack_custom::lz_encode",
+      "samples": 122,
+      "percent": 0.9145427286356822
+    },
+    {
+      "name": "void slippack::delta_fwd<true>",
+      "samples": 118,
+      "percent": 0.8845577211394303
+    },
+    {
+      "name": "_ZZN8slippackL13run_pack_taskERNS_8PackTaskEiENK3$_0clINS_9GroupWorkEEEDaRKT_",
+      "samples": 100,
+      "percent": 0.7496251874062968
+    },
+    {
+      "name": "slippack::choose_transform",
+      "samples": 98,
+      "percent": 0.7346326836581709
+    },
+    {
+      "name": "void slippack::input_predict_impl<false>",
+      "samples": 88,
+      "percent": 0.6596701649175413
+    },
+    {
+      "name": "slippack_custom::encode_planes",
+      "samples": 80,
+      "percent": 0.5997001499250375
+    },
+    {
+      "name": "slippack::fold_seeds",
+      "samples": 73,
+      "percent": 0.5472263868065967
+    },
+    {
+      "name": "_platform_memset",
+      "samples": 59,
+      "percent": 0.44227886056971516
+    },
+    {
+      "name": "slippack::be32",
+      "samples": 56,
+      "percent": 0.4197901049475262
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::data[abi:ne190102]",
+      "samples": 53,
+      "percent": 0.39730134932533734
+    },
+    {
+      "name": "slippack_custom::histogram_runs",
+      "samples": 50,
+      "percent": 0.3748125937031484
+    },
+    {
+      "name": "slippack::plan_compress",
+      "samples": 49,
+      "percent": 0.36731634182908546
+    },
+    {
+      "name": "slippack_custom::sparse_or_few_runs",
+      "samples": 47,
+      "percent": 0.3523238380809595
+    },
+    {
+      "name": "slippack_custom::encode_presence4",
+      "samples": 44,
+      "percent": 0.32983508245877063
+    },
+    {
+      "name": "slippack_custom::context_cost",
+      "samples": 44,
+      "percent": 0.32983508245877063
+    },
+    {
+      "name": "slippack::parse_slp",
+      "samples": 39,
+      "percent": 0.29235382308845576
+    },
+    {
+      "name": "slippack::transpose_fwd",
+      "samples": 37,
+      "percent": 0.2773613193403298
+    },
+    {
+      "name": "auto slippack::transpose_fwd",
+      "samples": 35,
+      "percent": 0.2623688155922039
+    },
+    {
+      "name": "_nanov2_free",
+      "samples": 32,
+      "percent": 0.239880059970015
+    },
+    {
+      "name": "std::__1::vector<unsigned int, std::__1::allocator<unsigned int>>::operator[][abi:ne190102]",
+      "samples": 32,
+      "percent": 0.239880059970015
+    },
+    {
+      "name": "slippack_custom::masked_encode",
+      "samples": 29,
+      "percent": 0.21739130434782608
+    },
+    {
+      "name": "DYLD-STUB$$memmove",
+      "samples": 28,
+      "percent": 0.2098950524737631
+    },
+    {
+      "name": "slippack::Buf::put_u8",
+      "samples": 28,
+      "percent": 0.2098950524737631
+    },
+    {
+      "name": "slippack::controller_grid",
+      "samples": 25,
+      "percent": 0.1874062968515742
+    },
+    {
+      "name": "slippack_custom::count_entropy",
+      "samples": 24,
+      "percent": 0.17991004497751126
+    },
+    {
+      "name": "void slippack::motion_predict_impl<false>",
+      "samples": 23,
+      "percent": 0.1724137931034483
+    },
+    {
+      "name": "slippack::dictionary_forward",
+      "samples": 22,
+      "percent": 0.16491754122938532
+    },
+    {
+      "name": "_szone_free",
+      "samples": 21,
+      "percent": 0.15742128935532235
+    },
+    {
+      "name": "slippack_custom::number",
+      "samples": 20,
+      "percent": 0.14992503748125938
+    },
+    {
+      "name": "_free",
+      "samples": 19,
+      "percent": 0.1424287856071964
+    },
+    {
+      "name": "std::__1::pair<unsigned char const*, unsigned char*> std::__1::__copy_trivial_impl[abi:ne190102]<unsigned char const, unsigned char>",
+      "samples": 19,
+      "percent": 0.1424287856071964
+    },
+    {
+      "name": "nanov2_malloc_type",
+      "samples": 18,
+      "percent": 0.13493253373313344
+    },
+    {
+      "name": "slippack_custom::encode",
+      "samples": 18,
+      "percent": 0.13493253373313344
+    },
+    {
+      "name": "unsigned char* std::__1::construct_at[abi:ne190102]<unsigned char, unsigned char&, unsigned char*>",
+      "samples": 18,
+      "percent": 0.13493253373313344
+    },
+    {
+      "name": "slippack_custom::extract_exceptions",
+      "samples": 17,
+      "percent": 0.12743628185907047
+    },
+    {
+      "name": "slippack_custom::BitWriter::put",
+      "samples": 17,
+      "percent": 0.12743628185907047
+    },
+    {
+      "name": "tiny_malloc_from_free_list",
+      "samples": 16,
+      "percent": 0.1199400299850075
+    },
+    {
+      "name": "std::__1::unique_ptr<unsigned int [], std::__1::default_delete<unsigned int []>>::operator[][abi:ne190102]",
+      "samples": 15,
+      "percent": 0.11244377811094453
+    },
+    {
+      "name": "slippack_custom::context",
+      "samples": 14,
+      "percent": 0.10494752623688156
+    },
+    {
+      "name": "free_small",
+      "samples": 14,
+      "percent": 0.10494752623688156
+    },
+    {
+      "name": "bool std::__1::__less<void, void>::operator",
+      "samples": 13,
+      "percent": 0.09745127436281859
+    },
+    {
+      "name": "small_free_list_add_ptr",
+      "samples": 13,
+      "percent": 0.09745127436281859
+    },
+    {
+      "name": "small_malloc_from_free_list",
+      "samples": 12,
+      "percent": 0.08995502248875563
+    },
+    {
+      "name": "szone_malloc_should_clear",
+      "samples": 12,
+      "percent": 0.08995502248875563
+    },
+    {
+      "name": "std::__1::vector<unsigned int, std::__1::allocator<unsigned int>>::size[abi:ne190102]",
+      "samples": 12,
+      "percent": 0.08995502248875563
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::_ConstructTransaction::~_ConstructTransaction[abi:ne190102]",
+      "samples": 11,
+      "percent": 0.08245877061469266
+    },
+    {
+      "name": "free_medium",
+      "samples": 10,
+      "percent": 0.07496251874062969
+    },
+    {
+      "name": "small_free_list_remove_ptr_no_clear",
+      "samples": 9,
+      "percent": 0.06746626686656672
+    },
+    {
+      "name": "std::__1::__wrap_iter<unsigned char const*>::operator++[abi:ne190102]",
+      "samples": 9,
+      "percent": 0.06746626686656672
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::end[abi:ne190102]",
+      "samples": 7,
+      "percent": 0.05247376311844078
+    },
+    {
+      "name": "slippack::Buf::put_bytes",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "int std::__1::popcount[abi:ne190102]<unsigned char>",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "slippack::lcg_distance",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "slippack_custom::NibbleTable::build",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "slippack::integer_grid",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "medium_free_list_add_ptr",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "std::__1::vector<slippack::DictField, std::__1::allocator<slippack::DictField>>::operator[][abi:ne190102]",
+      "samples": 6,
+      "percent": 0.044977511244377814
+    },
+    {
+      "name": "int std::__1::__countl_zero[abi:ne190102]<unsigned int>",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "std::__1::vector<slippack::DictField, std::__1::allocator<slippack::DictField>>::size[abi:ne190102]",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "slippack_custom::ans_candidate",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "free_tiny",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::vector[abi:ne190102]",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "slippack::require",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "DYLD-STUB$$memcpy",
+      "samples": 5,
+      "percent": 0.037481259370314844
+    },
+    {
+      "name": "tiny_malloc_should_clear",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "std::__1::span<unsigned char const, 18446744073709551615ul>::data[abi:ne190102]",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "malloc_type_malloc",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "small_malloc_should_clear",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "void std::__1::__advance[abi:ne190102]<unsigned char const*>",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "medium_malloc_from_free_list",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "std::__1::vector<slippack::EventStream, std::__1::allocator<slippack::EventStream>>::operator[][abi:ne190102]",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::__destroy_vector::operator",
+      "samples": 4,
+      "percent": 0.029985007496251874
+    },
+    {
+      "name": "std::__1::vector<slippack::DictField, std::__1::allocator<slippack::DictField>>::__swap_out_circular_buffer",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "__bzero",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "DYLD-STUB$$malloc_type_malloc",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "log2",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "std::__1::span<unsigned char const, 18446744073709551615ul>::operator[][abi:ne190102]",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "slippack::varint",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "_tiny_check_and_zero_inline_meta_from_freelist",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "slippack::lcg_tables",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "DYLD-STUB$$bzero",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "tiny_free_no_lock",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "slippack_custom::NibbleTable::frequency",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "std::__1::__wrap_iter<unsigned char*> std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::insert<unsigned char const*, 0>",
+      "samples": 3,
+      "percent": 0.022488755622188907
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::operator[][abi:ne190102]",
+      "samples": 2,
+      "percent": 0.014992503748125937
+    },
+    {
+      "name": "DYLD-STUB$$operator delete",
+      "samples": 2,
+      "percent": 0.014992503748125937
+    },
+    {
+      "name": "slippack::DictField::DictField",
+      "samples": 2,
+      "percent": 0.014992503748125937
+    },
+    {
+      "name": "rack_get_thread_index",
+      "samples": 2,
+      "percent": 0.014992503748125937
+    },
+    {
+      "name": "std::__1::vector<slippack_custom::Model, std::__1::allocator<slippack_custom::Model>>::operator[][abi:ne190102]",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "DYLD-STUB$$free",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::__wrap_iter<std::__1::pair<unsigned int, unsigned int>*>::operator++[abi:ne190102]",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::__wrap_iter<slippack::DictField const*>::operator++[abi:ne190102]",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "void std::__1::__introsort<std::__1::_ClassicAlgPolicy, slippack::sort_dictionaries",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::begin[abi:ne190102]",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::vector<std::__1::pair<unsigned int, unsigned int>, std::__1::allocator<std::__1::pair<unsigned int, unsigned int>>>::end[abi:ne190102]",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "small_free_list_remove_ptr",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "fesetround",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "DYLD-STUB$$_platform_memset",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "void std::__1::__insertion_sort[abi:ne190102]<std::__1::_ClassicAlgPolicy, slippack::sort_dictionaries",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "slippack_custom::move_recent",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::size[abi:ne190102]",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::vector<unsigned char, std::__1::allocator<unsigned char>>::resize",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "medium_malloc_should_clear",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::__split_buffer<unsigned int, std::__1::allocator<unsigned int>&>::__split_buffer",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "void std::__1::__split_buffer<unsigned char, std::__1::allocator<unsigned char>&>::__construct_at_end_with_size<std::__1::reverse_iterator<std::__1::__wrap_iter<unsigned char*>>>",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "void* std::__1::__libcpp_operator_new[abi:ne190102]<unsigned long>",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "medium_free_list_remove_ptr_no_clear",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "short* std::__1::__fill_n[abi:ne190102]<short*, unsigned long, short>",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "tiny_free_list_add_ptr",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "get_tiny_previous_free_msize",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::enable_if<is_move_constructible<unsigned short>::value && is_move_assignable<unsigned short>::value, void>::type std::__1::swap[abi:ne190102]<unsigned short>",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::enable_if<is_move_constructible<slippack::DictField*>::value && is_move_assignable<slippack::DictField*>::value, void>::type std::__1::swap[abi:ne190102]<slippack::DictField*>",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::__split_buffer<unsigned char, std::__1::allocator<unsigned char>&>::__split_buffer",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::vector<unsigned int, std::__1::allocator<unsigned int>>::__destroy_vector::operator",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    },
+    {
+      "name": "std::__1::vector<unsigned int, std::__1::allocator<unsigned int>>::__move_assign",
+      "samples": 1,
+      "percent": 0.0074962518740629685
+    }
+  ]
+}

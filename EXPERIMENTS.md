@@ -628,3 +628,26 @@ prefix candidates.
 [Method, throughput tables, and reproduction](benchmarks/2026-11-10-encode-speed/README.md)
 include input/source/binary hashes and every timing sample. The older four-tool
 tables above retain their original measurements.
+
+## 2026-11-10 — allocation and grouping at level 3
+
+Against `cf99bea9`, one-pass record grouping, deferred raw copies, omitted
+uniform literal labels, and insertion-ordered dictionary collection improve
+level 3 throughput by 2.2–8.0% across the 120- and 401-file sets with one and
+eight workers. Nine-run interleaved measurements held high power mode and AC
+power constant; the driver now monitors both and rejects observed transitions.
+The unchanged decoder's medians stayed within 1.2% of baseline.
+
+Every individual output matches the baseline fingerprint. Combined 521-file
+archives match byte for byte at levels 1, 3, 7, and 9 and reconstruct the original
+member hashes. Full tests, group-boundary tests, formatting, and ASan/UBSan
+integration checks passed. Existing stored archives were not modified.
+
+The fresh matched 120-file comparison still favors slpz fast for throughput:
+550.3 versus 306.4 MB/s encoding with one worker. Slippack's 12,929,476 bytes
+remain 69.3% smaller than slpz's 42,111,709 bytes.
+
+[Measurements and reproduction](benchmarks/2026-11-10-level3-memory/README.md)
+and [hardware-counter interpretation](benchmarks/2026-11-10-level3-profiling/README.md)
+include the limitations and provenance. Alternative match layouts and smaller
+probability models did not consistently meet the combined speed/size criteria.
