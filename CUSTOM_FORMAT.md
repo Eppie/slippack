@@ -1,20 +1,15 @@
 # SLIPPACK v1 custom codec
 
-The writer emits version 1 with header flags exactly 1. The reader accepts
-versions 1 and 15 as aliases for the same payload format. The custom rANS/LZ
-codec is the only payload backend. Codec ID 6 identifies tagged
-custom frames; implicit frames also use custom compression. Other archive
-versions, tuned/legacy backends, and unknown header flags are rejected.
-The last compatibility reader is commit `b66dd55` (see the README).
+The writer and reader use version 1 with header flags exactly 1. The rANS/LZ
+codec is self-contained. Codec ID 6 identifies tagged frames; implicit frames
+use the same compression. Other versions and unknown header flags are rejected.
 
 Container words are little-endian; source Slippi numeric fields are big-endian.
-Only the version byte changes from 15 to 1; every payload byte retains its
-meaning. Existing archives with the original v15 header need no rewrite.
 
 ## Container
 
 ```
-u32 magic "SLPZ", u8 version=1 (or original alias 15), u8 flags=1
+u32 magic "SLPC", u8 version=1, u8 flags=1
 u32 pool_count
   per pool: u8 command, u32 record_size, u32 record_count, record_packet
 u32 file_count
@@ -149,7 +144,7 @@ records the value assigned to every index.
 
 The encoder skips candidate dictionaries with exactly
 one nonconstant byte and at least 128 distinct values in that byte. Constant
-planes already represent the fixed neighbours cheaply. Alphabet counts are
+planes already represent the fixed neighbors cheaply. Alphabet counts are
 cached by byte offset and stop at the threshold. Constant dictionaries and
 small one-byte alphabets avoid hashing every full record; dictionary values
 and first-occurrence indexes are otherwise unchanged. This is an encoder

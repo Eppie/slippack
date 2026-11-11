@@ -141,12 +141,8 @@ all timing samples; `summary.json` specifies the aggregate calculation.
 
 Build the baseline from commit `5c1659d` in a separate checkout. Then:
 
-```sh
-make check
-python3 benchmarks/compare_custom.py --baseline /path/to/previous/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v14/sample-files.txt \
-  --level 3 --threads 16 --repeats 9
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_custom.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_custom.py).
 
 Repeat with `mixed-files.txt` and the mixed root, then `holdout-files.txt` with
 the Summit root. The single-thread check uses mixed, `--threads 1 --repeats 5`.

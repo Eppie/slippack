@@ -63,18 +63,11 @@ not yet win on size. See `level9-mixed.json`.
 - LibFuzzer plus ASan/UBSan: 80,004 runs in 61 seconds, no findings, 610 MB
   peak reported RSS. This is a smoke run, not a sustained campaign.
 
-The default backend is unchanged. Use `--codec custom` to write v11.
+The default backend is unchanged. The custom backend writes v11.
 `CUSTOM_FORMAT.md` documents the representation. Earlier experiments and
 source fragments are retained in `../2026-11-08-model-study/`.
 
 ## Reproduction
 
-```sh
-make check
-python3 benchmarks/compare_custom.py --root /path/to/summit \
-  --list benchmarks/2026-11-08-v11/sample-files.txt --repeats 9 --threads 16
-python3 benchmarks/compare_custom.py --root /path/to/mixed \
-  --list benchmarks/2026-11-08-v11/mixed-files.txt --repeats 9 --threads 16
-python3 benchmarks/compare_custom.py --root /path/to/summit \
-  --list benchmarks/2026-11-08-v11/holdout-files.txt --repeats 9 --threads 16
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_custom.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_custom.py).

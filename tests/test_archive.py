@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """End-to-end format, predictor, fallback, and exact extraction checks."""
-import argparse
 import hashlib
 from pathlib import Path
 import struct
@@ -9,7 +8,7 @@ import tempfile
 
 repo = Path(__file__).resolve().parents[1]
 binary = repo / 'slippack'
-golden = repo / 'tests/fixtures/v15-custom.slpz'
+golden = repo / 'tests/fixtures/v1-custom.slpc'
 
 def replay(post_size=84, unused=False):
     sizes = {0x37: 66, 0x38: post_size, 0x3A: 12}
@@ -77,7 +76,7 @@ def run(args, **kwargs):
 
 
 def verify(archive, work, expected, fixtures, label):
-    assert archive.read_bytes()[:6] in (b'SLPZ\x01\x01', b'SLPZ\x0f\x01')
+    assert archive.read_bytes()[:6] == b'SLPC\x01\x01'
     result = run([binary, 'hash', archive, '-T', '2'], text=True)
     assert sorted(result.stdout.splitlines()) == expected, label
     output = work / label
@@ -86,13 +85,6 @@ def verify(archive, work, expected, fixtures, label):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--reference', type=Path, help='also compare against a pre-cleanup v15 binary')
-    parser.add_argument('--write-golden', action='store_true', help='generate the fixture with --reference')
-    args = parser.parse_args()
-    reference = args.reference.resolve() if args.reference else None
-    if args.write_golden and reference is None:
-        parser.error('--write-golden requires --reference')
     fixtures = make_fixtures()
     expected = sorted(hashlib.sha1(data).hexdigest() + '  ' + name for name, data in fixtures.items())
     with tempfile.TemporaryDirectory(prefix='slippack-integration-') as temporary:
@@ -102,53 +94,27 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
         (work / 'list.txt').write_text('\n'.join(fixtures) + '\n')
-        if args.write_golden:
-            golden.parent.mkdir(exist_ok=True)
-            run([reference, 'c', '--codec', 'custom', '-l', 3, '-T', 2, '-o', golden, '@list.txt'], cwd=work)
-        verify(golden, work, expected, fixtures, 'golden-v15')
-        renamed = work / 'golden-v1.slippack'
-        old_bytes = golden.read_bytes()
-        assert old_bytes[:6] == b'SLPZ\x0f\x01'
-        renamed.write_bytes(old_bytes[:4] + b'\x01' + old_bytes[5:])
-        verify(renamed, work, expected, fixtures, 'golden-v1')
+        verify(golden, work, expected, fixtures, 'golden-v1')
         for level in (1, 3, 7, 9):
-            archive = work / f'custom-{level}.slippack'
+            archive = work / f'custom-{level}.slpc'
             run([binary, 'c', '-l', level, '-T', 2, '-o', archive, '@list.txt'], cwd=work)
-            assert archive.read_bytes()[:6] == b'SLPZ\x01\x01', 'new archives must use v1'
+            assert archive.read_bytes()[:6] == b'SLPC\x01\x01', 'new archives must use v1'
             verify(archive, work, expected, fixtures, f'out-{level}')
-            if reference:
-                baseline = work / f'reference-{level}.slippack'
-                run([reference, 'c', '--codec', 'custom', '-l', level, '-T', 2,
-                     '-o', baseline, '@list.txt'], cwd=work)
-                current = archive.read_bytes()
-                original_header = current[:4] + b'\x0f' + current[5:]
-                assert original_header == baseline.read_bytes(), f'payload changed at level {level}'
-                # The old reader understands the identical payload with its original header.
-                compatible = work / f'compatible-{level}.slippack'
-                compatible.write_bytes(original_header)
-                result = run([reference, 'hash', compatible, '-T', 2], text=True)
-                assert sorted(result.stdout.splitlines()) == expected
-        declaration = work / 'declaration.slippack'
-        run([binary, 'c', '--codec', 'custom', '-o', declaration, 'declared-only.slp'], cwd=work)
+        declaration = work / 'declaration.slpc'
+        run([binary, 'c', '-o', declaration, 'declared-only.slp'], cwd=work)
         assert declaration.stat().st_size < 512, 'unused declarations expanded into empty planes'
-        # Reject unsupported versions/backends before creating extracted files.
+        # Reject unsupported versions/flags before creating extracted files.
         original = golden.read_bytes()
-        for version, flags in ([(v, f) for v in (0, *range(2, 15), 16) for f in (0, 1)]
-                               + [(v, f) for v in (1, 15) for f in (0, 2, 3, 255)]):
-            rejected = work / f'rejected-{version}-{flags}.slippack'
+        for version, flags in ([(v, f) for v in (0, *range(2, 17)) for f in (0, 1)]
+                               + [(v, f) for v in (1,) for f in (0, 2, 3, 255)]):
+            rejected = work / f'rejected-{version}-{flags}.slpc'
             rejected.write_bytes(original[:4] + bytes([version, flags]) + original[6:])
             output = work / f'rejected-{version}-{flags}'
             result = subprocess.run([str(binary), 'x', str(rejected), '-d', str(output)],
                                     capture_output=True, text=True)
-            assert result.returncode == 1 and 'requires v1 custom' in result.stderr
+            assert result.returncode == 1 and 'requires v1' in result.stderr
             assert not output.exists()
-        for codec in ('legacy', 'tuned'):
-            output = work / f'{codec}.slippack'
-            result = subprocess.run([str(binary), 'c', '--codec', codec, '-o', str(output), 'valid.slp'],
-                                    cwd=work, capture_output=True, text=True)
-            assert result.returncode == 1 and 'only the custom codec' in result.stderr
-            assert not output.exists()
-    print(f'archive integration: v1/v15-header compatibility, 4 levels, {len(fixtures)} fixtures, '
+    print(f'archive integration: frozen v1 fixture, 4 levels, {len(fixtures)} fixtures, '
           'exact hashes/extraction, and unsupported-format rejection passed')
 
 

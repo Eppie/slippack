@@ -5,14 +5,8 @@ structure, cross-frame and controller prediction, field dictionaries, shared
 presence masks, and a custom rANS/LZ payload codec. Extraction restores the
 original file bytes, including metadata, malformed input, and unknown events.
 
-The executable reads and writes **v1 custom archives**. Custom compression is
-the default and only backend. No zstd, LZMA, or Brotli libraries are required.
-
-Slippack was previously named `slpz`. It is a separate project from
-[Alexander Harrison's slpz](https://github.com/AlexanderHarrison/slpz), whose
-single-replay `.slpz` files use a different format. Use `.slippack` for new
-Slippack archives. Our existing archives still decode without conversion;
-the v1 wire signature remains `SLPZ` and the format version remains 1.
+The executable reads and writes **v1 custom archives**. The codec is
+self-contained. No zstd, LZMA, or Brotli libraries are required.
 
 ## Build and use
 
@@ -21,19 +15,24 @@ for SHA-1; Linux requires OpenSSL development headers and `libcrypto`.
 
 ```sh
 make
-./slippack c -o out.slippack -l 3 -T 16 file1.slp file2.slp
-./slippack c -o out.slippack --overwrite @listfile
-./slippack x out.slippack -d outdir       # extract, recreating stored paths
-./slippack t out.slippack                 # decode in memory without writing files
-./slippack hash out.slippack              # SHA-1 per file in shasum format
+./slippack c replay.slp                 # creates replay.slpc beside the input
+./slippack c first.slp second.slp       # creates archive.slpc in this directory
+./slippack c -o out.slpc -l 3 -T 16 file1.slp file2.slp
+./slippack c -o out.slpc --overwrite @listfile
+./slippack x out.slpc -d outdir       # extract, recreating stored paths
+./slippack t out.slpc                 # decode in memory without writing files
+./slippack hash out.slpc              # SHA-1 per file in shasum format
 ./slippack selftest
 make check
 ```
 
+Without `-o`, a single input uses its path with the extension replaced by `.slpc`;
+multiple inputs create `archive.slpc` in the current directory. List-file entries
+follow the same rule after expansion. Use `-o` to choose another filename.
+
 List files contain one input path per line. `-T` sets the thread count
 (default: available hardware threads). `-v` prints compressed bytes by section.
-`--codec custom` remains accepted for existing scripts; `legacy` and `tuned`
-are rejected. Use `--` before filenames that start with a dash.
+Use `--` before filenames that start with a dash.
 
 Source paths and archive names are separate. Relative paths retain their
 subdirectories; absolute paths and paths outside the working directory use
@@ -124,29 +123,6 @@ belong to each operation; concurrent calls and repeated calls after an error
 are tested. Predictor operations establish round-to-nearest and restore the
 caller's floating-point mode. The optimized kernels retain scalar alternatives.
 
-## Compatibility
-
-V1 names the same custom payload format previously labeled v15. New archives
-use version byte `1`; the reader also accepts byte `15` as an alias for the
-identical format. Existing v15 archives need no conversion. Older Slippi
-replay record sizes are still supported inside either header.
-
-Earlier archive formats and the former `tuned` backend are rejected. The
-previous reader does not recognize the new v1 header; current readers accept
-both headers through the same decoding path.
-
-The last reader supporting v9–v15 and all three backends is commit
-[`b66dd55`](https://github.com/Eppie/slippack/tree/b66dd55). To build it separately:
-
-```sh
-git worktree add --detach ../slippack-compat b66dd55
-make -C ../slippack-compat
-```
-
-That checkout includes the old migration tools and requires zstd, LZMA, and
-Brotli development libraries. The historical `main` branch contains an earlier
-legacy implementation; the latest code is on `custom-codec`.
-
 ## Validation and benchmarks
 
 Use `make format` to format all C++ code and insert braces around control-flow
@@ -156,8 +132,8 @@ clang-format 15 or newer; set `CLANG_FORMAT=/path/to/clang-format` if needed.
 `make check` covers custom packets, dictionary framing, scalar predictor
 oracles, exception propagation, concurrent/repeated library calls, path and
 symlink confinement, atomic overwrites, limits, exact extraction, unsupported-format
-rejection, and a committed
-original-v15 fixture made by the pre-cleanup encoder. Fuzzing instructions are in
+rejection, and a frozen v1 fixture with independently generated expected contents.
+Fuzzing instructions are in
 [fuzz/README.md](fuzz/README.md).
 
 The `benchmarks/` directory and [EXPERIMENTS.md](EXPERIMENTS.md) record historical
@@ -171,21 +147,30 @@ development, so those results are not independent held-out estimates.
 On an Apple M4 Max, 120 individually compressed replays (313 MB), one worker,
 five-run medians, with inputs in RAM and exact round-trip verification:
 
-| Codec | Packed size / original | Encode MB/s | Decode MB/s |
-|---|---:|---:|---:|
-| Slippack level 3 (default) | 4.13% | 215.6 | 858.9 |
-| slpz --fast (default) | 13.45% | 531.2 | 1027.4 |
-| slpz --small | 12.20% | 109.2 | 1164.8 |
+| Matched set | Tool / setting | Packed size / original | Encode MB/s | Decode MB/s |
+|---|---|---:|---:|---:|
+| All 120 | Slippack level 3 (default) | 4.13% | 215.6 | 858.9 |
+| All 120 | [slpz](https://github.com/AlexanderHarrison/slpz) --fast (default) | 13.45% | 531.2 | 1027.4 |
+| All 120 | slpz --small | 12.20% | 109.2 | 1164.8 |
+| slippc: 98 | Slippack level 3 | 4.03% | 220.9 | 894.5 |
+| slippc: 98 | [slippc](https://github.com/pcrain/slippc) level 6 | 5.33% | 6.6 | 335.3 |
+| Peppi: 28 | Slippack level 3 | 4.41% | 216.1 | 803.9 |
+| Peppi: 28 | [Peppi](https://docs.rs/peppi/2.1.2/peppi/#peppi-format), uncompressed Arrow | 91.67% | 659.9 | 1919.5 |
+| Peppi: 28 | Peppi, internal Zstd | 17.69% | 257.3 | 501.8 |
+| Peppi: 28 | Peppi + whole-file Zstd 3 | 11.36% | 382.6 | 1072.2 |
+| Peppi: 28 | Peppi + whole-file Zstd 12 | 10.07% | 126.5 | 1108.8 |
+
+Compare rows within the same matched set. The slippc set contains the 98 files
+within its supported replay versions. Peppi 2.1.2 restored 28 files byte-for-byte; its rows use only those
+files. Peppi's uncompressed row measures format conversion, and its Arrow
+representation also serves analysis use cases.
 
 Slippack's default output was 69% smaller than slpz's fast preset, while slpz
-encoded about 2.5 times faster and decoded about 1.2 times faster. On the 98
-files within slippc's supported version range, Slippack produced 24% smaller
-files, encoded about 33 times faster, and decoded about 2.7 times faster.
-
-Peppi 2.1.2 restored only 28 of these files byte-for-byte; its comparisons use
-that matched subset. Slippack's output was 61% smaller than whole-file Peppi +
-Zstd level 3, with about 1.8 times slower encoding and 1.3 times slower decoding.
-Peppi's Arrow representation also serves analysis use cases.
+encoded about 2.5 times faster and decoded about 1.2 times faster. On slippc's
+matched set, Slippack produced 24% smaller files, encoded about 33 times faster,
+and decoded about 2.7 times faster. On Peppi's matched set, Slippack produced
+61% smaller files than whole-file Peppi + Zstd 3, with about 1.8 times slower
+encoding and 1.3 times slower decoding.
 
 See [the full method and matched comparisons](EXPERIMENTS.md#2026-11-10-single-replay-comparison-with-slpz-slippc-and-peppi)
 for every tested level, single/eight-worker results, Peppi coverage details,

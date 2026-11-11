@@ -129,18 +129,8 @@ benchmark archives are checked into Git.
 
 ## Reproduction
 
-```sh
-make check
-python3 benchmarks/compare_custom.py --baseline /path/to/v11/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v12/sample-files.txt \
-  --repeats 9 --threads 16
-python3 benchmarks/compare_custom.py --baseline /path/to/v11/slpz \
-  --root /path/to/mixed --list benchmarks/2026-11-08-v12/mixed-files.txt \
-  --repeats 9 --threads 16
-python3 benchmarks/compare_custom.py --baseline /path/to/v11/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v12/holdout-files.txt \
-  --repeats 9 --threads 16
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_custom.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_custom.py).
 
 Build v11 separately from commit `b1c9a01`. JSON files retain all samples,
 input-list hashes, and both binary hashes. `fuzz/README.md` gives sanitizer

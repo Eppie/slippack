@@ -148,18 +148,8 @@ all timing samples are in `validation.json` and the benchmark JSON files.
 
 Build the previous binary separately from commit `c03652c`. Run from the repo:
 
-```sh
-make check
-python3 benchmarks/compare_custom.py --baseline /path/to/previous/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v13-round2/sample-files.txt \
-  --level 3 --threads 16 --repeats 9
-python3 benchmarks/compare_custom.py --baseline /path/to/previous/slpz \
-  --root /path/to/mixed --list benchmarks/2026-11-08-v13-round2/mixed-files.txt \
-  --level 3 --threads 16 --repeats 9
-python3 benchmarks/compare_custom.py --baseline /path/to/previous/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v13-round2/holdout-files.txt \
-  --level 3 --threads 16 --repeats 9
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_custom.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_custom.py).
 
 For the additional mixed experiments, use levels 1/7/9 with five repetitions;
 for the single-thread check, use level 3, `--threads 1`, and five repetitions.

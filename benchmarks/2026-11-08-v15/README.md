@@ -114,12 +114,8 @@ independent scalar oracle on arbitrary float bit patterns.
 
 ## Reproduce
 
-```sh
-python3 benchmarks/2026-11-08-v15/benchmark.py \
-  --baseline /path/to/v14/slpz --current ./slpz \
-  --study /path/to/slpz-study --threads 16 --repeats 31 \
-  --output benchmarks/2026-11-08-v15/results.json
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [benchmark.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/2026-11-08-v15/benchmark.py).
 
 The study directory contains `summit/` and `mixed/`; input lists are tracked
 beside this report. Replay data and generated archives are not committed.

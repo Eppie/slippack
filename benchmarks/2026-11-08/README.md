@@ -31,13 +31,8 @@ custom entropy coder.
 Reproduce after extracting the source archives into the same directory layout
 as the recorded lists:
 
-```sh
-make check
-python3 benchmarks/compare_custom.py --root /path/to/summit \
-  --list benchmarks/2026-11-08/sample-files.txt --repeats 5 --threads 16
-python3 benchmarks/compare_custom.py --root /path/to/mixed \
-  --list benchmarks/2026-11-08/mixed-files.txt --repeats 5 --threads 16
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_custom.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_custom.py).
 
 Validation includes standalone ASan/UBSan checks, all packet modes, semantic
 model selection, truncation/mutation cases, archive extraction at levels 1/3/9

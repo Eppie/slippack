@@ -24,8 +24,37 @@ def rename_member(archive, name):
 with tempfile.TemporaryDirectory(prefix='slippack-path-test-') as temporary:
     work = Path(temporary)
     (work / 'input').write_bytes(b'replay bytes')
-    run('c', '-o', 'one.slippack', 'input', cwd=work)
-    archive = (work / 'one.slippack').read_bytes()
+    run('c', '-o', 'one.slpc', 'input', cwd=work)
+    # Default names follow expanded input paths; explicit names take precedence.
+    (work / 'source').mkdir()
+    (work / 'source/game.slp').write_bytes(b'game bytes')
+    result = run('c', 'source/game.slp', cwd=work)
+    assert 'source/game.slpc' in result.stderr
+    run('x', work / 'source/game.slpc', '-d', work / 'default-output')
+    assert (work / 'default-output/source/game.slp').read_bytes() == b'game bytes'
+    run('c', 'source/game.slp', cwd=work, ok=False)
+    run('c', 'source/game.slp', '--overwrite', cwd=work)
+    run('c', work / 'input', cwd=work)
+    assert (work / 'input.slpc').read_bytes()[:6] == b'SLPC\x01\x01'
+    run('c', 'input', 'source/game.slp', cwd=work)
+    assert (work / 'archive.slpc').is_file()
+    (work / 'single-list').write_text('source/game.slp\n')
+    run('c', '@single-list', '--overwrite', cwd=work)
+    (work / 'multiple-list').write_text('input\nsource/game.slp\n')
+    run('c', '@multiple-list', '--overwrite', cwd=work)
+    run('c', '-o', 'chosen-name', 'input', cwd=work)
+    assert (work / 'chosen-name').is_file()
+    # Even --overwrite cannot turn an implicit output into an input replacement.
+    previous = (work / 'input.slpc').read_bytes()
+    run('c', 'input.slpc', '--overwrite', cwd=work, ok=False)
+    assert (work / 'input.slpc').read_bytes() == previous
+    (work / 'alias.slp').write_bytes(b'preserve')
+    (work / 'alias.slpc').hardlink_to(work / 'alias.slp')
+    run('c', 'alias.slp', '--overwrite', cwd=work, ok=False)
+    assert (work / 'alias.slp').read_bytes() == b'preserve'
+    run('c', 'archive.slpc', 'input', '--overwrite', cwd=work, ok=False)
+    run('c', '-o', '', 'input', cwd=work, ok=False)
+    archive = (work / 'one.slpc').read_bytes()
     outside = work / 'outside'
     outside.mkdir()
     sentinel = outside / 'sentinel'
@@ -33,13 +62,13 @@ with tempfile.TemporaryDirectory(prefix='slippack-path-test-') as temporary:
     for index, name in enumerate((b'../outside/sentinel', b'/absolute/file', b'C:/drive',
                                   b'nested/../../outside/sentinel', b'folder\\file',
                                   b'zero\0tail', b'new\nline', b'new\rline')):
-        path = work / f'unsafe-{index}.slippack'
+        path = work / f'unsafe-{index}.slpc'
         path.write_bytes(rename_member(archive, name))
         output = work / f'unsafe-{index}'
         run('x', path, '-d', output, ok=False)
         assert not output.exists()
         assert sentinel.read_bytes() == b'keep'
-    nested = work / 'nested.slippack'
+    nested = work / 'nested.slpc'
     nested.write_bytes(rename_member(archive, b'nested/sentinel'))
     output = work / 'output'
     output.mkdir()
@@ -62,23 +91,23 @@ with tempfile.TemporaryDirectory(prefix='slippack-path-test-') as temporary:
     run('x', nested, '-d', output, ok=False)
     assert target.read_bytes() == b'replay bytes'
     # Existing archive creation requires explicit overwrite as well.
-    run('c', '-o', 'one.slippack', 'input', cwd=work, ok=False)
-    assert (work / 'one.slippack').read_bytes() == archive
-    run('c', '-o', 'one.slippack', 'input', '--overwrite', cwd=work)
-    assert (work / 'one.slippack').read_bytes() == archive
+    run('c', '-o', 'one.slpc', 'input', cwd=work, ok=False)
+    assert (work / 'one.slpc').read_bytes() == archive
+    run('c', '-o', 'one.slpc', 'input', '--overwrite', cwd=work)
+    assert (work / 'one.slpc').read_bytes() == archive
     # Force a real short write: a failed replacement must preserve the target,
     # remove its temporary file, and return an ordinary CLI error.
     def limit_output():
         resource.setrlimit(resource.RLIMIT_FSIZE, (1024, 1024))
         signal.signal(signal.SIGXFSZ, signal.SIG_IGN)
     (work / 'incompressible').write_bytes(random.Random(702).randbytes(16384))
-    run('c', '-o', 'one.slippack', '--overwrite', 'incompressible', cwd=work,
+    run('c', '-o', 'one.slpc', '--overwrite', 'incompressible', cwd=work,
         ok=False, preexec_fn=limit_output)
-    assert (work / 'one.slippack').read_bytes() == archive
+    assert (work / 'one.slpc').read_bytes() == archive
     assert not list(work.rglob('.slippack-tmp-*'))
     # Source path and stored name are separate; absolute sources are portable.
-    run('c', '-o', work / 'absolute.slippack', work / 'input')
-    run('x', work / 'absolute.slippack', '-d', work / 'absolute')
+    run('c', '-o', work / 'absolute.slpc', work / 'input')
+    run('x', work / 'absolute.slpc', '-d', work / 'absolute')
     assert (work / 'absolute/input').read_bytes() == b'replay bytes'
     # Multiple workers hitting existing paths must fail promptly, without
     # deadlock or incomplete temporary files left by queued work.
@@ -87,15 +116,15 @@ with tempfile.TemporaryDirectory(prefix='slippack-path-test-') as temporary:
         name = f'file-{i}'
         (work / name).write_bytes(bytes([i]) * 4096)
         names.append(name)
-    run('c', '-o', 'many.slippack', '-T', 8, *names, cwd=work)
-    run('x', work / 'many.slippack', '-d', work / 'many', '-T', 8)
-    run('x', work / 'many.slippack', '-d', work / 'many', '-T', 8, ok=False)
+    run('c', '-o', 'many.slpc', '-T', 8, *names, cwd=work)
+    run('x', work / 'many.slpc', '-d', work / 'many', '-T', 8)
+    run('x', work / 'many.slpc', '-d', work / 'many', '-T', 8, ok=False)
     assert not list(work.rglob('.slippack-tmp-*'))
     for i, name in enumerate(names):
         assert (work / 'many' / name).read_bytes() == bytes([i]) * 4096
     for option in ('--max-file-mib', '--max-output-mib', '--max-frame-mib'):
-        run('t', work / 'one.slippack', option, 0, ok=False)
+        run('t', work / 'one.slpc', option, 0, ok=False)
     for args in (('-T', '0'), ('-T', '4garbage'), ('-l', '999'), ('--unknown',)):
-        run('c', '-o', work / 'invalid.slippack', *args, work / 'input', ok=False)
-    assert not (work / 'invalid.slippack').exists()
+        run('c', '-o', work / 'invalid.slpc', *args, work / 'input', ok=False)
+    assert not (work / 'invalid.slpc').exists()
 print('extraction: traversal, symlinks, hardlinks, overwrite, atomic output, limits, and writer failures passed')

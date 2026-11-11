@@ -15,12 +15,13 @@ using namespace slippack;
 namespace {
 [[noreturn]] void usage() {
   fail("usage:\n"
-       "  slippack c -o out.slippack [-l level] [-T threads] [-v] [--overwrite] "
+       "  slippack c [-o out.slpc] [-l level] [-T threads] [-v] [--overwrite] "
        "<file.slp...|@listfile>\n"
-       "  slippack x archive.slippack -d outdir [-T threads] [--overwrite]\n"
-       "  slippack t archive.slippack [-T threads]\n"
-       "  slippack hash archive.slippack [-T threads]   (sha1 per file, shasum format)\n"
+       "  slippack x archive.slpc -d outdir [-T threads] [--overwrite]\n"
+       "  slippack t archive.slpc [-T threads]\n"
+       "  slippack hash archive.slpc [-T threads]   (sha1 per file, shasum format)\n"
        "  slippack selftest\n"
+       "  Default output: <input-stem>.slpc beside one input; archive.slpc for multiple inputs.\n"
        "  Decode limits: --max-archive-mib N --max-file-mib N --max-output-mib N\n"
        "                 --max-frame-mib N --max-pool-mib N --max-metadata-mib N --wave-mib N");
 }
@@ -85,6 +86,7 @@ int run(int argc, char **argv) {
       positional = true;
     } else if (argument == "-o") {
       out = next();
+      require(!out.empty(), "output path must not be empty");
     } else if (argument == "-d") {
       directory = next();
     } else if (argument == "-l") {
@@ -99,8 +101,6 @@ int run(int argc, char **argv) {
       overwrite = Overwrite::Replace;
     } else if (argument == "-v") {
       encode.collect_stats = true;
-    } else if (argument == "--codec") {
-      require(next() == "custom", "only the custom codec is supported");
     } else if (argument == "--max-archive-mib") {
       decode.limits.archive_bytes = mib();
     } else if (argument == "--max-file-mib") {
@@ -140,8 +140,17 @@ int run(int argc, char **argv) {
     };
   }
   if (mode == "c") {
-    if (out.empty() || paths.empty()) {
+    if (paths.empty()) {
       usage();
+    }
+    if (out.empty()) {
+      out = paths.size() == 1 ? paths.front() : fs::path("archive");
+      out.replace_extension(".slpc");
+      for (const auto &path : paths) {
+        std::error_code error;
+        require(!fs::equivalent(out, path, error),
+                "default output is an input file; choose a different filename with -o");
+      }
     }
     std::vector<ArchiveInput> inputs;
     for (const auto &path : paths) {
@@ -149,8 +158,9 @@ int run(int argc, char **argv) {
     }
     auto result = encode_archive(inputs, encode);
     write_file(out, result.bytes, overwrite);
-    fprintf(stderr, "slippack: %zu files, %.1f MB -> %.1f MB (%.2f%%)\n", inputs.size(),
-            result.original_bytes / 1e6, result.bytes.size() / 1e6,
+    fprintf(stderr, "slippack: wrote %s: %zu files, %.1f MB -> %.1f MB (%.2f%%)\n",
+            out.string().c_str(), inputs.size(), result.original_bytes / 1e6,
+            result.bytes.size() / 1e6,
             result.original_bytes ? 100.0 * result.bytes.size() / result.original_bytes : 0.0);
     if (encode.collect_stats) {
       print_stats(result.statistics);

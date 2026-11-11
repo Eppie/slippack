@@ -2,7 +2,7 @@
 
 The original default is **v9, level 3**, rebuilt from commit `37345ca` using
 `-std=c++20 -O3 -Wall -Wextra` and the same installed compression libraries.
-Current custom is commit `22e61aa`, `--codec custom -l 3`. Current legacy is
+Current custom is commit `22e61aa`, custom backend at level 3. Current legacy is
 also measured to distinguish the historical baseline from shared improvements
 that now apply to every backend. The CLI still defaults to legacy.
 
@@ -69,12 +69,8 @@ start of today's study (SHA-256
 Build `slpz.cpp` from commit `37345ca` separately using the repository's original
 Makefile flags. With the current binary built from `22e61aa`, run:
 
-```sh
-python3 benchmarks/compare_default.py --baseline /path/to/original/slpz \
-  --root /path/to/summit \
-  --list benchmarks/2026-11-08-v13-round2/sample-files.txt \
-  --work /path/to/results --level 3 --threads 16 --repeats 9
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_default.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_default.py).
 
 Repeat with the mixed and holdout lists and their corresponding input roots.
 The JSON files retain every timing sample, binary SHA-256, and input-list

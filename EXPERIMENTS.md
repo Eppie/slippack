@@ -14,7 +14,7 @@ Correctness gate for every row: 419/419 byte-identical roundtrip + edge cases
 
 ## v3 — per-plane {plain,sub,xor} probe, NEON transpose/delta/scan kernels
 Strided probe sampling was cache-hostile and mis-ranked deltas (non-adjacent
-neighbours): 13.51% @ 0.24s at l3 — ratio AND speed regression. Lesson:
+neighbors): 13.51% @ 0.24s at l3 — ratio AND speed regression. Lesson:
 sample windows must be contiguous.
 
 ## v4 — windowed probe + RNG seed folding + PPC blob handling
@@ -209,7 +209,7 @@ input streams — sequence-model territory.
 
 ## 2026-11-08 — custom backend (container v10, opt-in)
 
-Implemented `--codec custom` with field-conditioned static rANS models,
+Implemented the custom backend with field-conditioned static rANS models,
 explicit constant/sparse/repeat packets, and a bounded lazy LZ parser.
 Three-byte matches, four recent-distance codes, bit-packed length/distance
 extras, and optional last-match literal prediction improve the initial generic
@@ -217,8 +217,8 @@ custom prototype. Semantic model and literal prediction choices account for
 actual serialized size. Velocity and controller-input predictors remain
 bit-exact, including exceptional float values.
 
-`--codec tuned` provides the same new predictors with the existing entropy
-codecs and block-sized LZMA dictionaries. `--codec legacy` remains the default,
+The tuned backend provides the same new predictors with the existing entropy
+codecs and block-sized LZMA dictionaries. The legacy backend remains the default,
 writing the original v9 format. New binaries read both v9 and v10; the old
 binary cleanly rejects v10. Custom payload coding uses no external compressor,
 although the CLI retains the libraries for legacy compatibility.
@@ -273,7 +273,7 @@ were initially held out, then used to diagnose and validate speed fixes.
 
 This is not a win over every LZMA preset. On mixed at level 9, custom is 4.78%
 larger than tuned LZMA, while LZMA takes about 4.6 times as long to encode.
-The default remains legacy; `--codec custom` opts into v11. The new reader
+The default remains legacy; the custom backend opts into v11. The new reader
 retains v9 and v10 support, and older readers reject v11 cleanly.
 
 Full timings, hashes, file lists, and validation evidence are in
@@ -491,9 +491,7 @@ newer files were not submitted to its fixed-layout transforms.
 All 120 files could be written to Peppi format, but only 28 could be restored
 byte-for-byte by Peppi 2.1.2 in this test. Seventy-four reconstructions panicked
 at its Gecko-code size assertion (`io/slippi/ser.rs:394`); another 18 returned
-different bytes. All three Peppi storage variants had the same failures. This
-is a result for this corpus and this version, not a claim that Peppi generally
-loses replay data. Peppi also provides an Arrow representation for analysis,
+different bytes. All three Peppi storage variants had the same failures. Peppi also provides an Arrow representation for analysis,
 which the other formats do not.
 
 Every table compares tools on exactly the same files. The three sets have

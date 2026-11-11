@@ -155,21 +155,8 @@ in `validation.json`; generated data, corpora, and binaries remain ignored.
 
 Build the previous custom binary separately from commit `c957ba9`.
 
-```sh
-make check
-python3 benchmarks/compare_custom.py --baseline /path/to/v12/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v13/sample-files.txt \
-  --repeats 9 --threads 16
-python3 benchmarks/compare_custom.py --baseline /path/to/v12/slpz \
-  --root /path/to/mixed --list benchmarks/2026-11-08-v13/mixed-files.txt \
-  --repeats 9 --threads 16
-python3 benchmarks/compare_custom.py --baseline /path/to/v12/slpz \
-  --root /path/to/summit --list benchmarks/2026-11-08-v13/holdout-files.txt \
-  --repeats 9 --threads 16
-python3 benchmarks/compare_presets.py --baseline /path/to/v12/slpz \
-  --root /path/to/mixed --list benchmarks/2026-11-08-v13/mixed-files.txt \
-  --work /path/to/pareto-results --repeats 9 --threads 16
-```
+The historical driver and its command-line options are archived at commit
+`5cdb2bf`: [compare_custom.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_custom.py), [compare_presets.py](https://github.com/Eppie/slippack/blob/5cdb2bf/benchmarks/compare_presets.py).
 
 All timing samples, binary hashes, and input-list hashes are retained in JSON.
 See `fuzz/README.md` for the sanitizer fuzz targets.

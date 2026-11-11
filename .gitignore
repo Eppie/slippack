@@ -9,7 +9,6 @@
 # Replay data and generated benchmark artifacts
 *.slp
 *.slpz
-!/tests/fixtures/v15-custom.slpz
 /benchmarks/work/
 
 # Fuzzer output and generated corpora
@@ -30,5 +29,7 @@ __pycache__/
 # Slippack executable, archives, and fuzz targets
 /slippack
 *.slippack
+*.slpc
+!/tests/fixtures/v1-custom.slpc
 /fuzz/slippack_fuzz_*
 /benchmarks/2026-11-10-single-file/rust/target/

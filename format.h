@@ -4,12 +4,11 @@
 #include <atomic>
 
 namespace slippack {
-constexpr uint32_t kMagic = 0x5A504C53; // "SLPZ" little-endian; retained v1 wire signature
+constexpr uint32_t kMagic = 0x43504C53; // "SLPC" little-endian
 constexpr uint8_t kVersion = 1;
-constexpr uint8_t kOriginalVersion = 15; // identical payload before renumbering
-constexpr uint8_t kCustom = 6;           // tagged custom frame codec ID
-constexpr uint8_t kModeRaw = 0;          // whole file = one custom frame
-constexpr uint8_t kModeSplit = 1;        // parsed event streams
+constexpr uint8_t kCustom = 6;    // tagged custom frame codec ID
+constexpr uint8_t kModeRaw = 0;   // whole file = one custom frame
+constexpr uint8_t kModeSplit = 1; // parsed event streams
 
 constexpr size_t kSlpHeaderLen = 15; // "{U\x03raw[$U#l" + u32 BE raw length
 constexpr char kSlpMagic[] = "{U\x03raw[$U#l";

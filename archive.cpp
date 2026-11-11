@@ -1082,9 +1082,8 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
     fail("not a slippack archive");
   }
   uint8_t version = r.u8(), flags = r.u8();
-  if ((version != kVersion && version != kOriginalVersion) || flags != 1) {
-    fail("unsupported slippack format (requires v1 custom or its original v15 header; use the "
-         "compatibility reader for older formats)");
+  if (version != kVersion || flags != 1) {
+    fail("unsupported slippack format (requires v1 with flags=1)");
   }
   MetadataBudget metadata(options.limits.metadata_bytes);
   uint32_t nPools = r.u32();

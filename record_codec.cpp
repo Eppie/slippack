@@ -286,7 +286,7 @@ template <bool XOR> static void scan_rev(uint8_t *p, size_t n) {
 
 // ── per-plane transform choice ──────────────────────────────────────────────
 // Order-0 entropy over contiguous sample windows decides plain vs sub vs xor.
-// Contiguous windows keep the delta candidates honest (true neighbours) and
+// Contiguous windows keep the delta candidates honest (true neighbors) and
 // the memory access pattern cache-friendly.
 static const float *xlog2x_lut() {
   constexpr uint32_t N = 1 << 15;
@@ -539,7 +539,7 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
         }
       }
       // A large alphabet in one varying byte gains little from a dictionary:
-      // explicit constant planes already represent its fixed neighbours.
+      // explicit constant planes already represent its fixed neighbors.
       if (changing == 1) {
         if (!alphabets[changingOffset]) {
           std::array<bool, 256> seen{};
