@@ -26,6 +26,28 @@ make
 make check
 ```
 
+For the faster profile-guided build, use `make release` and `make release-check`.
+This installs `./slippack` and builds `build/release/libslippack.a`. The included
+profile was measured with Apple Clang 17 (`clang-1700.0.13.5`) on arm64 macOS.
+The release target checks the compiler, target, source hashes, and profile
+checksum before building. Plain `make` needs no profile; use `make clean && make`
+to switch an existing release build back to it.
+
+After changing codec sources or compilers, regenerate the profile using a list
+of local replay paths, then build again:
+
+```sh
+python3 tools/profile_build.py train --manifest /path/to/replays.txt --limit 64
+make release-check
+```
+
+Training compresses and verifies up to 64 evenly spaced inputs at level 3,
+using temporary archives. It leaves the input files and existing archives
+untouched. The stored profile contains function execution counts and symbols;
+its provenance contains source and input hashes, without replay contents.
+See the [profiled release study](benchmarks/2026-11-11-profiled-release/README.md)
+for the build settings, measurements, and limitations.
+
 Without `-o`, a single input uses its path with the extension replaced by `.slpc`;
 multiple inputs create `archive.slpc` in the current directory. List-file entries
 follow the same rule after expansion. Use `-o` to choose another filename.
@@ -144,28 +166,35 @@ development, so those results are not independent held-out estimates.
 
 ## Encoding speed
 
-The latest changes improve default-level encoding throughput by **2–8%** over
-`cf99bea9`, with identical compressed output. Nine-run interleaved medians on
-an Apple M4 Max in high power mode on AC power, one replay per archive:
+The profile-guided release (`make release`) improves level 3 encoding throughput
+by **13.5% with one worker and 10.4% with eight** over the ordinary `-O3` build
+at `f11d8d5`, with identical compressed output. These are nine-run interleaved
+medians on 521 replays (1.31 GB), one replay per archive, on an Apple M4 Max in
+high power mode on battery power. Rates are original MB/s:
 
-| Inputs | Workers | Before MB/s | After MB/s | Encode gain |
-|---|---:|---:|---:|---:|
-| 120 replays | 1 | 298.7 | 306.4 | 2.6% |
-| 120 replays | 8 | 1869.8 | 2019.7 | 8.0% |
-| 401 replays | 1 | 284.7 | 290.8 | 2.2% |
-| 401 replays | 8 | 1985.7 | 2048.1 | 3.1% |
+| Workers | Encode before | Encode after | Encode gain | Decode before | Decode after |
+|---|---:|---:|---:|---:|---:|
+| 1 | 269.9 | 306.3 | 13.5% | 900.2 | 913.8 |
+| 8 | 2150.3 | 2374.5 | 10.4% | 6823.6 | 6829.3 |
 
-The encoder partitions records into entity groups once and avoids unnecessary
-copies, literal labels, and dictionary scans. The decoder code and v1 format
-are unchanged; decode medians stayed within 1.2% of baseline. See the
-[method, validation, and raw results](benchmarks/2026-11-10-level3-memory/README.md)
-and [hardware profiling results](benchmarks/2026-11-10-level3-profiling/README.md).
-The earlier histogram and plane-screening improvements are documented in the
-[previous speed study](benchmarks/2026-11-10-encode-speed/README.md).
+Using mean elapsed times, the single-worker encoding gain is 11.4% and decoding
+gain is 2.1%. Eight-worker decoding is essentially unchanged: its median is
+0.08% faster and mean is 0.32% slower. The separate archives total 54,382,292
+bytes in every run. Compiler profiling changes code generation; codec sources
+and the v1 format are unchanged, and no archive recompression is needed.
+See the [build settings, validation, and raw results](benchmarks/2026-11-11-profiled-release/README.md).
+The training inputs are part of the measured corpus; these are development
+measurements, not independent held-out estimates.
 
-In the fresh 120-file single-worker comparison, Slippack level 3 encodes at
-306.4 MB/s versus 550.3 MB/s for slpz fast. Slippack produces 12.9 MB versus
-42.1 MB, or 69.3% smaller output. Slpz remains faster at encoding and decoding.
+In the fresh matched 120-file single-worker comparison, Slippack level 3 encodes
+at 339.3 MB/s versus 554.9 MB/s for slpz fast, and decodes at 910.1 versus
+1081.3 MB/s. Slippack produces 12.9 MB versus 42.1 MB, or 69.3% smaller output.
+Slpz remains faster at encoding and decoding.
+
+Earlier source optimizations and hardware measurements are documented in the
+[allocation and grouping study](benchmarks/2026-11-10-level3-memory/README.md),
+[histogram and plane-screening study](benchmarks/2026-11-10-encode-speed/README.md),
+and [hardware profile](benchmarks/2026-11-10-level3-profiling/README.md).
 
 ## Single-replay comparison
 

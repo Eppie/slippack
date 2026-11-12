@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Extraction confinement, overwrite semantics, and atomic file installation."""
 from pathlib import Path
+import os
 import struct
 import random
 import resource
@@ -8,7 +9,7 @@ import signal
 import subprocess
 import tempfile
 
-binary = Path(__file__).resolve().parents[1] / 'slippack'
+binary = Path(os.environ.get('SLIPPACK_BINARY', Path(__file__).resolve().parents[1] / 'slippack'))
 
 def run(*args, ok=True, cwd=None, **kwargs):
     result = subprocess.run([str(binary), *map(str, args)], cwd=cwd,

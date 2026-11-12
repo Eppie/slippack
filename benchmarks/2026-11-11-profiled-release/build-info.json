@@ -1,0 +1,88 @@
+{
+  "baseline_commit": "f11d8d5567ffb7207141eb4a9ac8cdc8f1e7ba4f",
+  "compiler": {
+    "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+    "target": "Target: arm64-apple-darwin24.5.0"
+  },
+  "core_sources_identical_to_baseline": true,
+  "compile_flags": "-std=c++20 -O3 -Wall -Wextra -pthread -fprofile-use=build/release/profile.profdata",
+  "release_link_flags": "-std=c++20 -O3 -Wall -Wextra -Wl,-no_deduplicate -pthread",
+  "common_runner_compile_flags": "-std=c++20 -O3 -pthread",
+  "baseline_runner_link_flags": "-std=c++20 -O3 -pthread",
+  "candidate_runner_link_flags": "-std=c++20 -O3 -Wl,-no_deduplicate -pthread",
+  "artifact_sha256": {
+    "slippack": "2af52242303cc5430de4f6ca2832c005770f81f0d28bdf1f1dc1b59db5120dd5",
+    "build/release/slippack": "2af52242303cc5430de4f6ca2832c005770f81f0d28bdf1f1dc1b59db5120dd5",
+    "build/release/libslippack.a": "f616737a742b212e0500328ca8ae275eef3a226fdda1d34c0040f38adcd6ec19",
+    "build/goal-2026-11-11/baseline/slippack": "0c8f17586cfb08af34580c02c39971aea00dd19bb0436d04aeff36922e428482",
+    "build/goal-2026-11-11/baseline/library.a": "3f95641f57b5177b3c506f50373c4b34349bb29e62f88dface8c26921ee16596",
+    "build/goal-2026-11-11/runner-common.o": "d43e46d89d8752f1b748aba57462a7d9d419baa78dbf2da86d6c70ef6acf7b29",
+    "build/goal-2026-11-11/final/runner": "1cf07aecae983e0a894b7575394cb5ce7b762bb71210f2c838ab533ee17438d6",
+    "build/goal-2026-11-11/baseline_core/runner": "64cc29b858e35b857eb95cb1b2cd0fd1db51dcbc808b7025777a75c75e1ba464"
+  },
+  "build_source_sha256": {
+    "Makefile": "61876fd706b138648210b1bdcbbcec7482c0ec6334fc9a76022acdcfc3db772a",
+    "tools/profile_build.py": "4b6ee43f2463d89fad665fb666d4424ed8cdc1df7990cd8869762594a53a88fc",
+    "profiles/level3.proftext": "84768a8b2c41f6cecda289756f9b16813045766025c38c1d2605bcb40ff2c5ec",
+    "profiles/level3.json": "16d9ad9e25ce4602f9c80d9fcff2fa115e386571ccc8b6f050436088976e4dcc",
+    "tests/test_archive.py": "f5f2e9c1c9fc328f348676fcff4034bf28cacdd9e2b1c8ce9cb63cd781345181",
+    "tests/test_extraction.py": "f37301f7de23a435ae3651672f92247cf7b245b18f814189466ac37c5d3112b4"
+  },
+  "profile_guard_checks": [
+    {
+      "case": "valid",
+      "exit_code": 0,
+      "diagnostic": "Profile matches the compiler, target, and codec sources."
+    },
+    {
+      "case": "compiler",
+      "exit_code": 1,
+      "diagnostic": "profile compiler/target differs; regenerate the profile or use make"
+    },
+    {
+      "case": "target",
+      "exit_code": 1,
+      "diagnostic": "profile compiler/target differs; regenerate the profile or use make"
+    },
+    {
+      "case": "source",
+      "exit_code": 1,
+      "diagnostic": "profile source is stale; regenerate the profile or use make"
+    },
+    {
+      "case": "checksum",
+      "exit_code": 1,
+      "diagnostic": "profile checksum differs from its metadata"
+    }
+  ],
+  "goal_validation": {
+    "option": 2,
+    "report": "all-521.json",
+    "level": 3,
+    "workers": 1,
+    "files": 521,
+    "statistic": "original bytes divided by arithmetic mean elapsed time over nine runs",
+    "encode_throughput_gain": 0.11359629211371636,
+    "decode_throughput_gain": 0.02085775974612436,
+    "compressed_bytes": 54382292,
+    "compressed_fingerprints_identical": true,
+    "passed": true
+  },
+  "tests": [
+    "make release-check",
+    "isolated ordinary make check",
+    "make check-format",
+    "Python syntax checks",
+    "521-file pooled CLI byte equality and source SHA-1 at levels 1,3,7,9"
+  ],
+  "existing_archives_modified": false,
+  "benchmarked_library_sha256": "70430bcc7834197bd8b34a3fbdbc04cb5b084edfdbc65a2044d5a91dd981a99e",
+  "release_object_sha256": {
+    "archive.o": "032e395ee5675ae4f799188ed6c82ace274143b97174a9dd310934b3b67eb93d",
+    "frames.o": "f1f391d2f597126c575cf5baf36883656138a34eebd9faf9acf481b7df9e31eb",
+    "record_codec.o": "1cfc065ca0e6e43d3618d7538a61694e1e9da4c58d1cbea84bdf27d5929f6e49",
+    "slp.o": "b8f96c604c172968eb5d7f2492645e758b6da867255e61e824c3a8f6e39f621d",
+    "platform.o": "6a74f8958f2a566d296c122fff8e3539b4e5bc63f774f0041380d9cb6a733f57"
+  },
+  "rebuild_verification": "Profile text trailing blank lines were removed. Rebuilt core objects, CLI, and relinked benchmark executable are byte-identical; static archive metadata changed."
+}

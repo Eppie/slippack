@@ -1,4 +1,4 @@
-# slpz experiment log
+# Slippack experiment log
 
 Benchmark: 140-file sample (344,239,004 B) from summit-11, 16 threads,
 min of 2 runs, peak RSS via /usr/bin/time -l. Ratios = archive/input.
@@ -651,3 +651,13 @@ remain 69.3% smaller than slpz's 42,111,709 bytes.
 and [hardware-counter interpretation](benchmarks/2026-11-10-level3-profiling/README.md)
 include the limitations and provenance. Alternative match layouts and smaller
 probability models did not consistently meet the combined speed/size criteria.
+
+## 2026-11-11: Profile-guided release build
+
+`make release` uses a checked Clang execution profile collected from actual CLI
+compression and hash verification. No codec source or format changes are needed.
+Against `f11d8d5`, the full 521-file level 3 comparison improves single-worker
+encoding throughput by 13.5% using medians and 11.4% using mean elapsed times,
+with identical compressed bytes and faster average decoding. Eight-worker
+encoding improves 10.4% by medians; decode timings are essentially unchanged.
+See the [build details, complete results, and limitations](benchmarks/2026-11-11-profiled-release/README.md).

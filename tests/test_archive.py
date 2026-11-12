@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """End-to-end format, predictor, fallback, and exact extraction checks."""
 import hashlib
+import os
 from pathlib import Path
 import struct
 import subprocess
 import tempfile
 
 repo = Path(__file__).resolve().parents[1]
-binary = repo / 'slippack'
+binary = Path(os.environ.get('SLIPPACK_BINARY', repo / 'slippack'))
 golden = repo / 'tests/fixtures/v1-custom.slpc'
 
 def replay(post_size=84, unused=False):

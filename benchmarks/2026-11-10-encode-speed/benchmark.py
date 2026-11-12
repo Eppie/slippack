@@ -57,7 +57,7 @@ def main():
                     if platform.system() == 'Darwin' else platform.processor() or platform.machine()),
         'method': 'One replay per archive, RAM inputs, one warmup per setting, randomized interleaving, verification and packed SHA-1 outside timers.',
         'binary_sha256': {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in binaries.items()},
-        'source_sha256': {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in
+        'source_sha256': {str(path.resolve().relative_to(Path.cwd())): hashlib.sha256(path.read_bytes()).hexdigest() for path in
                           sorted([*Path('.').glob('*.cpp'), *Path('.').glob('*.h'),
                                   Path('benchmarks/2026-11-10-single-file/cpp_runner.cpp'), Path(__file__)])},
         'inputs': [{'name': path.name, 'bytes': path.stat().st_size,
