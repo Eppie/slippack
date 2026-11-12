@@ -661,3 +661,50 @@ encoding throughput by 13.5% using medians and 11.4% using mean elapsed times,
 with identical compressed bytes and faster average decoding. Eight-worker
 encoding improves 10.4% by medians; decode timings are essentially unchanged.
 See the [build details, complete results, and limitations](benchmarks/2026-11-11-profiled-release/README.md).
+
+
+## 2026-11-11: Compact models and faster level 3 search
+
+Compared with the already profile-guided release at `888e0be`, the current
+release improves mean level 3 encoding throughput by 11.3% with one worker
+and 12.1% with eight independent-file workers on all 521 replays. Mean decoding
+throughput is 0.8% and 1.2% higher. Nine randomized interleaved repetitions,
+exact reconstructed bytes, stable per-variant compressed fingerprints, and
+continuous power monitoring are recorded in the
+[study and raw reports](benchmarks/2026-11-11-compact-models/README.md).
+
+The separate archives shrink from 54,382,292 to 53,784,864 bytes (1.10%).
+499 files shrink and 22 grow, with maximum growth of 1.1131% or 669 bytes
+(the maxima occur in different files). Compact probability headers combine
+symbol lists/bitmaps, an implied first frequency, and Rice coding. Level 3
+uses two search candidates and literal prediction, with greedy parsing for
+record planes and lazy parsing for opaque frames. An earlier global greedy
+policy made three opaque attachments 17–27% larger and was rejected.
+
+Dictionary reads now use contiguous transposed columns and a smaller index
+map. Presence bytes are emitted into a backward-filled buffer. Decoding caches
+presence models and uses SIMD CDF lookup. Generic context decoding reads a
+one-byte next-model table alongside its coding entry; CDF intervals are filled
+together to avoid a costly per-slot setup pass. Existing v1 archives and fixed
+entropy-channel fixtures pass. The format version remains 1, and no existing
+archives were replaced.
+
+An initial integrated nine-run candidate encoded 10.9% faster with one worker
+but decoded 0.6% slower, so it was held back. The decoder table change above
+was added before the final run. The successful result is against `888e0be`,
+not against that rejected intermediate candidate or the older unprofiled build.
+The final native, scalar, sanitizer, and release checks cover the model headers,
+all CDF slots, truncation, the frozen v1 archive, exact extraction, and library
+behavior. Compiler profiles were regenerated from the final sources.
+
+The fresh matched 120-file comparison measures 372.6 MB/s encoding and
+948.7 MB/s decoding for Slippack, versus 573.8 and 1118.2 MB/s for slpz fast
+(single-worker arithmetic means). Slippack produces 12,784,457 bytes versus
+42,111,709, or 69.6% smaller output. Slpz remains faster. These are development
+corpora, with normal desktop activity and high power mode on battery power;
+no power changes were observed during the accepted runs.
+
+Pooled CLI validation also passes for all 521 files at levels 1, 3, 7, and 9.
+Level 3 produces 50,097,975 bytes versus 50,672,315 at the baseline, with every
+member hash matching its source. These were temporary validation archives;
+canonical archives remain unchanged.

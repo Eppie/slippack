@@ -42,6 +42,13 @@ using slippack::require;
 using slippack::u32;
 using slippack::varint;
 
+// Search depth, lookahead, and literal prediction are separate encoder choices.
+struct LzOptions {
+  unsigned depth = 8;
+  bool lazy = true;
+  bool predict = true;
+};
+
 struct Model {
   std::array<uint32_t, 256> hist{};
   std::array<uint16_t, 256> freq{}, start{};
@@ -82,5 +89,136 @@ struct Model {
     }
   }
 };
+
+// Compact alphabets, an implied first frequency, and Rice-coded frequencies.
+inline void write_compact_model(Bytes &out, const std::array<uint16_t, 256> &freq) {
+  std::array<uint8_t, 256> symbols;
+  unsigned used = 0;
+  for (unsigned b = 0; b < 256; ++b) {
+    if (freq[b]) {
+      symbols[used++] = uint8_t(b);
+    }
+  }
+  require(used > 0, "compact alphabet");
+  varint(out, used > 32 ? 0 : used);
+  if (used > 32) {
+    for (unsigned byte = 0; byte < 32; ++byte) {
+      unsigned bits = 0;
+      for (unsigned bit = 0; bit < 8; ++bit) {
+        bits |= unsigned(freq[byte * 8 + bit] != 0) << bit;
+      }
+      out.push_back(uint8_t(bits));
+    }
+  } else {
+    out.insert(out.end(), symbols.begin(), symbols.begin() + used);
+  }
+  if (used == 1) {
+    return;
+  }
+  unsigned mean = (4096 - freq[symbols[0]]) / (used - 1);
+  unsigned k = std::bit_width(mean) > 1 ? std::bit_width(mean) - 2 : 0;
+  unsigned bits[2] = {}, raw = 0;
+  for (unsigned i = 1; i < used; ++i) {
+    unsigned f = freq[symbols[i]], v = f - 1;
+    bits[0] += (v >> k) + 1 + k;
+    bits[1] += (v >> (k + 1)) + 2 + k;
+    raw += f < 128 ? 1 : 2;
+  }
+  unsigned which = bits[1] < bits[0];
+  k += which;
+  bool rice = (bits[which] + 7) / 8 < raw;
+  out.push_back(uint8_t(rice ? k : 12));
+  if (!rice) {
+    for (unsigned i = 1; i < used; ++i) {
+      varint(out, freq[symbols[i]]);
+    }
+    return;
+  }
+  uint64_t pending = 0;
+  unsigned count = 0;
+  auto put = [&](uint32_t value, unsigned n) {
+    pending |= uint64_t(value) << count;
+    count += n;
+    while (count >= 8) {
+      out.push_back(uint8_t(pending));
+      pending >>= 8;
+      count -= 8;
+    }
+  };
+  for (unsigned i = 1; i < used; ++i) {
+    unsigned v = freq[symbols[i]] - 1, q = v >> k;
+    while (q >= 32) {
+      put(0, 32);
+      q -= 32;
+    }
+    put(1u << q, q + 1);
+    put(v & ((1u << k) - 1), k);
+  }
+  if (count) {
+    out.push_back(uint8_t(pending));
+  }
+}
+inline void read_compact_model(Reader &r, std::array<uint16_t, 256> &freq) {
+  freq.fill(0);
+  std::array<uint8_t, 256> symbols;
+  unsigned used = r.var();
+  if (!used) {
+    auto alphabet = r.take(32);
+    for (unsigned b = 0; b < 256; ++b) {
+      if ((alphabet[b / 8] >> (b % 8)) & 1) {
+        symbols[used++] = uint8_t(b);
+      }
+    }
+    require(used, "compact alphabet");
+  } else {
+    require(used <= 256, "compact alphabet");
+    for (unsigned i = 0; i < used; ++i) {
+      symbols[i] = r.byte();
+      require(!i || symbols[i] > symbols[i - 1], "compact symbol order");
+    }
+  }
+  if (used == 1) {
+    freq[symbols[0]] = 4096;
+    return;
+  }
+  unsigned k = r.byte();
+  require(k <= 12, "compact frequency coding");
+  unsigned pending = 0, count = 0, sum = 0;
+  auto get = [&](unsigned n) {
+    while (count < n) {
+      pending |= unsigned(r.byte()) << count;
+      count += 8;
+    }
+    unsigned value = pending & ((1u << n) - 1);
+    pending >>= n;
+    count -= n;
+    return value;
+  };
+  for (unsigned i = 1; i < used; ++i) {
+    unsigned f;
+    if (k == 12) {
+      f = r.var();
+    } else {
+      unsigned q = 0;
+      while (!pending) {
+        q += count;
+        require(q <= (4095u >> k), "compact unary frequency");
+        pending = r.byte();
+        count = 8;
+      }
+      unsigned zeros = std::countr_zero(pending);
+      q += zeros;
+      require(q <= (4095u >> k), "compact unary frequency");
+      pending >>= zeros + 1;
+      count -= zeros + 1;
+      f = (q << k) + get(k) + 1;
+    }
+    require(f > 0 && f < 4096 && sum + f < 4096, "compact frequency sum");
+    sum += f;
+    freq[symbols[i]] = uint16_t(f);
+  }
+  require(!pending, "compact frequency padding");
+  freq[symbols[0]] = uint16_t(4096 - sum);
+}
 
 } // namespace slippack_custom

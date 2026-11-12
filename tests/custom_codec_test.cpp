@@ -96,6 +96,14 @@ int main(int argc, char **argv) {
         auto packed = encode_planes(planes, n, profiles);
         require(decode_planes(packed, narrow(planes.size())) == planes, "plane roundtrip mismatch");
         ++checks;
+        for (LzOptions options :
+             {LzOptions{2, false, false}, LzOptions{2, false, true}, LzOptions{2, true, true},
+              LzOptions{4, true, true}, LzOptions{24, true, false}}) {
+          auto fast_packed = encode_planes(planes, n, profiles, options);
+          require(decode_planes(fast_packed, narrow(planes.size())) == planes,
+                  "fast plane roundtrip");
+          ++checks;
+        }
         if (argc > 1 && planes.size() <= 65535) {
           std::filesystem::create_directories(argv[1]);
           std::ofstream file(std::filesystem::path(argv[1]) / std::to_string(checks),
@@ -122,11 +130,11 @@ int main(int argc, char **argv) {
   Reader framing{encoded_channel};
   unsigned packed_size = framing.var();
   require(framing.var() == field_data.size(), "semantic channel size");
-  require(framing.take(packed_size)[0] == 4, "context model did not win");
+  require(framing.take(packed_size)[0] == 5, "context model did not win");
   Reader decode_channel{encoded_channel};
   require(unchannel(decode_channel, field_data.size(), field_contexts) == field_data,
           "semantic model roundtrip");
-  // Mode 2 is a valid self-described semantic channel in the current payload format.
+  // Force the self-described semantic ANS channel as well as the context tree.
   auto semantic_candidate = ans_candidate(field_data, field_contexts);
   Bytes semantic_framed;
   varint(semantic_framed, narrow(semantic_candidate.size()));
@@ -178,7 +186,7 @@ int main(int argc, char **argv) {
         data[j * count + i] = present ? uint8_t(1 + random() % 255) : 0;
       }
     }
-    auto packed = masked_encode(data, count, labels, 8);
+    auto packed = masked_encode(data, count, labels, {});
     Reader r{packed};
     require(masked_decode(r, count, labels) == data, "shared mask roundtrip");
     r.done();

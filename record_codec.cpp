@@ -356,33 +356,24 @@ static uint8_t choose_transform(const uint8_t *plane, uint32_t count) {
 // planes; replacing the field with a 1-byte dictionary index recovers it
 // (and shrinks the entropy-stage input ~40%).
 struct U32Set {
-  static constexpr uint32_t N = 1024; // ≤256 live entries → low load factor
-  uint32_t keys[N];
-  uint32_t values[256]; // insertion order, ready to become the dictionary
-  uint8_t idx[N];
-  uint8_t used[N] = {};
-  uint32_t n = 0, lastKey = 0;
-  int lastId = -1;
-  int find_or_insert(uint32_t k) {
-    if (lastId >= 0 && lastKey == k) {
-      return lastId;
-    }
-    lastKey = k;
-    lastId = -1;
-    uint32_t h = (k * 2654435761u) >> 22;
+  static constexpr uint32_t N = 1024;
+  uint32_t values[256];
+  uint16_t slots[N] = {};
+  uint32_t n = 0;
+  int find_or_insert(uint32_t key) {
+    uint32_t h = (key * 2654435761u) >> 22;
     for (;; h = (h + 1) & (N - 1)) {
-      if (!used[h]) {
+      unsigned slot = slots[h];
+      if (!slot) {
         if (n >= 256) {
           return -1;
         }
-        used[h] = 1;
-        keys[h] = k;
-        values[n] = k;
-        idx[h] = (uint8_t)n++;
-        return lastId = idx[h];
+        values[n] = key;
+        slots[h] = uint16_t(n + 1);
+        return int(n++);
       }
-      if (keys[h] == k) {
-        return lastId = idx[h];
+      if (values[slot - 1] == key) {
+        return int(slot - 1);
       }
     }
   }
@@ -583,15 +574,75 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
           idxPlane[i] = uint8_t(ids[b]);
         }
       } else {
-        for (uint32_t i = 0; i < count; i++) {
-          uint32_t v = little_word(recs.data() + size_t(i) * size + w, width);
-          int id = set.find_or_insert(v);
-          if (id < 0) {
-            ok = false;
-            break;
+        auto gather = [&]<unsigned Width>() {
+          uint32_t lastKey = 0;
+          int lastId = -1;
+          const uint8_t *column = planes.data() + size_t(w) * count;
+          uint32_t first = 0;
+#if SLIPPACK_NEON && !defined(SLIPPACK_CUSTOM_SCALAR)
+          for (; first + 16 <= count; first += 16) {
+            uint8_t packed[Width * 16];
+            if constexpr (Width == 4) {
+              uint8x16x4_t input;
+              for (unsigned b = 0; b < 4; ++b) {
+                input.val[b] = vld1q_u8(column + size_t(b) * count + first);
+              }
+              auto equal = vdupq_n_u8(255);
+              for (unsigned b = 0; b < 4; ++b) {
+                equal = vandq_u8(equal,
+                                 vceqq_u8(input.val[b], vdupq_n_u8(uint8_t(lastKey >> (8 * b)))));
+              }
+              if (lastId >= 0 && vminvq_u8(equal) != 0) {
+                std::memset(idxPlane.data() + first, lastId, 16);
+                continue;
+              }
+              vst4q_u8(packed, input);
+            } else {
+              uint8x16x2_t input;
+              input.val[0] = vld1q_u8(column + first);
+              input.val[1] = vld1q_u8(column + count + first);
+              auto equal = vdupq_n_u8(255);
+              for (unsigned b = 0; b < 2; ++b) {
+                equal = vandq_u8(equal,
+                                 vceqq_u8(input.val[b], vdupq_n_u8(uint8_t(lastKey >> (8 * b)))));
+              }
+              if (lastId >= 0 && vminvq_u8(equal) != 0) {
+                std::memset(idxPlane.data() + first, lastId, 16);
+                continue;
+              }
+              vst2q_u8(packed, input);
+            }
+            for (unsigned k = 0; k < 16; ++k) {
+              uint32_t value = little_word(packed + k * Width, Width);
+              if (lastId < 0 || lastKey != value) {
+                lastId = set.find_or_insert(value);
+                lastKey = value;
+              }
+              if (lastId < 0) {
+                return false;
+              }
+              idxPlane[first + k] = uint8_t(lastId);
+            }
           }
-          idxPlane[i] = (uint8_t)id;
-        }
+#endif
+          for (uint32_t i = first; i < count; ++i) {
+            uint32_t value = uint32_t(column[i]) | uint32_t(column[count + i]) << 8;
+            if constexpr (Width == 4) {
+              value |= uint32_t(column[size_t(count) * 2 + i]) << 16 |
+                       uint32_t(column[size_t(count) * 3 + i]) << 24;
+            }
+            if (lastId < 0 || lastKey != value) {
+              lastId = set.find_or_insert(value);
+              lastKey = value;
+            }
+            if (lastId < 0) {
+              return false;
+            }
+            idxPlane[i] = uint8_t(lastId);
+          }
+          return true;
+        };
+        ok = width == 4 ? gather.operator()<4>() : gather.operator()<2>();
       }
       // The field count ships as one byte, so 255 is a hard ceiling. Records
       // wide enough to exceed it exist (cmd 0x10 is 516 bytes = up to 258

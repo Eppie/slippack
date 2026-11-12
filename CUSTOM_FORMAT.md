@@ -147,7 +147,7 @@ are exceeded, preserving the encoder's choices and compressed bytes.
 ## Field dictionaries
 
 The encoder sorts each dictionary by the original big-endian field
-byte sequence and remap its indexes. This improves both the value metadata
+byte sequence and remaps its indexes. This improves both the value metadata
 and temporal index deltas. It is an encoder policy: the dictionary explicitly
 records the value assigned to every index.
 
@@ -343,12 +343,15 @@ move-to-front list initially `[1,2,3,4]`; others are
 Predicted literals XOR the byte at the last match distance, initially one,
 using zero when that distance precedes the output start.
 
-The encoder now uses a four-byte chain plus a small three-byte lookup, a
-1 MiB window, lazy parsing, and distance-sensitive match scoring. It rejects
+The encoder uses a four-byte chain plus a small three-byte lookup, a
+1 MiB window, optional lazy parsing, and distance-sensitive match scoring. It rejects
 candidates that cannot beat the current match before comparing full strings.
 Long matches avoid redundant dictionary insertion; sustained misses permit
-bounded skipping at fast levels. The CLI searches 2 candidates at levels 1–2,
-4 at levels 3–5, 8 at levels 6–8, and 24 at level 9 or above. Literal prediction uses an entropy estimate
+bounded skipping at fast levels. The CLI searches 2 candidates at levels 1–3,
+4 at levels 4–5, 8 at levels 6–8, and 24 at level 9 or above. Level 3 uses
+predicted literals and greedy parsing for transformed record planes, retaining
+lazy parsing for opaque frames. Levels 1–2 disable prediction and lazy parsing;
+levels 4 and above retain both. Literal prediction uses an entropy estimate
 at fast levels and actual encoded-size trials at high levels. These are
 encoder policies, not format requirements.
 
@@ -359,13 +362,19 @@ A channel is `varint packed_size, varint original_size, payload`:
 - Mode 0: raw bytes.
 - Mode 1: one static byte rANS model.
 - Mode 2: eight semantic rANS models.
-- Mode 4: static byte-context model. Mode 3 is reserved, not accepted.
+- Mode 4: static byte-context model.
+- Mode 5: static byte-context model with compact probability headers.
+- Mode 6: one static byte rANS model with a compact probability header.
+- Mode 7: eight semantic rANS models with compact probability headers.
 
-A probability model stores a varint symbol count followed by
+Mode 3 is reserved, not accepted. The writer selects modes 0, 5, and 6; mode 7
+is also supported by the semantic ANS encoder.
+
+In modes 1, 2, and 4, a probability model stores a varint symbol count followed by
 `(u8 symbol, varint frequency)` pairs. Frequencies sum to 4096. Unused models
 have a dummy single-symbol distribution.
 
-Mode 4 begins with a class count of 1 or 8. For each class it stores a leaf
+Modes 4 and 5 begin with a class count of 1 or 8. For each class it stores a leaf
 count (1..16). Each leaf is an inclusive upper bound byte for the previous
 symbol, then a probability model. Leaves cover 0..255 in increasing order.
 LZ decoding builds per-literal semantic labels only when the serialized
@@ -373,12 +382,34 @@ channel actually uses them; raw and single-class channels do not need them.
 The preceding decoded channel byte selects a leaf. History is zero initially
 and when semantic class changes. With one class, semantic labels are ignored.
 
+Compact probability headers store the alphabet in ascending symbol order.
+A nonzero varint count is followed by that many symbol bytes (at most 256).
+A zero count selects a 32-byte bitmap: symbol `s` uses bit `s % 8` of byte
+`s / 8`. The bitmap must contain at least one symbol. The writer uses a list
+for at most 32 symbols and a bitmap otherwise.
+
+The first symbol's frequency is implicit: 4096 minus all remaining frequencies.
+A one-symbol model has frequency 4096 and no further fields. Other models
+store a coding byte: 12 means positive varint frequencies; 0..11 is a Rice
+parameter `k`. For each remaining symbol, Rice coding represents `frequency-1`
+as a quotient of zero bits terminated by one, followed by `k` remainder bits.
+Bits are least significant first within bytes and remainders. Unused bits in
+the last byte are zero. The reader bounds unary runs, requires positive
+frequencies and a total of 4096, and rejects nonzero padding. The writer chooses
+between two adjacent Rice parameters near the mean frequency and the varint
+representation by encoded byte cost.
+
 Tree construction aggregates the 256 possible history bytes into the 18
 intervals defined by its candidate split boundaries. This produces the same
 histograms and split decisions with less temporary storage and scanning.
 Frequency normalization rounds scaled counts to the nearest integer before
 correcting the total to 4096, retaining at least one count per used symbol.
-The decoder continues to read the serialized frequencies directly.
+The decoder continues to read the serialized frequencies directly. A channel
+with one model bypasses history lookup. For a single class with multiple
+models, a one-byte side table supplies the next model alongside each coding
+entry, avoiding a dependent lookup without doubling the main table. CDF
+intervals share the same next-model ID and are filled together. Semantic
+class changes retain the explicit history reset described above.
 
 For packets of at least 32 KiB with at least four controller planes, levels
 below 9 skip the direct-LZ trial and use the shared-mask candidate. Level 9+
@@ -401,9 +432,10 @@ roundtrip verification uses external hashes.
 
 `make check` covers standalone custom packets/models, shared masks, CDFs,
 truncation/mutation handling, and current-format archive roundtrips at levels 1/3/7/9.
-A committed synthetic fixture from the pre-cleanup encoder checks existing
-decoding under both version headers; unsupported archive versions and backends must fail before
-extraction. Predictor tests compare the RNG tables, quadratic positions,
+A frozen synthetic v1 fixture checks existing archive decoding. Fixed entropy
+fixtures exercise channel modes 1, 2, and 4; model tests check compact alphabets,
+frequencies, truncation, padding, and all 65,536 slots of sampled presence CDFs.
+Unsupported archive versions and backends must fail before extraction. Predictor tests compare the RNG tables, quadratic positions,
 velocity-based positions, integer mapping, and extra field residuals with
 independent scalar oracles on arbitrary float bit patterns and record sizes.
 Record-codec tests force dictionary transforms and cover vector boundaries,

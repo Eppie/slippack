@@ -25,6 +25,8 @@ def power_state():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--allow-byte-changes', action='store_true',
+                        help='Allow different compressed bytes between variants; still require stable output and exact decoding')
     parser.add_argument('--baseline', type=Path, required=True)
     parser.add_argument('--candidate', type=Path, required=True)
     parser.add_argument('--baseline-commit', default='7ca9b4ed6ed48cd71e1bec7b0f16e854daeeb1d5')
@@ -49,6 +51,7 @@ def main():
         parser.error('required power mode is not active')
     report = {
         'completed': False,
+        'compressed_bytes_identical_required': not args.allow_byte_changes,
         'baseline_commit': args.baseline_commit,
         'power': {'initial': initial_power, 'changes': [], 'poll_interval_seconds': 1},
         'date': datetime.date.today().isoformat(),
@@ -98,8 +101,9 @@ def main():
                     sizes = [row['bytes'] for row in result['files']]
                     hashes = [row.get('packed_sha1') for row in result['files']]
                     if name != 'slpz':
-                        fingerprints.setdefault(level, (sizes, hashes))
-                        assert fingerprints[level] == (sizes, hashes), 'compressed bytes differ'
+                        key = (name, level) if args.allow_byte_changes else level
+                        fingerprints.setdefault(key, (sizes, hashes))
+                        assert fingerprints[key] == (sizes, hashes), 'compressed bytes differ'
                     assert not report['power']['changes'], 'power setting changed during benchmark'
                     key = f'{name}-l{level}-t{workers}'
                     row = report['rows'].setdefault(key, {
@@ -110,6 +114,7 @@ def main():
                         for metric in ('encode_seconds', 'decode_seconds'):
                             row[metric].append(result[metric])
                             row[metric.replace('_seconds', '_median_seconds')] = statistics.median(row[metric])
+                            row[metric.replace('_seconds', '_mean_seconds')] = statistics.mean(row[metric])
                     args.output.write_text(json.dumps(report, indent=2) + '\n')
                     print(key, 'warmup' if repeat == -1 else repeat + 1,
                           round(result['encode_seconds'], 4), round(result['decode_seconds'], 4), flush=True)
@@ -126,9 +131,11 @@ def main():
     for name, digest in report['source_sha256'].items():
         assert digest == hashlib.sha256(Path(name).read_bytes()).hexdigest()
     assert not report['power']['changes'] and report['power']['final'] == initial_power, 'power setting changed'
+    for path, expected in zip(paths, report['inputs']):
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == expected['sha256'], 'input changed'
     report['completed'] = True
     args.output.write_text(json.dumps(report, indent=2) + '\n')
-    print('All decoded bytes match; baseline/candidate compressed fingerprints match.', flush=True)
+    print('All decoded bytes match; compressed fingerprints satisfy the requested policy.', flush=True)
 
 
 if __name__ == '__main__':

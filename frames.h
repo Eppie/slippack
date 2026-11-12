@@ -3,7 +3,6 @@
 #include "codec_types.h"
 
 namespace slippack {
-unsigned custom_depth(int level);
 size_t custom_frame(std::span<const uint8_t> in, Buf &out,
                     slippack_custom::Profile profile = slippack_custom::Generic, int level = 3);
 void custom_planes_frame(std::span<const uint8_t> in, uint32_t count,

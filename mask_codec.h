@@ -324,10 +324,14 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
   std::unique_ptr<NibbleTable[]> tables(new NibbleTable[1024u << split]);
   std::vector<uint8_t> used(1024u << split, 0);
   uint32_t state[4] = {1u << 23, 1u << 23, 1u << 23, 1u << 23};
-  Bytes bytes;
+  // The state is below 2^31 and the smallest renormalization limit is 2^15,
+  // so at most two bytes are emitted per nibble. Fill backward in final order.
+  size_t symbols = (size_t(count) + 3) / 4 * planes;
+  std::unique_ptr<uint8_t[]> bytes(new uint8_t[symbols * 2]);
+  uint8_t *end = bytes.get() + symbols * 2, *write = end;
   // Recover history directly from the source masks while walking backward;
   // no per-symbol trace buffer is needed.
-  size_t t = (size_t(count) + 3) / 4 * planes;
+  size_t t = symbols;
   for (size_t j = planes; j-- > 0;) {
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned cls = split && profiles[j] == FloatLow ? 1024 : 0;
@@ -354,7 +358,7 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
           continue;
         }
         while (x >= ((1u << 23 >> 16) << 8) * f) {
-          bytes.push_back(uint8_t(x));
+          *--write = uint8_t(x);
           x >>= 8;
         }
         x = x / f * 65536 + x % f + m.start(s);
@@ -364,9 +368,44 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
   for (auto x : state) {
     u32(out, x);
   }
-  out.insert(out.end(), bytes.rbegin(), bytes.rend());
+  out.insert(out.end(), write, end);
   return out;
 }
+// Compare interior CDF boundaries in parallel; retain scalar search elsewhere.
+struct NibbleDecoderTable : NibbleTable {
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
+  std::array<uint16_t, 16> cutoffs;
+  unsigned first;
+#endif
+  void build(unsigned key, const std::array<uint16_t, 256> &probs) {
+    NibbleTable::build(key, probs);
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
+    // Zero-frequency leading symbols need a separate offset because -1
+    // cannot be represented by an unsigned 16-bit cutoff.
+    first = 0;
+    for (unsigned s = 1; s < 16; ++s) {
+      unsigned at = start(s);
+      first += at == 0;
+      cutoffs[s - 1] = uint16_t(at ? at - 1 : 65535);
+    }
+    cutoffs[15] = 65535;
+#endif
+  }
+  unsigned symbol(unsigned slot) const {
+#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
+    auto value = vdupq_n_u16(uint16_t(slot));
+    auto a = vcgtq_u16(value, vld1q_u16(cutoffs.data()));
+    auto b = vcgtq_u16(value, vld1q_u16(cutoffs.data() + 8));
+    return first + uint16_t(-vaddvq_u16(vaddq_u16(a, b)));
+#else
+    unsigned s = slot >= start(8) ? 8 : 0;
+    s += slot >= start(s + 4) ? 4 : 0;
+    s += slot >= start(s + 2) ? 2 : 0;
+    s += slot >= start(s + 1) ? 1 : 0;
+    return s;
+#endif
+  }
+};
 inline Bytes decode_presence4(Reader &r, uint32_t count, View profiles, View refs) {
   size_t planes = profiles.size(), width = (size_t(count) + 7) / 8;
   unsigned split = r.byte();
@@ -383,9 +422,11 @@ inline Bytes decode_presence4(Reader &r, uint32_t count, View profiles, View ref
     require(x >= (1u << 23) && x < (1u << 31), "presence state");
   }
   Bytes masks(width * planes, 0);
-  std::unique_ptr<NibbleTable[]> tables(new NibbleTable[1024u << split]);
+  std::unique_ptr<NibbleDecoderTable[]> tables(new NibbleDecoderTable[1024u << split]);
   std::vector<uint8_t> used(1024u << split, 0);
   size_t t = 0;
+  unsigned cached_key = UINT32_MAX, first_frequency = 0, last_start = 0;
+  const NibbleDecoderTable *cached_model = nullptr;
   for (size_t j = 0; j < planes; ++j) {
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned history = 0, cls = split && profiles[j] == FloatLow ? 1024 : 0;
@@ -398,26 +439,29 @@ inline Bytes decode_presence4(Reader &r, uint32_t count, View profiles, View ref
       unsigned pairs = std::min<size_t>(2, (count - byte * 8 + 3) / 4);
       for (unsigned k = 0; k < pairs; ++k) {
         unsigned key = history | ((above & 63) << 4) | cls;
-        if (!used[key]) {
-          used[key] = 1;
-          tables[key].build(key, probs);
+        if (key != cached_key) {
+          if (!used[key]) {
+            used[key] = 1;
+            tables[key].build(key, probs);
+          }
+          cached_key = key;
+          cached_model = &tables[key];
+          first_frequency = cached_model->start(1);
+          last_start = cached_model->start(15);
         }
-        auto &m = tables[key];
+        const auto &m = *cached_model;
         uint32_t &x = state[t++ & 3], slot = x & 65535;
         // Endpoint symbols expose their frequency through CDF boundaries.
         // A frequency of 65536 leaves the rANS state unchanged.
-        unsigned s, start = 0, f = m.start(1);
+        unsigned s, start = 0, f = first_frequency;
         if (slot < f) {
           s = 0;
-        } else if (unsigned last = m.start(15); slot >= last) {
+        } else if (unsigned last = last_start; slot >= last) {
           s = 15;
           start = last;
           f = 65536 - last;
         } else {
-          s = slot >= m.start(8) ? 8 : 0;
-          s += slot >= m.start(s + 4) ? 4 : 0;
-          s += slot >= m.start(s + 2) ? 2 : 0;
-          s += slot >= m.start(s + 1) ? 1 : 0;
+          s = m.symbol(slot);
           auto entry = m.entries[s];
           start = unsigned(entry >> 32);
           f = unsigned(entry);

@@ -88,7 +88,8 @@ explicit in `DecodeLimits` in [archive.h](archive.h).
 | Levels | Search candidates |
 |---|---:|
 | 1–2 | 2 |
-| 3–5 (default 3) | 4, with lazy parsing |
+| 3 (default) | 2, with literal prediction; lazy parsing for opaque data |
+| 4–5 | 4, with lazy parsing |
 | 6–8 | 8 |
 | 9–12 | 24 |
 
@@ -166,35 +167,40 @@ development, so those results are not independent held-out estimates.
 
 ## Encoding speed
 
-The profile-guided release (`make release`) improves level 3 encoding throughput
-by **13.5% with one worker and 10.4% with eight** over the ordinary `-O3` build
-at `f11d8d5`, with identical compressed output. These are nine-run interleaved
-medians on 521 replays (1.31 GB), one replay per archive, on an Apple M4 Max in
-high power mode on battery power. Rates are original MB/s:
+The current release (`make release`) improves level 3 encoding throughput by
+**11.3% with one worker and 12.1% with eight** over the preceding profile-guided
+release at `888e0be`. Separate archives total **53,784,864 bytes**, down from
+54,382,292 (**1.1% smaller**). Average decoding throughput is 0.8% and 1.2% higher,
+respectively.
+
+These are nine-run interleaved averages on 521 replays (1.31 GB), one replay per
+archive, on an Apple M4 Max in high power mode on battery power. Eight workers
+process independent files. Rates are original decimal MB/s:
 
 | Workers | Encode before | Encode after | Encode gain | Decode before | Decode after |
 |---|---:|---:|---:|---:|---:|
-| 1 | 269.9 | 306.3 | 13.5% | 900.2 | 913.8 |
-| 8 | 2150.3 | 2374.5 | 10.4% | 6823.6 | 6829.3 |
+| 1 | 334.8 | 372.6 | 11.3% | 943.0 | 950.7 |
+| 8 | 2286.3 | 2562.0 | 12.1% | 6886.7 | 6971.2 |
 
-Using mean elapsed times, the single-worker encoding gain is 11.4% and decoding
-gain is 2.1%. Eight-worker decoding is essentially unchanged: its median is
-0.08% faster and mean is 0.32% slower. The separate archives total 54,382,292
-bytes in every run. Compiler profiling changes code generation; codec sources
-and the v1 format are unchanged, and no archive recompression is needed.
-See the [build settings, validation, and raw results](benchmarks/2026-11-11-profiled-release/README.md).
-The training inputs are part of the measured corpus; these are development
-measurements, not independent held-out estimates.
+Compact probability headers make room for a faster level 3 match search.
+Contiguous dictionary reads and reused decoder model lookups reduce memory work.
+499 files shrink; 22 grow slightly, with a largest increase of 1.12% and a largest
+absolute increase of 669 bytes. Existing archives were left untouched.
+See the [method, validation, and raw results](benchmarks/2026-11-11-compact-models/README.md).
+The corpus includes the compiler-training inputs and was examined during
+development, so these are not independent held-out estimates.
 
-In the fresh matched 120-file single-worker comparison, Slippack level 3 encodes
-at 339.3 MB/s versus 554.9 MB/s for slpz fast, and decodes at 910.1 versus
-1081.3 MB/s. Slippack produces 12.9 MB versus 42.1 MB, or 69.3% smaller output.
-Slpz remains faster at encoding and decoding.
+On the matched 120-file set, the current release encodes at
+372.6 MB/s versus 573.8 MB/s for slpz fast, and decodes at
+948.7 versus 1118.2 MB/s (nine-run single-worker averages).
+It produces 12.78 MB versus 42.11 MB, or 69.6% smaller output.
+Slpz remains faster in both directions.
 
-Earlier source optimizations and hardware measurements are documented in the
+The earlier [profile-guided build study](benchmarks/2026-11-11-profiled-release/README.md),
 [allocation and grouping study](benchmarks/2026-11-10-level3-memory/README.md),
 [histogram and plane-screening study](benchmarks/2026-11-10-encode-speed/README.md),
-and [hardware profile](benchmarks/2026-11-10-level3-profiling/README.md).
+and [hardware profile](benchmarks/2026-11-10-level3-profiling/README.md) document
+preceding work.
 
 ## Single-replay comparison
 

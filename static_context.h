@@ -19,6 +19,18 @@ inline double count_entropy(uint32_t n) {
   }();
   return n < table.size() ? table[n] : double(n) * std::log2(double(n));
 }
+// Estimate header bits for alphabet IDs/bitmap and the remaining frequencies.
+inline double compact_model_cost(unsigned used) {
+  static const auto table = [] {
+    std::array<double, 257> costs{};
+    for (unsigned n = 0; n <= 256; ++n) {
+      costs[n] =
+          16 + std::min(8u * n, 256u) + (n > 1 ? (n - 1) * (14.0 - std::log2(double(n))) : 0);
+    }
+    return costs;
+  }();
+  return table[used];
+}
 inline double context_cost(const std::array<uint32_t, 256> &h) {
   double c = 0;
   uint32_t n = 0, used = 0;
@@ -32,7 +44,7 @@ inline double context_cost(const std::array<uint32_t, 256> &h) {
   if (n) {
     c += count_entropy(n);
   }
-  return c + 16 + used * 19;
+  return c + compact_model_cost(used);
 }
 inline Bytes context_encode(View input, View contexts) {
   require(contexts.empty() || contexts.size() == input.size(), "context input shape");
@@ -148,8 +160,8 @@ inline Bytes context_encode(View input, View contexts) {
           rn -= v;
         }
         unsigned s = p + 1;
-        double lc = count_entropy(ln) - le + 16 + lu * 19,
-               rc = count_entropy(rn) - re + 16 + ru * 19, gain = cur.cost - lc - rc;
+        double lc = count_entropy(ln) - le + compact_model_cost(lu),
+               rc = count_entropy(rn) - re + compact_model_cost(ru), gain = cur.cost - lc - rc;
         if (gain > saving + 1e-9) {
           saving = gain;
           split = s;
@@ -176,17 +188,7 @@ inline Bytes context_encode(View input, View contexts) {
       for (unsigned p = edges[leaf.begin]; p < edges[leaf.end]; ++p) {
         map[c * 256 + p] = uint16_t(models.size());
       }
-      unsigned used = 0;
-      for (auto f : m.freq) {
-        used += f != 0;
-      }
-      varint(out, used);
-      for (unsigned b = 0; b < 256; ++b) {
-        if (m.freq[b]) {
-          out.push_back(b);
-          varint(out, m.freq[b]);
-        }
-      }
+      write_compact_model(out, m.freq);
       models.push_back(m);
     }
   }
@@ -209,15 +211,15 @@ inline Bytes context_encode(View input, View contexts) {
   out.insert(out.end(), bytes.rbegin(), bytes.rend());
   return out;
 }
-inline Bytes context_decode(Reader &r, uint32_t n, View contexts) {
+inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_models = false) {
   unsigned nc = r.byte();
   require(nc == 1 || nc == ProfileCount, "context class count");
   require(nc == 1 || contexts.size() == n, "context dimensions");
-  std::vector<Model> models;
+  unsigned model_count = 0;
   std::vector<uint16_t> map(nc * 256);
   // One load supplies the symbol, frequency-minus-one, and CDF offset.
   // Each occupies 8/12/12 bits respectively.
-  std::vector<uint32_t> lookup;
+  std::vector<uint32_t, slippack::OutputAllocator<uint32_t>> lookup;
   for (unsigned c = 0; c < nc; ++c) {
     unsigned count = r.byte();
     require(count && count <= 16, "context tree size");
@@ -226,31 +228,35 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts) {
       unsigned end = unsigned(r.byte()) + 1;
       require(end > begin, "context tree range");
       for (unsigned p = begin; p < end; ++p) {
-        map[c * 256 + p] = uint16_t(models.size());
+        map[c * 256 + p] = uint16_t(model_count);
       }
       begin = end;
-      Model m;
-      unsigned used = r.var();
-      require(used && used <= 256, "context alphabet");
-      for (unsigned k = 0; k < used; ++k) {
-        unsigned b = r.byte(), f = r.var();
-        require(f && f <= 4096 && !m.freq[b], "context frequency");
-        m.freq[b] = uint16_t(f);
+      std::array<uint16_t, 256> freq{};
+      if (compact_models) {
+        read_compact_model(r, freq);
+      } else {
+        unsigned used = r.var();
+        require(used && used <= 256, "context alphabet");
+        for (unsigned k = 0; k < used; ++k) {
+          unsigned b = r.byte(), f = r.var();
+          require(f && f <= 4096 && !freq[b], "context frequency");
+          freq[b] = uint16_t(f);
+        }
       }
       unsigned sum = 0;
+      size_t model_begin = lookup.size();
+      lookup.resize(model_begin + 4096);
       for (unsigned b = 0; b < 256; ++b) {
-        m.start[b] = sum;
-        sum += m.freq[b];
+        size_t at = model_begin + sum;
+        sum += freq[b];
         require(sum <= 4096, "context sum");
-        size_t at = lookup.size();
-        lookup.resize(at + m.freq[b]);
-        uint32_t base = b | ((uint32_t(m.freq[b]) - 1) << 20);
-        for (unsigned j = 0; j < m.freq[b]; ++j) {
+        uint32_t base = b | ((uint32_t(freq[b]) - 1) << 20);
+        for (unsigned j = 0; j < freq[b]; ++j) {
           lookup[at + j] = base | (j << 8);
         }
       }
       require(sum == 4096, "context sum");
-      models.push_back(m);
+      ++model_count;
     }
     require(begin == 256, "context tree coverage");
   }
@@ -260,23 +266,51 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts) {
     require(x >= (1u << 23) && x < (1u << 31), "context state");
   }
   Bytes out(n);
-  uint8_t previous = 0, pc = 255;
-  for (size_t i = 0; i < n; ++i) {
-    unsigned c = nc == 1 ? 0 : contexts[i];
-    require(c < nc, "context ID");
-    if (c != pc) {
-      previous = 0;
-      pc = c;
-    }
-    unsigned m = map[c * 256 + previous];
-    uint32_t &x = state[i & 3], slot = x & 4095;
-    uint32_t entry = lookup[m * 4096 + slot];
-    uint8_t b = uint8_t(entry);
-    out[i] = b;
-    previous = b;
+  auto emit = [&](size_t i, uint32_t entry) {
+    uint32_t &x = state[i & 3];
+    uint8_t symbol = uint8_t(entry);
+    out[i] = symbol;
     x = ((entry >> 20) + 1) * (x >> 12) + ((entry >> 8) & 4095);
     while (x < (1u << 23)) {
       x = (x << 8) | r.byte();
+    }
+    return symbol;
+  };
+  // A single model has no dependency on the previous decoded symbol.
+  if (model_count == 1) {
+    for (size_t i = 0; i < n; ++i) {
+      emit(i, lookup[state[i & 3] & 4095]);
+    }
+  } else if (nc == 1) {
+    // Fetch the next model alongside the coding entry instead of following
+    // a dependent map lookup. A byte side array avoids doubling table size.
+    slippack::OutputBytes next_model(lookup.size());
+    // All slots in a symbol's CDF interval share its next-model ID.
+    for (size_t at = 0; at < lookup.size();) {
+      uint32_t entry = lookup[at];
+      unsigned frequency = (entry >> 20) + 1;
+      std::memset(next_model.data() + at, map[uint8_t(entry)], frequency);
+      at += frequency;
+    }
+    unsigned base = unsigned(map[0]) * 4096;
+    for (size_t i = 0; i < n; ++i) {
+      size_t at = base + (state[i & 3] & 4095);
+      uint32_t entry = lookup[at];
+      base = unsigned(next_model[at]) * 4096;
+      emit(i, entry);
+    }
+  } else {
+    uint8_t previous = 0, pc = 255;
+    for (size_t i = 0; i < n; ++i) {
+      unsigned c = contexts[i];
+      require(c < nc, "context ID");
+      if (c != pc) {
+        previous = 0;
+        pc = c;
+      }
+      unsigned model = map[c * 256 + previous];
+      uint32_t entry = lookup[model * 4096 + (state[i & 3] & 4095)];
+      previous = emit(i, entry);
     }
   }
   for (auto x : state) {

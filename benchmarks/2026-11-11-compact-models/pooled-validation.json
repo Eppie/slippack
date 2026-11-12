@@ -1,0 +1,39 @@
+{
+  "baseline_commit": "888e0bee0a981141f8e3525ee63f933a07faa231",
+  "files": 521,
+  "raw_bytes": 1309548357,
+  "binary_sha256": {
+    "baseline": "2af52242303cc5430de4f6ca2832c005770f81f0d28bdf1f1dc1b59db5120dd5",
+    "candidate": "22ac3fbc28c68e683c3193c5c2a4ee8c83340cee087c441df98ca44217e102f4"
+  },
+  "rows": [
+    {
+      "level": 1,
+      "bytes": 50775621,
+      "sha256": "5393bdee5e3127af1eb26cb916491cc17577392442b0a5f6ce11a5d12957603a",
+      "baseline_bytes": 51628453,
+      "all_member_sha1_match_sources": true
+    },
+    {
+      "level": 3,
+      "bytes": 50097975,
+      "sha256": "c33af4794a79b63bbee87c58e92a356c7253c5add8f50e4bc8e1cc97cc982110",
+      "baseline_bytes": 50672315,
+      "all_member_sha1_match_sources": true
+    },
+    {
+      "level": 7,
+      "bytes": 49712988,
+      "sha256": "af96ca9ed510ea0eb4bdf0cece227625dcbf1cffc4686893254855a427c70f3a",
+      "baseline_bytes": 50583503,
+      "all_member_sha1_match_sources": true
+    },
+    {
+      "level": 9,
+      "bytes": 49614579,
+      "sha256": "d749e42373f1eadff13d062d8b64bba0bfbf2a86bb0a5a8754b6636adef0f6ae",
+      "baseline_bytes": 50477834,
+      "all_member_sha1_match_sources": true
+    }
+  ]
+}

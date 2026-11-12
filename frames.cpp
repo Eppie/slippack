@@ -2,12 +2,17 @@
 #include "custom_codec.h"
 
 namespace slippack {
-unsigned custom_depth(int level) {
-  return level >= 9 ? 24 : level >= 6 ? 8 : level >= 3 ? 4 : 2;
+namespace {
+slippack_custom::LzOptions lz_options(int level, bool planes = false) {
+  unsigned depth = level >= 9 ? 24 : level >= 6 ? 8 : level >= 4 ? 4 : 2;
+  // Level 3 keeps lookahead for opaque data, where it prevents large size
+  // regressions. Transformed record planes use greedy parsing with prediction.
+  return {depth, level >= 3 && !(level == 3 && planes), level >= 3};
 }
+} // namespace
 size_t custom_frame(View in, Buf &out, slippack_custom::Profile profile, int level) {
   narrow(in.size());
-  auto packed = slippack_custom::encode(in, profile, custom_depth(level));
+  auto packed = slippack_custom::encode(in, profile, lz_options(level));
   out.put_u32(narrow(packed.size() + 1));
   out.put_u32(narrow(in.size()));
   out.put_u8(profile);
@@ -16,7 +21,7 @@ size_t custom_frame(View in, Buf &out, slippack_custom::Profile profile, int lev
 }
 void custom_planes_frame(View in, uint32_t count, View profiles, int level, Buf &out) {
   narrow(in.size());
-  auto packed = slippack_custom::encode_planes(in, count, profiles, custom_depth(level));
+  auto packed = slippack_custom::encode_planes(in, count, profiles, lz_options(level, true));
   out.put_u32(narrow(packed.size()));
   out.put_u32(narrow(in.size()));
   out.put_bytes(packed.data(), packed.size());

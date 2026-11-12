@@ -1,0 +1,10 @@
+{
+  "baseline_bytes": 54382292,
+  "candidate_bytes": 53784864,
+  "reduction_percent": 1.0985708362567737,
+  "files_smaller": 499,
+  "files_equal": 0,
+  "files_larger": 22,
+  "max_growth_bytes": 669,
+  "max_growth_percent": 1.1130692885632065
+}

@@ -16,20 +16,10 @@ inline Bytes ans_candidate(View input, View contexts) {
     require(c < nc, "custom context ID");
     models[c].hist[input[i]]++;
   }
-  Bytes result{uint8_t(nc == 1 ? 1 : 2)};
+  Bytes result{uint8_t(nc == 1 ? 6 : 7)};
   for (auto &m : models) {
     m.normalize();
-    unsigned used = 0;
-    for (auto f : m.freq) {
-      used += f != 0;
-    }
-    varint(result, used);
-    for (unsigned s = 0; s < 256; ++s) {
-      if (m.freq[s]) {
-        result.push_back(uint8_t(s));
-        varint(result, m.freq[s]);
-      }
-    }
+    write_compact_model(result, m.freq);
   }
   constexpr uint32_t low = 1u << 23;
   uint32_t states[4] = {low, low, low, low};
@@ -62,7 +52,7 @@ inline void channel(Bytes &out, View input, View contexts = {}) {
     varint(out, narrow(candidate.size() + contextual));
     varint(out, narrow(input.size()));
     if (contextual) {
-      out.push_back(4);
+      out.push_back(5);
     }
     append(out, candidate);
   } else {
@@ -82,24 +72,28 @@ inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
     r.done();
     return Bytes(raw.begin(), raw.end());
   }
-  if (mode == 4) {
-    auto output = context_decode(r, n, contexts);
+  if (mode == 4 || mode == 5) {
+    auto output = context_decode(r, n, contexts, mode == 5);
     r.done();
     return output;
   }
-  require(mode == 1 || mode == 2, "custom channel mode");
-  unsigned nc = mode == 1 ? 1 : ProfileCount;
-  require(mode == 1 || contexts.size() == n, "custom context shape");
+  require(mode == 1 || mode == 2 || mode == 6 || mode == 7, "custom channel mode");
+  unsigned nc = mode == 1 || mode == 6 ? 1 : ProfileCount;
+  require(nc == 1 || contexts.size() == n, "custom context shape");
   std::vector<Model> models(nc);
   Bytes lookup(nc * 4096);
   for (unsigned c = 0; c < nc; ++c) {
     auto &m = models[c];
-    unsigned used = r.var();
-    require(used >= 1 && used <= 256, "custom alphabet size");
-    for (unsigned j = 0; j < used; ++j) {
-      unsigned s = r.byte(), f = r.var();
-      require(f && f <= 4096 && !m.freq[s], "custom frequency");
-      m.freq[s] = uint16_t(f);
+    if (mode >= 6) {
+      read_compact_model(r, m.freq);
+    } else {
+      unsigned used = r.var();
+      require(used >= 1 && used <= 256, "custom alphabet size");
+      for (unsigned j = 0; j < used; ++j) {
+        unsigned s = r.byte(), f = r.var();
+        require(f && f <= 4096 && !m.freq[s], "custom frequency");
+        m.freq[s] = uint16_t(f);
+      }
     }
     unsigned at = 0;
     for (unsigned s = 0; s < 256; ++s) {
@@ -117,7 +111,7 @@ inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
   }
   Bytes output(n);
   for (size_t i = 0; i < n; ++i) {
-    unsigned c = mode == 1 ? 0 : contexts[i];
+    unsigned c = nc == 1 ? 0 : contexts[i];
     require(c < nc, "custom context ID");
     auto &m = models[c];
     uint32_t &x = states[i & 3];
@@ -327,15 +321,16 @@ inline void move_recent(std::array<uint32_t, 4> &recent, uint32_t d) {
   }
   recent[0] = d;
 }
-inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsigned depth = 8) {
+inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0,
+                       LzOptions options = {}) {
   require(profiles.empty() ||
               (stride ? uint64_t(stride) * profiles.size() == input.size() : profiles.size() == 1),
           "custom field shape");
   for (auto p : profiles) {
     require(p < ProfileCount, "custom profile");
   }
-  const bool prepare_prediction = depth >= 4;
-  const bool compare_histograms = depth >= 4 && depth < 24;
+  const bool prepare_prediction = options.predict;
+  const bool compare_histograms = options.predict && options.depth < 24;
   // A single semantic class always merges into the generic context model.
   // Avoid materializing a label for every literal in that case.
   const bool varied_contexts =
@@ -354,7 +349,7 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
   distances.reserve(input.size() / 8);
   std::array<uint32_t, 256> raw_hist{}, predicted_hist{};
   BitWriter extra;
-  Matcher matcher(input, depth);
+  Matcher matcher(input, options.depth);
   std::array<uint32_t, 4> recent{1, 2, 3, 4};
   uint32_t last = 0, matches = 0;
   auto literal_run = [&](uint32_t end) {
@@ -379,12 +374,12 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
     matcher.insert(i);
     if (m.length < 3) {
       ++misses;
-      unsigned step = depth < 24 ? std::min(4u, 1 + (misses >> 6)) : 1;
+      unsigned step = options.depth < 24 ? std::min(4u, 1 + (misses >> 6)) : 1;
       i += std::min<uint32_t>(step, narrow(input.size() - i));
       continue;
     }
     misses = 0;
-    if (depth >= 4 && m.length < 128) {
+    if (options.lazy && m.length < 128) {
       auto next = matcher.find(i + 1, recent);
       if (next.score > m.score + kMatchByteCost) {
         ++i;
@@ -434,10 +429,10 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0, unsi
   auto literal_contexts = varied_contexts ? View(contexts) : View{};
   bool favor_prediction =
       compare_histograms && context_cost(predicted_hist) < context_cost(raw_hist);
-  if (!favor_prediction || depth >= 24) {
+  if (!favor_prediction || options.depth >= 24) {
     channel(raw_literals, literals, literal_contexts);
   }
-  if (favor_prediction || depth >= 24) {
+  if (options.predict && (favor_prediction || options.depth >= 24)) {
     channel(predicted_literals, residuals, literal_contexts);
   }
   bool predict = !predicted_literals.empty() &&
@@ -461,7 +456,8 @@ inline Bytes lz_decode(Reader &r, uint32_t n, View profiles = {}, uint32_t strid
   peek.var();
   Reader header{peek.take(literal_packed)};
   unsigned literal_mode = header.byte();
-  bool needs_contexts = literal_mode == 2 || (literal_mode == 4 && header.byte() != 1);
+  bool needs_contexts = literal_mode == 2 || literal_mode == 7 ||
+                        ((literal_mode == 4 || literal_mode == 5) && header.byte() != 1);
   Reader lr{ll}, mr{ml}, dr{ds};
   BitReader bits{{extra}};
   struct Token {
@@ -590,7 +586,7 @@ inline uint32_t histogram_runs(View input, std::array<uint32_t, 256> &hist) {
 
 // Small specialized modes are selected by encoded byte count, including
 // their headers. Raw storage is always an escape for incompressible input.
-inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
+inline Bytes encode(View input, Profile profile = Generic, LzOptions options = {}) {
   narrow(input.size());
   if (is_constant(input)) {
     return Bytes{1, input[0]};
@@ -650,10 +646,10 @@ inline Bytes encode(View input, Profile profile = Generic, unsigned depth = 8) {
     channel(b, input);
     choose(std::move(b));
   }
-  if (depth && input.size() >= 16) {
+  if (options.depth && input.size() >= 16) {
     Bytes p{uint8_t(profile)};
     Bytes b{4};
-    append(b, lz_encode(input, p, 0, depth));
+    append(b, lz_encode(input, p, 0, options));
     choose(std::move(b));
   }
   if (best.empty()) {
@@ -815,7 +811,7 @@ inline void extract_exceptions(View plane, uint8_t base, Bytes &mask, Bytes &val
 
 // Separate presence masks from exception values so neighboring byte planes
 // can share the locations at which a float or controller field changed.
-inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned depth) {
+inline Bytes masked_encode(View rich, uint32_t count, View profiles, LzOptions options) {
   Bytes bases, masks, original, values, contexts, refs;
   size_t width = (size_t(count) + 7) / 8;
   values.reserve(rich.size() + 8);
@@ -854,7 +850,7 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
   }
   Bytes m;
   if (count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4) {
-    m = encode(masks, Generic, depth);
+    m = encode(masks, Generic, options);
   }
   auto ma = encode_presence4(original, count, profiles, refs);
   bool binary = m.empty() || ma.size() < m.size();
@@ -865,7 +861,7 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, unsigned de
   out.push_back(binary ? 4 : 0);
   varint(out, narrow(m.size()));
   append(out, m);
-  Bytes a = lz_encode(values, contexts, 1, depth);
+  Bytes a = lz_encode(values, contexts, 1, options);
   out.push_back(0);
   append(out, a);
   return out;
@@ -968,7 +964,7 @@ inline bool sparse_or_few_runs(View input) {
 
 // Preserve semantic plane boundaries. Very cheap planes get explicit modes;
 // remaining planes share an LZ dictionary with field-conditioned literals.
-inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned depth = 8) {
+inline Bytes encode_planes(View data, uint32_t count, View profiles, LzOptions options = {}) {
   require(uint64_t(count) * profiles.size() == data.size(), "custom plane dimensions");
   Bytes result;
   varint(result, 65536);
@@ -997,7 +993,7 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
         possible = *std::max_element(hist, hist + 256) >= 172 || runs <= 24;
       }
       if (possible && sparse_or_few_runs(plane)) {
-        special = encode(plane, Profile(profiles[j]), 0);
+        special = encode(plane, Profile(profiles[j]), LzOptions{0, false, false});
       }
     }
     if (!special.empty() && special[0] >= 1 && special[0] <= 3) {
@@ -1016,15 +1012,15 @@ inline Bytes encode_planes(View data, uint32_t count, View profiles, unsigned de
     uint8_t mode = 0;
     // Large float/controller packets favor the shared presence representation.
     // Retain the direct trial for controller packets at the deepest preset.
-    bool mask_only =
-        rich.size() >= 32768 &&
-        (std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4 ||
-         (depth < 24 && std::count(rich_profiles.begin(), rich_profiles.end(), Controller) >= 4));
+    bool mask_only = rich.size() >= 32768 &&
+                     (std::count(rich_profiles.begin(), rich_profiles.end(), FloatLow) >= 4 ||
+                      (options.depth < 24 &&
+                       std::count(rich_profiles.begin(), rich_profiles.end(), Controller) >= 4));
     if (!mask_only) {
-      winner = lz_encode(rich, rich_profiles, count, depth);
+      winner = lz_encode(rich, rich_profiles, count, options);
     }
 
-    auto a = masked_encode(rich, count, rich_profiles, depth);
+    auto a = masked_encode(rich, count, rich_profiles, options);
     if (winner.empty() || a.size() < winner.size()) {
       winner = std::move(a);
       mode = 3;
