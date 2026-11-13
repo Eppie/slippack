@@ -384,14 +384,14 @@ struct U32Set {
 struct U16Lookup {
   U32Set &set;
   uint16_t *slots = nullptr;
-  unsigned lo, hi;
+  unsigned low_shift, high_shift;
   unsigned index(uint32_t value) const {
-    return ((value >> lo) & 255) | (((value >> hi) & 255) << 8);
+    return ((value >> low_shift) & 255) | (((value >> high_shift) & 255) << 8);
   }
-  U16Lookup(U32Set &s, unsigned changing) : set(s), lo(0), hi(0) {
-    if (std::popcount(changing) == 2) {
-      lo = std::countr_zero(changing) * 8;
-      hi = (31 - std::countl_zero(changing)) * 8;
+  U16Lookup(U32Set &s, unsigned changing_mask) : set(s), low_shift(0), high_shift(0) {
+    if (std::popcount(changing_mask) == 2) {
+      low_shift = std::countr_zero(changing_mask) * 8;
+      high_shift = (31 - std::countl_zero(changing_mask)) * 8;
       static thread_local std::array<uint16_t, 65536> table{};
       slots = table.data();
     }

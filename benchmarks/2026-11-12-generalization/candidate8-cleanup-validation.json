@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "created_utc": "2026-11-13T22:11:31.903603+00:00",
+  "status": "passed",
+  "qualified_source_commit": "aa9f3a903843e1290220874b5db0b58f8199584b",
+  "scope": "Readability-only cleanup: designated LZ option fields, descriptive dictionary shift and presence-state names, clarified register-lifetime comment.",
+  "source_changes": {
+    "custom_codec.h": {
+      "before_sha256": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+      "after_sha256": "a72f472b642815f380e651dfa61fc4f59eceee719dc6142f817299a4675fcebb"
+    },
+    "frames.cpp": {
+      "before_sha256": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+      "after_sha256": "39bda5b09c986520f4ad677a5bca87ed77583cf5056821794e63e4ecbe70587a"
+    },
+    "mask_codec.h": {
+      "before_sha256": "ec1e3dc55e3d81886cbe1cf6ba46abd999895564f30f072fd70ea885e3c101d2",
+      "after_sha256": "e15af9d5937d16bf3f470ff8d9b3f02f973c12e9ba3315ebc109e0b3e408cced"
+    },
+    "record_codec.cpp": {
+      "before_sha256": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
+      "after_sha256": "327ffda85129213ed01c586afbbe9bce75bf0b38976d200202a2045cc7d392af"
+    }
+  },
+  "profile": {
+    "regenerated": true,
+    "command": "python3 tools/profile_build.py train --manifest build/frontier/all-521.txt --limit 64 --jobs 3",
+    "same_64_development_inputs": true,
+    "heldout_inputs_used": 0,
+    "compiler": {
+      "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+      "target": "Target: arm64-apple-darwin24.5.0"
+    },
+    "training_flags": "-std=c++20 -O3 -Wall -Wextra -fprofile-generate -fprofile-update=atomic",
+    "before_sha256": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
+    "after_sha256": "404f7016da4e980519c2d6a23155cc4f5a7eda2ca104f66b2c68d47aa85a6e23",
+    "all_function_hashes_and_non_external_symbol_counts_identical": true,
+    "difference": "Only unresolved external-symbol value counts differ; rebuilt release executable and all library object bytes remain identical.",
+    "metadata_sha256": "8370621c0203e2656830993ecc187828f46061bc541ebe1ee85780ff2b1887f4"
+  },
+  "release_artifacts": {
+    "slippack": {
+      "byte_identical": true,
+      "bytes": 1047640,
+      "sha256": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+      "reference": "build/goal-2026-11-12/candidate8/slippack"
+    },
+    "build/release/slippack": {
+      "byte_identical": true,
+      "bytes": 1047640,
+      "sha256": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+      "reference": "build/goal-2026-11-12/candidate8/slippack"
+    },
+    "build/release/libslippack.a": {
+      "byte_identical": false,
+      "only_ar_header_timestamps_differ": true,
+      "sha256": "e5975fcb6ebbf7f34fc083559c1a9b4fc4e433b424f5f3513e6e33417a9884e5",
+      "reference_sha256": "3f2c8445f98886ff9b3f240abbd9a22c7bf6026d95197e014eb81fc71b3140ab",
+      "normalized_sha256": "992e855c734adb43a85e4ac69e994322bbc783f29e01f862a08e0f60acdd8687",
+      "reference": "build/goal-2026-11-12/candidate8/library.a",
+      "objects": {
+        "archive.o": {
+          "byte_identical": true,
+          "bytes": 173816,
+          "sha256": "63f3b80512b8c94c22b67ac808ae6ff0434af12caca40ff4f4dd26b402946f04"
+        },
+        "frames.o": {
+          "byte_identical": true,
+          "bytes": 815496,
+          "sha256": "56f68a408422f194db329588fa00f93c5aee8791addf194ca26e93c7ada500d9"
+        },
+        "record_codec.o": {
+          "byte_identical": true,
+          "bytes": 620392,
+          "sha256": "a318691faa24a6870379e603853fbf094085671c853d0f2019cd59b3b15a9e63"
+        },
+        "slp.o": {
+          "byte_identical": true,
+          "bytes": 30128,
+          "sha256": "cc006a2cd7ff6e07e4b005251a90654b24e28fe78ba13af08904c33d79f384a5"
+        },
+        "platform.o": {
+          "byte_identical": true,
+          "bytes": 2680,
+          "sha256": "af435b06a9e9cdedd3c13bc0753b999aad9e1452fb568000ed930434e345d5b0"
+        }
+      }
+    }
+  },
+  "checks": {
+    "release_check_command": "make -j3 release-check",
+    "release_check_exit_code": 0,
+    "passed": [
+      "CLI selftest",
+      "custom codec (7,329 checks)",
+      "entropy models and CDFs (19,133,569 checks)",
+      "record codec (111,209 checks)",
+      "predictors (2,463,583 checks)",
+      "archive API (92 checks)",
+      "archive integration",
+      "extraction"
+    ],
+    "profile_source_check": true,
+    "changed_cpp_format_check": true,
+    "git_diff_check": true
+  },
+  "logs_sha256": {
+    "build/goal-2026-11-12/cleanup/profile-training.log": "0d974fe469a35e9adef1a827fefe7e07a62e2bf0224ee130b8c2ef29c65d4ad1",
+    "build/goal-2026-11-12/cleanup/release-check.log": "a8331b4581d3ebe0737cbff07e5dbbe6ae6720894d920a4f206a240c4ff4828a"
+  },
+  "qualification_evidence_sha256": {
+    "benchmarks/2026-11-12-generalization/candidate8-completion-audit.json": "5800950f74afe01dd2cbc1d2238372b32ff77d9591ce398d37cadfe14ec67f7d",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-replication-protocol.json": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-replication-summary.json": "52fc9d7e6799c3c46d00f8fe2fb0ae56b7a2a681e4b12487df1f13ed697b6360"
+  },
+  "interpretation": "The tested release executable is identical, so the cleanup changes neither its compression output nor its generated code/performance. Library object bytes are identical as well. No new performance measurements or held-out tuning were performed; prior qualification remains historical evidence for the same executable. This equivalence check is for the recorded Apple Clang arm64 release configuration."
+}

@@ -416,10 +416,10 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
     unsigned cls = split && profiles[j] == FloatLow ? 1024 : 0;
     // Local nibble i belongs to global state (j*nibbles+i)&3. Rotate at
     // the plane boundary so four-symbol groups have independent scalar states.
-    unsigned phase = unsigned(j * nibbles) & 3;
-    uint32_t tail0 = state[phase], tail1 = state[(phase + 1) & 3];
-    uint32_t tail2 = state[(phase + 2) & 3];
-    auto tail = [&](size_t i, uint32_t &x) {
+    unsigned state_offset = unsigned(j * nibbles) & 3;
+    uint32_t tail0 = state[state_offset], tail1 = state[(state_offset + 1) & 3];
+    uint32_t tail2 = state[(state_offset + 2) & 3];
+    auto encode_tail = [&](size_t i, uint32_t &x) {
       size_t byte = i / 2;
       unsigned k = unsigned(i) & 1;
       unsigned above =
@@ -432,21 +432,21 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       unsigned key = history | (((above >> (4 * k)) & 63) << 4) | cls;
       emit(key, (current >> (4 * k)) & 15, x);
     };
-    size_t complete = nibbles & ~size_t(3);
+    size_t grouped_nibbles = nibbles & ~size_t(3);
     unsigned remainder = unsigned(nibbles) & 3;
     if (remainder >= 3) {
-      tail(complete + 2, tail2);
+      encode_tail(grouped_nibbles + 2, tail2);
     }
     if (remainder >= 2) {
-      tail(complete + 1, tail1);
+      encode_tail(grouped_nibbles + 1, tail1);
     }
     if (remainder >= 1) {
-      tail(complete, tail0);
+      encode_tail(grouped_nibbles, tail0);
     }
-    // Tail calls may be outlined. Their addresses must not escape the four
-    // independent states used by the main loop.
-    uint32_t x0 = tail0, x1 = tail1, x2 = tail2, x3 = state[(phase + 3) & 3];
-    for (size_t group = complete / 4; group-- > 0;) {
+    // Tail calls may be outlined. Use separate temporaries so the addresses of
+    // the main-loop states never escape, allowing all four to stay in registers.
+    uint32_t x0 = tail0, x1 = tail1, x2 = tail2, x3 = state[(state_offset + 3) & 3];
+    for (size_t group = grouped_nibbles / 4; group-- > 0;) {
       size_t byte = group * 2;
       unsigned above =
           refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) | (unsigned(masks[src + byte]) << 1) |
@@ -471,10 +471,10 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       step.template operator()<1>(x1);
       step.template operator()<0>(x0);
     }
-    state[phase] = x0;
-    state[(phase + 1) & 3] = x1;
-    state[(phase + 2) & 3] = x2;
-    state[(phase + 3) & 3] = x3;
+    state[state_offset] = x0;
+    state[(state_offset + 1) & 3] = x1;
+    state[(state_offset + 2) & 3] = x2;
+    state[(state_offset + 3) & 3] = x3;
   }
   for (auto x : state) {
     u32(out, x);

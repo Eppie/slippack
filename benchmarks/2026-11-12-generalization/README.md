@@ -22,6 +22,13 @@ launches across the three cohorts, rehashes all 2,441 input files, checks
 source-family/training separation, verifies correctness evidence and frozen
 artifacts, and confirms that the installed CLI matches the tested binary.
 
+The qualified sources and original audit are preserved in commit `aa9f3a9`.
+A subsequent [readability cleanup](candidate8-cleanup-validation.json) rebuilds
+to the identical release executable and identical library objects; only the
+library archive timestamps differ. Its profile uses the same 64 development
+inputs, and all release tests pass. The original qualification records remain
+unchanged; the cleanup report connects the current sources to the tested build.
+
 Timing variation remains material: eight-worker independent launch gains are
 19.96%, 7.01%, and 12.09%; the pooled gain is 12.89%. Its descriptive 95%
 repeated-timing interval is 7.30%–19.53%, not an interval over unseen source

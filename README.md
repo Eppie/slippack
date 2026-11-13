@@ -187,6 +187,11 @@ and [completion audit](benchmarks/2026-11-12-generalization/candidate8-completio
 These are measured averages: eight-worker launch gains range from 7.01% to
 19.96%, and 105 of the 512 files grow even though aggregate size decreases.
 
+A subsequent readability cleanup preserves the release executable and every
+library object byte-for-byte. The compiler profile was regenerated from the
+same 64 development inputs, and the full release tests pass. See the
+[cleanup verification](benchmarks/2026-11-12-generalization/candidate8-cleanup-validation.json).
+
 Earlier candidates did not meet the goal. One improved compression throughput
 11.0–11.4% on 905 development files, but only 5.0% with one worker and 8.0% with
 eight on 512 previously unused files from eight other source collections.

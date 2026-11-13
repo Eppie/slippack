@@ -391,7 +391,8 @@ inline void move_recent(std::array<uint32_t, 4> &recent, uint32_t d) {
 template <bool Fast>
 inline Bytes lz_encode_impl(View input, View profiles, uint32_t stride, LzOptions options) {
   if constexpr (Fast) {
-    options = LzOptions{2, false, true, 2, false};
+    options = LzOptions{
+        .depth = 2, .lazy = false, .predict = true, .recent_limit = 2, .short_matches = false};
   }
   require(profiles.empty() ||
               (stride ? uint64_t(stride) * profiles.size() == input.size() : profiles.size() == 1),
