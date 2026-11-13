@@ -1,0 +1,18 @@
+{
+  "started_utc": "2026-11-13T12:02:57.090456+00:00",
+  "dataset": "development",
+  "candidate": "candidate8",
+  "run_id": "candidate8-awake1",
+  "protocol_sha256": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+  "prerequisite_summary_sha256": {
+    "outside521": "98b48d22cd94370cd3690bd58f3e5b91f8715b979e3be9d7095b7b2f3d9b8052"
+  },
+  "completed_launches": [
+    1,
+    2,
+    3
+  ],
+  "completed": true,
+  "status": "All three launches and pooled summary complete; all samples retained.",
+  "finished_utc": "2026-11-13T12:28:46.386816+00:00"
+}

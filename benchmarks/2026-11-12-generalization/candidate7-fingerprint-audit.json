@@ -1,0 +1,14 @@
+{
+  "completed": true,
+  "files": 1929,
+  "workers": 8,
+  "level": 3,
+  "purpose": "Correctness-only preflight; timing values deliberately excluded from qualification",
+  "all_packets_identical_to_candidate6": true,
+  "all_roundtrips_match": true,
+  "bytes": 237274426,
+  "manifest_sha256": "48db92475884e5c0cfd8bd8574f56cbc1e666bce1c60894c08e19272b885008b",
+  "reference_sha256": "c5ed85bfc782da517ab0b21694d382a51172420059182f43f07b8b10b010b810",
+  "runner_sha256": "8b3244a1d2fb804ed20d705436b17f9285fbe5af52c63cd224752b9f4af3c9c1",
+  "library_sha256": "aeb4fab4cd6a6804aa1104ed4e9747e9795d71a2a20ee2330a3dc58a64226b3f"
+}

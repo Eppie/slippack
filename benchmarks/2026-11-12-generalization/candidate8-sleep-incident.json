@@ -1,0 +1,40 @@
+{
+  "recorded_utc": "2026-11-13T11:34:25.215310+00:00",
+  "candidate": "candidate8",
+  "status": "original qualification attempt aborted due to independently verified host sleep; not eligible to establish goal",
+  "session_id": 8294,
+  "session_exit_code": 143,
+  "stopped_utc": "2026-11-13T11:31:58.215195+00:00",
+  "sleep_start_utc": "2026-11-13T11:15:22+00:00",
+  "wake_utc": "2026-11-13T11:30:59+00:00",
+  "sleep_duration_seconds": 937,
+  "evidence_lines": [
+    "2026-11-13 06:15:06 -0500 Assertions          \tPID 53903(caffeinate) TimedOut PreventUserIdleSystemSleep \"caffeinate command-line tool\" 79:20:50  id:0x0x100008d1a [System: PrevIdle]          ",
+    "2026-11-13 06:15:22 -0500 Sleep               \tEntering Sleep state due to 'Idle Sleep':TCPKeepAlive=active Using AC (Charge:100%) 937 secs  ",
+    "2026-11-13 06:30:59 -0500 DarkWake            \tDarkWake from Deep Idle [CDNPB] : due to NUB.SPMI0Sw3IRQ nub-spmi-a0.0x3F nub-spmi0.0x02 rtc/Maintenance Using AC (Charge:100%)           "
+  ],
+  "affected_report": "benchmarks/2026-11-12-generalization/candidate8-development-round3-1929-launch2.json",
+  "affected_row": "baseline-l3-t1",
+  "affected_repeat": 2,
+  "recorded_decode_seconds": 941.5215978,
+  "existing_ac_monitor_detected_change": false,
+  "reason": "Power source and mode remained unchanged while the computer slept. The wall-clock measurement includes sleep, so a favorable decode ratio would not represent codec performance.",
+  "retention": "Every original raw sample and completed report remains unchanged, including the contaminated sample. No sample subtraction, replacement, outlier removal, or merging with replacement qualification.",
+  "replacement": "Declare a new whole three-cohort sequence with exactly three launches of nine repetitions per cohort, same frozen candidate8 and original baseline; add scoped sleep-prevention assertions, heartbeat-gap rejection and power-log sleep detection. No codec/profile tuning or selection between attempts. Any genuine performance failure remains a failure; only the objectively documented environmental interruption motivates this replacement.",
+  "holdout_candidate_use": false,
+  "frozen_candidate_hashes_verified": true,
+  "sha256": {
+    "benchmarks/2026-11-12-generalization/candidate8-replication-protocol.json": "69286baee7ba17f49a28d66f44613c25ab20c3d268d764b509ea28cdb8d3723c",
+    "benchmarks/2026-11-12-generalization/candidate8-build-info.json": "4ace4e03e448bc19117a229d1fb68ba2649fc3332ad03a72b0b25d88db90de5c",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-replication-summary.json": "a0ccccdf43ba4a4b631092d9215cdb35d70701f66c3b295f260098101d231a3b",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-replication-status.json": "c47e6102234e9c5e5759ca910c75ed98e9aab959c148ad8ae0c769bae8803ecc",
+    "benchmarks/2026-11-12-generalization/candidate8-development-replication-status.json": "6a24d042c2b6334071f88711b1799dfe54a4ac77bbd204481614777a004038ac",
+    "build/goal-2026-11-12/candidate8-sleep-incident-pmset.log": "a6c754096d31d073e814c2a2588f3073a6e91719def48c4330c3d0a19f2e2ea0",
+    "build/goal-2026-11-12/candidate8-sleep-incident-processes.txt": "c359040909ea29286a94648aae7e59a25e49501ddb8c18e60c3fee35c223389c",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-round3-1408-launch1.json": "60f21ecd2a0ba3c79ab9f6c4e6179369af8db3b51c6606c86cdf54674bedd3b5",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-round3-1408-launch2.json": "9ca3fe185cf040a98c64cba96f7aa9938aa30840c9113858bf7e1946c3eec636",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-round3-1408-launch3.json": "0db8c597a3e271a1cabbb770dcc0a468aaa1fc24605a6d4bb40491d520301e91",
+    "benchmarks/2026-11-12-generalization/candidate8-development-round3-1929-launch1.json": "ead29fd640014241690f85a90c5c64ef433b528c0bd5bc8ae4e6b1636a8ab586",
+    "benchmarks/2026-11-12-generalization/candidate8-development-round3-1929-launch2.json": "9a47223e743ea67907eed929cc0367ebd053395fc5b823a905986cda3b4af30f"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "declared_utc": "2026-11-13T04:38:42.819795+00:00",
+  "variant": "balanced272_c5",
+  "parent_candidate5_build_info_sha256": "cfb86aa85739c07e0a20e37c077e2b799def4aa946cd629682f47179025acd00",
+  "training_selection_sha256": "f6ec5f3d6f04b22a7519f2e4e5682699e17659f5980fe9b15029d8f62c6f1153",
+  "training_manifest_sha256": "25616dca421268b24cbaa14d1274362ea25830b89598de079ff207bba99d9d57",
+  "training_files": 272,
+  "source_groups": {
+    "archive-org-foofs-slippi-replay-collection": 16,
+    "archive-org-melee-slippi-matches-2025": 16,
+    "bair-necessities-2026-top8": 16,
+    "collision-2025": 16,
+    "combo-breaker-2024": 16,
+    "fight-pitt-9": 16,
+    "full-bloom-2025": 16,
+    "gmus-cuckdaddy-2020-08": 16,
+    "personal-pre-slippi-online": 16,
+    "slippi-gcs-genesis-7": 16,
+    "slippi-gcs-goml-2019": 16,
+    "slippi-gcs-mainstage-2019": 16,
+    "slippi-gcs-summit-10-online": 16,
+    "summit-11": 16,
+    "supernova-2025-main-stream": 16,
+    "tbh-9": 16,
+    "tipped-off-16": 16
+  },
+  "code": "All core sources and build rules copied unchanged from frozen candidate5. Only the compiler execution-count profile changes.",
+  "selection": "Reuse the previously declared 16 lowest content hashes per development source group; no new selection, weights, seeds, or held-out training.",
+  "evaluation": "Broader development only; no round2 holdout use unless a frozen candidate qualifies under a declared validation protocol. Candidate5 three-launch failure remains authoritative for that build."
+}

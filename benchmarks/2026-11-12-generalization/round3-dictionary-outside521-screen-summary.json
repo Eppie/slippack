@@ -1,0 +1,286 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "balanced400_c6": "e51236da2951861a6336827c4905fe9bd7b7fa0e26b12241826b2648103078c3",
+    "dict_slots64_reuse6": "18ccb98c7e0773e83e09670af37faf43a8504a994565fe7975b8f7a24c2cab24",
+    "dict_slots64_values6": "f488f5282c009b38329e92339343a145daa12b6baf7197e2b81e1ece3e0e33a3",
+    "dict_slots64_values_presence6": "ccfd06cd72269be4722223c3e401d28bcc703ffffec563c33a96f09189fbe883"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "dict_slots64_reuse6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.58813525,
+          1.559452292,
+          1.631637917
+        ],
+        "mean_seconds": 1.593075153,
+        "throughput_vs_baseline_pct": 11.112507592624121,
+        "elapsed_reduction_vs_baseline_pct": 10.001131135809038,
+        "throughput_vs_balanced400_c6_pct": -2.1831876084337676
+      },
+      "decode": {
+        "samples_seconds": [
+          0.634887125,
+          0.628418958,
+          0.636550041
+        ],
+        "mean_seconds": 0.6332853746666667,
+        "throughput_vs_baseline_pct": 0.2587938074830598,
+        "elapsed_reduction_vs_baseline_pct": 0.2581257939129,
+        "throughput_vs_balanced400_c6_pct": 0.09992867228296731
+      }
+    },
+    "baseline-l3-t8": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          1.758248,
+          1.770939334,
+          1.781129917
+        ],
+        "mean_seconds": 1.7701057503333333,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -11.96597528858262
+      },
+      "decode": {
+        "samples_seconds": [
+          0.636029959,
+          0.635861041,
+          0.632881834
+        ],
+        "mean_seconds": 0.634924278,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -0.1584550633086046
+      }
+    },
+    "balanced400_c6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.569330292,
+          1.55320325,
+          1.552352459
+        ],
+        "mean_seconds": 1.5582953336666667,
+        "throughput_vs_baseline_pct": 13.592443748661998,
+        "elapsed_reduction_vs_baseline_pct": 11.96597528858262,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          0.632997917,
+          0.634771667,
+          0.633985041
+        ],
+        "mean_seconds": 0.6339182083333333,
+        "throughput_vs_baseline_pct": 0.15870654185998756,
+        "elapsed_reduction_vs_baseline_pct": 0.1584550633086046,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      }
+    },
+    "dict_slots64_values_presence6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.44588867,
+          11.47256346,
+          11.61380329
+        ],
+        "mean_seconds": 11.510751806666667,
+        "throughput_vs_baseline_pct": 11.667211773449804,
+        "elapsed_reduction_vs_baseline_pct": 10.448198345921112,
+        "throughput_vs_balanced400_c6_pct": -1.5270270464135205
+      },
+      "decode": {
+        "samples_seconds": [
+          4.728824958,
+          4.746176041,
+          4.768095917
+        ],
+        "mean_seconds": 4.747698972,
+        "throughput_vs_baseline_pct": 0.41203323509000356,
+        "elapsed_reduction_vs_baseline_pct": 0.4103424876631401,
+        "throughput_vs_balanced400_c6_pct": -0.18371385910185278
+      }
+    },
+    "dict_slots64_values_presence6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.578376,
+          1.613536625,
+          1.552071958
+        ],
+        "mean_seconds": 1.5813281943333333,
+        "throughput_vs_baseline_pct": 11.937911224025587,
+        "elapsed_reduction_vs_baseline_pct": 10.664761467751338,
+        "throughput_vs_balanced400_c6_pct": -1.4565515715968647
+      },
+      "decode": {
+        "samples_seconds": [
+          0.635738667,
+          0.636958292,
+          0.634122708
+        ],
+        "mean_seconds": 0.6356065556666667,
+        "throughput_vs_baseline_pct": -0.10734276740602677,
+        "elapsed_reduction_vs_baseline_pct": -0.10745811592145493,
+        "throughput_vs_balanced400_c6_pct": -0.26562774066458683
+      }
+    },
+    "dict_slots64_values6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.544910667,
+          1.54259925,
+          1.573182333
+        ],
+        "mean_seconds": 1.5535640833333333,
+        "throughput_vs_baseline_pct": 13.93838009793502,
+        "elapsed_reduction_vs_baseline_pct": 12.233261598027267,
+        "throughput_vs_balanced400_c6_pct": 0.3045416912047738
+      },
+      "decode": {
+        "samples_seconds": [
+          0.630374,
+          0.630406958,
+          0.631099292
+        ],
+        "mean_seconds": 0.63062675,
+        "throughput_vs_baseline_pct": 0.6814693477560141,
+        "elapsed_reduction_vs_baseline_pct": 0.676856776297341,
+        "throughput_vs_balanced400_c6_pct": 0.5219344617609867
+      }
+    },
+    "balanced400_c6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.38501329,
+          11.27393838,
+          11.34598687
+        ],
+        "mean_seconds": 11.334979513333334,
+        "throughput_vs_baseline_pct": 13.398842772912122,
+        "elapsed_reduction_vs_baseline_pct": 11.815678577729482,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          4.706951791,
+          4.732848166,
+          4.777130416
+        ],
+        "mean_seconds": 4.738976791,
+        "throughput_vs_baseline_pct": 0.5968435785628445,
+        "elapsed_reduction_vs_baseline_pct": 0.5933024907453732,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      }
+    },
+    "dict_slots64_values6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.47121762,
+          11.40439363,
+          11.54263008
+        ],
+        "mean_seconds": 11.47274711,
+        "throughput_vs_baseline_pct": 12.03712130517507,
+        "elapsed_reduction_vs_baseline_pct": 10.743868786477883,
+        "throughput_vs_balanced400_c6_pct": -1.2008248359853035
+      },
+      "decode": {
+        "samples_seconds": [
+          4.71217675,
+          4.739893125,
+          4.797541167
+        ],
+        "mean_seconds": 4.749870347333333,
+        "throughput_vs_baseline_pct": 0.3661304638156393,
+        "elapsed_reduction_vs_baseline_pct": 0.3647948387804467,
+        "throughput_vs_balanced400_c6_pct": -0.22934428809092688
+      }
+    },
+    "baseline-l3-t1": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          12.81727417,
+          12.71613733,
+          13.02779529
+        ],
+        "mean_seconds": 12.853735596666667,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -11.815678577729482
+      },
+      "decode": {
+        "samples_seconds": [
+          4.720952583,
+          4.779481584,
+          4.801349042
+        ],
+        "mean_seconds": 4.767261069666667,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -0.5933024907453732
+      }
+    },
+    "dict_slots64_reuse6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.56862863,
+          11.6135325,
+          11.72843142
+        ],
+        "mean_seconds": 11.636864183333334,
+        "throughput_vs_baseline_pct": 10.457038890908187,
+        "elapsed_reduction_vs_baseline_pct": 9.467064295681492,
+        "throughput_vs_balanced400_c6_pct": -2.5942097909191775
+      },
+      "decode": {
+        "samples_seconds": [
+          4.699762959,
+          4.713910125,
+          4.7454985
+        ],
+        "mean_seconds": 4.719723861333334,
+        "throughput_vs_baseline_pct": 1.0072031697189843,
+        "elapsed_reduction_vs_baseline_pct": 0.9971597451585934,
+        "throughput_vs_balanced400_c6_pct": 0.4079249174808064
+      }
+    }
+  },
+  "control_name": "balanced400_c6"
+}

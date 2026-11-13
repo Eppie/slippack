@@ -1,0 +1,233 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "balanced400_c6": "e51236da2951861a6336827c4905fe9bd7b7fa0e26b12241826b2648103078c3",
+    "match16_direct6": "e4e46e082fb05d882b29a7920013f439ac50ca6c426ae71c0d652d4064d4e122",
+    "match16_after8_6": "4610654a7d893ee421bc4a4ba551c1d312a6b869d7ae0516e8efb64ab2bf3b66"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "match16_direct6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.541799375,
+          1.615237584,
+          1.604819792
+        ],
+        "mean_seconds": 1.5872855836666666,
+        "throughput_vs_baseline_pct": 11.304693949202749,
+        "elapsed_reduction_vs_baseline_pct": 10.156529386228751,
+        "throughput_vs_balanced400_c6_pct": -1.059125560411045
+      },
+      "decode": {
+        "samples_seconds": [
+          0.633952834,
+          0.63421125,
+          0.631386292
+        ],
+        "mean_seconds": 0.6331834586666667,
+        "throughput_vs_baseline_pct": 0.13543773476634158,
+        "elapsed_reduction_vs_baseline_pct": 0.13525454906891943,
+        "throughput_vs_balanced400_c6_pct": -0.5307133797224473
+      }
+    },
+    "match16_after8_6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.29724442,
+          11.54351271,
+          11.55233538
+        ],
+        "mean_seconds": 11.46436417,
+        "throughput_vs_baseline_pct": 11.733926365669522,
+        "elapsed_reduction_vs_baseline_pct": 10.501668335961023,
+        "throughput_vs_balanced400_c6_pct": -0.6669816037429666
+      },
+      "decode": {
+        "samples_seconds": [
+          4.693565333,
+          4.78556925,
+          4.754877834
+        ],
+        "mean_seconds": 4.744670805666667,
+        "throughput_vs_baseline_pct": 0.35389530038514305,
+        "elapsed_reduction_vs_baseline_pct": 0.3526472981699835,
+        "throughput_vs_balanced400_c6_pct": -0.08778357524177327
+      }
+    },
+    "baseline-l3-t8": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          1.7938745,
+          1.788775125,
+          1.717520458
+        ],
+        "mean_seconds": 1.766723361,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -11.108084547859598
+      },
+      "decode": {
+        "samples_seconds": [
+          0.635804542,
+          0.63377225,
+          0.632546292
+        ],
+        "mean_seconds": 0.6340410280000001,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -0.6652501148027845
+      }
+    },
+    "balanced400_c6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.31683233,
+          11.48210275,
+          11.36476183
+        ],
+        "mean_seconds": 11.38789897,
+        "throughput_vs_baseline_pct": 12.484175120847585,
+        "elapsed_reduction_vs_baseline_pct": 11.098605743817025,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          4.739877791,
+          4.729161334,
+          4.752478167
+        ],
+        "mean_seconds": 4.740505764,
+        "throughput_vs_baseline_pct": 0.4420669377898756,
+        "elapsed_reduction_vs_baseline_pct": 0.4401213070054255,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      }
+    },
+    "balanced400_c6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.571164167,
+          1.550516167,
+          1.589742375
+        ],
+        "mean_seconds": 1.5704742363333333,
+        "throughput_vs_baseline_pct": 12.496169636304222,
+        "elapsed_reduction_vs_baseline_pct": 11.108084547859598,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          0.632803333,
+          0.628919583,
+          0.627746292
+        ],
+        "mean_seconds": 0.6298230693333333,
+        "throughput_vs_baseline_pct": 0.6697053302813227,
+        "elapsed_reduction_vs_baseline_pct": 0.6652501148027845,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      }
+    },
+    "match16_after8_6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.53560125,
+          1.5993525,
+          1.564279292
+        ],
+        "mean_seconds": 1.566411014,
+        "throughput_vs_baseline_pct": 12.787981264794656,
+        "elapsed_reduction_vs_baseline_pct": 11.338070884318817,
+        "throughput_vs_balanced400_c6_pct": 0.2593969460772172
+      },
+      "decode": {
+        "samples_seconds": [
+          0.632336834,
+          0.633324834,
+          0.63317575
+        ],
+        "mean_seconds": 0.6329458059999999,
+        "throughput_vs_baseline_pct": 0.17303566744861776,
+        "elapsed_reduction_vs_baseline_pct": 0.17273677122360276,
+        "throughput_vs_balanced400_c6_pct": -0.49336556733051706
+      }
+    },
+    "baseline-l3-t1": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          12.76306233,
+          12.96142958,
+          12.70426075
+        ],
+        "mean_seconds": 12.80958422,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -11.098605743817025
+      },
+      "decode": {
+        "samples_seconds": [
+          4.734129917,
+          4.775371959,
+          4.774884042
+        ],
+        "mean_seconds": 4.761461972666667,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -0.4401213070054255
+      }
+    },
+    "match16_direct6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.4552905,
+          11.54249221,
+          11.58365187
+        ],
+        "mean_seconds": 11.52714486,
+        "throughput_vs_baseline_pct": 11.125385996060078,
+        "elapsed_reduction_vs_baseline_pct": 10.011561171499128,
+        "throughput_vs_balanced400_c6_pct": -1.2079824769374858
+      },
+      "decode": {
+        "samples_seconds": [
+          4.727362834,
+          4.7481195,
+          4.759062459
+        ],
+        "mean_seconds": 4.744848264333333,
+        "throughput_vs_baseline_pct": 0.350142036326373,
+        "elapsed_reduction_vs_baseline_pct": 0.34892031961413217,
+        "throughput_vs_balanced400_c6_pct": -0.09152032038569624
+      }
+    }
+  },
+  "control_name": "balanced400_c6"
+}

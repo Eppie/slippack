@@ -1,0 +1,145 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "candidate4": "1b073494e9a457b7b7d798fa71393e8b17a64933de854acd9056aa0e29b885c2",
+    "presence_local_start4": "bf51e27729612c8a05dc112e59c68ae46a14eb89bf337a3d289d24098f0eb9d1",
+    "presence_local_two4": "119f80e60712b1ffd24e4639321debd394345c82e7ca13f14f4cab79031a7ceb"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "presence_local_two4-l3-t8": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          1.434234541,
+          1.420680917,
+          1.47850775,
+          1.462745459,
+          1.634828167
+        ],
+        "mean_seconds": 1.4861993668,
+        "throughput_vs_baseline_pct": 8.622887511783329,
+        "elapsed_reduction_vs_baseline_pct": 7.938370733191869,
+        "throughput_vs_candidate4_pct": -1.2606967018390036
+      },
+      "decode": {
+        "samples_seconds": [
+          0.58591375,
+          0.585572708,
+          0.586012375,
+          0.5887405,
+          0.599124417
+        ],
+        "mean_seconds": 0.58907275,
+        "throughput_vs_baseline_pct": 1.5328158024624283,
+        "elapsed_reduction_vs_baseline_pct": 1.5096752614884634,
+        "throughput_vs_candidate4_pct": -0.162259177665236
+      }
+    },
+    "candidate4-l3-t8": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          1.444912667,
+          1.512029209,
+          1.477347042,
+          1.449520917,
+          1.453504667
+        ],
+        "mean_seconds": 1.4674629004000002,
+        "throughput_vs_baseline_pct": 10.00977714393738,
+        "elapsed_reduction_vs_baseline_pct": 9.09898865701777,
+        "throughput_vs_candidate4_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          0.583742834,
+          0.588344834,
+          0.586109583,
+          0.587346417,
+          0.595040959
+        ],
+        "mean_seconds": 0.5881169254,
+        "throughput_vs_baseline_pct": 1.6978298649046097,
+        "elapsed_reduction_vs_baseline_pct": 1.6694848524889894,
+        "throughput_vs_candidate4_pct": 0.0
+      }
+    },
+    "baseline-l3-t8": {
+      "bytes": 174316403,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          1.62849375,
+          1.637530958,
+          1.604186916,
+          1.631211875,
+          1.570339833
+        ],
+        "mean_seconds": 1.6143526664,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate4_pct": -9.09898865701777
+      },
+      "decode": {
+        "samples_seconds": [
+          0.59138375,
+          0.6007015,
+          0.601119667,
+          0.596187417,
+          0.601118417
+        ],
+        "mean_seconds": 0.5981021502,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate4_pct": -1.6694848524889894
+      }
+    },
+    "presence_local_start4-l3-t8": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          1.421268417,
+          1.421969958,
+          1.436726125,
+          1.440599125,
+          1.512539666
+        ],
+        "mean_seconds": 1.4466206582,
+        "throughput_vs_baseline_pct": 11.594747195764876,
+        "elapsed_reduction_vs_baseline_pct": 10.390047459334994,
+        "throughput_vs_candidate4_pct": 1.4407538065945857
+      },
+      "decode": {
+        "samples_seconds": [
+          0.586338875,
+          0.585704625,
+          0.598199125,
+          0.586578417,
+          0.595110625
+        ],
+        "mean_seconds": 0.5903863334,
+        "throughput_vs_baseline_pct": 1.3069097916893035,
+        "elapsed_reduction_vs_baseline_pct": 1.2900500018968142,
+        "throughput_vs_candidate4_pct": -0.3843937218076521
+      }
+    }
+  },
+  "control_name": "candidate4"
+}

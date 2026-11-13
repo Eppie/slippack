@@ -1,0 +1,18 @@
+{
+  "declared_utc": "2026-11-13T04:47:45.346804+00:00",
+  "variant": "tune_native5",
+  "parent": "candidate5",
+  "compiler_command": "c++ -mtune=native",
+  "observed_default_driver": [
+    "-target-cpu",
+    "apple-m1"
+  ],
+  "observed_tuned_driver": [
+    "-target-cpu",
+    "apple-m1",
+    "-tune-cpu",
+    "apple-m3"
+  ],
+  "training": "Same64 spaced original development inputs as candidate5; fresh counters collected with the tuning flag. No source edits or new held-out inputs.",
+  "evaluation": "First inspect whether compiled code changes; if it does, release correctness checks and full1417 one/eight-worker development comparison. No independent claim without final frozen validation."
+}

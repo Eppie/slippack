@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "date": "2026-11-11",
+  "date": "2026-11-13",
   "compiler": {
     "version": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
     "target": "Target: arm64-apple-darwin24.5.0"
@@ -11,25 +11,25 @@
     "archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
     "archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
     "binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
-    "codec_types.h": "5bda9334b61acf95196c7c030127aeef5ddb930a40791991c67a07e4fd128adb",
-    "custom_codec.h": "7bf4dabea938a6fa883016a1324c66d0543a3fe298660fc9aa99f2186d43665a",
+    "codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
     "file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
     "file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
     "format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
-    "frames.cpp": "41c68531797f427a47106b961d031aa54a8606d41a816d7aaa25f72f7f808bd9",
+    "frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
     "frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
-    "mask_codec.h": "225ff9ca1ffd08582adecbbdff67611b9fb0c4a10ba5e84bfebec693825de9fd",
+    "mask_codec.h": "ec1e3dc55e3d81886cbe1cf6ba46abd999895564f30f072fd70ea885e3c101d2",
     "parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
     "platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
     "platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
-    "record_codec.cpp": "2e17ae0d331d3bd871fb2a85c070ed343e112ddc59a644f5c70d8cd268ebe24c",
+    "record_codec.cpp": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
     "record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
     "slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
-    "slp.cpp": "8c9f21bfb7f3f0d006ee2fb022e4cf6ffe623f5e3d4d131e72bf273c2866a40c",
+    "slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
     "slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
-    "static_context.h": "c3501007191f0ad7b719a7f0b43493e213c0e6c0fff8d4a9201c6cd07019353a"
+    "static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f"
   },
-  "profile_sha256": "36318380d67e8ccef9c62fd1253d168f782ef5ca2310c08afae19ddb276e8612",
+  "profile_sha256": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
   "inputs": [
     {
       "bytes": 299824,

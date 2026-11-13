@@ -1,0 +1,168 @@
+{
+  "report": "benchmarks/2026-11-12-generalization/candidate3-holdout-512.json",
+  "timings": {
+    "1": {
+      "encode": {
+        "baseline_seconds": 4.292291735888889,
+        "candidate_seconds": 4.088089634555556,
+        "baseline_MB_s": 368.8949583181334,
+        "candidate_MB_s": 387.321444132705,
+        "throughput_gain_percent": 4.99504951181271,
+        "time_reduction_percent": 4.757414311472585,
+        "descriptive_95_percent_interval": [
+          3.5137413712325483,
+          6.621469109770817
+        ]
+      },
+      "decode": {
+        "baseline_seconds": 1.6552889954444445,
+        "candidate_seconds": 1.6582329630000001,
+        "baseline_MB_s": 956.5730125420524,
+        "candidate_MB_s": 954.8747469929531,
+        "throughput_gain_percent": -0.1775364271030755,
+        "time_reduction_percent": -0.17785217950809784,
+        "descriptive_95_percent_interval": [
+          -0.8960481153732935,
+          0.5632910857152673
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "baseline_seconds": 0.6223245974444445,
+        "candidate_seconds": 0.5764753193333333,
+        "baseline_MB_s": 2544.339059555415,
+        "candidate_MB_s": 2746.700037099825,
+        "throughput_gain_percent": 7.9533809294964675,
+        "time_reduction_percent": 7.367421808392227,
+        "descriptive_95_percent_interval": [
+          5.643305319554326,
+          10.507756044906813
+        ]
+      },
+      "decode": {
+        "baseline_seconds": 0.22573612933333334,
+        "candidate_seconds": 0.22587645844444446,
+        "baseline_MB_s": 7014.405649978452,
+        "candidate_MB_s": 7010.047846085948,
+        "throughput_gain_percent": -0.06212648811546595,
+        "time_reduction_percent": -0.06216510911458695,
+        "descriptive_95_percent_interval": [
+          -0.42828206117300205,
+          0.4281799888879112
+        ]
+      }
+    }
+  },
+  "sizes": {
+    "files": 512,
+    "baseline_bytes": 65563561,
+    "candidate_bytes": 65440287,
+    "aggregate_change_percent": -0.18802212405759633,
+    "mean_file_change_percent": -0.4161174127055338,
+    "shrink": 433,
+    "equal": 2,
+    "grow": 77,
+    "max_growth_bytes": 7282,
+    "max_growth_percent": 1.9309247596950518
+  },
+  "source_sizes": {
+    "archive-org-foofs-slippi-replay-collection": {
+      "files": 64,
+      "baseline_bytes": 4123986,
+      "candidate_bytes": 4102815,
+      "aggregate_change_percent": -0.5133625574868628,
+      "mean_file_change_percent": -0.7055934457528024,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 172,
+      "max_growth_percent": 0.19591539188774654
+    },
+    "slippi-gcs-genesis-7": {
+      "files": 64,
+      "baseline_bytes": 5944625,
+      "candidate_bytes": 5925016,
+      "aggregate_change_percent": -0.32986100889459413,
+      "mean_file_change_percent": -0.4667197065176494,
+      "shrink": 60,
+      "equal": 0,
+      "grow": 4,
+      "max_growth_bytes": 271,
+      "max_growth_percent": 0.18817353627373912
+    },
+    "fight-pitt-9": {
+      "files": 64,
+      "baseline_bytes": 5029993,
+      "candidate_bytes": 5005379,
+      "aggregate_change_percent": -0.4893446173781957,
+      "mean_file_change_percent": -0.6949115932317423,
+      "shrink": 63,
+      "equal": 0,
+      "grow": 1,
+      "max_growth_bytes": 132,
+      "max_growth_percent": 0.11094488056615504
+    },
+    "combo-breaker-2024": {
+      "files": 64,
+      "baseline_bytes": 10492225,
+      "candidate_bytes": 10475380,
+      "aggregate_change_percent": -0.16054745299495243,
+      "mean_file_change_percent": -0.27830129911543355,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2725,
+      "max_growth_percent": 0.9779012265931808
+    },
+    "collision-2025": {
+      "files": 64,
+      "baseline_bytes": 11174103,
+      "candidate_bytes": 11176055,
+      "aggregate_change_percent": 0.01746896372800677,
+      "mean_file_change_percent": -0.04633552260252475,
+      "shrink": 37,
+      "equal": 0,
+      "grow": 27,
+      "max_growth_bytes": 1969,
+      "max_growth_percent": 0.9802213338776289
+    },
+    "supernova-2025-main-stream": {
+      "files": 64,
+      "baseline_bytes": 10218746,
+      "candidate_bytes": 10206621,
+      "aggregate_change_percent": -0.11865448069655615,
+      "mean_file_change_percent": -0.16607808757044368,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2111,
+      "max_growth_percent": 1.920260522318129
+    },
+    "slippi-gcs-summit-10-online": {
+      "files": 64,
+      "baseline_bytes": 14401515,
+      "candidate_bytes": 14395406,
+      "aggregate_change_percent": -0.042419148263217465,
+      "mean_file_change_percent": -0.1530267101289803,
+      "shrink": 51,
+      "equal": 0,
+      "grow": 13,
+      "max_growth_bytes": 7282,
+      "max_growth_percent": 1.9309247596950518
+    },
+    "personal-pre-slippi-online": {
+      "files": 64,
+      "baseline_bytes": 4178368,
+      "candidate_bytes": 4153615,
+      "aggregate_change_percent": -0.5924083278447512,
+      "mean_file_change_percent": -0.8179729367246942,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 38,
+      "max_growth_percent": 0.043712326876188534
+    }
+  },
+  "interval_note": "Paired bootstrap of timing repeats only; descriptive, not a confidence interval for unseen source collections."
+}

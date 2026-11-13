@@ -5,6 +5,9 @@ namespace slippack {
 namespace {
 slippack_custom::LzOptions lz_options(int level, bool planes = false) {
   unsigned depth = level >= 9 ? 24 : level >= 6 ? 8 : level >= 4 ? 4 : 2;
+  if (level == 3 && planes) {
+    return {2, false, true, 2, false};
+  }
   // Level 3 keeps lookahead for opaque data, where it prevents large size
   // regressions. Transformed record planes use greedy parsing with prediction.
   return {depth, level >= 3 && !(level == 3 && planes), level >= 3};

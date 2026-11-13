@@ -1,0 +1,156 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "candidate4": "1b073494e9a457b7b7d798fa71393e8b17a64933de854acd9056aa0e29b885c2",
+    "dict_record_loads4": "fc34da116bffb6de01798764ad37e3632648723f112d167c70af7e82716171f1",
+    "dict_record_hash4": "4040cd0e32f9a10cb82f3e5b03b572e484342479828b58e1de66727dadff0335",
+    "dict_record_scalar4": "800c886c98f123997a072aada475e6850a26cfbc5a0d4450de2f5e56db3b9c28"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "dict_record_hash4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.73116675,
+          10.78471692,
+          10.79222483
+        ],
+        "mean_seconds": 10.7693695,
+        "throughput_vs_baseline_pct": 9.985687246283703,
+        "elapsed_reduction_vs_baseline_pct": 9.07907882952389,
+        "throughput_vs_candidate4_pct": -2.458657924836427
+      },
+      "decode": {
+        "samples_seconds": [
+          4.462341458,
+          4.499746333,
+          4.472334917
+        ],
+        "mean_seconds": 4.4781409026666665,
+        "throughput_vs_baseline_pct": 0.5735254478342222,
+        "elapsed_reduction_vs_baseline_pct": 0.5702548909172878,
+        "throughput_vs_candidate4_pct": 0.0373176883664339
+      }
+    },
+    "candidate4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.36572017,
+          10.57037771,
+          10.57766475
+        ],
+        "mean_seconds": 10.504587543333333,
+        "throughput_vs_baseline_pct": 12.75802127218093,
+        "elapsed_reduction_vs_baseline_pct": 11.314513263216085,
+        "throughput_vs_candidate4_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          4.441658791,
+          4.488941167,
+          4.508836166
+        ],
+        "mean_seconds": 4.479812041333333,
+        "throughput_vs_baseline_pct": 0.5360077337720925,
+        "elapsed_reduction_vs_baseline_pct": 0.5331500084939544,
+        "throughput_vs_candidate4_pct": 0.0
+      }
+    },
+    "dict_record_scalar4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.63072767,
+          10.87413467,
+          10.950777
+        ],
+        "mean_seconds": 10.818546446666668,
+        "throughput_vs_baseline_pct": 9.485734660003153,
+        "elapsed_reduction_vs_baseline_pct": 8.663900086582178,
+        "throughput_vs_candidate4_pct": -2.9020433094324782
+      },
+      "decode": {
+        "samples_seconds": [
+          4.444187958,
+          4.479655208,
+          4.55411725
+        ],
+        "mean_seconds": 4.492653472,
+        "throughput_vs_baseline_pct": 0.24864388947318794,
+        "elapsed_reduction_vs_baseline_pct": 0.24802718503337262,
+        "throughput_vs_candidate4_pct": -0.2858317639386043
+      }
+    },
+    "baseline-l3-t1": {
+      "bytes": 174316403,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          11.494492,
+          12.12955417,
+          11.910249
+        ],
+        "mean_seconds": 11.844765056666667,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate4_pct": -11.314513263216085
+      },
+      "decode": {
+        "samples_seconds": [
+          4.489471791,
+          4.496540167,
+          4.525460583
+        ],
+        "mean_seconds": 4.503824180333333,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate4_pct": -0.5331500084939544
+      }
+    },
+    "dict_record_loads4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.61807837,
+          11.10213354,
+          10.89119154
+        ],
+        "mean_seconds": 10.870467816666666,
+        "throughput_vs_baseline_pct": 8.962790345657456,
+        "elapsed_reduction_vs_baseline_pct": 8.225551417346432,
+        "throughput_vs_candidate4_pct": -3.3658190199722937
+      },
+      "decode": {
+        "samples_seconds": [
+          4.418765708,
+          4.519358833,
+          4.529234541
+        ],
+        "mean_seconds": 4.489119694,
+        "throughput_vs_baseline_pct": 0.3275583485329303,
+        "elapsed_reduction_vs_baseline_pct": 0.32648890686146625,
+        "throughput_vs_candidate4_pct": -0.2073380373240563
+      }
+    }
+  },
+  "control_name": "candidate4"
+}

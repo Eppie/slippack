@@ -1,0 +1,286 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "balanced400_c6": "e51236da2951861a6336827c4905fe9bd7b7fa0e26b12241826b2648103078c3",
+    "presence_sentinel6": "8dae6c6f5cbec505fa439b63ede99ffb4aeb051d6e13da457de448c31757ea25",
+    "presence_pairs6": "caf2c4e6333e9373d937c6c0dc5af8ec449fcd5a709c91eec36b222f584e98bc",
+    "presence_sentinel_pairs6": "1923dc9404e5e54ab9ceeca7125903e8f9e352159a8c507a3b074447c7dc17c6"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "presence_sentinel6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.566168292,
+          1.593767583,
+          1.6036125
+        ],
+        "mean_seconds": 1.5878494583333334,
+        "throughput_vs_baseline_pct": 10.725669559302009,
+        "elapsed_reduction_vs_baseline_pct": 9.686705532683714,
+        "throughput_vs_balanced400_c6_pct": 0.5170786577768149
+      },
+      "decode": {
+        "samples_seconds": [
+          0.637880083,
+          0.635298667,
+          0.63381125
+        ],
+        "mean_seconds": 0.6356633333333334,
+        "throughput_vs_baseline_pct": 0.027654785814301697,
+        "elapsed_reduction_vs_baseline_pct": 0.02764714005693003,
+        "throughput_vs_balanced400_c6_pct": -0.8178289346037482
+      }
+    },
+    "baseline-l3-t8": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          1.7171045,
+          1.767617333,
+          1.789749
+        ],
+        "mean_seconds": 1.7581569443333334,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -9.21971476185809
+      },
+      "decode": {
+        "samples_seconds": [
+          0.637136833,
+          0.636922041,
+          0.6334585
+        ],
+        "mean_seconds": 0.6358391246666667,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -0.8452499683497039
+      }
+    },
+    "balanced400_c6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.608287375,
+          1.577098417,
+          1.602793875
+        ],
+        "mean_seconds": 1.596059889,
+        "throughput_vs_baseline_pct": 10.156076000061255,
+        "elapsed_reduction_vs_baseline_pct": 9.21971476185809,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          0.630625958,
+          0.630537709,
+          0.630230417
+        ],
+        "mean_seconds": 0.6304646946666667,
+        "throughput_vs_baseline_pct": 0.8524553468995721,
+        "elapsed_reduction_vs_baseline_pct": 0.8452499683497039,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      }
+    },
+    "presence_sentinel_pairs6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.5441035,
+          11.53151788,
+          11.61116346
+        ],
+        "mean_seconds": 11.562261613333334,
+        "throughput_vs_baseline_pct": 9.415298838057428,
+        "elapsed_reduction_vs_baseline_pct": 8.605102703226851,
+        "throughput_vs_balanced400_c6_pct": 0.5388766380689525
+      },
+      "decode": {
+        "samples_seconds": [
+          4.749781,
+          4.74797275,
+          4.780159875
+        ],
+        "mean_seconds": 4.759304541666666,
+        "throughput_vs_baseline_pct": 0.11888174593155387,
+        "elapsed_reduction_vs_baseline_pct": 0.11874058505092489,
+        "throughput_vs_balanced400_c6_pct": -0.7925518949901789
+      }
+    },
+    "presence_sentinel_pairs6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.574175833,
+          1.537649084,
+          1.571092166
+        ],
+        "mean_seconds": 1.560972361,
+        "throughput_vs_baseline_pct": 12.632163660284924,
+        "elapsed_reduction_vs_baseline_pct": 11.21541418522809,
+        "throughput_vs_balanced400_c6_pct": 2.247799440697462
+      },
+      "decode": {
+        "samples_seconds": [
+          0.633577417,
+          0.629582125,
+          0.6302805
+        ],
+        "mean_seconds": 0.6311466806666667,
+        "throughput_vs_baseline_pct": 0.7434791536958585,
+        "elapsed_reduction_vs_baseline_pct": 0.7379923345327333,
+        "throughput_vs_balanced400_c6_pct": -0.10805507196515185
+      }
+    },
+    "presence_pairs6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.592957292,
+          1.571212292,
+          1.571260792
+        ],
+        "mean_seconds": 1.578476792,
+        "throughput_vs_baseline_pct": 11.383135516719921,
+        "elapsed_reduction_vs_baseline_pct": 10.219801645834604,
+        "throughput_vs_balanced400_c6_pct": 1.1139281292644965
+      },
+      "decode": {
+        "samples_seconds": [
+          0.632434541,
+          0.636310708,
+          0.63716575
+        ],
+        "mean_seconds": 0.6353036663333334,
+        "throughput_vs_baseline_pct": 0.08428384120995336,
+        "elapsed_reduction_vs_baseline_pct": 0.08421286337390033,
+        "throughput_vs_balanced400_c6_pct": -0.7616785362809075
+      }
+    },
+    "balanced400_c6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.57446012,
+          11.67841233,
+          11.62083137
+        ],
+        "mean_seconds": 11.62456794,
+        "throughput_vs_baseline_pct": 8.828845613565806,
+        "elapsed_reduction_vs_baseline_pct": 8.112596953307438,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          4.711160583,
+          4.718464667,
+          4.7351285
+        ],
+        "mean_seconds": 4.721584583333334,
+        "throughput_vs_baseline_pct": 0.918714933537057,
+        "elapsed_reduction_vs_baseline_pct": 0.9103513992841594,
+        "throughput_vs_balanced400_c6_pct": 0.0
+      }
+    },
+    "presence_pairs6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.60025192,
+          11.50734829,
+          11.54103217
+        ],
+        "mean_seconds": 11.549544126666666,
+        "throughput_vs_baseline_pct": 9.535778710582399,
+        "elapsed_reduction_vs_baseline_pct": 8.705629176908513,
+        "throughput_vs_balanced400_c6_pct": 0.6495824641261194
+      },
+      "decode": {
+        "samples_seconds": [
+          4.759795792,
+          4.778862708,
+          4.798316708
+        ],
+        "mean_seconds": 4.778991736,
+        "throughput_vs_baseline_pct": -0.29356087591275726,
+        "elapsed_reduction_vs_baseline_pct": -0.29442519308851,
+        "throughput_vs_balanced400_c6_pct": -1.2012398396552992
+      }
+    },
+    "baseline-l3-t1": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          12.57161717,
+          12.66253254,
+          12.71849958
+        ],
+        "mean_seconds": 12.650883096666666,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -8.112596953307438
+      },
+      "decode": {
+        "samples_seconds": [
+          4.741291375,
+          4.773036375,
+          4.780559708
+        ],
+        "mean_seconds": 4.764962486,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_balanced400_c6_pct": -0.9103513992841594
+      }
+    },
+    "presence_sentinel6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.71276071,
+          11.59340462,
+          11.91502283
+        ],
+        "mean_seconds": 11.740396053333333,
+        "throughput_vs_baseline_pct": 7.755164640078971,
+        "elapsed_reduction_vs_baseline_pct": 7.1970236099425655,
+        "throughput_vs_balanced400_c6_pct": -0.9865775635434892
+      },
+      "decode": {
+        "samples_seconds": [
+          4.764957666,
+          4.752947666,
+          4.769408042
+        ],
+        "mean_seconds": 4.762437791333333,
+        "throughput_vs_baseline_pct": 0.053012653966022505,
+        "elapsed_reduction_vs_baseline_pct": 0.05298456544169383,
+        "throughput_vs_balanced400_c6_pct": -0.8578213467553164
+      }
+    }
+  },
+  "control_name": "balanced400_c6"
+}

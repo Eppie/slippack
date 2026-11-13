@@ -1,0 +1,101 @@
+{
+  "recorded_utc": "2026-11-13T07:44:44.345951+00:00",
+  "parent": "candidate6",
+  "matched_compiler_profile_control": "balanced400_c6",
+  "training_plan_sha256": "a306b773cbd68e65cd075d74a92d50185ce039382bdc20fd68198e2941b376b2",
+  "variants": {
+    "match16_direct6": {
+      "training_inputs": 400,
+      "only_core_source_change": "custom_codec.h",
+      "normal_scalar_asan_ubsan_each": {
+        "length_reference_checks": 3360752,
+        "custom_codec_checks": 6289
+      },
+      "sha256": {
+        "build/goal-2026-11-12/match16_direct6/record_codec.cpp": "6a2976c1f64e6cfc5474fd315f9272064c9469a81b4122d59dd08525ebd6f9e4",
+        "build/goal-2026-11-12/match16_direct6/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+        "build/goal-2026-11-12/match16_direct6/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+        "build/goal-2026-11-12/match16_direct6/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+        "build/goal-2026-11-12/match16_direct6/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+        "build/goal-2026-11-12/match16_direct6/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+        "build/goal-2026-11-12/match16_direct6/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+        "build/goal-2026-11-12/match16_direct6/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+        "build/goal-2026-11-12/match16_direct6/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+        "build/goal-2026-11-12/match16_direct6/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+        "build/goal-2026-11-12/match16_direct6/mask_codec.h": "955676d923a03cbfe301ef495b78a61dea5f2b42e6e70244272620c7af689104",
+        "build/goal-2026-11-12/match16_direct6/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+        "build/goal-2026-11-12/match16_direct6/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+        "build/goal-2026-11-12/match16_direct6/custom_codec.h": "2d9ee3434448fac141d95dd5ca7001f2fbeca63d8fa2bbf32092b97376a9d625",
+        "build/goal-2026-11-12/match16_direct6/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+        "build/goal-2026-11-12/match16_direct6/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+        "build/goal-2026-11-12/match16_direct6/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+        "build/goal-2026-11-12/match16_direct6/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+        "build/goal-2026-11-12/match16_direct6/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+        "build/goal-2026-11-12/match16_direct6/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+        "build/goal-2026-11-12/match16_direct6/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+        "build/goal-2026-11-12/match16_direct6/profiles/level3.json": "3096cecd4f5786143848b5608bdd69bc6bf27e153de71efae0e52498b2a0526f",
+        "build/goal-2026-11-12/match16_direct6/profiles/level3.proftext": "96b73949eb08d031ff243d7c56612db99b019da71c450332d10dc71535dabd1a",
+        "build/goal-2026-11-12/match16_direct6/build/release/libslippack.a": "e2934c74447c451191e7b0ee928373f9d163ce9475115505a403782b9d3eb1a4",
+        "build/goal-2026-11-12/match16_direct6/runner": "a5bba1b78d54fd56abfb6976c044b7a00b2a8184e7704cc484076f30c5711464"
+      }
+    },
+    "match16_after8_6": {
+      "training_inputs": 400,
+      "only_core_source_change": "custom_codec.h",
+      "normal_scalar_asan_ubsan_each": {
+        "length_reference_checks": 3360752,
+        "custom_codec_checks": 6289
+      },
+      "sha256": {
+        "build/goal-2026-11-12/match16_after8_6/record_codec.cpp": "6a2976c1f64e6cfc5474fd315f9272064c9469a81b4122d59dd08525ebd6f9e4",
+        "build/goal-2026-11-12/match16_after8_6/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+        "build/goal-2026-11-12/match16_after8_6/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+        "build/goal-2026-11-12/match16_after8_6/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+        "build/goal-2026-11-12/match16_after8_6/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+        "build/goal-2026-11-12/match16_after8_6/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+        "build/goal-2026-11-12/match16_after8_6/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+        "build/goal-2026-11-12/match16_after8_6/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+        "build/goal-2026-11-12/match16_after8_6/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+        "build/goal-2026-11-12/match16_after8_6/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+        "build/goal-2026-11-12/match16_after8_6/mask_codec.h": "955676d923a03cbfe301ef495b78a61dea5f2b42e6e70244272620c7af689104",
+        "build/goal-2026-11-12/match16_after8_6/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+        "build/goal-2026-11-12/match16_after8_6/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+        "build/goal-2026-11-12/match16_after8_6/custom_codec.h": "4e947851e288a61863cd5e8ba404741d2cb2d3233ad250587cd3f9e2cf12e2eb",
+        "build/goal-2026-11-12/match16_after8_6/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+        "build/goal-2026-11-12/match16_after8_6/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+        "build/goal-2026-11-12/match16_after8_6/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+        "build/goal-2026-11-12/match16_after8_6/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+        "build/goal-2026-11-12/match16_after8_6/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+        "build/goal-2026-11-12/match16_after8_6/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+        "build/goal-2026-11-12/match16_after8_6/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+        "build/goal-2026-11-12/match16_after8_6/profiles/level3.json": "622b9fadd1ac3a30197aa9400b3f1df787d3b146a539eb8bd40f0d8b19955598",
+        "build/goal-2026-11-12/match16_after8_6/profiles/level3.proftext": "c27e98efdeac8e2c4de3e48395da3bc55aa9315f88f447ba5cec60599c02bb4e",
+        "build/goal-2026-11-12/match16_after8_6/build/release/libslippack.a": "557ec9c05b3da01217dc95c1974ec86b8e17943fa20a17e5521a2274e273c37b",
+        "build/goal-2026-11-12/match16_after8_6/runner": "677fd210a785f6b77644c43eb0f12e133eef157107d0444a8c0676944f24a74d"
+      }
+    }
+  },
+  "test_artifacts": {
+    "build/goal-2026-11-12/match16_direct6-oracle-normal": "2bedbf70acab3fed9a2962d47e44d2f9ea79f6a269b1598e496b3384f6ba0436",
+    "build/goal-2026-11-12/match16_direct6-custom-normal": "913cc900b5af3d25e6e5d22c8c97a853b4802d91116a7ba7ce07f238a6e8aeb4",
+    "build/goal-2026-11-12/match16_direct6-oracle-scalar": "700e25e762d0fe0a65efea46e2442aa4b0aa99a7ba5c2d68aa5ad3f17af3085d",
+    "build/goal-2026-11-12/match16_direct6-custom-scalar": "da7a3aa858cc1299eb511c38246ddcdb576eb7e8a886a1acbb84c5ba57ee91e1",
+    "build/goal-2026-11-12/match16_direct6-oracle-sanitizers": "4627347d38a0b886be2415d3bbf4ec1f3a6c06e309d1ba84f34d08af6cd264a6",
+    "build/goal-2026-11-12/match16_direct6-custom-sanitizers": "007a297ba90940e70db732ad645399561f6807dc2a34ee1117f63c832f1c2050",
+    "build/goal-2026-11-12/match16_after8_6-oracle-normal": "e0ab931d9438f6d14d5a900062d1c31a0d7db8819f400e5a1078ed78295173da",
+    "build/goal-2026-11-12/match16_after8_6-custom-normal": "b24b40160a843607e3c55a0258e3c7108a6b122669bfd6d8a606ce0df2dd9d78",
+    "build/goal-2026-11-12/match16_after8_6-oracle-scalar": "b0ccad43454f8dd5113463f25924c72291ffbff5b17928d36141c6c2daaf8242",
+    "build/goal-2026-11-12/match16_after8_6-custom-scalar": "a95b71240616c8357b01f5e7cee256b52df9b755fd07c14b371840d4a655267d",
+    "build/goal-2026-11-12/match16_after8_6-oracle-sanitizers": "7395a4ee1929e01ef25e010b3b7f4ea10c0d00c397b7b3a402e1bf387948d759",
+    "build/goal-2026-11-12/match16_after8_6-custom-sanitizers": "2d53d4dc3561f5a3a41b1f8a1b9a663ca45bf9d1ac298db5b0ceaa37a9604a00",
+    "build/goal-2026-11-12/match16_oracle.cpp": "717f24ca2e6ff51d2b0e9742991d22ec304fe0ee50edc96aae7bee91625b6047",
+    "build/goal-2026-11-12/check_match16.py": "1e24a8f74fa0cbb98070524a8535c03177a3cca9958019efeff6a61b4de475be",
+    "build/goal-2026-11-12/match16-check.log": "5a7ee4e0180b0921b5a980ccb04f54a7082ca545d96ae6d331c9800df7e8869b",
+    "build/goal-2026-11-12/build-match16.log": "6eb6a777e2d1ddc7ee17b40b200342ce3e33daa05c58c9db3c3b4fbf444aa66a",
+    "build/goal-2026-11-12/prepare_match16.py": "8852a76b9ccead29d10efb610416ff0351c4196ef5397cb0fca4e54be4d9bd0e"
+  },
+  "screen_dataset": "All 1408 development files outside original 521; new round3 holdout excluded.",
+  "change": "Compare16 bytes with NEON on little-endian aarch64, fold equality to4 bits per byte and locate the first mismatch with countr_zero/4. Other architectures and explicit scalar mode retain old8-byte loop. Direct variant begins with16; after8 variant first checks8 bytes with scalar XOR.",
+  "bounds": "Only load16 when max-n>=16; retain8-byte and individual-byte tails. Earlier match position b<a guarantees the reference load also remains in bounds.",
+  "oracle": "Independent byte-at-a-time prefix loop for both matcher templates: all16x16 alignments, every mismatch position, sizes0..65 and selected boundaries through513, distances1..65 including overlap,100000 random cases through4096, and protected pages directly after input."
+}

@@ -287,6 +287,43 @@ static uint32_t cross_pred_records(Pre pre, uint32_t preCount, Post post, uint32
   static thread_local std::array<uint32_t, 65536> keyIdx{};
   static thread_local std::array<bool, 65536> occ{};
   std::vector<uint16_t> keys;
+  if (probe) {
+    uint32_t limit = std::min(preCount, probeMax);
+    keys.reserve(std::min<uint32_t>(65536, limit));
+    std::vector<uint32_t> next_pre(limit);
+    // Request only the post records consumed by the sampled pre prefix.
+    for (uint32_t i = limit; i-- > 0;) {
+      const uint8_t *p = pre(i);
+      unsigned key = unsigned(p[4]) * 256 + p[5];
+      if (!keyIdx[key]) {
+        keys.push_back(uint16_t(key));
+      }
+      next_pre[i] = keyIdx[key];
+      keyIdx[key] = i + 1;
+    }
+    for (auto key : keys) {
+      keyIdx[key] = next_pre[keyIdx[key] - 1];
+    }
+    uint32_t remaining = limit - uint32_t(keys.size()), pairs = 0, hits = 0;
+    for (uint32_t i = 0; remaining && i < postCount; ++i) {
+      const uint8_t *q = post(i);
+      unsigned key = unsigned(q[4]) * 256 + q[5];
+      if (uint32_t request = keyIdx[key]) {
+        unsigned at = request - 1;
+        hits += std::memcmp(pre(at) + kPreA, q + kPostA, kLenA) == 0;
+        ++pairs;
+        --remaining;
+        keyIdx[key] = next_pre[at];
+      }
+    }
+    for (auto key : keys) {
+      keyIdx[key] = 0;
+    }
+    if (pairsOut) {
+      *pairsOut = pairs;
+    }
+    return hits;
+  }
   keys.reserve(std::min<uint32_t>(65536, postCount));
   std::unique_ptr<uint32_t[]> next(new uint32_t[postCount]);
   for (uint32_t i = postCount; i-- > 0;) {

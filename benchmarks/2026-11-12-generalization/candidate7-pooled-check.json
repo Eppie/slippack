@@ -1,0 +1,69 @@
+{
+  "completed": true,
+  "files": 1929,
+  "binary_sha256": {
+    "baseline": "6bb00cf13d5924bd9540561075c0fc60b065bd3a1a25152805efe648bba1ddd9",
+    "candidate": "9125d51cc71455c349db2f1f415014c6795975ff180a38e89ea2efa3c6d29662"
+  },
+  "rows": [
+    {
+      "variant": "baseline",
+      "level": 1,
+      "bytes": 217607771,
+      "archive_sha256": "9bef87835c38580a136503c6504d54327b0dc08a37027e72e89ecf624772fefc",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 1,
+      "bytes": 217607771,
+      "archive_sha256": "9bef87835c38580a136503c6504d54327b0dc08a37027e72e89ecf624772fefc",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 3,
+      "bytes": 216863582,
+      "archive_sha256": "3d1c17517b2fd8c1437de45c7fd87aa708aadffa07a2035494c8ebd7f70b7196",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 3,
+      "bytes": 216863582,
+      "archive_sha256": "3d1c17517b2fd8c1437de45c7fd87aa708aadffa07a2035494c8ebd7f70b7196",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 7,
+      "bytes": 213503790,
+      "archive_sha256": "d39d9f412b543512b4f33b0d11e9cec9e6b87f957e5031b520c1550ae38e16d8",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 7,
+      "bytes": 213503790,
+      "archive_sha256": "d39d9f412b543512b4f33b0d11e9cec9e6b87f957e5031b520c1550ae38e16d8",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 9,
+      "bytes": 212874863,
+      "archive_sha256": "683814e43eb09295738ceb8cd567fe5a1fa727baf71a938235beee007e05f937",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 9,
+      "bytes": 212874863,
+      "archive_sha256": "683814e43eb09295738ceb8cd567fe5a1fa727baf71a938235beee007e05f937",
+      "reconstructed_member_hashes_match": true
+    }
+  ],
+  "reference_candidate": "candidate6",
+  "purpose": "Correctness and byte identity at all four levels; the baseline label here refers to frozen candidate6, not the original performance baseline.",
+  "all_pooled_archives_identical_to_parent": true
+}

@@ -32,6 +32,8 @@ def main():
     parser.add_argument('--baseline-commit', default='7ca9b4ed6ed48cd71e1bec7b0f16e854daeeb1d5')
     parser.add_argument('--slpz', type=Path, help='Optional upstream slpz benchmark runner')
     parser.add_argument('--power-mode', type=int, help='Require this macOS power mode throughout the run')
+    parser.add_argument('--require-ac-power', action='store_true',
+                        help='Require AC power before loading inputs; the existing monitor rejects a source change during the run')
     parser.add_argument('--manifest', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--levels', default='1,3,9')
@@ -47,10 +49,13 @@ def main():
     if args.slpz:
         binaries['slpz'] = args.slpz.resolve()
     initial_power = power_state()
+    if args.require_ac_power and (initial_power is None or initial_power['source'] != 'AC Power'):
+        parser.error('AC power is required for this validation run')
     if args.power_mode is not None and (initial_power is None or initial_power['mode'] != args.power_mode):
         parser.error('required power mode is not active')
     report = {
         'completed': False,
+        'ac_power_required': args.require_ac_power,
         'compressed_bytes_identical_required': not args.allow_byte_changes,
         'baseline_commit': args.baseline_commit,
         'power': {'initial': initial_power, 'changes': [], 'poll_interval_seconds': 1},

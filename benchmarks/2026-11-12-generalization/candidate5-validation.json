@@ -1,0 +1,75 @@
+{
+  "candidate": "candidate5",
+  "test_suites_completed": true,
+  "logs": {
+    "check": {
+      "sha256": "b0ce89e792056c86a6351203acc6494ba656475b734c79ba46687244f20a2ce5",
+      "passed": true,
+      "results": [
+        "custom codec: 6289 checks passed",
+        "Verified 16905344 model and CDF checks.",
+        "record codec: 111185 checks passed",
+        "predictors: 2463583 checks passed",
+        "archive API: 92 checks passed",
+        "archive integration: frozen v1 fixture, 4 levels, 15 fixtures, group partition boundaries, exact hashes/extraction, and unsupported-format rejection passed",
+        "extraction: traversal, symlinks, hardlinks, overwrite, atomic output, limits, and writer failures passed"
+      ]
+    },
+    "scalar": {
+      "sha256": "e7785a5f6e35282f54de4cf247f29be083b2a546eadde3b5a361aa79a29da28a",
+      "passed": true,
+      "results": [
+        "custom codec: 6289 checks passed",
+        "Verified 16905344 model and CDF checks.",
+        "record codec: 111185 checks passed",
+        "predictors: 2463583 checks passed",
+        "archive API: 92 checks passed",
+        "archive integration: frozen v1 fixture, 4 levels, 15 fixtures, group partition boundaries, exact hashes/extraction, and unsupported-format rejection passed",
+        "extraction: traversal, symlinks, hardlinks, overwrite, atomic output, limits, and writer failures passed"
+      ]
+    },
+    "sanitizers": {
+      "sha256": "ed6eea2cbfbc8f3e876f7e2c21ffec1022c2db15307be219d65fa9230f4f1deb",
+      "passed": true,
+      "results": [
+        "custom codec: 6289 checks passed",
+        "Verified 16905344 model and CDF checks.",
+        "record codec: 111185 checks passed",
+        "predictors: 2463583 checks passed",
+        "archive API: 92 checks passed",
+        "archive integration: frozen v1 fixture, 4 levels, 15 fixtures, group partition boundaries, exact hashes/extraction, and unsupported-format rejection passed",
+        "extraction: traversal, symlinks, hardlinks, overwrite, atomic output, limits, and writer failures passed"
+      ]
+    },
+    "release": {
+      "sha256": "646b7dad26505a8baabbd84702541feb14cc71a8094bc8ca90ef71b6133793fd",
+      "passed": true,
+      "results": [
+        "custom codec: 6289 checks passed",
+        "Verified 16905344 model and CDF checks.",
+        "record codec: 111185 checks passed",
+        "predictors: 2463583 checks passed",
+        "archive API: 92 checks passed",
+        "archive integration: frozen v1 fixture, 4 levels, 15 fixtures, group partition boundaries, exact hashes/extraction, and unsupported-format rejection passed",
+        "extraction: traversal, symlinks, hardlinks, overwrite, atomic output, limits, and writer failures passed"
+      ]
+    },
+    "format": {
+      "sha256": "115014fc184ac9e80d8bd6267c3148fe5d0af6877f63ede0cff2d7d3f538b605",
+      "passed": true,
+      "results": []
+    },
+    "profile": {
+      "sha256": "0d974fe469a35e9adef1a827fefe7e07a62e2bf0224ee130b8c2ef29c65d4ad1",
+      "passed": true,
+      "results": []
+    }
+  },
+  "presence_synthetic_exact_packets": 1080,
+  "fresh_profile_training_files": 64,
+  "final_holdout_evaluated": false,
+  "performance_qualification": "Fixed three-launch replication complete: target not met; all27 repetitions included. One-worker encode+9.6512%, eight-worker+10.9803%. Reserved holdout gate failed; no heldout candidate encoding.",
+  "pooled_full_development_check": "complete: all1417 files at levels1,3,7,9; every member hash and whole archive hash match candidate4",
+  "all_development_packed_sha1_match_candidate4": true,
+  "replication_summary": "candidate5-development-replication-summary.json"
+}

@@ -1,0 +1,9 @@
+{
+  "files": 1417,
+  "blocks": 36672253,
+  "uniform_blocks": 22928714,
+  "two_value_blocks_excluding_uniform": 1939368,
+  "paired_fraction_of_nonuniform": 0.14111125234919478,
+  "packed_bytes": 174009368,
+  "method": "Instrumented single pass over expanded development; statistics only, not performance. Four-byte non-direct dictionary fields only; two most recent distinct keys. No holdout data."
+}

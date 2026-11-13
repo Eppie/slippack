@@ -1,0 +1,7 @@
+{
+  "completed": true,
+  "all1408_cached_packets_identical_to_uncached": true,
+  "baseline_and_candidate6_match_prior_frozen_fingerprints": true,
+  "report_sha256": "d46478edf065d6c1739f084ac9b10e4240e84fc5520a9319c521547d6f4396c1",
+  "decision": "Reject cached and tree variants: both regress average decoding at both worker counts; no full-development or holdout run."
+}

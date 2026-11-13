@@ -1,0 +1,135 @@
+{
+  "candidate": "candidate8",
+  "completed": true,
+  "recorded_utc": "2026-11-13T10:39:11.786916+00:00",
+  "profile_sha256": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
+  "checks": [
+    {
+      "name": "scalar",
+      "command": [
+        "make",
+        "-j3",
+        "BUILD_DIR=build/candidate8-scalar",
+        "PROGRAM=build/candidate8-scalar/slippack",
+        "CXXFLAGS=-std=c++20 -Wall -Wextra -O3 -DSLIPPACK_CUSTOM_SCALAR",
+        "check"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-scalar.log"
+    },
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "-j3",
+        "BUILD_DIR=build/candidate8-normal",
+        "PROGRAM=build/candidate8-normal/slippack",
+        "CXXFLAGS=-std=c++20 -Wall -Wextra -O3",
+        "check"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-normal.log"
+    },
+    {
+      "name": "profile-release",
+      "command": [
+        "python3",
+        "tools/profile_build.py",
+        "train",
+        "--manifest",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/frontier/all-521.txt",
+        "--limit",
+        "64",
+        "--jobs",
+        "3"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-profile-release.log"
+    },
+    {
+      "name": "profile-release",
+      "command": [
+        "make",
+        "-j3",
+        "release-check"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-profile-release.log"
+    },
+    {
+      "name": "sanitizers",
+      "command": [
+        "make",
+        "-j3",
+        "BUILD_DIR=build/candidate8-sanitizers",
+        "PROGRAM=build/candidate8-sanitizers/slippack",
+        "CXXFLAGS=-std=c++20 -Wall -Wextra -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+        "check"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-sanitizers.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "make",
+        "check-format"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-format.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "build/goal-2026-11-12/candidate8-format.log"
+    }
+  ],
+  "artifact_sha256": {
+    "record_codec.cpp": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
+    "slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "mask_codec.h": "ec1e3dc55e3d81886cbe1cf6ba46abd999895564f30f072fd70ea885e3c101d2",
+    "slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "tools/profile_build.py": "4b6ee43f2463d89fad665fb666d4424ed8cdc1df7990cd8869762594a53a88fc",
+    "tests/entropy_model_test.cpp": "85becf481994b4f39c2a03f3bb9b9c98591a1ac6895c3e7f53017d057012b6f5",
+    "tests/predictor_test.cpp": "2fba3118d294540f0401affd985c8a21d61ebda865c89f5d4fe27d95d0bbfe80",
+    "tests/record_codec_test.cpp": "3e00e481c1cbf0ba8d1c557098c84d0ca76a1e1446a06401884fc9c30b6d5526",
+    "tests/archive_api_test.cpp": "1276b61a7638629fa65ce400f42c19cfdb1ccdff395e0394d8c2f69b8b173414",
+    "tests/custom_codec_test.cpp": "f5ccdd1233434db01b84c5f62782e50b5bc9d1b0908cff672244767e2257155b",
+    "tests/test_extraction.py": "f37301f7de23a435ae3651672f92247cf7b245b18f814189466ac37c5d3112b4",
+    "tests/test_archive.py": "f5f2e9c1c9fc328f348676fcff4034bf28cacdd9e2b1c8ce9cb63cd781345181",
+    "profiles/level3.json": "e346ba5b190bcbd103c1ae8c47c2fd04cf061471dd5b6791903ee50e5ffe1860",
+    "profiles/level3.proftext": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
+    "build/release/libslippack.a": "3f2c8445f98886ff9b3f240abbd9a22c7bf6026d95197e014eb81fc71b3140ab",
+    "build/release/slippack": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+    "build/goal-2026-11-12/check_candidate8.py": "40085488fd7a403a07dcfd7f7c87a331115157be20ddff04f9c2e3151f9492c2",
+    "build/goal-2026-11-12/candidate8-normal.log": "dc8fcdf7479c2b536efa9b32bb58db7fef24574f08ffb273b41e04b07a502f45",
+    "build/goal-2026-11-12/candidate8-scalar.log": "36ea8a39104bd4983891e4ab4961b6c26e85b458c1061bd1e9d03e0733d54ced",
+    "build/goal-2026-11-12/candidate8-sanitizers.log": "4548d248278a7f0e842dd083b6d2f9a222d54ec5bcbd5810eda1db7fac23c643",
+    "build/goal-2026-11-12/candidate8-profile-release.log": "035c65ac2896ce7b1267d091d696cdae1243aeef943039b54bfa5ab2860029d3",
+    "build/goal-2026-11-12/candidate8-format.log": "ffb3809fbbc601a682a7964b53c54f62c717eb249eddeaef812af64e7138cd9e",
+    "build/goal-2026-11-12/check_candidate8_executed.py": "e5ebb2b46fd0626d8c6426560b94c6107704e9954e2a42e7a535ba13bcbef6e3"
+  },
+  "manifest_finalization": "Corrected an inherited Candidate7 label in the driver console message after completion. The exact executed driver is archived as check_candidate8_executed.py. All tested source, binary, profile, and check-log hashes were verified unchanged."
+}

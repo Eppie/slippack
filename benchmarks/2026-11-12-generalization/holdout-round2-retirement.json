@@ -1,0 +1,15 @@
+{
+  "retired_utc": "2026-11-13T05:50:35.999952+00:00",
+  "candidate": "candidate6",
+  "status": "Failed independent validation; these512 files are development data for all future work.",
+  "reason": "All27 repetitions: one-worker encode+8.24432%, elapsed-7.61640%; eight-worker encode+11.51718%, elapsed-10.32772%; decode+0.75376%/+0.78082%; totalbytes-0.20368%. Single-worker speed target fails; size alternatives also fail.",
+  "independent_result_preserved": "candidate6-holdout-replication-summary.json",
+  "report_sha256": "04a238d605e2b0c51bd1248430036ea06140de572b3f649e70f6510b4fac9171",
+  "raw_reports_sha256": {
+    "candidate6-holdout-round2-512-launch1.json": "e4b7dcffe559a20096f2306dbf312273cb479ce52041f6919fa79f10f648ad78",
+    "candidate6-holdout-round2-512-launch2.json": "42e0bcbda1012909b4e41126a124d3c45d2e2d8baa94f9e3ca74e5960ba6eacb",
+    "candidate6-holdout-round2-512-launch3.json": "b023a3c2507bc7fc483c1c3ecb65ff76f9d01114bc31f5b1dd390f10280b7997"
+  },
+  "inventory_sha256": "4250cf5f0ef3bce162b5956160554d7bae446b1b478df195d5271144be86ffe5",
+  "next_step": "Retain all failed results; expand development to1929 and reserve different families before further tuning. Require a separate development test excluding original521 before another final validation; do not add another unchanged-candidate qualification launch."
+}

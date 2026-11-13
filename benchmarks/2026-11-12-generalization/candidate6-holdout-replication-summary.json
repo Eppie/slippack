@@ -1,0 +1,523 @@
+{
+  "candidate": "candidate6",
+  "dataset": "holdout",
+  "completed": true,
+  "launches": 3,
+  "repetitions_per_launch": 9,
+  "files": 512,
+  "raw_bytes": 1651224851,
+  "protocol_sha256": "4e9ecefead4247cbc8a21ec43eb981567365d4b70bde7a891de689cccc9fa3ec",
+  "report_sha256": {
+    "candidate6-holdout-round2-512-launch1.json": "e4b7dcffe559a20096f2306dbf312273cb479ce52041f6919fa79f10f648ad78",
+    "candidate6-holdout-round2-512-launch2.json": "42e0bcbda1012909b4e41126a124d3c45d2e2d8baa94f9e3ca74e5960ba6eacb",
+    "candidate6-holdout-round2-512-launch3.json": "b023a3c2507bc7fc483c1c3ecb65ff76f9d01114bc31f5b1dd390f10280b7997"
+  },
+  "timings": {
+    "1": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 4.432356964518519,
+        "candidate_seconds": 4.094770935148148,
+        "baseline_MB_s": 372.5387788524768,
+        "candidate_MB_s": 403.2520688340431,
+        "throughput_gain_percent": 8.244320249336656,
+        "time_reduction_percent": 7.616399853910294,
+        "baseline_samples_by_launch": [
+          [
+            4.355814833,
+            4.400250709,
+            4.48993425,
+            4.302906833,
+            4.585850042,
+            4.48197425,
+            4.51765675,
+            4.466157208,
+            4.550226917
+          ],
+          [
+            4.443686583,
+            4.415458458,
+            4.407405167,
+            4.340220208,
+            4.344784583,
+            4.625553584,
+            4.347382375,
+            4.487864459,
+            4.480759083
+          ],
+          [
+            4.384927958,
+            4.434631625,
+            4.422998625,
+            4.287495792,
+            4.438307208,
+            4.529377417,
+            4.372505625,
+            4.389833917,
+            4.369673583
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            4.1582945,
+            4.21346175,
+            4.300360375,
+            3.931127125,
+            4.031108959,
+            4.224169333,
+            4.094082666,
+            4.20596225,
+            4.261750208
+          ],
+          [
+            3.971989875,
+            4.103631333,
+            4.072894334,
+            3.983261208,
+            4.003774959,
+            4.2412415,
+            4.047432459,
+            4.14460425,
+            4.256757375
+          ],
+          [
+            3.979386625,
+            3.967440166,
+            4.019918458,
+            3.93595975,
+            4.0220025,
+            4.057691,
+            4.029063583,
+            4.139250083,
+            4.162198625
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          7.296716951616022,
+          8.329879935365181,
+          9.134054218846588
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          6.976078324675128,
+          9.421824627421405
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 1.6906822067777778,
+        "candidate_seconds": 1.6780337855185186,
+        "baseline_MB_s": 976.6618731659935,
+        "candidate_MB_s": 984.023602653367,
+        "throughput_gain_percent": 0.7537643978575037,
+        "time_reduction_percent": 0.7481252957269535,
+        "baseline_samples_by_launch": [
+          [
+            1.689311333,
+            1.701526625,
+            1.680162792,
+            1.69360325,
+            1.69224575,
+            1.686296959,
+            1.687898,
+            1.690687333,
+            1.684334667
+          ],
+          [
+            1.697065125,
+            1.698608,
+            1.694722042,
+            1.679268208,
+            1.68745225,
+            1.698620167,
+            1.69652325,
+            1.711194541,
+            1.706385542
+          ],
+          [
+            1.689930834,
+            1.691623,
+            1.68905925,
+            1.671378666,
+            1.677229125,
+            1.6957215,
+            1.687296916,
+            1.693025875,
+            1.677248583
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            1.683514709,
+            1.678505375,
+            1.679947167,
+            1.6946195,
+            1.697631959,
+            1.670965125,
+            1.678224,
+            1.682967666,
+            1.676325917
+          ],
+          [
+            1.67490675,
+            1.675834542,
+            1.677840041,
+            1.670207167,
+            1.695966,
+            1.669915708,
+            1.681855417,
+            1.700016625,
+            1.68594
+          ],
+          [
+            1.670897375,
+            1.671487125,
+            1.667574083,
+            1.664895417,
+            1.663584083,
+            1.674035375,
+            1.678392375,
+            1.666769625,
+            1.674093083
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          0.4184543381716477,
+          0.9076955963387867,
+          0.9365869508353608
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.4183393916549871,
+          1.0644048459644173
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 0.6374456064814815,
+        "candidate_seconds": 0.5716120138518519,
+        "baseline_MB_s": 2590.377648242478,
+        "candidate_MB_s": 2888.7161413440094,
+        "throughput_gain_percent": 11.51718141576572,
+        "time_reduction_percent": 10.32771925325713,
+        "baseline_samples_by_launch": [
+          [
+            0.630984667,
+            0.609579625,
+            0.620238375,
+            0.630158541,
+            0.607639041,
+            0.612593334,
+            0.637314292,
+            0.627391542,
+            0.641814917
+          ],
+          [
+            0.625373709,
+            0.63444325,
+            0.6350265,
+            0.624915042,
+            0.620833416,
+            0.664472458,
+            0.62096475,
+            0.660706333,
+            0.661711333
+          ],
+          [
+            0.655973708,
+            0.632675041,
+            0.664944459,
+            0.637556708,
+            0.636769167,
+            0.652982333,
+            0.6343615,
+            0.678306042,
+            0.651301292
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            0.576075167,
+            0.562839875,
+            0.567950625,
+            0.614232583,
+            0.584646,
+            0.598439125,
+            0.586277083,
+            0.5875345,
+            0.547623541
+          ],
+          [
+            0.577264667,
+            0.554500416,
+            0.585740458,
+            0.555243041,
+            0.557919708,
+            0.584797959,
+            0.554947541,
+            0.550628292,
+            0.578312459
+          ],
+          [
+            0.582519958,
+            0.567931375,
+            0.582703209,
+            0.560519375,
+            0.556472458,
+            0.5722115,
+            0.553894083,
+            0.576266584,
+            0.556032792
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          7.503338314403041,
+          12.728909997944783,
+          14.413458294906878
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          7.772030424462306,
+          14.519905087378927
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 0.22789119907407407,
+        "candidate_seconds": 0.226125557,
+        "baseline_MB_s": 7245.671871967656,
+        "candidate_MB_s": 7302.247799438256,
+        "throughput_gain_percent": 0.7808237589323364,
+        "time_reduction_percent": 0.7747741383817841,
+        "baseline_samples_by_launch": [
+          [
+            0.228029834,
+            0.229028166,
+            0.227803833,
+            0.22777325,
+            0.229093042,
+            0.228330625,
+            0.229394458,
+            0.229273,
+            0.228005084
+          ],
+          [
+            0.2278565,
+            0.2271475,
+            0.226615334,
+            0.227420625,
+            0.227256833,
+            0.227703125,
+            0.226955875,
+            0.229696083,
+            0.227192
+          ],
+          [
+            0.226649125,
+            0.227447375,
+            0.226852583,
+            0.228345167,
+            0.226855209,
+            0.227330125,
+            0.2275275,
+            0.229288583,
+            0.228191541
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            0.227560041,
+            0.225026958,
+            0.226438875,
+            0.227907708,
+            0.22754775,
+            0.227760708,
+            0.225371709,
+            0.228000916,
+            0.225301959
+          ],
+          [
+            0.227674666,
+            0.225431917,
+            0.224968958,
+            0.226129125,
+            0.225253083,
+            0.225279959,
+            0.22441925,
+            0.225389208,
+            0.225009917
+          ],
+          [
+            0.2269635,
+            0.226411834,
+            0.226923458,
+            0.22636375,
+            0.224736666,
+            0.225876375,
+            0.225398583,
+            0.22556575,
+            0.226677416
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          0.7748806499015437,
+          0.901073498445415,
+          0.6668514630352673
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.5542711410338574,
+          1.018593876048679
+        ]
+      }
+    }
+  },
+  "power": [
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    }
+  ],
+  "interval_note": "Hierarchical bootstrap of three process launches and paired repeats; descriptive only, not a confidence interval over unseen source families.",
+  "sizes": {
+    "files": 512,
+    "baseline_bytes": 63394178,
+    "candidate_bytes": 63265058,
+    "aggregate_change_percent": -0.203678009674646,
+    "mean_file_change_percent": -0.3827537363767332,
+    "shrink": 427,
+    "equal": 1,
+    "grow": 84,
+    "max_growth_bytes": 4000,
+    "max_growth_percent": 1.864468179587253
+  },
+  "source_sizes": {
+    "shine-2022": {
+      "files": 64,
+      "baseline_bytes": 7975313,
+      "candidate_bytes": 7966869,
+      "aggregate_change_percent": -0.10587672233052237,
+      "mean_file_change_percent": -0.3073214804995646,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 3147,
+      "max_growth_percent": 1.7937960989067303
+    },
+    "fall-2019-purdue-weeklies": {
+      "files": 64,
+      "baseline_bytes": 5495187,
+      "candidate_bytes": 5469933,
+      "aggregate_change_percent": -0.4595657982157886,
+      "mean_file_change_percent": -0.6093591357930729,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 286,
+      "max_growth_percent": 0.21881001017542978
+    },
+    "htl-3": {
+      "files": 64,
+      "baseline_bytes": 5542239,
+      "candidate_bytes": 5517421,
+      "aggregate_change_percent": -0.4477973613191355,
+      "mean_file_change_percent": -0.5840237943040403,
+      "shrink": 62,
+      "equal": 0,
+      "grow": 2,
+      "max_growth_bytes": 555,
+      "max_growth_percent": 0.4892238529683901
+    },
+    "archive-org-abbey-52": {
+      "files": 64,
+      "baseline_bytes": 8737913,
+      "candidate_bytes": 8721437,
+      "aggregate_change_percent": -0.18855761095355472,
+      "mean_file_change_percent": -0.34745180016349153,
+      "shrink": 55,
+      "equal": 0,
+      "grow": 9,
+      "max_growth_bytes": 3191,
+      "max_growth_percent": 1.864468179587253
+    },
+    "full-house-2025": {
+      "files": 64,
+      "baseline_bytes": 11493704,
+      "candidate_bytes": 11493310,
+      "aggregate_change_percent": -0.00342796369212639,
+      "mean_file_change_percent": -0.12626725412837064,
+      "shrink": 43,
+      "equal": 1,
+      "grow": 20,
+      "max_growth_bytes": 4000,
+      "max_growth_percent": 1.6499131733192618
+    },
+    "bobc-8": {
+      "files": 64,
+      "baseline_bytes": 9251197,
+      "candidate_bytes": 9236358,
+      "aggregate_change_percent": -0.16040086488267047,
+      "mean_file_change_percent": -0.26580229964956564,
+      "shrink": 49,
+      "equal": 0,
+      "grow": 15,
+      "max_growth_bytes": 2374,
+      "max_growth_percent": 1.0990210044554916
+    },
+    "mango-bday": {
+      "files": 64,
+      "baseline_bytes": 6174689,
+      "candidate_bytes": 6151663,
+      "aggregate_change_percent": -0.3729094696105384,
+      "mean_file_change_percent": -0.5223876104066454,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 976,
+      "max_growth_percent": 0.47689781877882087
+    },
+    "lacs5": {
+      "files": 64,
+      "baseline_bytes": 8723936,
+      "candidate_bytes": 8708067,
+      "aggregate_change_percent": -0.18190183880303357,
+      "mean_file_change_percent": -0.2994165160691146,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 1677,
+      "max_growth_percent": 0.8743163701012024
+    }
+  },
+  "qualifies_on_pooled_means": false
+}

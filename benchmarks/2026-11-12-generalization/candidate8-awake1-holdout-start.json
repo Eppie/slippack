@@ -1,0 +1,16 @@
+{
+  "recorded_utc": "2026-11-13T12:30:13.115333+00:00",
+  "started_utc": "2026-11-13T12:28:46.545669+00:00",
+  "candidate": "candidate8",
+  "run_id": "candidate8-awake1",
+  "files": 512,
+  "source_families": 16,
+  "protocol_sha256": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+  "candidate_build_info_sha256": "4ace4e03e448bc19117a229d1fb68ba2649fc3332ad03a72b0b25d88db90de5c",
+  "prerequisite_summary_sha256": {
+    "outside521": "98b48d22cd94370cd3690bd58f3e5b91f8715b979e3be9d7095b7b2f3d9b8052",
+    "development": "ae1e6d52d0bb900dc8a49a989c57f21c3a88277548ef861685922d9d16d14025"
+  },
+  "role": "Independent validation of this frozen candidate, opened only after both fixed development gates passed. It is now consumed for any future tuning; do not reuse it as a fresh holdout.",
+  "fixed_rule": "Same three launches and all27 samples, one/eight workers; no tuning or sample selection."
+}

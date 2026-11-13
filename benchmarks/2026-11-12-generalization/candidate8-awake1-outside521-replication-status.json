@@ -1,0 +1,16 @@
+{
+  "started_utc": "2026-11-13T11:42:56.049476+00:00",
+  "dataset": "outside521",
+  "candidate": "candidate8",
+  "run_id": "candidate8-awake1",
+  "protocol_sha256": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+  "prerequisite_summary_sha256": {},
+  "completed_launches": [
+    1,
+    2,
+    3
+  ],
+  "completed": true,
+  "status": "All three launches and pooled summary complete; all samples retained.",
+  "finished_utc": "2026-11-13T12:02:56.989629+00:00"
+}

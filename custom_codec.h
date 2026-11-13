@@ -16,10 +16,10 @@ inline Bytes ans_candidate(View input, View contexts) {
     require(c < nc, "custom context ID");
     models[c].hist[input[i]]++;
   }
-  Bytes result{uint8_t(nc == 1 ? 6 : 7)};
+  Bytes result{uint8_t(nc == 1 ? 9 : 10)};
   for (auto &m : models) {
-    m.normalize();
-    write_compact_model(result, m.freq);
+    m.normalize(EncoderBits);
+    write_compact_model(result, m.freq, 1u << EncoderBits);
   }
   constexpr uint32_t low = 1u << 23;
   uint32_t states[4] = {low, low, low, low};
@@ -28,12 +28,12 @@ inline Bytes ans_candidate(View input, View contexts) {
   for (size_t i = input.size(); i-- > 0;) {
     auto &m = models[contexts.empty() ? 0 : contexts[i]];
     uint32_t f = m.freq[input[i]], &x = states[i & 3];
-    uint32_t limit = ((low >> 12) << 8) * f;
+    uint32_t limit = ((low >> EncoderBits) << 8) * f;
     while (x >= limit) {
       emitted.push_back(uint8_t(x));
       x >>= 8;
     }
-    x = (x / f) * 4096 + x % f + m.start[input[i]];
+    x = (x / f) * (1u << EncoderBits) + x % f + m.start[input[i]];
   }
   for (auto x : states) {
     u32(result, x);
@@ -41,7 +41,21 @@ inline Bytes ans_candidate(View input, View contexts) {
   result.insert(result.end(), emitted.rbegin(), emitted.rend());
   return result;
 }
+inline bool is_constant(View input);
 inline void channel(Bytes &out, View input, View contexts = {}) {
+  if (is_constant(input)) {
+    require(contexts.empty() || contexts.size() == input.size(), "context input shape");
+    unsigned labels = 0;
+    for (auto c : contexts) {
+      labels |= c;
+    }
+    require(labels < ProfileCount, "context profile");
+    varint(out, 2);
+    varint(out, narrow(input.size()));
+    out.push_back(3);
+    out.push_back(input[0]);
+    return;
+  }
   // Construct the raw fallback only if the compressed candidate loses.
   Bytes candidate;
   const bool contextual = input.size() >= 2048;
@@ -52,7 +66,7 @@ inline void channel(Bytes &out, View input, View contexts = {}) {
     varint(out, narrow(candidate.size() + contextual));
     varint(out, narrow(input.size()));
     if (contextual) {
-      out.push_back(5);
+      out.push_back(8);
     }
     append(out, candidate);
   } else {
@@ -62,47 +76,33 @@ inline void channel(Bytes &out, View input, View contexts = {}) {
     append(out, input);
   }
 }
-inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
-  uint32_t packed = outer.var(), n = outer.var();
-  require(n <= limit, "custom channel size");
-  Reader r{outer.take(packed)};
-  unsigned mode = r.byte();
-  if (!mode) {
-    auto raw = r.take(n);
-    r.done();
-    return Bytes(raw.begin(), raw.end());
-  }
-  if (mode == 4 || mode == 5) {
-    auto output = context_decode(r, n, contexts, mode == 5);
-    r.done();
-    return output;
-  }
-  require(mode == 1 || mode == 2 || mode == 6 || mode == 7, "custom channel mode");
-  unsigned nc = mode == 1 || mode == 6 ? 1 : ProfileCount;
-  require(nc == 1 || contexts.size() == n, "custom context shape");
+template <unsigned precision>
+inline Bytes ans_decode_precision(Reader &r, uint32_t n, View contexts, unsigned nc,
+                                  bool compact_models) {
+  const unsigned scale = 1u << precision;
   std::vector<Model> models(nc);
-  Bytes lookup(nc * 4096);
+  Bytes lookup(nc * scale);
   for (unsigned c = 0; c < nc; ++c) {
     auto &m = models[c];
-    if (mode >= 6) {
-      read_compact_model(r, m.freq);
+    if (compact_models) {
+      read_compact_model(r, m.freq, scale);
     } else {
       unsigned used = r.var();
       require(used >= 1 && used <= 256, "custom alphabet size");
       for (unsigned j = 0; j < used; ++j) {
         unsigned s = r.byte(), f = r.var();
-        require(f && f <= 4096 && !m.freq[s], "custom frequency");
+        require(f && f <= scale && !m.freq[s], "custom frequency");
         m.freq[s] = uint16_t(f);
       }
     }
     unsigned at = 0;
     for (unsigned s = 0; s < 256; ++s) {
       m.start[s] = uint16_t(at);
-      require(at + m.freq[s] <= 4096, "custom model sum");
-      std::memset(lookup.data() + c * 4096 + at, int(s), m.freq[s]);
+      require(at + m.freq[s] <= scale, "custom model sum");
+      std::memset(lookup.data() + c * scale + at, int(s), m.freq[s]);
       at += m.freq[s];
     }
-    require(at == 4096, "custom model sum");
+    require(at == scale, "custom model sum");
   }
   uint32_t states[4];
   for (auto &x : states) {
@@ -115,9 +115,9 @@ inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
     require(c < nc, "custom context ID");
     auto &m = models[c];
     uint32_t &x = states[i & 3];
-    unsigned slot = x & 4095, s = lookup[c * 4096 + slot];
+    unsigned slot = x & (scale - 1), s = lookup[c * scale + slot];
     output[i] = uint8_t(s);
-    x = m.freq[s] * (x >> 12) + slot - m.start[s];
+    x = m.freq[s] * (x >> precision) + slot - m.start[s];
     while (x < (1u << 23)) {
       x = (x << 8) | r.byte();
     }
@@ -127,6 +127,55 @@ inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
   }
   r.done();
   return output;
+}
+// Inspect a channel without consuming it. Only semantic models need labels.
+inline bool channel_needs_contexts(Reader peek) {
+  auto packed = peek.var();
+  peek.var();
+  Reader header{peek.take(packed)};
+  unsigned mode = header.byte();
+  return mode == 2 || mode == 7 || mode == 10 ||
+         ((mode == 4 || mode == 5 || mode == 8) && header.byte() != 1);
+}
+inline bool lz_needs_contexts(Reader peek) {
+  peek.var(); // match count
+  for (unsigned channel = 0; channel < 3; ++channel) {
+    auto packed = peek.var();
+    peek.var();
+    peek.take(packed);
+  }
+  peek.take(peek.var()); // extra bits
+  peek.byte();           // literal predictor
+  return channel_needs_contexts(peek);
+}
+inline Bytes unchannel(Reader &outer, size_t limit, View contexts = {}) {
+  uint32_t packed = outer.var(), n = outer.var();
+  require(n <= limit, "custom channel size");
+  Reader r{outer.take(packed)};
+  unsigned mode = r.byte();
+  if (!mode) {
+    auto raw = r.take(n);
+    r.done();
+    return Bytes(raw.begin(), raw.end());
+  }
+  if (mode == 3) {
+    require(n, "empty constant channel");
+    Bytes output(n, r.byte());
+    r.done();
+    return output;
+  }
+  if (mode == 4 || mode == 5 || mode == 8) {
+    auto output = mode == 8 ? context_decode_precision<10>(r, n, contexts, true)
+                            : context_decode(r, n, contexts, mode != 4);
+    r.done();
+    return output;
+  }
+  require(mode == 1 || mode == 2 || mode == 6 || mode == 7 || mode == 9 || mode == 10,
+          "custom channel mode");
+  unsigned nc = mode == 1 || mode == 6 || mode == 9 ? 1 : ProfileCount;
+  require(nc == 1 || contexts.size() == n, "custom context shape");
+  return mode >= 9 ? ans_decode_precision<10>(r, n, contexts, nc, true)
+                   : ans_decode_precision<12>(r, n, contexts, nc, mode >= 6);
 }
 
 struct BitWriter {
@@ -201,17 +250,26 @@ struct Match {
   uint32_t length = 0, distance = 0;
   int score = 0;
 };
-struct Matcher {
+template <bool Fast> struct MatcherImpl {
   View data;
   std::vector<uint32_t> head;
-  std::unique_ptr<uint32_t[]> previous;
+  Scratch<uint32_t> previous;
   std::array<uint32_t, 4096> short_head;
-  unsigned depth, hash_shift;
-  explicit Matcher(View v, unsigned search)
+  unsigned depth, hash_shift, recent_limit;
+  bool short_matches;
+  explicit MatcherImpl(View v, unsigned search, unsigned recent, bool short_search)
       : data(v), head(std::bit_ceil(std::clamp<size_t>(v.size() * 2, 64, 65536)), UINT32_MAX),
-        previous(new uint32_t[v.size()]), depth(search) {
+        previous(search > 1 ? v.size() : 0), depth(search), recent_limit(recent),
+        short_matches(short_search) {
+    if constexpr (Fast) {
+      depth = 2;
+      recent_limit = 2;
+      short_matches = false;
+    }
     hash_shift = 32 - std::countr_zero(head.size());
-    short_head.fill(UINT32_MAX);
+    if (short_matches) {
+      short_head.fill(UINT32_MAX);
+    }
   }
   unsigned hash(size_t i) const {
     uint32_t x;
@@ -222,10 +280,14 @@ struct Matcher {
     if (size_t(i) + 4 > data.size()) {
       return;
     }
-    uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
-    short_head[(key * 2654435761u) >> 20] = i;
+    if (short_matches) {
+      uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
+      short_head[(key * 2654435761u) >> 20] = i;
+    }
     unsigned h = hash(i);
-    previous[i] = head[h];
+    if (depth > 1) {
+      previous[i] = head[h];
+    }
     head[h] = i;
   }
   uint32_t length(uint32_t a, uint32_t b) const {
@@ -278,7 +340,8 @@ struct Matcher {
         best = {n, i - pos, score};
       }
     };
-    for (auto distance : recent) {
+    for (unsigned r = 0; r < recent_limit; ++r) {
+      auto distance = recent[r];
       if (distance <= i) {
         consider(i - distance, true);
       }
@@ -286,10 +349,12 @@ struct Matcher {
         break;
       }
     }
-    uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
-    auto short_pos = short_head[(key * 2654435761u) >> 20];
-    if (short_pos < i && i - short_pos < 1024) {
-      consider(short_pos, false);
+    if (short_matches) {
+      uint32_t key = uint32_t(data[i]) | uint32_t(data[i + 1]) << 8 | uint32_t(data[i + 2]) << 16;
+      auto short_pos = short_head[(key * 2654435761u) >> 20];
+      if (short_pos < i && i - short_pos < 1024) {
+        consider(short_pos, false);
+      }
     }
     if (best.length >= 128) {
       return best;
@@ -303,7 +368,9 @@ struct Matcher {
       if (best.length >= 128) {
         break;
       }
-      pos = previous[pos];
+      if (d + 1 < depth) {
+        pos = previous[pos];
+      }
     }
     return best;
   }
@@ -321,50 +388,59 @@ inline void move_recent(std::array<uint32_t, 4> &recent, uint32_t d) {
   }
   recent[0] = d;
 }
-inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0,
-                       LzOptions options = {}) {
+template <bool Fast>
+inline Bytes lz_encode_impl(View input, View profiles, uint32_t stride, LzOptions options) {
+  if constexpr (Fast) {
+    options = LzOptions{2, false, true, 2, false};
+  }
   require(profiles.empty() ||
               (stride ? uint64_t(stride) * profiles.size() == input.size() : profiles.size() == 1),
           "custom field shape");
+  unsigned invalid = 0, different = 0;
+  uint8_t first = profiles.empty() ? 0 : profiles.front();
   for (auto p : profiles) {
-    require(p < ProfileCount, "custom profile");
+    invalid |= p;
+    different |= p ^ first;
   }
+  require(invalid < ProfileCount, "custom profile");
+  require(options.recent_limit <= 4, "custom recent distance count");
   const bool prepare_prediction = options.predict;
   const bool compare_histograms = options.predict && options.depth < 24;
   // A single semantic class always merges into the generic context model.
   // Avoid materializing a label for every literal in that case.
-  const bool varied_contexts =
-      !profiles.empty() &&
-      std::any_of(profiles.begin(), profiles.end(), [&](uint8_t p) { return p != profiles[0]; });
-  Bytes literals, residuals, contexts, litlengths, lengths, distances;
-  literals.reserve(input.size());
+  const bool varied_contexts = different != 0;
+  slippack::OutputBytes literals(input.size()), residuals, contexts;
+  Bytes litlengths, lengths, distances;
+  size_t literal_count = 0;
   if (prepare_prediction) {
-    residuals.reserve(input.size());
+    residuals.resize(input.size());
   }
   if (varied_contexts) {
-    contexts.reserve(input.size());
+    contexts.resize(input.size());
   }
   litlengths.reserve(input.size() / 8 + 1);
   lengths.reserve(input.size() / 8);
   distances.reserve(input.size() / 8);
   std::array<uint32_t, 256> raw_hist{}, predicted_hist{};
+  std::array<std::array<uint32_t, 256>, 4> raw_lanes{}, predicted_lanes{};
   BitWriter extra;
-  Matcher matcher(input, options.depth);
+  MatcherImpl<Fast> matcher(input, options.depth, options.recent_limit, options.short_matches);
   std::array<uint32_t, 4> recent{1, 2, 3, 4};
   uint32_t last = 0, matches = 0;
   auto literal_run = [&](uint32_t end) {
     number(litlengths, extra, end - last);
     for (uint32_t p = last; p < end; ++p) {
-      literals.push_back(input[p]);
+      size_t at = literal_count++;
+      literals[at] = input[p];
       if (prepare_prediction) {
-        residuals.push_back(input[p] ^ (p >= recent[0] ? input[p - recent[0]] : 0));
+        residuals[at] = input[p] ^ (p >= recent[0] ? input[p - recent[0]] : 0);
         if (compare_histograms) {
-          ++raw_hist[literals.back()];
-          ++predicted_hist[residuals.back()];
+          ++raw_lanes[at & 3][literals[at]];
+          ++predicted_lanes[at & 3][residuals[at]];
         }
       }
       if (varied_contexts) {
-        contexts.push_back(context(profiles, stride, p, 0));
+        contexts[at] = context(profiles, stride, p, 0);
       }
     }
   };
@@ -415,6 +491,13 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0,
     last = i;
   }
   literal_run(narrow(input.size()));
+  literals.resize(literal_count);
+  if (prepare_prediction) {
+    residuals.resize(literal_count);
+  }
+  if (varied_contexts) {
+    contexts.resize(literal_count);
+  }
   extra.finish();
   Bytes payload;
   varint(payload, matches);
@@ -427,6 +510,14 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0,
   // RNG side streams have their own independent class/model.
   Bytes raw_literals, predicted_literals;
   auto literal_contexts = varied_contexts ? View(contexts) : View{};
+  if (compare_histograms) {
+    for (unsigned b = 0; b < 256; ++b) {
+      for (unsigned lane = 0; lane < 4; ++lane) {
+        raw_hist[b] += raw_lanes[lane][b];
+        predicted_hist[b] += predicted_lanes[lane][b];
+      }
+    }
+  }
   bool favor_prediction =
       compare_histograms && context_cost(predicted_hist) < context_cost(raw_hist);
   if (!favor_prediction || options.depth >= 24) {
@@ -441,6 +532,14 @@ inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0,
   append(payload, predict ? View(predicted_literals) : View(raw_literals));
   return payload;
 }
+inline Bytes lz_encode(View input, View profiles = {}, uint32_t stride = 0,
+                       LzOptions options = {}) {
+  if (options.depth == 2 && !options.lazy && options.predict && options.recent_limit == 2 &&
+      !options.short_matches) {
+    return lz_encode_impl<true>(input, profiles, stride, options);
+  }
+  return lz_encode_impl<false>(input, profiles, stride, options);
+}
 inline Bytes lz_decode(Reader &r, uint32_t n, View profiles = {}, uint32_t stride = 0) {
   uint32_t matches = r.var();
   require(matches <= n / 3, "custom match count");
@@ -451,13 +550,7 @@ inline Bytes lz_decode(Reader &r, uint32_t n, View profiles = {}, uint32_t strid
   auto extra = r.take(r.var());
   uint8_t predict = r.byte();
   require(predict <= 1, "custom literal predictor");
-  Reader peek = r;
-  auto literal_packed = peek.var();
-  peek.var();
-  Reader header{peek.take(literal_packed)};
-  unsigned literal_mode = header.byte();
-  bool needs_contexts = literal_mode == 2 || literal_mode == 7 ||
-                        ((literal_mode == 4 || literal_mode == 5) && header.byte() != 1);
+  bool needs_contexts = channel_needs_contexts(r);
   Reader lr{ll}, mr{ml}, dr{ds};
   BitReader bits{{extra}};
   struct Token {
@@ -814,9 +907,14 @@ inline void extract_exceptions(View plane, uint8_t base, Bytes &mask, Bytes &val
 inline Bytes masked_encode(View rich, uint32_t count, View profiles, LzOptions options) {
   Bytes bases, masks, original, values, contexts, refs;
   size_t width = (size_t(count) + 7) / 8;
+  const bool needs_masks =
+      count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4;
   values.reserve(rich.size() + 8);
-  contexts.reserve(rich.size());
-  masks.reserve(width * profiles.size());
+  std::vector<size_t> value_counts;
+  value_counts.reserve(profiles.size());
+  if (needs_masks) {
+    masks.resize(width * profiles.size());
+  }
   original.reserve(width * profiles.size());
   for (size_t j = 0; j < profiles.size(); ++j) {
     auto plane = rich.subspan(j * count, count);
@@ -825,11 +923,8 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, LzOptions o
     Bytes mask(width, 0);
     size_t start = values.size();
     extract_exceptions(plane, base, mask, values);
-    contexts.insert(contexts.end(), values.size() - start, profiles[j]);
-    unsigned best = 0;
-    for (auto v : mask) {
-      best += std::popcount(v);
-    }
+    value_counts.push_back(values.size() - start);
+    unsigned best = unsigned(values.size() - start);
     unsigned ref = 0;
     for (unsigned back = 1; back <= std::min<size_t>(j, 8); ++back) {
       unsigned delta = 0;
@@ -843,13 +938,21 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, LzOptions o
     }
     bases.push_back(ref);
     refs.push_back(ref);
-    for (size_t i = 0; i < width; ++i) {
-      masks.push_back(mask[i] ^ (ref ? original[(j - ref) * width + i] : 0));
+    if (needs_masks && width) {
+      auto *dst = masks.data() + j * width;
+      if (ref) {
+        const auto *reference = original.data() + (j - ref) * width;
+        for (size_t i = 0; i < width; ++i) {
+          dst[i] = mask[i] ^ reference[i];
+        }
+      } else {
+        std::memcpy(dst, mask.data(), width);
+      }
     }
     append(original, mask);
   }
   Bytes m;
-  if (count < 1024 || std::count(profiles.begin(), profiles.end(), FloatLow) < 4) {
+  if (needs_masks) {
     m = encode(masks, Generic, options);
   }
   auto ma = encode_presence4(original, count, profiles, refs);
@@ -861,6 +964,23 @@ inline Bytes masked_encode(View rich, uint32_t count, View profiles, LzOptions o
   out.push_back(binary ? 4 : 0);
   varint(out, narrow(m.size()));
   append(out, m);
+  if (is_constant(values)) {
+    unsigned labels = 0;
+    for (auto p : profiles) {
+      labels |= p;
+    }
+    require(labels < ProfileCount, "custom profile");
+    out.push_back(1); // existing entropy-channel value packet
+    varint(out, 2);
+    varint(out, narrow(values.size()));
+    out.push_back(3);
+    out.push_back(values[0]);
+    return out;
+  }
+  contexts.reserve(values.size());
+  for (size_t j = 0; j < profiles.size(); ++j) {
+    contexts.insert(contexts.end(), value_counts[j], profiles[j]);
+  }
   Bytes a = lz_encode(values, contexts, 1, options);
   out.push_back(0);
   append(out, a);
@@ -896,6 +1016,10 @@ inline void masked_decode_into(Reader &r, uint32_t count, View profiles, Bytes &
   } else {
     mask = decode(data, narrow(width * profiles.size()));
   }
+  Reader peek = r;
+  unsigned value_mode = peek.byte();
+  require(value_mode <= 1, "mask value coder");
+  const bool needs_contexts = value_mode ? channel_needs_contexts(peek) : lz_needs_contexts(peek);
   Bytes contexts;
   size_t total = 0;
   for (size_t j = 0; j < profiles.size(); ++j) {
@@ -912,7 +1036,9 @@ inline void masked_decode_into(Reader &r, uint32_t count, View profiles, Bytes &
       nonzero += std::popcount(mask[j * width + i]);
     }
     total += nonzero;
-    contexts.insert(contexts.end(), nonzero, profiles[j]);
+    if (needs_contexts) {
+      contexts.insert(contexts.end(), nonzero, profiles[j]);
+    }
   }
   unsigned mode = r.byte();
   require(mode <= 1, "mask value coder");

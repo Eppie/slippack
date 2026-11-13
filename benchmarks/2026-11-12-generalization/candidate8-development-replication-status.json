@@ -1,0 +1,14 @@
+{
+  "started_utc": "2026-11-13T11:04:16.804678+00:00",
+  "dataset": "development",
+  "candidate": "candidate8",
+  "protocol_sha256": "69286baee7ba17f49a28d66f44613c25ab20c3d268d764b509ea28cdb8d3723c",
+  "prerequisite_summary_sha256": {
+    "outside521": "a0ccccdf43ba4a4b631092d9215cdb35d70701f66c3b295f260098101d231a3b"
+  },
+  "completed_launches": [
+    1
+  ],
+  "completed": false,
+  "status": "Fixed validation begun; no tuning or changes between launches."
+}

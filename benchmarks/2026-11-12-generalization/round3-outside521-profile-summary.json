@@ -1,0 +1,555 @@
+{
+  "baseline": {
+    "sample_file_sha256": "a61cad195672aca131c9162cd2e24438a038e27fd357813dbe2434b04506f2fc",
+    "listed_leaf_samples": 15453,
+    "rows": [
+      {
+        "symbol": "slippack_custom::lz_encode(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>, unsigned int, slippack_custom::LzOptions)",
+        "image": "profile-round3-baseline",
+        "samples": 3415
+      },
+      {
+        "symbol": "slippack::pack_records(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, unsigned int, int, slippack::Buf&, std::atomic<unsigned long long>*, unsigned char)",
+        "image": "profile-round3-baseline",
+        "samples": 2154
+      },
+      {
+        "symbol": "slippack_custom::encode_presence4(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-baseline",
+        "samples": 1803
+      },
+      {
+        "symbol": "slippack_custom::context_encode(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-baseline",
+        "samples": 1374
+      },
+      {
+        "symbol": "slippack_custom::encode(std::span<unsigned char const, 18446744073709551615ul>, slippack_custom::Profile, slippack_custom::LzOptions)",
+        "image": "profile-round3-baseline",
+        "samples": 826
+      },
+      {
+        "symbol": "_platform_memmove",
+        "image": "libsystem_platform.dylib",
+        "samples": 824
+      },
+      {
+        "symbol": "slippack_custom::masked_encode(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, std::span<unsigned char const, 18446744073709551615ul>, slippack_custom::LzOptions)",
+        "image": "profile-round3-baseline",
+        "samples": 608
+      },
+      {
+        "symbol": "slippack::parse_slp(std::span<unsigned char const, 18446744073709551615ul>, slippack::ParsedSlp&)",
+        "image": "profile-round3-baseline",
+        "samples": 461
+      },
+      {
+        "symbol": "slippack_custom::encode_planes(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, std::span<unsigned char const, 18446744073709551615ul>, slippack_custom::LzOptions)",
+        "image": "profile-round3-baseline",
+        "samples": 407
+      },
+      {
+        "symbol": "slippack::input_predict(unsigned char*, unsigned int, unsigned int, bool)",
+        "image": "profile-round3-baseline",
+        "samples": 309
+      },
+      {
+        "symbol": "slippack::transpose_fwd(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, unsigned int, slippack::Buf&)",
+        "image": "profile-round3-baseline",
+        "samples": 301
+      },
+      {
+        "symbol": "slippack::sort_dictionaries(std::vector<slippack::DictField>&)",
+        "image": "profile-round3-baseline",
+        "samples": 258
+      },
+      {
+        "symbol": "slippack::cross_pred_xor(unsigned char*, unsigned int, unsigned int, unsigned char const*, unsigned int, unsigned int, bool, unsigned int, unsigned int*)",
+        "image": "profile-round3-baseline",
+        "samples": 244
+      },
+      {
+        "symbol": "slippack_custom::ans_candidate(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-baseline",
+        "samples": 231
+      },
+      {
+        "symbol": "slippack::run_workers<slippack::encode_archive(std::span<slippack::ArchiveInput const, 18446744073709551615ul>, slippack::EncodeOptions const&)::$_2>(int, slippack::encode_archive(std::span<slippack::ArchiveInput const, 18446744073709551615ul>, slippack::EncodeOptions const&)::$_2)::'lambda'()::operator()() const",
+        "image": "profile-round3-baseline",
+        "samples": 215
+      },
+      {
+        "symbol": "slippack::motion_predict(unsigned char*, unsigned int, unsigned int, bool)",
+        "image": "profile-round3-baseline",
+        "samples": 185
+      },
+      {
+        "symbol": "_platform_memset",
+        "image": "libsystem_platform.dylib",
+        "samples": 181
+      },
+      {
+        "symbol": "slippack_custom::Model::normalize()",
+        "image": "profile-round3-baseline",
+        "samples": 173
+      },
+      {
+        "symbol": "slippack_custom::write_compact_model(std::vector<unsigned char>&, std::array<unsigned short, 256ul> const&)",
+        "image": "profile-round3-baseline",
+        "samples": 138
+      },
+      {
+        "symbol": "slippack_custom::Matcher::find(unsigned int, std::array<unsigned int, 4ul> const&) const",
+        "image": "profile-round3-baseline",
+        "samples": 130
+      },
+      {
+        "symbol": "madvise",
+        "image": "libsystem_kernel.dylib",
+        "samples": 120
+      },
+      {
+        "symbol": "std::__introsort<std::_ClassicAlgPolicy, slippack::sort_dictionaries(std::vector<slippack::DictField>&)::$_0&, unsigned short*, false>(unsigned short*, unsigned short*, slippack::sort_dictionaries(std::vector<slippack::DictField>&)::$_0&, std::iterator_traits<unsigned short*>::difference_type, bool)",
+        "image": "profile-round3-baseline",
+        "samples": 119
+      },
+      {
+        "symbol": "slippack::fold_seeds(slippack::EventStream&, unsigned int, slippack::Buf&, unsigned char const*, slippack::Stats*)",
+        "image": "profile-round3-baseline",
+        "samples": 117
+      },
+      {
+        "symbol": "slippack_custom::extract_exceptions(std::span<unsigned char const, 18446744073709551615ul>, unsigned char, std::vector<unsigned char>&, std::vector<unsigned char>&)",
+        "image": "profile-round3-baseline",
+        "samples": 111
+      },
+      {
+        "symbol": "slippack::dictionary_forward(std::vector<slippack::DictField> const&, unsigned char)",
+        "image": "profile-round3-baseline",
+        "samples": 101
+      },
+      {
+        "symbol": "slippack_custom::NibbleTable::build(unsigned int, std::array<unsigned short, 256ul> const&)",
+        "image": "profile-round3-baseline",
+        "samples": 98
+      },
+      {
+        "symbol": "_nanov2_free",
+        "image": "libsystem_malloc.dylib",
+        "samples": 78
+      },
+      {
+        "symbol": "slippack_custom::context_cost(std::array<unsigned int, 256ul> const&)",
+        "image": "profile-round3-baseline",
+        "samples": 61
+      },
+      {
+        "symbol": "nanov2_malloc_type",
+        "image": "libsystem_malloc.dylib",
+        "samples": 54
+      },
+      {
+        "symbol": "_free",
+        "image": "libsystem_malloc.dylib",
+        "samples": 50
+      },
+      {
+        "symbol": "std::vector<unsigned char>::__insert_with_size[abi:ne190102]<std::__wrap_iter<unsigned char const*>, std::__wrap_iter<unsigned char const*>>(std::__wrap_iter<unsigned char const*>, std::__wrap_iter<unsigned char const*>, std::__wrap_iter<unsigned char const*>, long)",
+        "image": "profile-round3-baseline",
+        "samples": 41
+      },
+      {
+        "symbol": "DYLD-STUB$$memmove",
+        "image": "profile-round3-baseline",
+        "samples": 29
+      },
+      {
+        "symbol": "log2",
+        "image": "libsystem_m.dylib",
+        "samples": 25
+      },
+      {
+        "symbol": "__bzero",
+        "image": "libsystem_platform.dylib",
+        "samples": 24
+      },
+      {
+        "symbol": "slippack::varint(std::vector<unsigned char>&, unsigned int)",
+        "image": "profile-round3-baseline",
+        "samples": 23
+      },
+      {
+        "symbol": "DYLD-STUB$$memcpy",
+        "image": "profile-round3-baseline",
+        "samples": 19
+      },
+      {
+        "symbol": "free_small",
+        "image": "libsystem_malloc.dylib",
+        "samples": 17
+      },
+      {
+        "symbol": "_szone_free",
+        "image": "libsystem_malloc.dylib",
+        "samples": 14
+      },
+      {
+        "symbol": "small_free_list_remove_ptr_no_clear",
+        "image": "libsystem_malloc.dylib",
+        "samples": 14
+      },
+      {
+        "symbol": "szone_malloc_should_clear",
+        "image": "libsystem_malloc.dylib",
+        "samples": 14
+      },
+      {
+        "symbol": "small_malloc_from_free_list",
+        "image": "libsystem_malloc.dylib",
+        "samples": 12
+      },
+      {
+        "symbol": "malloc_type_malloc",
+        "image": "libsystem_malloc.dylib",
+        "samples": 11
+      },
+      {
+        "symbol": "small_malloc_should_clear",
+        "image": "libsystem_malloc.dylib",
+        "samples": 11
+      },
+      {
+        "symbol": "tiny_malloc_from_free_list",
+        "image": "libsystem_malloc.dylib",
+        "samples": 10
+      },
+      {
+        "symbol": "small_free_list_add_ptr",
+        "image": "libsystem_malloc.dylib",
+        "samples": 8
+      },
+      {
+        "symbol": "std::vector<unsigned char>::__insert_with_size[abi:ne190102]<std::reverse_iterator<std::__wrap_iter<unsigned char*>>, std::reverse_iterator<std::__wrap_iter<unsigned char*>>>(std::__wrap_iter<unsigned char const*>, std::reverse_iterator<std::__wrap_iter<unsigned char*>>, std::reverse_iterator<std::__wrap_iter<unsigned char*>>, long)",
+        "image": "profile-round3-baseline",
+        "samples": 8
+      },
+      {
+        "symbol": "std::vector<short>::assign(unsigned long, short const&)",
+        "image": "profile-round3-baseline",
+        "samples": 7
+      },
+      {
+        "symbol": "DYLD-STUB$$free",
+        "image": "libc++abi.dylib",
+        "samples": 5
+      },
+      {
+        "symbol": "rack_get_thread_index",
+        "image": "libsystem_malloc.dylib",
+        "samples": 5
+      },
+      {
+        "symbol": "std::vector<unsigned char>::insert(std::__wrap_iter<unsigned char const*>, unsigned long, unsigned char const&)",
+        "image": "profile-round3-baseline",
+        "samples": 5
+      },
+      {
+        "symbol": "tiny_free_no_lock",
+        "image": "libsystem_malloc.dylib",
+        "samples": 5
+      }
+    ]
+  },
+  "candidate6": {
+    "sample_file_sha256": "aece549a623738147dcc6553f760142a488881a18fdfa8acc1bc52b8e00c264a",
+    "listed_leaf_samples": 15452,
+    "rows": [
+      {
+        "symbol": "slippack::pack_records(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, unsigned int, int, slippack::Buf&, std::atomic<unsigned long long>*, unsigned char)",
+        "image": "profile-round3-candidate6",
+        "samples": 2400
+      },
+      {
+        "symbol": "slippack_custom::encode_presence4(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-candidate6",
+        "samples": 2080
+      },
+      {
+        "symbol": "slippack_custom::lz_encode_impl<true>(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>, unsigned int, slippack_custom::LzOptions)",
+        "image": "profile-round3-candidate6",
+        "samples": 2046
+      },
+      {
+        "symbol": "slippack_custom::context_encode(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-candidate6",
+        "samples": 1630
+      },
+      {
+        "symbol": "_platform_memmove",
+        "image": "libsystem_platform.dylib",
+        "samples": 861
+      },
+      {
+        "symbol": "slippack_custom::encode(std::span<unsigned char const, 18446744073709551615ul>, slippack_custom::Profile, slippack_custom::LzOptions)",
+        "image": "profile-round3-candidate6",
+        "samples": 841
+      },
+      {
+        "symbol": "slippack::parse_slp(std::span<unsigned char const, 18446744073709551615ul>, slippack::ParsedSlp&)",
+        "image": "profile-round3-candidate6",
+        "samples": 534
+      },
+      {
+        "symbol": "slippack_custom::lz_encode_impl<false>(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>, unsigned int, slippack_custom::LzOptions)",
+        "image": "profile-round3-candidate6",
+        "samples": 444
+      },
+      {
+        "symbol": "slippack_custom::encode_planes(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, std::span<unsigned char const, 18446744073709551615ul>, slippack_custom::LzOptions)",
+        "image": "profile-round3-candidate6",
+        "samples": 408
+      },
+      {
+        "symbol": "slippack::input_predict(unsigned char*, unsigned int, unsigned int, bool)",
+        "image": "profile-round3-candidate6",
+        "samples": 356
+      },
+      {
+        "symbol": "slippack::transpose_fwd(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, unsigned int, slippack::Buf&)",
+        "image": "profile-round3-candidate6",
+        "samples": 316
+      },
+      {
+        "symbol": "slippack_custom::ans_candidate(std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-candidate6",
+        "samples": 298
+      },
+      {
+        "symbol": "slippack_custom::masked_encode(std::span<unsigned char const, 18446744073709551615ul>, unsigned int, std::span<unsigned char const, 18446744073709551615ul>, slippack_custom::LzOptions)",
+        "image": "profile-round3-candidate6",
+        "samples": 286
+      },
+      {
+        "symbol": "_platform_memset",
+        "image": "libsystem_platform.dylib",
+        "samples": 240
+      },
+      {
+        "symbol": "slippack::run_workers<slippack::encode_archive(std::span<slippack::ArchiveInput const, 18446744073709551615ul>, slippack::EncodeOptions const&)::$_2>(int, slippack::encode_archive(std::span<slippack::ArchiveInput const, 18446744073709551615ul>, slippack::EncodeOptions const&)::$_2)::'lambda'()::operator()() const",
+        "image": "profile-round3-candidate6",
+        "samples": 237
+      },
+      {
+        "symbol": "slippack::sort_dictionaries(std::vector<slippack::DictField>&)",
+        "image": "profile-round3-candidate6",
+        "samples": 233
+      },
+      {
+        "symbol": "slippack::cross_pred_xor(unsigned char*, unsigned int, unsigned int, unsigned char const*, unsigned int, unsigned int, bool, unsigned int, unsigned int*)",
+        "image": "profile-round3-candidate6",
+        "samples": 225
+      },
+      {
+        "symbol": "slippack::motion_predict(unsigned char*, unsigned int, unsigned int, bool)",
+        "image": "profile-round3-candidate6",
+        "samples": 215
+      },
+      {
+        "symbol": "slippack_custom::Model::normalize(unsigned int)",
+        "image": "profile-round3-candidate6",
+        "samples": 192
+      },
+      {
+        "symbol": "madvise",
+        "image": "libsystem_kernel.dylib",
+        "samples": 171
+      },
+      {
+        "symbol": "slippack_custom::extract_exceptions(std::span<unsigned char const, 18446744073709551615ul>, unsigned char, std::vector<unsigned char>&, std::vector<unsigned char>&)",
+        "image": "profile-round3-candidate6",
+        "samples": 147
+      },
+      {
+        "symbol": "slippack_custom::NibbleTable::build(unsigned int, std::array<unsigned short, 256ul> const&)",
+        "image": "profile-round3-candidate6",
+        "samples": 146
+      },
+      {
+        "symbol": "slippack_custom::write_compact_model(std::vector<unsigned char>&, std::array<unsigned short, 256ul> const&, unsigned int)",
+        "image": "profile-round3-candidate6",
+        "samples": 146
+      },
+      {
+        "symbol": "slippack::dictionary_forward(std::vector<slippack::DictField> const&, unsigned char)",
+        "image": "profile-round3-candidate6",
+        "samples": 126
+      },
+      {
+        "symbol": "std::__introsort<std::_ClassicAlgPolicy, slippack::sort_dictionaries(std::vector<slippack::DictField>&)::$_0&, unsigned short*, false>(unsigned short*, unsigned short*, slippack::sort_dictionaries(std::vector<slippack::DictField>&)::$_0&, std::iterator_traits<unsigned short*>::difference_type, bool)",
+        "image": "profile-round3-candidate6",
+        "samples": 118
+      },
+      {
+        "symbol": "slippack::fold_seeds(slippack::EventStream&, unsigned int, slippack::Buf&, unsigned char const*, slippack::Stats*)",
+        "image": "profile-round3-candidate6",
+        "samples": 108
+      },
+      {
+        "symbol": "slippack_custom::MatcherImpl<false>::find(unsigned int, std::array<unsigned int, 4ul> const&) const",
+        "image": "profile-round3-candidate6",
+        "samples": 108
+      },
+      {
+        "symbol": "_nanov2_free",
+        "image": "libsystem_malloc.dylib",
+        "samples": 63
+      },
+      {
+        "symbol": "slippack_custom::context_cost(std::array<unsigned int, 256ul> const&)",
+        "image": "profile-round3-candidate6",
+        "samples": 54
+      },
+      {
+        "symbol": "nanov2_malloc_type",
+        "image": "libsystem_malloc.dylib",
+        "samples": 40
+      },
+      {
+        "symbol": "__bzero",
+        "image": "libsystem_platform.dylib",
+        "samples": 39
+      },
+      {
+        "symbol": "DYLD-STUB$$memcpy",
+        "image": "profile-round3-candidate6",
+        "samples": 38
+      },
+      {
+        "symbol": "std::vector<unsigned char>::__insert_with_size[abi:ne190102]<std::__wrap_iter<unsigned char const*>, std::__wrap_iter<unsigned char const*>>(std::__wrap_iter<unsigned char const*>, std::__wrap_iter<unsigned char const*>, std::__wrap_iter<unsigned char const*>, long)",
+        "image": "profile-round3-candidate6",
+        "samples": 38
+      },
+      {
+        "symbol": "DYLD-STUB$$memmove",
+        "image": "profile-round3-candidate6",
+        "samples": 34
+      },
+      {
+        "symbol": "log2",
+        "image": "libsystem_m.dylib",
+        "samples": 26
+      },
+      {
+        "symbol": "slippack::varint(std::vector<unsigned char>&, unsigned int)",
+        "image": "profile-round3-candidate6",
+        "samples": 23
+      },
+      {
+        "symbol": "slippack_custom::number(std::vector<unsigned char>&, slippack_custom::BitWriter&, unsigned int)",
+        "image": "profile-round3-candidate6",
+        "samples": 16
+      },
+      {
+        "symbol": "std::vector<unsigned char>::insert(std::__wrap_iter<unsigned char const*>, unsigned long, unsigned char const&)",
+        "image": "profile-round3-candidate6",
+        "samples": 15
+      },
+      {
+        "symbol": "free_small",
+        "image": "libsystem_malloc.dylib",
+        "samples": 12
+      },
+      {
+        "symbol": "small_malloc_from_free_list",
+        "image": "libsystem_malloc.dylib",
+        "samples": 12
+      },
+      {
+        "symbol": "std::vector<unsigned char>::__insert_with_size[abi:ne190102]<std::reverse_iterator<std::__wrap_iter<unsigned char*>>, std::reverse_iterator<std::__wrap_iter<unsigned char*>>>(std::__wrap_iter<unsigned char const*>, std::reverse_iterator<std::__wrap_iter<unsigned char*>>, std::reverse_iterator<std::__wrap_iter<unsigned char*>>, long)",
+        "image": "profile-round3-candidate6",
+        "samples": 12
+      },
+      {
+        "symbol": "szone_malloc_should_clear",
+        "image": "libsystem_malloc.dylib",
+        "samples": 11
+      },
+      {
+        "symbol": "tiny_malloc_from_free_list",
+        "image": "libsystem_malloc.dylib",
+        "samples": 11
+      },
+      {
+        "symbol": "_free",
+        "image": "libsystem_malloc.dylib",
+        "samples": 10
+      },
+      {
+        "symbol": "malloc_type_malloc",
+        "image": "libsystem_malloc.dylib",
+        "samples": 10
+      },
+      {
+        "symbol": "_szone_free",
+        "image": "libsystem_malloc.dylib",
+        "samples": 9
+      },
+      {
+        "symbol": "std::vector<short>::assign(unsigned long, short const&)",
+        "image": "profile-round3-candidate6",
+        "samples": 8
+      },
+      {
+        "symbol": "tiny_free_no_lock",
+        "image": "libsystem_malloc.dylib",
+        "samples": 8
+      },
+      {
+        "symbol": "slippack_custom::channel(std::vector<unsigned char>&, std::span<unsigned char const, 18446744073709551615ul>, std::span<unsigned char const, 18446744073709551615ul>)",
+        "image": "profile-round3-candidate6",
+        "samples": 7
+      },
+      {
+        "symbol": "small_malloc_should_clear",
+        "image": "libsystem_malloc.dylib",
+        "samples": 7
+      },
+      {
+        "symbol": "DYLD-STUB$$malloc_type_malloc",
+        "image": "libc++abi.dylib",
+        "samples": 6
+      },
+      {
+        "symbol": "small_free_list_remove_ptr_no_clear",
+        "image": "libsystem_malloc.dylib",
+        "samples": 6
+      },
+      {
+        "symbol": "DYLD-STUB$$operator delete(void*)",
+        "image": "profile-round3-candidate6",
+        "samples": 5
+      },
+      {
+        "symbol": "free_medium",
+        "image": "libsystem_malloc.dylib",
+        "samples": 5
+      },
+      {
+        "symbol": "medium_free_list_add_ptr",
+        "image": "libsystem_malloc.dylib",
+        "samples": 5
+      },
+      {
+        "symbol": "medium_malloc_from_free_list",
+        "image": "libsystem_malloc.dylib",
+        "samples": 5
+      },
+      {
+        "symbol": "small_free_list_add_ptr",
+        "image": "libsystem_malloc.dylib",
+        "samples": 5
+      }
+    ]
+  },
+  "method": "Leaf samples from a20-second1ms encoding-only macOS sample, on1408 development inputs outside original521. Percentages normalized to listed functions with >=5samples; small leaves omitted. This is bottleneck localization, not a throughput qualification."
+}

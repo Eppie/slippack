@@ -1,0 +1,51 @@
+{
+  "variant": "tune_native5",
+  "compiler_command": "c++ -mtune=native",
+  "same64_training_inputs": true,
+  "same_core_source_hashes": true,
+  "profile_text_matches_candidate5": false,
+  "method": "Byte equality of normalized otool __TEXT,__text dumps for core objects; hashes describe that dump representation.",
+  "objects": {
+    "archive": {
+      "old_bytes": 72928,
+      "new_bytes": 72928,
+      "text_equal": true,
+      "old_text_dump_sha256": "1b088bd39bef2fbda47d249c4aff0ca5ac69788c81da0fa8dfb0989da49f2282",
+      "new_text_dump_sha256": "1b088bd39bef2fbda47d249c4aff0ca5ac69788c81da0fa8dfb0989da49f2282"
+    },
+    "frames": {
+      "old_bytes": 144472,
+      "new_bytes": 144472,
+      "text_equal": true,
+      "old_text_dump_sha256": "742760a174ac454a028007e114ef9b886fd6df3a3184bcc46846da2ca0399e19",
+      "new_text_dump_sha256": "742760a174ac454a028007e114ef9b886fd6df3a3184bcc46846da2ca0399e19"
+    },
+    "record_codec": {
+      "old_bytes": 61580,
+      "new_bytes": 61580,
+      "text_equal": true,
+      "old_text_dump_sha256": "8f61c0563ca764c27a38938273e0f29d93ba352092161f959aeb372a96b4ae03",
+      "new_text_dump_sha256": "8f61c0563ca764c27a38938273e0f29d93ba352092161f959aeb372a96b4ae03"
+    },
+    "slp": {
+      "old_bytes": 16800,
+      "new_bytes": 16800,
+      "text_equal": true,
+      "old_text_dump_sha256": "ab8d3e8455d9e7a083514f4c0791b80b519f53b9eb353fda568bdced7f2f76b6",
+      "new_text_dump_sha256": "ab8d3e8455d9e7a083514f4c0791b80b519f53b9eb353fda568bdced7f2f76b6"
+    },
+    "platform": {
+      "old_bytes": 768,
+      "new_bytes": 768,
+      "text_equal": true,
+      "old_text_dump_sha256": "8f1aa450dc0f514d0e2c23b71f2635a5a4771b1cbdf5a14eeb6e8a590dd2af33",
+      "new_text_dump_sha256": "8f1aa450dc0f514d0e2c23b71f2635a5a4771b1cbdf5a14eeb6e8a590dd2af33"
+    }
+  },
+  "linked_runner_text_equal": true,
+  "linked_runner_text_bytes": [
+    305392,
+    305392
+  ],
+  "decision": "No timing experiment: linked runner and all five core object text sections are identical."
+}

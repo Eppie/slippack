@@ -1,4 +1,5 @@
 #include "../slp.h"
+#include <map>
 #include <algorithm>
 #include <cfenv>
 #include <cmath>
@@ -40,6 +41,81 @@ static uint32_t integer_grid_reference(uint32_t value) {
   uint32_t u;
   memcpy(&u, &g, 4);
   return u == magnitude && magnitude ? n * 2 - (value >> 31) : value;
+}
+static unsigned key(const uint8_t *p) {
+  return unsigned(p[4]) * 256 + p[5];
+}
+static size_t check_probe_pairs() {
+
+  std::mt19937 rng(526123);
+  size_t checks = 0;
+  for (unsigned a : {0u, 1u, 2u, 17u, 129u, 257u}) {
+    for (unsigned b : {0u, 1u, 2u, 17u, 128u, 1024u}) {
+      Bytes pre(size_t(a) * 66), post(size_t(b) * 84);
+      for (auto &v : pre) {
+        v = uint8_t(rng());
+      }
+      for (auto &v : post) {
+        v = uint8_t(rng());
+      }
+      const uint16_t keys[]{0, 1, 257, 65535, 0x1100};
+      for (unsigned i = 0; i < a; ++i) {
+        auto *p = pre.data() + size_t(i) * 66;
+        unsigned k = keys[rng() % 5];
+        p[4] = k >> 8;
+        p[5] = k;
+        if (i % 3) {
+          std::memset(p + kPreA, uint8_t(k * 17), kLenA);
+        }
+      }
+      for (unsigned i = 0; i < b; ++i) {
+        auto *p = post.data() + size_t(i) * 84;
+        unsigned k = keys[rng() % 3];
+        p[4] = k >> 8;
+        p[5] = k;
+        if (i % 5) {
+          std::memset(p + kPostA, uint8_t(k * 17), kLenA);
+        }
+      }
+      auto original = pre, original_post = post;
+      for (unsigned limit : {0u, 1u, 2u, 17u, 128u, 512u}) {
+        std::map<unsigned, unsigned> seen;
+        uint32_t pairs = 0, hits = 0;
+        for (unsigned i = 0; i < std::min(a, limit); ++i) {
+          auto *p = pre.data() + size_t(i) * 66;
+          unsigned k = key(p), ordinal = seen[k]++;
+          if (!ordinal) {
+            continue;
+          }
+          unsigned at = 0;
+          for (unsigned j = 0; j < b; ++j) {
+            auto *q = post.data() + size_t(j) * 84;
+            if (key(q) != k) {
+              continue;
+            }
+            if (++at == ordinal) {
+              ++pairs;
+              hits += std::memcmp(p + kPreA, q + kPostA, kLenA) == 0;
+              break;
+            }
+          }
+        }
+        for (unsigned repeat = 0; repeat < 2; ++repeat) {
+          uint32_t actual_pairs = UINT32_MAX;
+          auto actual =
+              cross_pred_xor(pre.data(), a, 66, post.data(), b, 84, true, limit, &actual_pairs);
+          require(actual == hits && actual_pairs == pairs, "probe pairing oracle");
+          require(pre == original && post == original_post, "probe mutated records");
+          ++checks;
+          cross_pred_xor(pre.data(), a, 66, post.data(), b, 84, false, 0, nullptr);
+          cross_pred_xor(pre.data(), a, 66, post.data(), b, 84, false, 0, nullptr);
+          require(pre == original && post == original_post, "prediction restore/static cleanup");
+          ++checks;
+        }
+      }
+    }
+  }
+  return checks;
 }
 int main() {
   std::fesetround(FE_TONEAREST);
@@ -195,5 +271,6 @@ int main() {
     }
   }
 
+  checks += check_probe_pairs();
   printf("predictors: %zu checks passed\n", checks);
 }

@@ -47,18 +47,51 @@ struct LzOptions {
   unsigned depth = 8;
   bool lazy = true;
   bool predict = true;
+  unsigned recent_limit = 4;
+  bool short_matches = true;
 };
 
+// Modes 8/9/10 have a fixed ten-bit probability scale.
+constexpr unsigned EncoderBits = 10;
+static_assert(EncoderBits == 10 && std::has_single_bit(unsigned(ProfileCount)));
+
+// A lease takes the entire cache so nested calls cannot alias live scratch.
+// Retain at most 1 MiB per type and thread, discarding larger one-off buffers.
+template <class T> struct Scratch {
+  using Storage = std::vector<T, slippack::OutputAllocator<T>>;
+  static Storage &cache() {
+    static thread_local Storage value;
+    return value;
+  }
+  Storage data;
+  explicit Scratch(size_t size) : data(std::move(cache())) {
+    // The old lease may have left entries uninitialized. Keep its allocation,
+    // but never relocate those entries if the new request needs more capacity.
+    data.clear();
+    data.resize(size);
+  }
+  Scratch(const Scratch &) = delete;
+  Scratch &operator=(const Scratch &) = delete;
+  ~Scratch() {
+    auto &saved = cache();
+    if (data.capacity() * sizeof(T) <= (1u << 20) && data.capacity() > saved.capacity()) {
+      saved = std::move(data);
+    }
+  }
+  T &operator[](size_t i) { return data[i]; }
+  const T &operator[](size_t i) const { return data[i]; }
+};
 struct Model {
   std::array<uint32_t, 256> hist{};
   std::array<uint16_t, 256> freq{}, start{};
-  void normalize() {
+  void normalize(unsigned precision = 12) {
+    const int scale = 1 << precision;
     uint64_t total = 0;
     for (auto n : hist) {
       total += n;
     }
     if (!total) {
-      freq[0] = 4096;
+      freq[0] = scale;
       return;
     }
     int sum = 0;
@@ -66,17 +99,17 @@ struct Model {
       if (hist[s]) {
         // Nearest rounding avoids systematically moving every fractional
         // frequency into the most common symbol during sum correction.
-        freq[s] = uint16_t(std::max<uint64_t>(1, (uint64_t(hist[s]) * 4096 + total / 2) / total));
+        freq[s] = uint16_t(std::max<uint64_t>(1, (uint64_t(hist[s]) * scale + total / 2) / total));
         sum += freq[s];
       }
     }
-    while (sum != 4096) {
+    while (sum != scale) {
       auto it = std::max_element(freq.begin(), freq.end());
-      if (sum < 4096) {
-        *it += uint16_t(4096 - sum);
-        sum = 4096;
+      if (sum < scale) {
+        *it += uint16_t(scale - sum);
+        sum = scale;
       } else {
-        int d = std::min(sum - 4096, int(*it) - 1);
+        int d = std::min(sum - scale, int(*it) - 1);
         require(d > 0, "custom normalization");
         *it -= d;
         sum -= d;
@@ -91,7 +124,8 @@ struct Model {
 };
 
 // Compact alphabets, an implied first frequency, and Rice-coded frequencies.
-inline void write_compact_model(Bytes &out, const std::array<uint16_t, 256> &freq) {
+inline void write_compact_model(Bytes &out, const std::array<uint16_t, 256> &freq,
+                                unsigned scale = 4096) {
   std::array<uint8_t, 256> symbols;
   unsigned used = 0;
   for (unsigned b = 0; b < 256; ++b) {
@@ -115,7 +149,7 @@ inline void write_compact_model(Bytes &out, const std::array<uint16_t, 256> &fre
   if (used == 1) {
     return;
   }
-  unsigned mean = (4096 - freq[symbols[0]]) / (used - 1);
+  unsigned mean = (scale - freq[symbols[0]]) / (used - 1);
   unsigned k = std::bit_width(mean) > 1 ? std::bit_width(mean) - 2 : 0;
   unsigned bits[2] = {}, raw = 0;
   for (unsigned i = 1; i < used; ++i) {
@@ -158,7 +192,7 @@ inline void write_compact_model(Bytes &out, const std::array<uint16_t, 256> &fre
     out.push_back(uint8_t(pending));
   }
 }
-inline void read_compact_model(Reader &r, std::array<uint16_t, 256> &freq) {
+inline void read_compact_model(Reader &r, std::array<uint16_t, 256> &freq, unsigned scale = 4096) {
   freq.fill(0);
   std::array<uint8_t, 256> symbols;
   unsigned used = r.var();
@@ -178,7 +212,7 @@ inline void read_compact_model(Reader &r, std::array<uint16_t, 256> &freq) {
     }
   }
   if (used == 1) {
-    freq[symbols[0]] = 4096;
+    freq[symbols[0]] = scale;
     return;
   }
   unsigned k = r.byte();
@@ -202,23 +236,23 @@ inline void read_compact_model(Reader &r, std::array<uint16_t, 256> &freq) {
       unsigned q = 0;
       while (!pending) {
         q += count;
-        require(q <= (4095u >> k), "compact unary frequency");
+        require(q <= ((scale - 1) >> k), "compact unary frequency");
         pending = r.byte();
         count = 8;
       }
       unsigned zeros = std::countr_zero(pending);
       q += zeros;
-      require(q <= (4095u >> k), "compact unary frequency");
+      require(q <= ((scale - 1) >> k), "compact unary frequency");
       pending >>= zeros + 1;
       count -= zeros + 1;
       f = (q << k) + get(k) + 1;
     }
-    require(f > 0 && f < 4096 && sum + f < 4096, "compact frequency sum");
+    require(f > 0 && f < scale && sum + f < scale, "compact frequency sum");
     sum += f;
     freq[symbols[i]] = uint16_t(f);
   }
   require(!pending, "compact frequency padding");
-  freq[symbols[0]] = uint16_t(4096 - sum);
+  freq[symbols[0]] = uint16_t(scale - sum);
 }
 
 } // namespace slippack_custom

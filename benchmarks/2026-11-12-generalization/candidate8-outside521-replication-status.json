@@ -1,0 +1,15 @@
+{
+  "started_utc": "2026-11-13T10:44:01.186724+00:00",
+  "dataset": "outside521",
+  "candidate": "candidate8",
+  "protocol_sha256": "69286baee7ba17f49a28d66f44613c25ab20c3d268d764b509ea28cdb8d3723c",
+  "prerequisite_summary_sha256": {},
+  "completed_launches": [
+    1,
+    2,
+    3
+  ],
+  "completed": true,
+  "status": "All three launches and pooled summary complete; all samples retained.",
+  "finished_utc": "2026-11-13T11:04:16.762031+00:00"
+}

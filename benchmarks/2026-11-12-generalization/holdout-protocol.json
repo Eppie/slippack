@@ -1,0 +1,17 @@
+{
+  "baseline_commit": "3d39721ef0e696d7a7d23c86c4805b37b45685e8",
+  "sources": [
+    "archive-org-foofs-slippi-replay-collection",
+    "slippi-gcs-genesis-7",
+    "fight-pitt-9",
+    "combo-breaker-2024",
+    "collision-2025",
+    "supernova-2025-main-stream",
+    "slippi-gcs-summit-10-online",
+    "personal-pre-slippi-online"
+  ],
+  "selection": "Up to 64 .slp members per source, smallest SHA-1 of UTF-8 member path; selection independent of codec measurements. Deduplicate by SHA-256 against all 521 development inputs and across selected members. No replacement of excluded duplicates.",
+  "use": "Final validation only after candidate and training profile are frozen; no tuning on these results. If a candidate fails, retire this set as validation data and reserve new source collections.",
+  "metrics": "At default level 3, one replay per archive, arithmetic mean elapsed time over 9 randomized interleaved repeats after warmup, one and eight independent workers. Check all three user alternatives and report both throughput and elapsed-time changes.",
+  "limitations": "Source archives were previously decoded/recompressed for migration, but these samples are excluded from current tuning and profile training. Source-group separation reduces but cannot eliminate related-game leakage."
+}

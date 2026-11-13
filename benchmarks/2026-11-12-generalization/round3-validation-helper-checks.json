@@ -1,0 +1,17 @@
+{
+  "recorded_utc": "2026-11-13T08:15:37.386831+00:00",
+  "checks": {
+    "exact_cohort_contract": true,
+    "bad_role_count_protocol_rejected": 5,
+    "missing_or_failed_prerequisite_prevented_benchmark": 5,
+    "pooled_mean_arithmetic": true,
+    "old_candidate6_protocol_artifacts_unchanged": true
+  },
+  "sha256": {
+    "benchmarks/2026-11-12-generalization/round3_cohorts.py": "1f3a77f3d47bae0f1ea9f36ad2b1908dbf226f97eccd61f7c5f9ae6c854b0549",
+    "benchmarks/2026-11-12-generalization/replicate_round3.py": "2fbae4d8b376b4ab8147f2f579284e9a97e3a42a6e22d99d95ad45fd2c22b7d1",
+    "benchmarks/2026-11-12-generalization/summarize_replicates_round3.py": "077bda0894f3616348ba21cb18d97ff19c83cae027a6519826bc821b60bd7791",
+    "build/goal-2026-11-12/check_round3_validation.py": "967ac23ea4056cb04fd8321183684b1c12cc7082f11bf82976e4e7f8addc21c0"
+  },
+  "status": "Helpers prepared and checked; no candidate7 protocol or frozen candidate7 exists yet."
+}

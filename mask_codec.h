@@ -254,6 +254,21 @@ struct NibbleTable {
     require(sum == 65536, "presence table");
   }
 };
+// An encoder-only table stores frequency minus one beside the CDF start.
+// Since start + frequency <= 65536, UINT32_MAX cannot be a valid pair and
+// serves as the zero-frequency marker. The decoder keeps its complete CDF.
+struct NibbleEncoderTable {
+  std::array<uint32_t, 16> entries;
+  void build(unsigned key, const std::array<uint16_t, 256> &probs) {
+    NibbleTable original;
+    original.build(key, probs);
+    for (unsigned symbol = 0; symbol < 16; ++symbol) {
+      unsigned f = original.frequency(symbol);
+      entries[symbol] = f ? (original.start(symbol) << 16) | (f - 1) : UINT32_MAX;
+    }
+  }
+};
+static_assert(sizeof(NibbleEncoderTable) == 64);
 inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View refs) {
   size_t planes = profiles.size(), width = (size_t(count) + 7) / 8;
   std::array<std::array<uint32_t, 2>, 256> hist{};
@@ -273,7 +288,24 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       // the zero padding of a final short nibble.
       if ((current == 0 && history == 0 && (above & 1023) == 0) ||
           (current == 255 && history == 15 && (above & 1023) == 1023)) {
-        hist4[0][cls + history + (above & 7) * 16][current & 1] += pairs * 4;
+        unsigned decisions = pairs * 4;
+        if (byte + 8 <= count / 8) {
+          uint64_t block;
+          std::memcpy(&block, masks.data() + j * width + byte, 8);
+          uint64_t expected = current ? UINT64_MAX : 0;
+          bool reference_matches = !refs[j];
+          if (refs[j]) {
+            uint64_t reference;
+            std::memcpy(&reference, masks.data() + src + byte, 8);
+            unsigned next_bit = byte + 8 < width ? masks[src + byte + 8] & 1 : 0;
+            reference_matches = reference == expected && next_bit == (current & 1);
+          }
+          if (block == expected && reference_matches) {
+            decisions = 64;
+            byte += 7;
+          }
+        }
+        hist4[0][cls + history + (above & 7) * 16][current & 1] += decisions;
         continue;
       }
       for (unsigned k = 0; k < pairs; ++k) {
@@ -306,7 +338,7 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
         p = std::clamp(p, 1u, 4095u);
       }
       candidates[split][c] = p;
-      costs[split] += p < 128 ? 8 : 16;
+
       if (a) {
         costs[split] += a * std::log2(4096. / p);
       }
@@ -315,13 +347,42 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
       }
     }
   }
-  unsigned split = costs[1] < costs[0], nc = 128u << split;
-  auto &probs = candidates[split];
-  Bytes out{uint8_t(split)};
-  for (unsigned c = 0; c < nc; ++c) {
-    varint(out, probs[c]);
+  std::array<Bytes, 2> headers;
+  for (unsigned candidate_split = 0; candidate_split < 2; ++candidate_split) {
+    unsigned nc = 128u << candidate_split;
+    auto &probs = candidates[candidate_split];
+    Bytes out{uint8_t(candidate_split)}, bitmap{uint8_t(4 | candidate_split)},
+        tags{uint8_t(2 | candidate_split)};
+    for (unsigned c = 0; c < nc; ++c) {
+      varint(out, probs[c]);
+    }
+    bitmap.resize(1 + nc / 8, 0);
+    tags.resize(1 + nc / 4, 0);
+    for (unsigned c = 0; c < nc; ++c) {
+      unsigned p = probs[c];
+      if (p != 4096) {
+        bitmap[1 + c / 8] |= 1u << (c & 7);
+        varint(bitmap, p);
+      }
+      unsigned tag = p == 4096 ? 0 : p == 0 ? 1 : p == 4095 ? 2 : 3;
+      tags[1 + c / 4] |= tag << ((c & 3) * 2);
+      if (tag == 3) {
+        varint(tags, p);
+      }
+    }
+    if (bitmap.size() < out.size()) {
+      out = std::move(bitmap);
+    }
+    if (tags.size() < out.size()) {
+      out = std::move(tags);
+    }
+    costs[candidate_split] += out.size() * 8;
+    headers[candidate_split] = std::move(out);
   }
-  std::unique_ptr<NibbleTable[]> tables(new NibbleTable[1024u << split]);
+  unsigned split = costs[1] < costs[0];
+  auto &probs = candidates[split];
+  Bytes out = std::move(headers[split]);
+  Scratch<NibbleEncoderTable> tables(1024u << split);
   std::vector<uint8_t> used(1024u << split, 0);
   uint32_t state[4] = {1u << 23, 1u << 23, 1u << 23, 1u << 23};
   // The state is below 2^31 and the smallest renormalization limit is 2^15,
@@ -331,39 +392,89 @@ inline Bytes encode_presence4(View masks, uint32_t count, View profiles, View re
   uint8_t *end = bytes.get() + symbols * 2, *write = end;
   // Recover history directly from the source masks while walking backward;
   // no per-symbol trace buffer is needed.
-  size_t t = symbols;
+  const size_t nibbles = (size_t(count) + 3) / 4;
+  auto emit = [&](unsigned key, unsigned symbol, uint32_t &x) {
+    if (!used[key]) {
+      used[key] = 1;
+      tables[key].build(key, probs);
+    }
+    uint32_t entry = tables[key].entries[symbol];
+    require(entry != UINT32_MAX, "presence frequency");
+    if (entry == 65535) {
+      return;
+    }
+    uint32_t frequency = (entry & 65535) + 1, start = entry >> 16;
+    uint32_t limit = ((1u << 23 >> 16) << 8) * frequency;
+    while (x >= limit) {
+      *--write = uint8_t(x);
+      x >>= 8;
+    }
+    x = x / frequency * 65536 + x % frequency + start;
+  };
   for (size_t j = planes; j-- > 0;) {
     size_t src = refs[j] ? (j - refs[j]) * width : 0;
     unsigned cls = split && profiles[j] == FloatLow ? 1024 : 0;
-    for (size_t byte = width; byte-- > 0;) {
+    // Local nibble i belongs to global state (j*nibbles+i)&3. Rotate at
+    // the plane boundary so four-symbol groups have independent scalar states.
+    unsigned phase = unsigned(j * nibbles) & 3;
+    uint32_t tail0 = state[phase], tail1 = state[(phase + 1) & 3];
+    uint32_t tail2 = state[(phase + 2) & 3];
+    auto tail = [&](size_t i, uint32_t &x) {
+      size_t byte = i / 2;
+      unsigned k = unsigned(i) & 1;
       unsigned above =
           refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) | (unsigned(masks[src + byte]) << 1) |
                      (byte + 1 < width ? unsigned(masks[src + byte + 1]) << 9 : 0))
                   : 0;
-      unsigned cur = masks[j * width + byte], prev = byte ? masks[j * width + byte - 1] : 0;
-      unsigned pairs = std::min<size_t>(2, (count - byte * 8 + 3) / 4);
-      for (unsigned k = pairs; k-- > 0;) {
-        unsigned history = reverse4(k ? (cur & 15) : (prev >> 4));
-        unsigned key = history | (((above >> (k * 4)) & 63) << 4) | cls;
-        unsigned s = (cur >> (k * 4)) & 15;
-        --t;
-        if (!used[key]) {
-          used[key] = 1;
-          tables[key].build(key, probs);
-        }
-        auto &m = tables[key];
-        uint32_t f = m.frequency(s), &x = state[t & 3];
-        require(f, "presence frequency");
-        if (f == 65536) {
-          continue;
-        }
-        while (x >= ((1u << 23 >> 16) << 8) * f) {
-          *--write = uint8_t(x);
-          x >>= 8;
-        }
-        x = x / f * 65536 + x % f + m.start(s);
-      }
+      unsigned current = masks[j * width + byte];
+      unsigned previous = byte ? masks[j * width + byte - 1] : 0;
+      unsigned history = reverse4(k ? current & 15 : previous >> 4);
+      unsigned key = history | (((above >> (4 * k)) & 63) << 4) | cls;
+      emit(key, (current >> (4 * k)) & 15, x);
+    };
+    size_t complete = nibbles & ~size_t(3);
+    unsigned remainder = unsigned(nibbles) & 3;
+    if (remainder >= 3) {
+      tail(complete + 2, tail2);
     }
+    if (remainder >= 2) {
+      tail(complete + 1, tail1);
+    }
+    if (remainder >= 1) {
+      tail(complete, tail0);
+    }
+    // Tail calls may be outlined. Their addresses must not escape the four
+    // independent states used by the main loop.
+    uint32_t x0 = tail0, x1 = tail1, x2 = tail2, x3 = state[(phase + 3) & 3];
+    for (size_t group = complete / 4; group-- > 0;) {
+      size_t byte = group * 2;
+      unsigned above =
+          refs[j] ? ((byte ? masks[src + byte - 1] >> 7 : 0) | (unsigned(masks[src + byte]) << 1) |
+                     (unsigned(masks[src + byte + 1]) << 9) |
+                     (byte + 2 < width ? unsigned(masks[src + byte + 2] & 1) << 17 : 0))
+                  : 0;
+      unsigned current =
+          unsigned(masks[j * width + byte]) | (unsigned(masks[j * width + byte + 1]) << 8);
+      unsigned previous = byte ? masks[j * width + byte - 1] : 0;
+      auto step = [&]<unsigned K>(uint32_t &x) {
+        unsigned prior;
+        if constexpr (K == 0) {
+          prior = previous >> 4;
+        } else {
+          prior = (current >> ((K - 1) * 4)) & 15;
+        }
+        unsigned key = reverse4(prior) | (((above >> (K * 4)) & 63) << 4) | cls;
+        emit(key, (current >> (K * 4)) & 15, x);
+      };
+      step.template operator()<3>(x3);
+      step.template operator()<2>(x2);
+      step.template operator()<1>(x1);
+      step.template operator()<0>(x0);
+    }
+    state[phase] = x0;
+    state[(phase + 1) & 3] = x1;
+    state[(phase + 2) & 3] = x2;
+    state[(phase + 3) & 3] = x3;
   }
   for (auto x : state) {
     u32(out, x);
@@ -408,11 +519,21 @@ struct NibbleDecoderTable : NibbleTable {
 };
 inline Bytes decode_presence4(Reader &r, uint32_t count, View profiles, View refs) {
   size_t planes = profiles.size(), width = (size_t(count) + 7) / 8;
-  unsigned split = r.byte();
-  require(split <= 1, "presence model");
+  unsigned mode = r.byte();
+  require(mode <= 5, "presence model");
+  unsigned split = mode & 1, coding = mode >> 1, nc = 128u << split;
+  View tags = coding ? r.take(nc / (coding == 1 ? 4 : 8)) : View{};
   std::array<uint16_t, 256> probs{};
-  for (unsigned c = 0; c < (128u << split); ++c) {
-    unsigned x = r.var();
+  for (unsigned c = 0; c < nc; ++c) {
+    unsigned x;
+    if (!coding) {
+      x = r.var();
+    } else if (coding == 2) {
+      x = ((tags[c / 8] >> (c & 7)) & 1) ? r.var() : 4096;
+    } else {
+      unsigned tag = (tags[c / 4] >> ((c & 3) * 2)) & 3;
+      x = tag == 0 ? 4096 : tag == 1 ? 0 : tag == 2 ? 4095 : r.var();
+    }
     require(x <= 4096, "presence probability");
     probs[c] = x;
   }

@@ -1,0 +1,41 @@
+{
+  "reason": "Scratch already uses OutputAllocator, whose zero-argument construct performs default initialization without a zero pass. The explicit empty constructor is redundant and is not a new optimization.",
+  "objects": {
+    "archive": {
+      "identical": true,
+      "control_bytes": 63420,
+      "constructor_bytes": 63420,
+      "control_sha256": "28c062e7a0baf0ab1341b4d34406c80700472224617d81560e190d8b0c7ea19c",
+      "constructor_sha256": "28c062e7a0baf0ab1341b4d34406c80700472224617d81560e190d8b0c7ea19c"
+    },
+    "frames": {
+      "identical": true,
+      "control_bytes": 146496,
+      "constructor_bytes": 146496,
+      "control_sha256": "74299faff64de782d70db9b3254e43b9a51b16dc67404b23ead49787f6150228",
+      "constructor_sha256": "74299faff64de782d70db9b3254e43b9a51b16dc67404b23ead49787f6150228"
+    },
+    "record_codec": {
+      "identical": true,
+      "control_bytes": 61744,
+      "constructor_bytes": 61744,
+      "control_sha256": "2fa5294a50b4fa5902921de98937c4674d94334490257dc0a38985b00bd0fb36",
+      "constructor_sha256": "2fa5294a50b4fa5902921de98937c4674d94334490257dc0a38985b00bd0fb36"
+    },
+    "slp": {
+      "identical": true,
+      "control_bytes": 17284,
+      "constructor_bytes": 17284,
+      "control_sha256": "90b5ad4e9b5835d2ad91aca22336c50b800b97fa8606f47fd7d7eafefebbfa80",
+      "constructor_sha256": "90b5ad4e9b5835d2ad91aca22336c50b800b97fa8606f47fd7d7eafefebbfa80"
+    },
+    "platform": {
+      "identical": true,
+      "control_bytes": 576,
+      "constructor_bytes": 576,
+      "control_sha256": "f148624cd83e5fdf1558e052bcc98e0278a59d74851d2565522a7939bb4b22d3",
+      "constructor_sha256": "f148624cd83e5fdf1558e052bcc98e0278a59d74851d2565522a7939bb4b22d3"
+    }
+  },
+  "benchmark_performed": false
+}

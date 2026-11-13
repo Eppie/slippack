@@ -1,0 +1,219 @@
+{
+  "completed": true,
+  "scope": "Prototype correctness only; no performance qualification",
+  "checks": [
+    {
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": "Uniform masks: 13400 cases passed\n"
+    },
+    {
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": "Uniform masks: 13400 cases passed\n"
+    },
+    {
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "Uniform masks: 13400 cases passed\n"
+    },
+    {
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_local7-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    }
+  ],
+  "artifact_sha256": {
+    "build/goal-2026-11-12/presence_four_local7/mask_codec.h": "fcbdf1eff60122ef93ecc576e5f3502fec0d37f49eec72d4e6f342902f1ea948",
+    "build/goal-2026-11-12/presence_four_local7/tests/custom_codec_test.cpp": "3df93eb553f7269651dc6c7f6c9a9fa98bbb4d63b9dcf8d497c338f9307a5d95",
+    "build/goal-2026-11-12/presence_four_local7_oracle.cpp": "a2804bcbf2dd44bae8205dfdbc2d74021720bd2be66509a49f06568d1c47fad6",
+    "build/goal-2026-11-12/presence_round3_check.cpp": "fb0169487fa91c9af6071157e661f88e2008da21fa00953d895a9e64a6040e44",
+    "build/goal-2026-11-12/check_presence_four_local7.py": "be25a5c0c007fcc2c4dad6e8920cca77eb7e95650fb895033af9d0676fbec9ed",
+    "build/goal-2026-11-12/prepare_presence_four_local7.py": "ed7d2bf81458e41bdb2dd27510de6b6b9780887ee9dde2cd8e7e5615046f170c",
+    "build/goal-2026-11-12/presence_four_local7/record_codec.cpp": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
+    "build/goal-2026-11-12/presence_four_local7/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "build/goal-2026-11-12/presence_four_local7/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "build/goal-2026-11-12/presence_four_local7/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "build/goal-2026-11-12/presence_four_local7/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "build/goal-2026-11-12/presence_four_local7/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "build/goal-2026-11-12/presence_four_local7/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "build/goal-2026-11-12/presence_four_local7/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "build/goal-2026-11-12/presence_four_local7/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "build/goal-2026-11-12/presence_four_local7/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "build/goal-2026-11-12/presence_four_local7/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "build/goal-2026-11-12/presence_four_local7/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "build/goal-2026-11-12/presence_four_local7/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "build/goal-2026-11-12/presence_four_local7/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/presence_four_local7/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "build/goal-2026-11-12/presence_four_local7/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "build/goal-2026-11-12/presence_four_local7/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "build/goal-2026-11-12/presence_four_local7/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "build/goal-2026-11-12/presence_four_local7/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "build/goal-2026-11-12/presence_four_local7/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "build/goal-2026-11-12/presence_four_local7/profiles/level3.json": "8d94527c987fbc68edbb5bacaa4ead8cfe2a42fc0e22a85457e67f8b39f54f69",
+    "build/goal-2026-11-12/presence_four_local7/profiles/level3.proftext": "e03fe06c3cca7f1785f8d2169d6a16e56b00a40a8269623a4c790afcc865d99d",
+    "build/goal-2026-11-12/presence_four_local7/build/release/libslippack.a": "9a62d24a9812eff10fa5b8538ca78928aacdb6feeaad9f8dcd99896c72c71e9b",
+    "build/goal-2026-11-12/presence_four_local7/runner": "27c02da998256025d73e8a00818fe3b50d8ac03be8cc445cb35e56d8654aefe6",
+    "build/goal-2026-11-12/presence-four-local7.asm": "a90b6c264a8aa52023e0f0a348d45b0286d1e8f9b3fa05f406509693f29991e5"
+  },
+  "training": {
+    "inputs": 64,
+    "exact_match_to_candidate7": true,
+    "holdout_round3_overlap": 0,
+    "profile_sha256": "e03fe06c3cca7f1785f8d2169d6a16e56b00a40a8269623a4c790afcc865d99d"
+  },
+  "exact_reference_packets_per_build_mode": 13400,
+  "custom_checks_per_build_mode": 6289,
+  "mechanism": "Four-symbol groups with state phase(j*ceil(count/4)+local_symbol)&3; 16-bit mask/reference windows; unchanged histogram, table representation, format and decoder.",
+  "assembly_observation": "Four independent hot-loop state registers w23,w24,w26,w28; outlined tail receives separate temporary variables."
+}

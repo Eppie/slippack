@@ -1,0 +1,430 @@
+{
+  "completed": true,
+  "elapsed_seconds": 27.51457405090332,
+  "checks": [
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": "Byte model: 59687362 checks; byte state: 12845056 checks\nEquivalent headers: 12960; rejected malformed: 6480\nUniform masks: 1080 cases passed\n"
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": "Byte model: 59687362 checks; byte state: 12845056 checks\nEquivalent headers: 12960; rejected malformed: 6480\nUniform masks: 1080 cases passed\n"
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "Byte model: 59687362 checks; byte state: 12845056 checks\nEquivalent headers: 12960; rejected malformed: 6480\nUniform masks: 1080 cases passed\n"
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_cached6",
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_cached6-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": "Byte model: 59536508 checks; byte state: 12845056 checks\nEscapes: 13326 checks\nEquivalent headers: 12960; rejected malformed: 6480\nUniform masks: 1080 cases passed\n"
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": "Byte model: 59536508 checks; byte state: 12845056 checks\nEscapes: 13326 checks\nEquivalent headers: 12960; rejected malformed: 6480\nUniform masks: 1080 cases passed\n"
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "Byte model: 59536508 checks; byte state: 12845056 checks\nEscapes: 13326 checks\nEquivalent headers: 12960; rejected malformed: 6480\nUniform masks: 1080 cases passed\n"
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "variant": "presence_byte18_tree6",
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_byte18_tree6-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    }
+  ],
+  "artifact_sha256": {
+    "build/goal-2026-11-12/presence_byte18_cached6/mask_codec.h": "03d2a9a133da33b330a3b80952b373541f04c6cf0364b1c3a1519efe67a650df",
+    "build/goal-2026-11-12/presence_byte18_cached6/tests/custom_codec_test.cpp": "c1226010f767aefada4fbe99a4e8ddd8bad39a30e602bfd9aaf8a9f0ca360c6a",
+    "build/goal-2026-11-12/presence_byte18_cached6_oracle.cpp": "f44e19af178a6e0130f0afd16530971952095c28e01d4b38ffc330f119385eea",
+    "build/goal-2026-11-12/presence_byte18_tree6/mask_codec.h": "9567b7db31642bfb171e3afcce533a4b8640db722863d837b7fa24d0d529d221",
+    "build/goal-2026-11-12/presence_byte18_tree6/tests/custom_codec_test.cpp": "8e698cceb399df46f85fa94c30880b2fc3ce3b986ac057354a8a6c610c41e26f",
+    "build/goal-2026-11-12/presence_byte18_tree6_oracle.cpp": "9971a7a26f8feb08f3067d1e1d6ec61b7df3aa850872c9c13329a562920c112b",
+    "build/goal-2026-11-12/presence_byte18_cached6/record_codec.cpp": "6a2976c1f64e6cfc5474fd315f9272064c9469a81b4122d59dd08525ebd6f9e4",
+    "build/goal-2026-11-12/presence_byte18_cached6/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "build/goal-2026-11-12/presence_byte18_cached6/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "build/goal-2026-11-12/presence_byte18_cached6/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "build/goal-2026-11-12/presence_byte18_cached6/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "build/goal-2026-11-12/presence_byte18_cached6/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "build/goal-2026-11-12/presence_byte18_cached6/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "build/goal-2026-11-12/presence_byte18_cached6/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "build/goal-2026-11-12/presence_byte18_cached6/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "build/goal-2026-11-12/presence_byte18_cached6/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "build/goal-2026-11-12/presence_byte18_cached6/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "build/goal-2026-11-12/presence_byte18_cached6/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "build/goal-2026-11-12/presence_byte18_cached6/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "build/goal-2026-11-12/presence_byte18_cached6/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/presence_byte18_cached6/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "build/goal-2026-11-12/presence_byte18_cached6/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "build/goal-2026-11-12/presence_byte18_cached6/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "build/goal-2026-11-12/presence_byte18_cached6/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "build/goal-2026-11-12/presence_byte18_cached6/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "build/goal-2026-11-12/presence_byte18_cached6/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "build/goal-2026-11-12/presence_byte18_cached6/profiles/level3.json": "e3c57295e1d5436a9d326c8fd2ddfeba20573cd3bc568edd9c17e9bf353c6ac6",
+    "build/goal-2026-11-12/presence_byte18_cached6/profiles/level3.proftext": "e1a0ddd4b95a633265466180f516df1e7ae788adef4305a12804b97702fc19ae",
+    "build/goal-2026-11-12/presence_byte18_cached6/build/release/libslippack.a": "df5f8a51140acb498e9903e2ec52cbe07edfbb67142274265b2f53c7235b52fd",
+    "build/goal-2026-11-12/presence_byte18_cached6/runner": "bca413037822351631fe049c0812f7cb5bec9be75c074d24c03551d666acffdc",
+    "build/goal-2026-11-12/presence_byte18_tree6/record_codec.cpp": "6a2976c1f64e6cfc5474fd315f9272064c9469a81b4122d59dd08525ebd6f9e4",
+    "build/goal-2026-11-12/presence_byte18_tree6/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "build/goal-2026-11-12/presence_byte18_tree6/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "build/goal-2026-11-12/presence_byte18_tree6/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "build/goal-2026-11-12/presence_byte18_tree6/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "build/goal-2026-11-12/presence_byte18_tree6/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "build/goal-2026-11-12/presence_byte18_tree6/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "build/goal-2026-11-12/presence_byte18_tree6/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "build/goal-2026-11-12/presence_byte18_tree6/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "build/goal-2026-11-12/presence_byte18_tree6/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "build/goal-2026-11-12/presence_byte18_tree6/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "build/goal-2026-11-12/presence_byte18_tree6/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "build/goal-2026-11-12/presence_byte18_tree6/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "build/goal-2026-11-12/presence_byte18_tree6/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/presence_byte18_tree6/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "build/goal-2026-11-12/presence_byte18_tree6/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "build/goal-2026-11-12/presence_byte18_tree6/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "build/goal-2026-11-12/presence_byte18_tree6/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "build/goal-2026-11-12/presence_byte18_tree6/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "build/goal-2026-11-12/presence_byte18_tree6/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "build/goal-2026-11-12/presence_byte18_tree6/profiles/level3.json": "ed6ea2a610b5cdea1beb1efc8cb38b1f4bc0460330047ec495edc13a08f88be6",
+    "build/goal-2026-11-12/presence_byte18_tree6/profiles/level3.proftext": "ec2d7fc8bff63f4fe4bdb405b5153efe5eda48bf126de578c09040a28e736df5",
+    "build/goal-2026-11-12/presence_byte18_tree6/build/release/libslippack.a": "30a264741d0a1e0884443ef62e3ffbbf8d501026007e8eb2ace3607789e1edad",
+    "build/goal-2026-11-12/presence_byte18_tree6/runner": "5c402f8f101beb8a4cc91aaee318b330b968884d5b7df18e5389eeba94d27f44"
+  },
+  "scope": "Prototype correctness only; no performance or holdout qualification.",
+  "training": {
+    "presence_byte18_cached6": {
+      "inputs": 64,
+      "exact_match_to_candidate6": true,
+      "holdout_round3_overlap": 0,
+      "profile_sha256": "e1a0ddd4b95a633265466180f516df1e7ae788adef4305a12804b97702fc19ae"
+    },
+    "presence_byte18_tree6": {
+      "inputs": 64,
+      "exact_match_to_candidate6": true,
+      "holdout_round3_overlap": 0,
+      "profile_sha256": "ec2d7fc8bff63f4fe4bdb405b5153efe5eda48bf126de578c09040a28e736df5"
+    }
+  },
+  "tree_model": "Independent per-symbol64-bit interval walk checks production in-place tree. All slots in selected models; reserved escape tested with independent packet covering every raw value and every state lane; production rare-path fixture and cache transitions."
+}

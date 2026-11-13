@@ -1,0 +1,459 @@
+{
+  "completed": true,
+  "recorded_utc": "2026-11-13T12:41:23.999435+00:00",
+  "candidate": "candidate8",
+  "run_id": "candidate8-awake1",
+  "goal_option_satisfied": 2,
+  "conclusion": "All three predeclared cohorts meet at least10% compression throughput gain and at least10% compression elapsed-time reduction at BOTH one/eight workers, with smaller aggregate output and faster average decoding. Independent heldout validation also passes.",
+  "scope": {
+    "level": 3,
+    "workers": [
+      1,
+      8
+    ],
+    "machine": "Apple M4 Max",
+    "platform": "macOS-15.5-arm64-arm-64bit-Mach-O",
+    "method": "One replay per archive, RAM inputs, one warmup per setting, randomized interleaving, verification and packed SHA-1 outside timers.",
+    "power": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "measurements": {
+    "outside521": {
+      "files": 1408,
+      "timings": {
+        "1": {
+          "encode": {
+            "throughput_gain_percent": 12.70476521632402,
+            "time_reduction_percent": 11.272606967361742,
+            "launch_gains_percent": [
+              12.82957295261886,
+              12.726361684436881,
+              12.561019558835351
+            ],
+            "descriptive_timing_interval": [
+              12.157305298124754,
+              13.253060986890475
+            ]
+          },
+          "decode": {
+            "throughput_gain_percent": 1.0144097424026999,
+            "time_reduction_percent": 1.0042228083988691,
+            "launch_gains_percent": [
+              0.9345116932287567,
+              1.0766349123737085,
+              1.0308290384622998
+            ],
+            "descriptive_timing_interval": [
+              0.8571543376947988,
+              1.1579662792731815
+            ]
+          }
+        },
+        "8": {
+          "encode": {
+            "throughput_gain_percent": 12.869062697893497,
+            "time_reduction_percent": 11.401762706525664,
+            "launch_gains_percent": [
+              12.769440900885165,
+              12.762823471734986,
+              13.073865789102502
+            ],
+            "descriptive_timing_interval": [
+              11.778109933033054,
+              14.013150814659724
+            ]
+          },
+          "decode": {
+            "throughput_gain_percent": 1.1707035873344651,
+            "time_reduction_percent": 1.1571567121937187,
+            "launch_gains_percent": [
+              1.1328312377328675,
+              1.2359604489594833,
+              1.14318784411922
+            ],
+            "descriptive_timing_interval": [
+              1.0306394972729782,
+              1.3045426586222764
+            ]
+          }
+        }
+      },
+      "sizes": {
+        "files": 1408,
+        "baseline_bytes": 183925717,
+        "candidate_bytes": 183629678,
+        "aggregate_change_percent": -0.16095574062652274,
+        "mean_file_change_percent": -0.3651240289672516,
+        "shrink": 1154,
+        "equal": 3,
+        "grow": 251,
+        "max_growth_bytes": 7282,
+        "max_growth_percent": 2.4466058357565323
+      }
+    },
+    "development": {
+      "files": 1929,
+      "timings": {
+        "1": {
+          "encode": {
+            "throughput_gain_percent": 12.250175904034188,
+            "time_reduction_percent": 10.913279917269092,
+            "launch_gains_percent": [
+              13.511604934603906,
+              11.719831696776883,
+              11.527758145826583
+            ],
+            "descriptive_timing_interval": [
+              11.260355774564502,
+              13.480181605709118
+            ]
+          },
+          "decode": {
+            "throughput_gain_percent": 0.88574584871981,
+            "time_reduction_percent": 0.8779692723370425,
+            "launch_gains_percent": [
+              1.1733421980997472,
+              0.718202783303723,
+              0.7666498945653633
+            ],
+            "descriptive_timing_interval": [
+              0.6753540059188268,
+              1.1509999674433224
+            ]
+          }
+        },
+        "8": {
+          "encode": {
+            "throughput_gain_percent": 11.715927689193473,
+            "time_reduction_percent": 10.487249160915102,
+            "launch_gains_percent": [
+              13.566747090540353,
+              9.71596888771613,
+              11.887251739457149
+            ],
+            "descriptive_timing_interval": [
+              9.78893036702928,
+              13.517747153884363
+            ]
+          },
+          "decode": {
+            "throughput_gain_percent": 0.9553705658803535,
+            "time_reduction_percent": 0.9463296113176201,
+            "launch_gains_percent": [
+              1.2686722909975634,
+              0.8074776121059335,
+              0.7902719702576722
+            ],
+            "descriptive_timing_interval": [
+              0.7015518248347563,
+              1.2488087850576424
+            ]
+          }
+        }
+      },
+      "sizes": {
+        "files": 1929,
+        "baseline_bytes": 237710581,
+        "candidate_bytes": 237274426,
+        "aggregate_change_percent": -0.1834815253764388,
+        "mean_file_change_percent": -0.41410300554102847,
+        "shrink": 1618,
+        "equal": 3,
+        "grow": 308,
+        "max_growth_bytes": 7282,
+        "max_growth_percent": 2.4466058357565323
+      }
+    },
+    "holdout": {
+      "files": 512,
+      "timings": {
+        "1": {
+          "encode": {
+            "throughput_gain_percent": 12.671758073749428,
+            "time_reduction_percent": 11.246614316122693,
+            "launch_gains_percent": [
+              14.38987272974892,
+              11.467408011905844,
+              12.185577601634435
+            ],
+            "descriptive_timing_interval": [
+              10.787956592284509,
+              14.717815638665787
+            ]
+          },
+          "decode": {
+            "throughput_gain_percent": 0.7197127537052594,
+            "time_reduction_percent": 0.7145699029793673,
+            "launch_gains_percent": [
+              1.18748245256739,
+              0.5041422309885357,
+              0.4689142560492465
+            ],
+            "descriptive_timing_interval": [
+              0.3724553597592051,
+              1.1604930568963834
+            ]
+          }
+        },
+        "8": {
+          "encode": {
+            "throughput_gain_percent": 12.889464594450594,
+            "time_reduction_percent": 11.417774582203322,
+            "launch_gains_percent": [
+              19.962233465455782,
+              7.00678533086565,
+              12.08847233576902
+            ],
+            "descriptive_timing_interval": [
+              7.298437125869572,
+              19.528785505897297
+            ]
+          },
+          "decode": {
+            "throughput_gain_percent": 0.8232608175185119,
+            "time_reduction_percent": 0.8165385753675758,
+            "launch_gains_percent": [
+              1.4248389438124676,
+              0.05020701580493725,
+              1.0016948127867797
+            ],
+            "descriptive_timing_interval": [
+              0.09090686876993548,
+              1.4578091136935756
+            ]
+          }
+        }
+      },
+      "sizes": {
+        "files": 512,
+        "baseline_bytes": 64217482,
+        "candidate_bytes": 64132365,
+        "aggregate_change_percent": -0.13254490420536724,
+        "mean_file_change_percent": -0.3515904872346933,
+        "shrink": 406,
+        "equal": 1,
+        "grow": 105,
+        "max_growth_bytes": 4772,
+        "max_growth_percent": 3.3430945341945684
+      }
+    }
+  },
+  "safeguards": {
+    "all_9_launches_retained": true,
+    "measured_repetitions_per_cohort_worker": 27,
+    "all_9_sleep_guards_valid": true,
+    "max_heartbeat_gap_seconds": 1.0047450065612793,
+    "unchanged_frozen_source_binaries_profile": true,
+    "installed_cli_matches_frozen": true,
+    "actual_input_files_rehashed": 2441,
+    "profile_training_inputs": 64,
+    "holdout_training_overlap": 0,
+    "holdout_source_families": 16,
+    "inputs_per_holdout_family": 32,
+    "source_family_overlap": 0,
+    "full_file_overlap": 0,
+    "parsed_event_overlap": 0,
+    "parsed_event_fallback_files": 3,
+    "normal_scalar_sanitizer_release_tests_passed": true,
+    "four_level_pooled_roundtrips_passed": true,
+    "original_interrupted_attempt_preserved": true,
+    "no_old_samples_mixed": true
+  },
+  "limitations": [
+    "Means are empirical results on these datasets and this hardware, not a guarantee for every replay or machine.",
+    "Eight-worker independent launch gains range from7.01% to19.96%; the descriptive95% repeated-timing interval is7.30% to19.53%. All27 samples are retained. This is not an unseen-source confidence interval.",
+    "Compressed size is smaller in aggregate and on mean per-file percentage;105 of512 independent files and5 of16 source aggregates grow.",
+    "Family labels are heuristic; exact file/event hashes cannot exclude altered recordings. Source archives existed before this optimization effort.",
+    "Earlier independent candidate failures and the objectively sleep-interrupted attempt remain documented."
+  ],
+  "evidence_sha256": {
+    "Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "benchmarks/2026-11-10-encode-speed/benchmark.py": "97f8bc8b3534b295841e0f4c04fc2ac6078545d741cfffaa35eaff45d9b0ae04",
+    "benchmarks/2026-11-10-single-file/cpp_runner.cpp": "3881cb74a3a83fa13477fcd6fdf629a1b7b3f081e80604ddc10b625c56a19eed",
+    "benchmarks/2026-11-12-generalization/audit_candidate8.py": "1efc6485b5bb7865ccdd9baae0d038ea6f0d2c1f20f4f736068ad03e82dafbe5",
+    "benchmarks/2026-11-12-generalization/awake-guard-smoke.json": "30762a8df90a3e8452500f61d8d3ec08bf0202a95eeb38cacefce772b54ebb8b",
+    "benchmarks/2026-11-12-generalization/awake-validation.json": "a3e5ab1457f55f2fd506248556aaa045d9107f6f2716a2dfd5dcd4246fe4c2be",
+    "benchmarks/2026-11-12-generalization/awake_guard.py": "13ef9bad53da855f667e809abb978a1ab95e6aab8506ef0399f69b51d5cd268b",
+    "benchmarks/2026-11-12-generalization/awake_protocol.py": "e174b34cab89b2b5be58c5720f9128f9be68186d27c1a820dce58ca0ec34065a",
+    "benchmarks/2026-11-12-generalization/candidate6-build-info.json": "57ea4ba978419e88476502f8bd0ac4291a31d69377e149cef0c50d3597ed1436",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-replication-status.json": "18f6532e9004b9281e4ca96e9d2a5409ffdf9132e73d9244c01110e9bf1293ee",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-replication-summary.json": "ae1e6d52d0bb900dc8a49a989c57f21c3a88277548ef861685922d9d16d14025",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-round3-1929-launch1-guard.json": "bc763d7184a8dfc1524564521fdd3df0512637b2a4bf80f73b01ecb496745807",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-round3-1929-launch1.json": "74a0a9b99cd776ebb257f6c86d5aa885c1ab344d85746156f8fc9d4a2c8ba38a",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-round3-1929-launch2-guard.json": "1a82eefd097c8dcd8e92c26ee493b692845f83425cad924687c637062737fe33",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-round3-1929-launch2.json": "7cd225fecc1a30240b506b69559cbf3614304af710923d1f50ae5ae510e421ac",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-round3-1929-launch3-guard.json": "c4a11c6fb8608cf07af11d2038e53a9170c8e90427479d46234e00e6e5b6e733",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-development-round3-1929-launch3.json": "4a31fdc065530bfa66f25f3fcb8cadf3ddfcdc6359c881e5184b7c00f044b207",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-gate-preflight.json": "64517e5c7c8085a12ef40461e7649bc2d59ff4edcabddcb43965ffeb3e55be56",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-replication-status.json": "264992070f2d0bd4941e2d8cda23d29595a8a66ef1f47b28fff7f2a228fbfb6d",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-replication-summary.json": "52fc9d7e6799c3c46d00f8fe2fb0ae56b7a2a681e4b12487df1f13ed697b6360",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-round3-512-launch1-guard.json": "2d19ee6178ea3ad537f6de3e2ad75ee5e5be12302e6a2077fed2ad77d5e766ac",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-round3-512-launch1.json": "a619dae9bbb0c4a8426a3ca677e3c84ef2d12fd96abd321651a670d9dd4c1a49",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-round3-512-launch2-guard.json": "80fba948aab18c84c7f3105c90536d20ae9fa88c342f2e5e165b6d00ebb57315",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-round3-512-launch2.json": "422716b90286e387691fb9e620c8f3ec044f836799625b3ebe83fc23db52b7b8",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-round3-512-launch3-guard.json": "526008ac278c8fd3f7a41443de544d6fd676274e2b3665b44879cb6fe664afe8",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-round3-512-launch3.json": "5fe95e1f6894c7c083537dd0936db444e035acb5423e825a1720c68f21d0d926",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-start.json": "cce93e50c166b0790a51560f32408149f3c41bbe3f19d7f40ea7694a4e809b3b",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-replication-status.json": "afc832339a12e9df02a0d607e5ba60454772599aac98bca4b452839a3d611870",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-replication-summary.json": "98b48d22cd94370cd3690bd58f3e5b91f8715b979e3be9d7095b7b2f3d9b8052",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-round3-1408-launch1-guard.json": "17e1dd1bd2156dbbaddeb9f0de7acbc2342921a61f25a02bf31f2e408befcdc9",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-round3-1408-launch1.json": "b005a47a5545d0c22861e3ba79e18bf8448cbf81cf587e9782d79f43418ac824",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-round3-1408-launch2-guard.json": "6f37745e91672c357d195e4ed1e2251534ace10a54f2af2975d453d21249d16b",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-round3-1408-launch2.json": "14a42e2ab48c347e409493b50877f50062f3de798c2b9d971b01969462208293",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-round3-1408-launch3-guard.json": "e18f92aef2b22d8f95737c601ff9bec1686cf28c5addc4afe2fe3d171b1fd18b",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-round3-1408-launch3.json": "6806cdf837051d3578ef4c5fa9e939c40c9d05fea093f77451d8ecff0d0ea299",
+    "benchmarks/2026-11-12-generalization/candidate8-awake1-replication-protocol.json": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+    "benchmarks/2026-11-12-generalization/candidate8-build-info.json": "4ace4e03e448bc19117a229d1fb68ba2649fc3332ad03a72b0b25d88db90de5c",
+    "benchmarks/2026-11-12-generalization/candidate8-development-replication-status.json": "6a24d042c2b6334071f88711b1799dfe54a4ac77bbd204481614777a004038ac",
+    "benchmarks/2026-11-12-generalization/candidate8-development-round3-1929-launch1.json": "ead29fd640014241690f85a90c5c64ef433b528c0bd5bc8ae4e6b1636a8ab586",
+    "benchmarks/2026-11-12-generalization/candidate8-development-round3-1929-launch2.json": "9a47223e743ea67907eed929cc0367ebd053395fc5b823a905986cda3b4af30f",
+    "benchmarks/2026-11-12-generalization/candidate8-fingerprint-audit.json": "0aa5109f4cf7807a805f95e1bdf434a29243863f2172a146d4508f6350635345",
+    "benchmarks/2026-11-12-generalization/candidate8-leakage-audit.json": "4c164c23548d35fa7cffedaa86917cfac56f556c6862f2c0c7b3085331eb956d",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-replication-status.json": "c47e6102234e9c5e5759ca910c75ed98e9aab959c148ad8ae0c769bae8803ecc",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-replication-summary.json": "a0ccccdf43ba4a4b631092d9215cdb35d70701f66c3b295f260098101d231a3b",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-round3-1408-launch1.json": "60f21ecd2a0ba3c79ab9f6c4e6179369af8db3b51c6606c86cdf54674bedd3b5",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-round3-1408-launch2.json": "9ca3fe185cf040a98c64cba96f7aa9938aa30840c9113858bf7e1946c3eec636",
+    "benchmarks/2026-11-12-generalization/candidate8-outside521-round3-1408-launch3.json": "0db8c597a3e271a1cabbb770dcc0a468aaa1fc24605a6d4bb40491d520301e91",
+    "benchmarks/2026-11-12-generalization/candidate8-pooled-check.json": "9e76344569ca25aad17bc88fa5db91ea73ec9f676760242121b5ef8241023f51",
+    "benchmarks/2026-11-12-generalization/candidate8-replication-protocol.json": "69286baee7ba17f49a28d66f44613c25ab20c3d268d764b509ea28cdb8d3723c",
+    "benchmarks/2026-11-12-generalization/candidate8-sleep-incident.json": "98ae8440c1461c7b85d2f7574e457f72c070c150c390fe220b3500bb7eee228d",
+    "benchmarks/2026-11-12-generalization/candidate8-validation.json": "ab57cdd33bde1e0bad6f42a6057646c35a50829880f924979481f3c8683fced8",
+    "benchmarks/2026-11-12-generalization/declare_awake_protocol.py": "7e13b1448c14e57523f7f73eede0f02f82f086e7327c1f455ecc3d3983dfba2c",
+    "benchmarks/2026-11-12-generalization/declare_round3_protocol.py": "8216babffd10b83db660a5e73842a9cfb1ee113c9ae71fe3527250e840380ba3",
+    "benchmarks/2026-11-12-generalization/development-outside521-round3-inventory.json": "f76f9b89b5ffa6a8a37ca6d4e200744fed3c59b7a4de0818400dbfbd3c6b8ed3",
+    "benchmarks/2026-11-12-generalization/development-round2-inventory.json": "7ee114262071ab2d4c4fac1f57e4f2e9924a4ad60f17a197caab0e71b0cf7974",
+    "benchmarks/2026-11-12-generalization/development-round3-inventory.json": "be126447eb601f474a29f626fe6365409ced09d60799008ecd35b194125efeb9",
+    "benchmarks/2026-11-12-generalization/holdout-round3-inventory.json": "5ec5502cc8b6c69a66d089c83b55d79fc11b9687a32a5dee08f704b011ff3039",
+    "benchmarks/2026-11-12-generalization/holdout-round3-protocol.json": "ab38d4b7c661535c3779f85ba86a171ba189290d024b28422a80984bd2b94a46",
+    "benchmarks/2026-11-12-generalization/replicate_awake_round3.py": "ef4f0e43af668f84fcfec387c0fb133744279b06e47fff63251f7220b8e77ab9",
+    "benchmarks/2026-11-12-generalization/replicate_round3.py": "2fbae4d8b376b4ab8147f2f579284e9a97e3a42a6e22d99d95ad45fd2c22b7d1",
+    "benchmarks/2026-11-12-generalization/reserve_round3.py": "99559cf64c8a1273eac45cdc734332f9a8cd3062babf8da6c44842afb1e8bc12",
+    "benchmarks/2026-11-12-generalization/round3-gameplay-overlap-audit.json": "d0e33ba75fb3464d27c275b83b3b8f6fba3761ad84d97c283897ee375331410b",
+    "benchmarks/2026-11-12-generalization/round3_cohorts.py": "1f3a77f3d47bae0f1ea9f36ad2b1908dbf226f97eccd61f7c5f9ae6c854b0549",
+    "benchmarks/2026-11-12-generalization/round3_training.py": "970e14de2da91a2c63cb514fa96290ffc8bc5d375dc3c0d4a3a75e8cf4faeac3",
+    "benchmarks/2026-11-12-generalization/sample_archive.cpp": "f7b3749ba41dcdffb220e935d2d557e631b84a1c5f5518331479837a0f78601b",
+    "benchmarks/2026-11-12-generalization/summarize.py": "8c2a494262480fc971fec4f03c819f0250ffeab28826c735cc5f012901142003",
+    "benchmarks/2026-11-12-generalization/summarize_awake_round3.py": "3ad45ce67f50d68de66e3d4cca6f3538b75c971d9f0092a1da2f7a0b36e63fb7",
+    "benchmarks/2026-11-12-generalization/summarize_replicates.py": "60cbe78a48aa93e2709f07e514a0c28a782d996276048f81b44a8643133b7b64",
+    "benchmarks/2026-11-12-generalization/summarize_replicates_round3.py": "077bda0894f3616348ba21cb18d97ff19c83cae027a6519826bc821b60bd7791",
+    "benchmarks/2026-11-12-generalization/test_awake_guard.py": "484fcfc4bded2858f9a3ac8e3fc24800c6b7389794a2a9ae6c5e2cd1d638accc",
+    "benchmarks/2026-11-12-generalization/test_awake_protocol.py": "7570fdafa8c3fd8964d35fad1db4fc3064554a7ab20127226f4f359ef421aac7",
+    "binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/awake-guard-smoke.log": "187657f8fb52986fd3df881c491b348944587b1c12502e42b8ceae0619c54025",
+    "build/goal-2026-11-12/awake-guard-smoke.log.after-power.log": "9177459fac15e0732226b6ab8f5dd6e50157706c22b8651715a792ac548263eb",
+    "build/goal-2026-11-12/awake-guard-smoke.log.before-power.log": "29c2e0c8254eb750182a2cb2fd219a022ae3b728c8a31bb72c7d084ca170af66",
+    "build/goal-2026-11-12/baseline/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "build/goal-2026-11-12/baseline/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "build/goal-2026-11-12/baseline/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "build/goal-2026-11-12/baseline/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/baseline/codec_types.h": "5bda9334b61acf95196c7c030127aeef5ddb930a40791991c67a07e4fd128adb",
+    "build/goal-2026-11-12/baseline/custom_codec.h": "7bf4dabea938a6fa883016a1324c66d0543a3fe298660fc9aa99f2186d43665a",
+    "build/goal-2026-11-12/baseline/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "build/goal-2026-11-12/baseline/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "build/goal-2026-11-12/baseline/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "build/goal-2026-11-12/baseline/frames.cpp": "41c68531797f427a47106b961d031aa54a8606d41a816d7aaa25f72f7f808bd9",
+    "build/goal-2026-11-12/baseline/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "build/goal-2026-11-12/baseline/library.a": "067db4886ae55e9d1392f2d0f7fde3f13ad9591c432546a1c5b128e12e756450",
+    "build/goal-2026-11-12/baseline/mask_codec.h": "225ff9ca1ffd08582adecbbdff67611b9fb0c4a10ba5e84bfebec693825de9fd",
+    "build/goal-2026-11-12/baseline/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "build/goal-2026-11-12/baseline/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "build/goal-2026-11-12/baseline/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "build/goal-2026-11-12/baseline/profiles/level3.json": "bd3406802aa13c392a3aed69abb24c6926d73e179bd201df805ad557cec44d18",
+    "build/goal-2026-11-12/baseline/provenance.json": "6a5b7ab10212f78a48f1fca156c9c28ed046f5a3c12fdb15882d2e3a3b2ef9a2",
+    "build/goal-2026-11-12/baseline/record_codec.cpp": "2e17ae0d331d3bd871fb2a85c070ed343e112ddc59a644f5c70d8cd268ebe24c",
+    "build/goal-2026-11-12/baseline/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "build/goal-2026-11-12/baseline/runner": "0cd39ab3d16bb19017d11ead523c8416e9cdf756b9786ee51911df456e247e5d",
+    "build/goal-2026-11-12/baseline/runner-common.o": "d43e46d89d8752f1b748aba57462a7d9d419baa78dbf2da86d6c70ef6acf7b29",
+    "build/goal-2026-11-12/baseline/slippack": "22ac3fbc28c68e683c3193c5c2a4ee8c83340cee087c441df98ca44217e102f4",
+    "build/goal-2026-11-12/baseline/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "build/goal-2026-11-12/baseline/slp.cpp": "8c9f21bfb7f3f0d006ee2fb022e4cf6ffe623f5e3d4d131e72bf273c2866a40c",
+    "build/goal-2026-11-12/baseline/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "build/goal-2026-11-12/baseline/static_context.h": "c3501007191f0ad7b719a7f0b43493e213c0e6c0fff8d4a9201c6cd07019353a",
+    "build/goal-2026-11-12/candidate6/level3.json": "c3067e8e428dc4296909e15a3bded75c0b34b69904edfed1596fdda5c649be93",
+    "build/goal-2026-11-12/candidate8-format.log": "ffb3809fbbc601a682a7964b53c54f62c717eb249eddeaef812af64e7138cd9e",
+    "build/goal-2026-11-12/candidate8-normal.log": "dc8fcdf7479c2b536efa9b32bb58db7fef24574f08ffb273b41e04b07a502f45",
+    "build/goal-2026-11-12/candidate8-profile-release.log": "035c65ac2896ce7b1267d091d696cdae1243aeef943039b54bfa5ab2860029d3",
+    "build/goal-2026-11-12/candidate8-sanitizers.log": "4548d248278a7f0e842dd083b6d2f9a222d54ec5bcbd5810eda1db7fac23c643",
+    "build/goal-2026-11-12/candidate8-scalar.log": "36ea8a39104bd4983891e4ab4961b6c26e85b458c1061bd1e9d03e0733d54ced",
+    "build/goal-2026-11-12/candidate8-sleep-incident-pmset.log": "a6c754096d31d073e814c2a2588f3073a6e91719def48c4330c3d0a19f2e2ea0",
+    "build/goal-2026-11-12/candidate8-sleep-incident-processes.txt": "c359040909ea29286a94648aae7e59a25e49501ddb8c18e60c3fee35c223389c",
+    "build/goal-2026-11-12/candidate8/level3.json": "e346ba5b190bcbd103c1ae8c47c2fd04cf061471dd5b6791903ee50e5ffe1860",
+    "build/goal-2026-11-12/candidate8/level3.proftext": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
+    "build/goal-2026-11-12/candidate8/library.a": "3f2c8445f98886ff9b3f240abbd9a22c7bf6026d95197e014eb81fc71b3140ab",
+    "build/goal-2026-11-12/candidate8/runner": "27c02da998256025d73e8a00818fe3b50d8ac03be8cc445cb35e56d8654aefe6",
+    "build/goal-2026-11-12/candidate8/slippack": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+    "build/goal-2026-11-12/candidate8/source/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "build/goal-2026-11-12/candidate8/source/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "build/goal-2026-11-12/candidate8/source/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "build/goal-2026-11-12/candidate8/source/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/candidate8/source/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "build/goal-2026-11-12/candidate8/source/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "build/goal-2026-11-12/candidate8/source/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "build/goal-2026-11-12/candidate8/source/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "build/goal-2026-11-12/candidate8/source/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "build/goal-2026-11-12/candidate8/source/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "build/goal-2026-11-12/candidate8/source/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "build/goal-2026-11-12/candidate8/source/mask_codec.h": "ec1e3dc55e3d81886cbe1cf6ba46abd999895564f30f072fd70ea885e3c101d2",
+    "build/goal-2026-11-12/candidate8/source/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "build/goal-2026-11-12/candidate8/source/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "build/goal-2026-11-12/candidate8/source/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "build/goal-2026-11-12/candidate8/source/profiles/level3.json": "e346ba5b190bcbd103c1ae8c47c2fd04cf061471dd5b6791903ee50e5ffe1860",
+    "build/goal-2026-11-12/candidate8/source/profiles/level3.proftext": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
+    "build/goal-2026-11-12/candidate8/source/record_codec.cpp": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
+    "build/goal-2026-11-12/candidate8/source/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "build/goal-2026-11-12/candidate8/source/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "build/goal-2026-11-12/candidate8/source/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "build/goal-2026-11-12/candidate8/source/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "build/goal-2026-11-12/candidate8/source/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "build/goal-2026-11-12/candidate8/source/tests/archive_api_test.cpp": "1276b61a7638629fa65ce400f42c19cfdb1ccdff395e0394d8c2f69b8b173414",
+    "build/goal-2026-11-12/candidate8/source/tests/custom_codec_test.cpp": "f5ccdd1233434db01b84c5f62782e50b5bc9d1b0908cff672244767e2257155b",
+    "build/goal-2026-11-12/candidate8/source/tests/entropy_model_test.cpp": "85becf481994b4f39c2a03f3bb9b9c98591a1ac6895c3e7f53017d057012b6f5",
+    "build/goal-2026-11-12/candidate8/source/tests/predictor_test.cpp": "2fba3118d294540f0401affd985c8a21d61ebda865c89f5d4fe27d95d0bbfe80",
+    "build/goal-2026-11-12/candidate8/source/tests/record_codec_test.cpp": "3e00e481c1cbf0ba8d1c557098c84d0ca76a1e1446a06401884fc9c30b6d5526",
+    "build/goal-2026-11-12/candidate8/source/tests/test_archive.py": "f5f2e9c1c9fc328f348676fcff4034bf28cacdd9e2b1c8ce9cb63cd781345181",
+    "build/goal-2026-11-12/candidate8/source/tests/test_extraction.py": "f37301f7de23a435ae3651672f92247cf7b245b18f814189466ac37c5d3112b4",
+    "build/goal-2026-11-12/candidate8/source/tools/profile_build.py": "4b6ee43f2463d89fad665fb666d4424ed8cdc1df7990cd8869762594a53a88fc",
+    "build/goal-2026-11-12/check_candidate8.py": "40085488fd7a403a07dcfd7f7c87a331115157be20ddff04f9c2e3151f9492c2",
+    "build/goal-2026-11-12/check_candidate8_executed.py": "e5ebb2b46fd0626d8c6426560b94c6107704e9954e2a42e7a535ba13bcbef6e3",
+    "build/goal-2026-11-12/development-outside-original521.txt": "9f36223cf22b6493f9720248fd3aa8aa06d9d816b6bb2e9c053ff6cdcaeec27f",
+    "build/goal-2026-11-12/development-round3.txt": "48db92475884e5c0cfd8bd8574f56cbc1e666bce1c60894c08e19272b885008b",
+    "build/goal-2026-11-12/freeze_candidate_next.py": "c9032dca0e62af585d01893b9cbe6132e8b219afc1f412e7373e865bd5855be8",
+    "build/goal-2026-11-12/holdout-round3.txt": "8bf14db94a0ff6c9eb89ff31420d6b46ec0373d7a2190a8fceb033505f22c761",
+    "build/goal-2026-11-12/qualify_candidate8_awake1.py": "bdcd4ccc00e7824654e052ee31bc5a552040631150ce134f24e85a0e3f573cb7",
+    "build/goal-2026-11-12/sample-round3-baseline": "4431e9d6edb2e667e1e3ad050166e2e3326bd5231890cb522c320dd91e8b4008",
+    "build/release/libslippack.a": "3f2c8445f98886ff9b3f240abbd9a22c7bf6026d95197e014eb81fc71b3140ab",
+    "build/release/slippack": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+    "codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "mask_codec.h": "ec1e3dc55e3d81886cbe1cf6ba46abd999895564f30f072fd70ea885e3c101d2",
+    "parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "profiles/level3.json": "e346ba5b190bcbd103c1ae8c47c2fd04cf061471dd5b6791903ee50e5ffe1860",
+    "profiles/level3.proftext": "c656b9bf5be2ae186bf4dd5153d3dd7e141f2c8ec66ea5b2e1b39dc9d138da5a",
+    "record_codec.cpp": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
+    "record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "slippack": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+    "slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "tests/archive_api_test.cpp": "1276b61a7638629fa65ce400f42c19cfdb1ccdff395e0394d8c2f69b8b173414",
+    "tests/custom_codec_test.cpp": "f5ccdd1233434db01b84c5f62782e50b5bc9d1b0908cff672244767e2257155b",
+    "tests/entropy_model_test.cpp": "85becf481994b4f39c2a03f3bb9b9c98591a1ac6895c3e7f53017d057012b6f5",
+    "tests/predictor_test.cpp": "2fba3118d294540f0401affd985c8a21d61ebda865c89f5d4fe27d95d0bbfe80",
+    "tests/record_codec_test.cpp": "3e00e481c1cbf0ba8d1c557098c84d0ca76a1e1446a06401884fc9c30b6d5526",
+    "tests/test_archive.py": "f5f2e9c1c9fc328f348676fcff4034bf28cacdd9e2b1c8ce9cb63cd781345181",
+    "tests/test_extraction.py": "f37301f7de23a435ae3651672f92247cf7b245b18f814189466ac37c5d3112b4",
+    "tools/profile_build.py": "4b6ee43f2463d89fad665fb666d4424ed8cdc1df7990cd8869762594a53a88fc"
+  }
+}

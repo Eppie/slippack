@@ -1,0 +1,47 @@
+{
+  "declared_utc": "2026-11-13T05:20:55.241220+00:00",
+  "candidate": "candidate6",
+  "baseline_commit": "3d39721ef0e696d7a7d23c86c4805b37b45685e8",
+  "status_at_declaration": "No canonical candidate6 timing has begun. Full correctness tests and fresh64 compiler training passed. Reserved512 have never been candidate encoded, timed, trained, or profiled.",
+  "reason": "Evaluate packed presence encoder tables using all three launches fixed in advance; candidate5 failed its completed three-launch test.",
+  "development_launches_total": 3,
+  "repetitions_per_launch": 9,
+  "workers": [
+    1,
+    8
+  ],
+  "levels": [
+    3
+  ],
+  "reports": [
+    "candidate6-development-1417-launch1.json",
+    "candidate6-development-1417-launch2.json",
+    "candidate6-development-1417-launch3.json"
+  ],
+  "holdout_reports": [
+    "candidate6-holdout-round2-512-launch1.json",
+    "candidate6-holdout-round2-512-launch2.json",
+    "candidate6-holdout-round2-512-launch3.json"
+  ],
+  "candidate_build_info_sha256": "57ea4ba978419e88476502f8bd0ac4291a31d69377e149cef0c50d3597ed1436",
+  "holdout_inventory_sha256": "4250cf5f0ef3bce162b5956160554d7bae446b1b478df195d5271144be86ffe5",
+  "artifact_sha256": {
+    "benchmarks/2026-11-12-generalization/replicate.py": "d2c8d96ea05f98fa23b3909ef2cdcfcf4f271801b1dfd71e0262da73fb2197c0",
+    "benchmarks/2026-11-12-generalization/summarize_replicates.py": "60cbe78a48aa93e2709f07e514a0c28a782d996276048f81b44a8643133b7b64",
+    "benchmarks/2026-11-12-generalization/summarize.py": "8c2a494262480fc971fec4f03c819f0250ffeab28826c735cc5f012901142003",
+    "benchmarks/2026-11-10-encode-speed/benchmark.py": "97f8bc8b3534b295841e0f4c04fc2ac6078545d741cfffaa35eaff45d9b0ae04",
+    "benchmarks/2026-11-12-generalization/development-round2-inventory.json": "7ee114262071ab2d4c4fac1f57e4f2e9924a4ad60f17a197caab0e71b0cf7974",
+    "benchmarks/2026-11-12-generalization/holdout-round2-inventory.json": "4250cf5f0ef3bce162b5956160554d7bae446b1b478df195d5271144be86ffe5",
+    "build/goal-2026-11-12/development-round2.txt": "e84866b5cdfc50547d6be70abef26954659a1976c2eaaa148346e6757f361335",
+    "build/goal-2026-11-12/holdout-round2.txt": "9a68d58afe1bcf992b04518f8eb3527f6fe623c10002be5f8ad666d990686cef",
+    "build/goal-2026-11-12/baseline/runner": "0cd39ab3d16bb19017d11ead523c8416e9cdf756b9786ee51911df456e247e5d",
+    "build/goal-2026-11-12/baseline/library.a": "067db4886ae55e9d1392f2d0f7fde3f13ad9591c432546a1c5b128e12e756450",
+    "build/goal-2026-11-12/baseline/slippack": "22ac3fbc28c68e683c3193c5c2a4ee8c83340cee087c441df98ca44217e102f4",
+    "build/goal-2026-11-12/baseline/runner-common.o": "d43e46d89d8752f1b748aba57462a7d9d419baa78dbf2da86d6c70ef6acf7b29"
+  },
+  "fixed_artifacts": "Frozen candidate6 and original3d39721 baseline, original shared driver, identical inputs and compiler profiles. No source, binary, training, input, or benchmark changes between launches.",
+  "aggregation": "Retain all27 measured repetitions from exactly three process launches. Throughput is total raw bytes divided by total elapsed time, not a mean of percentage gains. No sample or completed launch may be dropped; no fourth launch may be added to obtain a pass. Report each launch and the pooled result.",
+  "gate_to_reserved_holdout": "Require pooled compression throughput gain at least10% with BOTH one and eight workers, no aggregate compressed-size increase, and no average decoding slowdown. Otherwise return to development without consuming the reserved holdout.",
+  "reserved_holdout_if_gate_passes": "Same frozen candidate; exactly three independent nine-repeat launches of all512 reserved files, one/eight workers, same acceptance rule. Complete all without code changes or choosing a favorable launch. Report all samples, pooled throughput and elapsed reductions, packed sizes, decoding, source sizes, and guards. No tuning between final validation launches.",
+  "uncertainty": "Descriptive hierarchical bootstrap over launches and repeats only; not a confidence interval over unseen source families. The full development set has influenced tuning. Final holdout comes from eight different sources and is also checked for exact file and parsed-event-stream duplicates."
+}

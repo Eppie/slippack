@@ -1,0 +1,8 @@
+{
+  "files": 1417,
+  "lookup_decisions": 68988397,
+  "two_value_cache_hits": 13248511,
+  "hit_fraction": 0.19203969908157165,
+  "packed_bytes": 174009368,
+  "method": "Instrumented single pass over expanded development; statistics only, not a performance measurement. Four-byte non-direct dictionary fields only. No holdout data."
+}

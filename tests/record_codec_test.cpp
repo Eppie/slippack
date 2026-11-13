@@ -29,6 +29,67 @@ template <class F> static void rejects(F fn) {
 
 int main() {
   std::mt19937 random(718091);
+  // A high-cardinality trial stops partway through its index scan. Later
+  // trials alternate implicit constants, single-byte and multi-byte fields;
+  // their accepted index planes must be complete despite scratch reuse.
+  for (unsigned count : {63u, 64u, 65u, 257u, 1025u, 4097u}) {
+    for (unsigned width : {20u, 21u}) {
+      for (unsigned order : {0u, 1u}) {
+        Bytes input(size_t(count) * width, 83);
+        for (unsigned i = 0; i < count; ++i) {
+          auto *row = input.data() + size_t(i) * width;
+          unsigned offset = order ? 12 : 0;
+          uint32_t unique = i * 2654435761u;
+          for (unsigned b = 0; b < 4; ++b) {
+            row[offset + b] = uint8_t(unique >> (8 * b));
+          }
+          row[8] = uint8_t((i * 37) % 17);
+          offset = order ? 0 : 12;
+          unsigned value = (i * 131) % 127;
+          row[offset] = uint8_t(value);
+          row[offset + 2] = uint8_t(value * 37);
+        }
+        Buf packed;
+        pack_records(input, count, width, 3, packed, nullptr, 0x45);
+        Reader reader{packed};
+        Bytes output;
+        unpack_records(reader, count, width, output);
+        reader.done();
+        check(output == input, "partial dictionary trial followed by mixed fields");
+      }
+    }
+  }
+  // Both selected bytes vary, including the 256/257-value dictionary boundary.
+  // Adjacent fields reuse the same keys in different first-encounter orders.
+  for (unsigned fields : {1u, 2u}) {
+    for (unsigned lo = 0; lo < 4; ++lo) {
+      for (unsigned hi = lo + 1; hi < 4; ++hi) {
+        for (unsigned used : {127u, 255u, 256u, 257u}) {
+          constexpr unsigned count = 1024;
+          unsigned width = fields * 4;
+          Bytes input(size_t(count) * width);
+          for (unsigned i = 0; i < count; ++i) {
+            for (unsigned field = 0; field < fields; ++field) {
+              unsigned value = (field ? i * 43 + 1 : i * 131) % used;
+              auto p = input.data() + size_t(i) * width + field * 4;
+              for (unsigned b = 0; b < 4; ++b) {
+                p[b] = uint8_t(17 + b * 13 + field);
+              }
+              p[lo] = uint8_t(value);
+              p[hi] = uint8_t((value * 37) ^ (value >> 8));
+            }
+          }
+          Buf packed;
+          pack_records(input, count, width, 3, packed, nullptr, 0x45);
+          Reader r{packed.data(), packed.data() + packed.size()};
+          Bytes output;
+          unpack_records(r, count, width, output);
+          r.done();
+          check(output == input, "two varying byte dictionary boundary/reset");
+        }
+      }
+    }
+  }
   for (unsigned width : {2u, 4u}) {
     for (unsigned nvals : {1u, 2u, 15u, 16u, 17u, 63u, 64u, 65u, 255u, 256u}) {
       DictField field{0, uint8_t(width), {}, {}};

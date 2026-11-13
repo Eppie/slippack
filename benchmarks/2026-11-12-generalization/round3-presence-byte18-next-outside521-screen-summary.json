@@ -1,0 +1,286 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "candidate6": "6104baef99862e4d29f326feab064ca4997e6b689146d8b705f7e5a1d2e83f0b",
+    "presence_byte18_6": "4ff9aae9f49b1db4b9286b8ec5c09b011f2dffee17019628b8504c9c55ad4d07",
+    "presence_byte18_cached6": "978f92523671491b9e69b877166c6009868322baf4e792a70ea4042108977fba",
+    "presence_byte18_tree6": "c86e6494172eebe73fc05694a1613096937f2f4ecd142d78df38ad3cdb1cbebe"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "presence_byte18_6-l3-t8": {
+      "bytes": 183629560,
+      "size_change_pct": -0.16101989696198915,
+      "encode": {
+        "samples_seconds": [
+          1.569762375,
+          1.588091125,
+          1.588183041
+        ],
+        "mean_seconds": 1.5820121803333334,
+        "throughput_vs_baseline_pct": 12.983854984609145,
+        "elapsed_reduction_vs_baseline_pct": 11.491779056731454,
+        "throughput_vs_candidate6_pct": -1.0344903705620356
+      },
+      "decode": {
+        "samples_seconds": [
+          0.641737709,
+          0.6429625,
+          0.639196542
+        ],
+        "mean_seconds": 0.641298917,
+        "throughput_vs_baseline_pct": -0.8860923535080056,
+        "elapsed_reduction_vs_baseline_pct": -0.8940141444815364,
+        "throughput_vs_candidate6_pct": -2.5010134756446645
+      }
+    },
+    "baseline-l3-t8": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          1.769728334,
+          1.787018209,
+          1.8055085
+        ],
+        "mean_seconds": 1.7874183476666667,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate6_pct": -12.407388079545335
+      },
+      "decode": {
+        "samples_seconds": [
+          0.634695541,
+          0.6364765,
+          0.635677208
+        ],
+        "mean_seconds": 0.6356164163333333,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate6_pct": -1.6293587453907854
+      }
+    },
+    "candidate6-l3-t8": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          1.613235542,
+          1.5664325,
+          1.517271208
+        ],
+        "mean_seconds": 1.5656464166666666,
+        "throughput_vs_baseline_pct": 14.164879671373232,
+        "elapsed_reduction_vs_baseline_pct": 12.407388079545335,
+        "throughput_vs_candidate6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          0.626319,
+          0.624228459,
+          0.625232375
+        ],
+        "mean_seconds": 0.6252599446666667,
+        "throughput_vs_baseline_pct": 1.6563465731341154,
+        "elapsed_reduction_vs_baseline_pct": 1.6293587453907854,
+        "throughput_vs_candidate6_pct": 0.0
+      }
+    },
+    "presence_byte18_tree6-l3-t1": {
+      "bytes": 183631096,
+      "size_change_pct": -0.1601847772054632,
+      "encode": {
+        "samples_seconds": [
+          11.28783996,
+          11.23500308,
+          11.53311175
+        ],
+        "mean_seconds": 11.35198493,
+        "throughput_vs_baseline_pct": 11.84004132277039,
+        "elapsed_reduction_vs_baseline_pct": 10.586585254023673,
+        "throughput_vs_candidate6_pct": 0.1517523449824809
+      },
+      "decode": {
+        "samples_seconds": [
+          4.796784458,
+          4.812912708,
+          4.826176708
+        ],
+        "mean_seconds": 4.811957958,
+        "throughput_vs_baseline_pct": -1.3604634656286474,
+        "elapsed_reduction_vs_baseline_pct": -1.379227349831047,
+        "throughput_vs_candidate6_pct": -2.8709519189305532
+      }
+    },
+    "presence_byte18_tree6-l3-t8": {
+      "bytes": 183631096,
+      "size_change_pct": -0.1601847772054632,
+      "encode": {
+        "samples_seconds": [
+          1.527885291,
+          1.5624425,
+          1.559011833
+        ],
+        "mean_seconds": 1.5497798746666667,
+        "throughput_vs_baseline_pct": 15.333692021979072,
+        "elapsed_reduction_vs_baseline_pct": 13.29506734168967,
+        "throughput_vs_candidate6_pct": 1.0237932663445193
+      },
+      "decode": {
+        "samples_seconds": [
+          0.643119334,
+          0.641142292,
+          0.641913083
+        ],
+        "mean_seconds": 0.6420582363333334,
+        "throughput_vs_baseline_pct": -1.0033077430464887,
+        "elapsed_reduction_vs_baseline_pct": -1.01347602649422,
+        "throughput_vs_candidate6_pct": -2.616319005982759
+      }
+    },
+    "presence_byte18_cached6-l3-t8": {
+      "bytes": 183629560,
+      "size_change_pct": -0.16101989696198915,
+      "encode": {
+        "samples_seconds": [
+          1.609257292,
+          1.6041495,
+          1.569321375
+        ],
+        "mean_seconds": 1.5942427223333333,
+        "throughput_vs_baseline_pct": 12.11707744543451,
+        "elapsed_reduction_vs_baseline_pct": 10.807521674235298,
+        "throughput_vs_candidate6_pct": -1.7937234566649418
+      },
+      "decode": {
+        "samples_seconds": [
+          0.637954709,
+          0.641385917,
+          0.642122417
+        ],
+        "mean_seconds": 0.640487681,
+        "throughput_vs_baseline_pct": -0.7605555596418512,
+        "elapsed_reduction_vs_baseline_pct": -0.7663843383352908,
+        "throughput_vs_candidate6_pct": -2.377522126508047
+      }
+    },
+    "candidate6-l3-t1": {
+      "bytes": 183629678,
+      "size_change_pct": -0.16095574062652274,
+      "encode": {
+        "samples_seconds": [
+          11.37469604,
+          11.31712525,
+          11.41581421
+        ],
+        "mean_seconds": 11.369211833333333,
+        "throughput_vs_baseline_pct": 11.670578601087733,
+        "elapsed_reduction_vs_baseline_pct": 10.450898300417744,
+        "throughput_vs_candidate6_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          4.658726792,
+          4.664421209,
+          4.698278875
+        ],
+        "mean_seconds": 4.673808958666667,
+        "throughput_vs_baseline_pct": 1.5551356500901559,
+        "elapsed_reduction_vs_baseline_pct": 1.531321523165896,
+        "throughput_vs_candidate6_pct": 0.0
+      }
+    },
+    "presence_byte18_cached6-l3-t1": {
+      "bytes": 183629560,
+      "size_change_pct": -0.16101989696198915,
+      "encode": {
+        "samples_seconds": [
+          11.59356046,
+          11.67771463,
+          11.73275504
+        ],
+        "mean_seconds": 11.668010043333334,
+        "throughput_vs_baseline_pct": 8.810881971435446,
+        "elapsed_reduction_vs_baseline_pct": 8.09742721665324,
+        "throughput_vs_candidate6_pct": -2.560832643186861
+      },
+      "decode": {
+        "samples_seconds": [
+          4.785889208,
+          4.807162459,
+          4.828138917
+        ],
+        "mean_seconds": 4.8070635280000005,
+        "throughput_vs_baseline_pct": -1.2600311946616038,
+        "elapsed_reduction_vs_baseline_pct": -1.2761105861251565,
+        "throughput_vs_candidate6_pct": -2.7720575889450427
+      }
+    },
+    "baseline-l3-t1": {
+      "bytes": 183925717,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          12.59826362,
+          12.77382596,
+          12.71610433
+        ],
+        "mean_seconds": 12.696064636666668,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate6_pct": -10.450898300417744
+      },
+      "decode": {
+        "samples_seconds": [
+          4.730648875,
+          4.736558084,
+          4.772272125
+        ],
+        "mean_seconds": 4.746493028,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate6_pct": -1.531321523165896
+      }
+    },
+    "presence_byte18_6-l3-t1": {
+      "bytes": 183629560,
+      "size_change_pct": -0.16101989696198915,
+      "encode": {
+        "samples_seconds": [
+          11.58898796,
+          11.38275154,
+          11.37881083
+        ],
+        "mean_seconds": 11.450183443333334,
+        "throughput_vs_baseline_pct": 10.880884131674984,
+        "elapsed_reduction_vs_baseline_pct": 9.813128941823335,
+        "throughput_vs_candidate6_pct": -0.7071643035303943
+      },
+      "decode": {
+        "samples_seconds": [
+          4.789520042,
+          4.7687925,
+          4.813479833
+        ],
+        "mean_seconds": 4.790597458333333,
+        "throughput_vs_baseline_pct": -0.9206457173021931,
+        "elapsed_reduction_vs_baseline_pct": -0.929200360627469,
+        "throughput_vs_candidate6_pct": -2.437869194446929
+      }
+    }
+  },
+  "control_name": "candidate6"
+}

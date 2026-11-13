@@ -1,0 +1,14 @@
+{
+  "development_files": 1929,
+  "profile_training_files": 64,
+  "holdout_files": 512,
+  "development_holdout_duplicates": 0,
+  "training_holdout_duplicates": 0,
+  "training_is_subset_of_development": true,
+  "checked_inventory_sha256": {
+    "development": "be126447eb601f474a29f626fe6365409ced09d60799008ecd35b194125efeb9",
+    "profile": "566773e6d05a86c008acd3a8d1a06c1d384980898dc2f3f983b8922ea28510f6",
+    "holdout": "5ec5502cc8b6c69a66d089c83b55d79fc11b9687a32a5dee08f704b011ff3039"
+  },
+  "limitation": "Exact SHA-256 deduplication does not identify altered recordings of the same game."
+}

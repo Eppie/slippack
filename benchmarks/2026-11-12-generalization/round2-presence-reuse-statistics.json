@@ -1,0 +1,11 @@
+{
+  "files": 1417,
+  "symbols": 278637863,
+  "consecutive_same_model_symbol": 166525230,
+  "reuse_fraction": 0.5976403501199692,
+  "nonfull_frequency_symbols": 278180147,
+  "nonfull_consecutive_reuse": 166193172,
+  "nonfull_reuse_fraction": 0.5974300243647509,
+  "packed_bytes": 174009368,
+  "method": "Instrumented development-only single encoding pass. Consecutive identical model key and nibble symbol within a presence packet. Statistics only, not performance. No held-out inputs."
+}

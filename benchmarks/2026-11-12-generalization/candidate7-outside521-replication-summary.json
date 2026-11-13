@@ -1,0 +1,691 @@
+{
+  "candidate": "candidate7",
+  "dataset": "outside521",
+  "completed": true,
+  "launches": 3,
+  "repetitions_per_launch": 9,
+  "files": 1408,
+  "raw_bytes": 4604924536,
+  "protocol_sha256": "fcdfcb7c621553e5e585c1cb919fb09d8ac2420cb0b2745f1138f75e9f9612bf",
+  "report_sha256": {
+    "candidate7-outside521-round3-1408-launch1.json": "d1cd10d1441f829a18fd3c49f906da340eb257da9f8264a5b363fca902ad2f89",
+    "candidate7-outside521-round3-1408-launch2.json": "345c968c44d3b8faa3395323ec8d9cc9737b71e2adff24f4903c4fbdf39235d7",
+    "candidate7-outside521-round3-1408-launch3.json": "0934f8ee8d4a8d8041c4551addf8f90d53170fff6180eb8c2e614e6fcbc4c141"
+  },
+  "timings": {
+    "1": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 12.228963932592592,
+        "candidate_seconds": 11.149584067777777,
+        "baseline_MB_s": 376.55884516324164,
+        "candidate_MB_s": 413.01312300144014,
+        "throughput_gain_percent": 9.68089803398331,
+        "time_reduction_percent": 8.826421197776657,
+        "baseline_samples_by_launch": [
+          [
+            11.99066083,
+            12.47926758,
+            11.95075596,
+            12.03658683,
+            12.17831162,
+            12.11548179,
+            12.18280838,
+            12.35940308,
+            12.32760825
+          ],
+          [
+            12.05919137,
+            12.48129275,
+            12.49967025,
+            12.31198338,
+            12.23962104,
+            12.61692375,
+            12.1683885,
+            11.98641054,
+            12.22174554
+          ],
+          [
+            12.17053962,
+            12.30390746,
+            12.21950617,
+            12.386806,
+            12.21035775,
+            12.21883962,
+            12.13389458,
+            12.17273017,
+            12.15933337
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            10.9732095,
+            11.1463795,
+            11.06799338,
+            11.11546233,
+            11.02035625,
+            11.0358975,
+            11.14279683,
+            11.32775242,
+            10.90990104
+          ],
+          [
+            11.07132721,
+            11.26190125,
+            11.06800154,
+            11.37550321,
+            11.19657117,
+            11.27007929,
+            11.09867367,
+            11.13650212,
+            11.06548308
+          ],
+          [
+            11.24672933,
+            11.1473585,
+            11.17339396,
+            11.23180075,
+            11.24195246,
+            11.40112812,
+            11.03614538,
+            11.16299408,
+            11.11347596
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          9.906918449100255,
+          9.986851857488489,
+          9.151841758707025
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          9.026688224233382,
+          10.39360343772473
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 4.750285407444444,
+        "candidate_seconds": 4.70666674537037,
+        "baseline_MB_s": 969.3995499266969,
+        "candidate_MB_s": 978.3833836397176,
+        "throughput_gain_percent": 0.9267420965586526,
+        "time_reduction_percent": 0.9182324499011574,
+        "baseline_samples_by_launch": [
+          [
+            4.743225333,
+            4.718359709,
+            4.727204083,
+            4.71121725,
+            4.720482833,
+            4.74156725,
+            4.713080584,
+            4.72511275,
+            4.73061675
+          ],
+          [
+            4.782664833,
+            4.771021583,
+            4.777011834,
+            4.772845125,
+            4.772602709,
+            4.756463334,
+            4.730200333,
+            4.736941167,
+            4.738771125
+          ],
+          [
+            4.773191459,
+            4.772432167,
+            4.785649959,
+            4.782576583,
+            4.758619916,
+            4.763880791,
+            4.741172458,
+            4.752060167,
+            4.758733916
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            4.698128375,
+            4.677428375,
+            4.669943083,
+            4.666149417,
+            4.678197291,
+            4.669966375,
+            4.666998833,
+            4.69355825,
+            4.655354375
+          ],
+          [
+            4.733149042,
+            4.729548917,
+            4.725726917,
+            4.72519075,
+            4.701188166,
+            4.706544208,
+            4.696720917,
+            4.698434125,
+            4.701045667
+          ],
+          [
+            4.740802542,
+            4.737482291,
+            4.7458545,
+            4.746642875,
+            4.74772925,
+            4.727569625,
+            4.713134209,
+            4.715420583,
+            4.712093167
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          1.0817215265371605,
+          0.9924508766124829,
+          0.7081745435357778
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.7170846317965163,
+          1.1161194438490396
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 1.6463497655185184,
+        "candidate_seconds": 1.4955285432222223,
+        "baseline_MB_s": 2797.0511688624542,
+        "candidate_MB_s": 3079.1284839528125,
+        "throughput_gain_percent": 10.08481068314091,
+        "time_reduction_percent": 9.160946565251582,
+        "baseline_samples_by_launch": [
+          [
+            1.631252417,
+            1.65834375,
+            1.601371167,
+            1.629531625,
+            1.650215708,
+            1.647694584,
+            1.683382292,
+            1.623776208,
+            1.640963833
+          ],
+          [
+            1.68992525,
+            1.668036167,
+            1.620061042,
+            1.61913075,
+            1.688368333,
+            1.628480625,
+            1.622613209,
+            1.692933709,
+            1.687586875
+          ],
+          [
+            1.606716125,
+            1.618574042,
+            1.658434,
+            1.6378265,
+            1.639037125,
+            1.611704084,
+            1.642802416,
+            1.682396625,
+            1.670285208
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            1.469261834,
+            1.483227833,
+            1.49032275,
+            1.509064291,
+            1.487687459,
+            1.513767208,
+            1.510569458,
+            1.487366292,
+            1.500819833
+          ],
+          [
+            1.482724667,
+            1.483658208,
+            1.463626208,
+            1.489024917,
+            1.49854425,
+            1.508741458,
+            1.476389084,
+            1.485171958,
+            1.526111125
+          ],
+          [
+            1.509988209,
+            1.477639375,
+            1.485153125,
+            1.476633167,
+            1.490483,
+            1.53256925,
+            1.514127833,
+            1.523094833,
+            1.503503042
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          9.7713063415658,
+          11.20579242187738,
+          9.284144755818469
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          8.980599478427397,
+          11.278544788795553
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 0.6366643502592593,
+        "candidate_seconds": 0.6304233812222222,
+        "baseline_MB_s": 7232.892079044172,
+        "candidate_MB_s": 7304.49515859054,
+        "throughput_gain_percent": 0.9899647162415759,
+        "time_reduction_percent": 0.9802604833293538,
+        "baseline_samples_by_launch": [
+          [
+            0.633428375,
+            0.634235791,
+            0.634196416,
+            0.639212458,
+            0.63642875,
+            0.634147792,
+            0.634530083,
+            0.644785166,
+            0.64166925
+          ],
+          [
+            0.632165167,
+            0.633054334,
+            0.634287958,
+            0.6327595,
+            0.63744525,
+            0.632943459,
+            0.638161791,
+            0.643757083,
+            0.646638167
+          ],
+          [
+            0.632572333,
+            0.634184167,
+            0.631030292,
+            0.63746225,
+            0.631566917,
+            0.631437125,
+            0.642301208,
+            0.642850167,
+            0.642686208
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            0.625939,
+            0.6285415,
+            0.629730208,
+            0.625327042,
+            0.638614,
+            0.623201708,
+            0.623925917,
+            0.630131958,
+            0.635946792
+          ],
+          [
+            0.629219875,
+            0.627538041,
+            0.628918375,
+            0.62748,
+            0.625920875,
+            0.629693583,
+            0.628085959,
+            0.636693042,
+            0.637124041
+          ],
+          [
+            0.6265385,
+            0.631179583,
+            0.631283209,
+            0.62722225,
+            0.632995709,
+            0.628830584,
+            0.635298625,
+            0.635525125,
+            0.640525792
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          1.2589904123050166,
+          1.0675789197410968,
+          0.6449062118635718
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.6121807071930663,
+          1.359165494867054
+        ]
+      }
+    }
+  },
+  "power": [
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    }
+  ],
+  "interval_note": "Hierarchical bootstrap of three process launches and paired repeats; descriptive only, not a confidence interval over unseen source families.",
+  "sizes": {
+    "files": 1408,
+    "baseline_bytes": 183925717,
+    "candidate_bytes": 183629678,
+    "aggregate_change_percent": -0.16095574062652274,
+    "mean_file_change_percent": -0.3651240289672516,
+    "shrink": 1154,
+    "equal": 3,
+    "grow": 251,
+    "max_growth_bytes": 7282,
+    "max_growth_percent": 2.4466058357565323
+  },
+  "source_sizes": {
+    "gmus-cuckdaddy-2020-08": {
+      "files": 64,
+      "baseline_bytes": 12595857,
+      "candidate_bytes": 12600970,
+      "aggregate_change_percent": 0.04059271234977402,
+      "mean_file_change_percent": -0.06583130713153154,
+      "shrink": 43,
+      "equal": 0,
+      "grow": 21,
+      "max_growth_bytes": 5147,
+      "max_growth_percent": 2.340843558700745
+    },
+    "archive-org-melee-slippi-matches-2025": {
+      "files": 64,
+      "baseline_bytes": 9106882,
+      "candidate_bytes": 9124029,
+      "aggregate_change_percent": 0.1882861774205491,
+      "mean_file_change_percent": 0.11382343554255189,
+      "shrink": 35,
+      "equal": 0,
+      "grow": 29,
+      "max_growth_bytes": 5612,
+      "max_growth_percent": 2.4466058357565323
+    },
+    "full-bloom-2025": {
+      "files": 64,
+      "baseline_bytes": 10779116,
+      "candidate_bytes": 10769263,
+      "aggregate_change_percent": -0.0914082379297132,
+      "mean_file_change_percent": -0.202289607595817,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 4374,
+      "max_growth_percent": 1.134645066732376
+    },
+    "tipped-off-16": {
+      "files": 64,
+      "baseline_bytes": 10821528,
+      "candidate_bytes": 10818033,
+      "aggregate_change_percent": -0.032296732956749175,
+      "mean_file_change_percent": -0.2177739615761223,
+      "shrink": 46,
+      "equal": 0,
+      "grow": 18,
+      "max_growth_bytes": 4162,
+      "max_growth_percent": 2.375843810384204
+    },
+    "tbh-9": {
+      "files": 64,
+      "baseline_bytes": 5979259,
+      "candidate_bytes": 5949352,
+      "aggregate_change_percent": -0.5001790355627644,
+      "mean_file_change_percent": -0.7076131978558698,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 123,
+      "max_growth_percent": 0.11190770798457095
+    },
+    "slippi-gcs-mainstage-2019": {
+      "files": 64,
+      "baseline_bytes": 5685336,
+      "candidate_bytes": 5662686,
+      "aggregate_change_percent": -0.3983933403408302,
+      "mean_file_change_percent": -0.5620748060046098,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 415,
+      "max_growth_percent": 0.2770249522715984
+    },
+    "archive-org-foofs-slippi-replay-collection": {
+      "files": 64,
+      "baseline_bytes": 4123986,
+      "candidate_bytes": 4102815,
+      "aggregate_change_percent": -0.5133625574868628,
+      "mean_file_change_percent": -0.7055934457528024,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 172,
+      "max_growth_percent": 0.19591539188774654
+    },
+    "slippi-gcs-genesis-7": {
+      "files": 64,
+      "baseline_bytes": 5944625,
+      "candidate_bytes": 5925016,
+      "aggregate_change_percent": -0.32986100889459413,
+      "mean_file_change_percent": -0.4667197065176494,
+      "shrink": 60,
+      "equal": 0,
+      "grow": 4,
+      "max_growth_bytes": 271,
+      "max_growth_percent": 0.18817353627373912
+    },
+    "fight-pitt-9": {
+      "files": 64,
+      "baseline_bytes": 5029993,
+      "candidate_bytes": 5005379,
+      "aggregate_change_percent": -0.4893446173781957,
+      "mean_file_change_percent": -0.6949115932317423,
+      "shrink": 63,
+      "equal": 0,
+      "grow": 1,
+      "max_growth_bytes": 132,
+      "max_growth_percent": 0.11094488056615504
+    },
+    "combo-breaker-2024": {
+      "files": 64,
+      "baseline_bytes": 10492225,
+      "candidate_bytes": 10475380,
+      "aggregate_change_percent": -0.16054745299495243,
+      "mean_file_change_percent": -0.27830129911543355,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2725,
+      "max_growth_percent": 0.9779012265931808
+    },
+    "collision-2025": {
+      "files": 64,
+      "baseline_bytes": 11174103,
+      "candidate_bytes": 11176055,
+      "aggregate_change_percent": 0.01746896372800677,
+      "mean_file_change_percent": -0.04633552260252475,
+      "shrink": 37,
+      "equal": 0,
+      "grow": 27,
+      "max_growth_bytes": 1969,
+      "max_growth_percent": 0.9802213338776289
+    },
+    "supernova-2025-main-stream": {
+      "files": 64,
+      "baseline_bytes": 10218746,
+      "candidate_bytes": 10206621,
+      "aggregate_change_percent": -0.11865448069655615,
+      "mean_file_change_percent": -0.16607808757044368,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2111,
+      "max_growth_percent": 1.920260522318129
+    },
+    "slippi-gcs-summit-10-online": {
+      "files": 64,
+      "baseline_bytes": 14401515,
+      "candidate_bytes": 14395406,
+      "aggregate_change_percent": -0.042419148263217465,
+      "mean_file_change_percent": -0.1530267101289803,
+      "shrink": 51,
+      "equal": 0,
+      "grow": 13,
+      "max_growth_bytes": 7282,
+      "max_growth_percent": 1.9309247596950518
+    },
+    "personal-pre-slippi-online": {
+      "files": 64,
+      "baseline_bytes": 4178368,
+      "candidate_bytes": 4153615,
+      "aggregate_change_percent": -0.5924083278447512,
+      "mean_file_change_percent": -0.8179729367246942,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 38,
+      "max_growth_percent": 0.043712326876188534
+    },
+    "shine-2022": {
+      "files": 64,
+      "baseline_bytes": 7975313,
+      "candidate_bytes": 7966869,
+      "aggregate_change_percent": -0.10587672233052237,
+      "mean_file_change_percent": -0.3073214804995646,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 3147,
+      "max_growth_percent": 1.7937960989067303
+    },
+    "fall-2019-purdue-weeklies": {
+      "files": 64,
+      "baseline_bytes": 5495187,
+      "candidate_bytes": 5469933,
+      "aggregate_change_percent": -0.4595657982157886,
+      "mean_file_change_percent": -0.6093591357930729,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 286,
+      "max_growth_percent": 0.21881001017542978
+    },
+    "htl-3": {
+      "files": 64,
+      "baseline_bytes": 5542239,
+      "candidate_bytes": 5517421,
+      "aggregate_change_percent": -0.4477973613191355,
+      "mean_file_change_percent": -0.5840237943040403,
+      "shrink": 62,
+      "equal": 0,
+      "grow": 2,
+      "max_growth_bytes": 555,
+      "max_growth_percent": 0.4892238529683901
+    },
+    "archive-org-abbey-52": {
+      "files": 64,
+      "baseline_bytes": 8737913,
+      "candidate_bytes": 8721437,
+      "aggregate_change_percent": -0.18855761095355472,
+      "mean_file_change_percent": -0.34745180016349153,
+      "shrink": 55,
+      "equal": 0,
+      "grow": 9,
+      "max_growth_bytes": 3191,
+      "max_growth_percent": 1.864468179587253
+    },
+    "full-house-2025": {
+      "files": 64,
+      "baseline_bytes": 11493704,
+      "candidate_bytes": 11493310,
+      "aggregate_change_percent": -0.00342796369212639,
+      "mean_file_change_percent": -0.12626725412837064,
+      "shrink": 43,
+      "equal": 1,
+      "grow": 20,
+      "max_growth_bytes": 4000,
+      "max_growth_percent": 1.6499131733192618
+    },
+    "bobc-8": {
+      "files": 64,
+      "baseline_bytes": 9251197,
+      "candidate_bytes": 9236358,
+      "aggregate_change_percent": -0.16040086488267047,
+      "mean_file_change_percent": -0.26580229964956564,
+      "shrink": 49,
+      "equal": 0,
+      "grow": 15,
+      "max_growth_bytes": 2374,
+      "max_growth_percent": 1.0990210044554916
+    },
+    "mango-bday": {
+      "files": 64,
+      "baseline_bytes": 6174689,
+      "candidate_bytes": 6151663,
+      "aggregate_change_percent": -0.3729094696105384,
+      "mean_file_change_percent": -0.5223876104066454,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 976,
+      "max_growth_percent": 0.47689781877882087
+    },
+    "lacs5": {
+      "files": 64,
+      "baseline_bytes": 8723936,
+      "candidate_bytes": 8708067,
+      "aggregate_change_percent": -0.18190183880303357,
+      "mean_file_change_percent": -0.2994165160691146,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 1677,
+      "max_growth_percent": 0.8743163701012024
+    }
+  },
+  "qualifies_on_pooled_means": false
+}

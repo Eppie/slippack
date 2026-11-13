@@ -162,12 +162,90 @@ Fuzzing instructions are in
 The `benchmarks/` directory and [EXPERIMENTS.md](EXPERIMENTS.md) record historical
 experiments. Their backend selections and version comparisons describe the
 commits used for those studies. Earlier speed studies are under
-`benchmarks/2026-11-09-speed/`; all benchmark sets were examined during
+`benchmarks/2026-11-09-speed/`; those earlier benchmark sets were examined during
 development, so those results are not independent held-out estimates.
 
 ## Encoding speed
 
-The current release (`make release`) improves level 3 encoding throughput by
+The current build (candidate 8) **meets the additional 10% compression-speed
+goal on independent validation** against `3d39721`, at level 3. The 512 reserved
+files come from 16 source families excluded from tuning and compiler training.
+All 27 repetitions from three launches are retained, using one replay per
+archive with RAM inputs on an Apple M4 Max on AC power.
+
+| Workers | Encode throughput gain | Encode time reduction | Decode throughput gain |
+|---|---:|---:|---:|
+| 1 | 12.67% | 11.25% | 0.72% |
+| 8 | 12.89% | 11.42% | 0.82% |
+
+Total output falls from 64,217,482 to 64,132,365 bytes (**0.133% smaller**).
+The separate 1,408-file test excluding the original 521 and the full
+1,929-file development test also pass. All correctness and sleep checks pass;
+the installed CLI matches the frozen tested binary. See the
+[independent result](benchmarks/2026-11-12-generalization/candidate8-awake1-holdout-replication-summary.json)
+and [completion audit](benchmarks/2026-11-12-generalization/candidate8-completion-audit.json).
+These are measured averages: eight-worker launch gains range from 7.01% to
+19.96%, and 105 of the 512 files grow even though aggregate size decreases.
+
+Earlier candidates did not meet the goal. One improved compression throughput
+11.0–11.4% on 905 development files, but only 5.0% with one worker and 8.0% with
+eight on 512 previously unused files from eight other source collections.
+Holdout output was 0.188% smaller; average decoding throughput was 0.18% and
+0.06% lower. These held-out results take precedence over the tuning result.
+See the [generalization study](benchmarks/2026-11-12-generalization/README.md)
+for all samples, limitations, source breakdowns, and passing correctness checks.
+Development then expanded to 1,417 files across 17 source collections, with
+another 512 files from eight different collections reserved for final validation.
+Candidate 5 also corrects scratch-buffer reuse and avoids state/table reloads
+in presence-mask encoding. A fixed three-launch replication on the expanded
+development set includes all 27 repetitions, including the initial failed run.
+Compression throughput improves 9.65% with one worker and 10.98% with eight
+(elapsed time falls 8.80% and 9.89%). Output is 0.176% smaller and decoding is
+about 1.1% faster. It passes full correctness checks, but the single-worker
+result remains below target.
+Candidate 6 adds smaller presence-encoder tables and has passed normal, scalar,
+sanitizer, and optimized release correctness checks. Its fixed 27-repetition
+development test improves compression throughput 10.64% / 11.00% with one/eight
+workers (elapsed time falls 9.62% / 9.91%), with 0.176% smaller total output
+and faster decoding. Independent validation on another 512 files falls short:
+compression throughput improves 8.24% / 11.52% (elapsed time falls 7.62% / 10.33%),
+total output is 0.204% smaller, and decoding is 0.75% / 0.78% faster. All 27
+repetitions are retained in the [independent result](benchmarks/2026-11-12-generalization/candidate6-holdout-replication-summary.json).
+The single-worker target remains unmet. These 512 files are now retired into
+development; any subsequent measurements on them are not independent evidence.
+
+Candidate 7 reuses dictionary index-buffer storage between trials and passes
+normal, scalar, sanitizer, and optimized-release correctness checks. It fails
+the fixed 27-repetition test on all 1,408 development files outside the original
+521: compression throughput improves 9.68% / 10.08%, while elapsed time falls
+8.83% / 9.16%. Output is 0.161% smaller and decoding is 0.93% / 0.99% faster.
+The single-worker target remains unmet, so qualification stopped before the
+full 1,929-file gate. This left 512 files from 16 further source families
+unused and reserved for independent validation. All samples are retained in
+the [outside-original report](benchmarks/2026-11-12-generalization/candidate7-outside521-replication-summary.json).
+
+Candidate 8 groups four presence symbols while keeping their coder states
+independent in the main loop. It passes full correctness checks and produces
+identical packets to candidate 7, including pooled archives at four levels.
+It passes the fixed 27-repetition test on all 1,408 development files outside
+the original 521: compression throughput improves 12.70% / 12.87% with one/eight
+workers, while elapsed time falls 11.27% / 11.40%. Total output is 0.161% smaller,
+and decoding throughput improves 1.01% / 1.17%. All three sleep guards passed;
+see the [outside-original report](benchmarks/2026-11-12-generalization/candidate8-awake1-outside521-replication-summary.json).
+An earlier attempt was stopped during full-development qualification after a
+937-second host sleep contaminated a baseline measurement. All original
+reports are retained in the [incident record](benchmarks/2026-11-12-generalization/candidate8-sleep-incident.json).
+The complete replacement sequence uses the same frozen build and a
+[new protocol](benchmarks/2026-11-12-generalization/candidate8-awake1-replication-protocol.json)
+with explicit sleep prevention and detection. The full 1,929-file gate also
+passes: compression throughput improves 12.25% / 11.72%, elapsed time falls
+10.91% / 10.49%, total output is 0.183% smaller, and decoding is 0.89% / 0.96%
+faster. All 27 repetitions are retained in the
+[full-development report](benchmarks/2026-11-12-generalization/candidate8-awake1-development-replication-summary.json).
+Independent validation on the 512 reserved files from 16 additional source
+families also passes with the same frozen build, as summarized above.
+
+The preceding release at `3d39721` improves level 3 encoding throughput by
 **11.3% with one worker and 12.1% with eight** over the preceding profile-guided
 release at `888e0be`. Separate archives total **53,784,864 bytes**, down from
 54,382,292 (**1.1% smaller**). Average decoding throughput is 0.8% and 1.2% higher,
@@ -190,7 +268,7 @@ See the [method, validation, and raw results](benchmarks/2026-11-11-compact-mode
 The corpus includes the compiler-training inputs and was examined during
 development, so these are not independent held-out estimates.
 
-On the matched 120-file set, the current release encodes at
+On the matched 120-file set, that preceding release encodes at
 372.6 MB/s versus 573.8 MB/s for slpz fast, and decodes at
 948.7 versus 1118.2 MB/s (nine-run single-worker averages).
 It produces 12.78 MB versus 42.11 MB, or 69.6% smaller output.

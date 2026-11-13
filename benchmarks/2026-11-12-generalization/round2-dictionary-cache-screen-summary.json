@@ -1,0 +1,129 @@
+{
+  "method": "Exploratory screen; block input loading outside timers; original timed loops. Final validation retains the original frozen driver.",
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "completed": true,
+  "binaries": {
+    "baseline": "d1af6d8c32ebfd5ea9d13879f23f72aaa096d01418abc4a05da56308b57c848b",
+    "candidate4": "1b073494e9a457b7b7d798fa71393e8b17a64933de854acd9056aa0e29b885c2",
+    "dict_cache2_hash4": "087c8fb0414569993385563f1a2d57cc6bfb36ef87c484e1b99cc041308d0ff1",
+    "dict_cache2_all4": "98b9f6c3a89b43bc76dc57cab5c64016f87378e01d7eaae8fd7a96ef608cccd9"
+  },
+  "driver_sha256": "a7ebd4cbafca1cb3387ab717a835a83be1d0c2fc38773f63aca4941afb9de604",
+  "rows": {
+    "dict_cache2_all4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.9958595,
+          11.05083675,
+          10.75517458
+        ],
+        "mean_seconds": 10.933956943333333,
+        "throughput_vs_baseline_pct": 11.018504306450861,
+        "elapsed_reduction_vs_baseline_pct": 9.92492591688665,
+        "throughput_vs_candidate4_pct": -1.6992781688848546
+      },
+      "decode": {
+        "samples_seconds": [
+          4.48906625,
+          4.488904792,
+          4.484258792
+        ],
+        "mean_seconds": 4.487409944666666,
+        "throughput_vs_baseline_pct": 1.2214686424733445,
+        "elapsed_reduction_vs_baseline_pct": 1.2067288282367472,
+        "throughput_vs_candidate4_pct": 0.15946806929252322
+      }
+    },
+    "candidate4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.68930088,
+          10.83877596,
+          10.71639896
+        ],
+        "mean_seconds": 10.7481586,
+        "throughput_vs_baseline_pct": 12.937628776709719,
+        "elapsed_reduction_vs_baseline_pct": 11.455551986387857,
+        "throughput_vs_candidate4_pct": 0.0
+      },
+      "decode": {
+        "samples_seconds": [
+          4.522626042,
+          4.488510833,
+          4.472560917
+        ],
+        "mean_seconds": 4.494565930666667,
+        "throughput_vs_baseline_pct": 1.0603097177454002,
+        "elapsed_reduction_vs_baseline_pct": 1.049185106108208,
+        "throughput_vs_candidate4_pct": 0.0
+      }
+    },
+    "baseline-l3-t1": {
+      "bytes": 174316403,
+      "size_change_pct": 0.0,
+      "encode": {
+        "samples_seconds": [
+          12.05846913,
+          12.49742758,
+          11.86024967
+        ],
+        "mean_seconds": 12.13871546,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate4_pct": -11.455551986387857
+      },
+      "decode": {
+        "samples_seconds": [
+          4.533934292,
+          4.575670042,
+          4.517062416
+        ],
+        "mean_seconds": 4.54222225,
+        "throughput_vs_baseline_pct": 0.0,
+        "elapsed_reduction_vs_baseline_pct": 0.0,
+        "throughput_vs_candidate4_pct": -1.049185106108208
+      }
+    },
+    "dict_cache2_hash4-l3-t1": {
+      "bytes": 174009368,
+      "size_change_pct": -0.17613660832594968,
+      "encode": {
+        "samples_seconds": [
+          10.47396,
+          10.51791275,
+          10.50477879
+        ],
+        "mean_seconds": 10.498883846666667,
+        "throughput_vs_baseline_pct": 15.619104252248395,
+        "elapsed_reduction_vs_baseline_pct": 13.509103320997806,
+        "throughput_vs_candidate4_pct": 2.3742976584361086
+      },
+      "decode": {
+        "samples_seconds": [
+          4.457732417,
+          4.451115792,
+          4.475086542
+        ],
+        "mean_seconds": 4.461311583666666,
+        "throughput_vs_baseline_pct": 1.8136071604941462,
+        "elapsed_reduction_vs_baseline_pct": 1.7813013516309928,
+        "throughput_vs_candidate4_pct": 0.7453939581747226
+      }
+    }
+  },
+  "control_name": "candidate4"
+}

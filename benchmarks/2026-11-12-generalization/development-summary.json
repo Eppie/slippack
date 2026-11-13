@@ -1,0 +1,156 @@
+{
+  "report": "benchmarks/2026-11-12-generalization/development-905.json",
+  "timings": {
+    "1": {
+      "encode": {
+        "baseline_seconds": 7.0092701295555555,
+        "candidate_seconds": 6.474331324111111,
+        "baseline_MB_s": 382.32843241410694,
+        "candidate_MB_s": 413.9181526005587,
+        "throughput_gain_percent": 8.262456440131128,
+        "time_reduction_percent": 7.631876009298056,
+        "descriptive_95_percent_interval": [
+          7.6960973221133155,
+          8.859656690238339
+        ]
+      },
+      "decode": {
+        "baseline_seconds": 2.7186687084444445,
+        "candidate_seconds": 2.701286004777778,
+        "baseline_MB_s": 985.7189486442945,
+        "candidate_MB_s": 992.0620238879363,
+        "throughput_gain_percent": 0.6434973429663371,
+        "time_reduction_percent": 0.6393829307952958,
+        "descriptive_95_percent_interval": [
+          0.2509478183601699,
+          1.033120748398253
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "baseline_seconds": 0.9681241202222223,
+        "candidate_seconds": 0.8990672223333334,
+        "baseline_MB_s": 2768.078188553831,
+        "candidate_MB_s": 2980.6928719357047,
+        "throughput_gain_percent": 7.680949340992194,
+        "time_reduction_percent": 7.133062429333714,
+        "descriptive_95_percent_interval": [
+          6.447798382480285,
+          9.00376327685748
+        ]
+      },
+      "decode": {
+        "baseline_seconds": 0.36868929633333336,
+        "candidate_seconds": 0.36726897677777776,
+        "baseline_MB_s": 7268.568107757443,
+        "candidate_MB_s": 7296.677450166133,
+        "throughput_gain_percent": 0.3867246201998187,
+        "time_reduction_percent": 0.3852348222964097,
+        "descriptive_95_percent_interval": [
+          0.2427886832678139,
+          0.515521591684398
+        ]
+      }
+    }
+  },
+  "sizes": {
+    "files": 905,
+    "baseline_bytes": 108752842,
+    "candidate_bytes": 108703468,
+    "aggregate_change_percent": -0.045400192851974275,
+    "mean_file_change_percent": -0.33188283373501737,
+    "shrink": 687,
+    "equal": 0,
+    "grow": 218,
+    "max_growth_bytes": 6905,
+    "max_growth_percent": 3.0103017277082866
+  },
+  "source_sizes": {
+    "original-521": {
+      "files": 521,
+      "baseline_bytes": 53784864,
+      "candidate_bytes": 53695859,
+      "aggregate_change_percent": -0.16548335977943918,
+      "mean_file_change_percent": -0.46885956799544204,
+      "shrink": 431,
+      "equal": 0,
+      "grow": 90,
+      "max_growth_bytes": 5551,
+      "max_growth_percent": 2.3988660377439963
+    },
+    "gmus-cuckdaddy-2020-08": {
+      "files": 64,
+      "baseline_bytes": 12595857,
+      "candidate_bytes": 12628210,
+      "aggregate_change_percent": 0.2568542974090704,
+      "mean_file_change_percent": 0.12553737359287873,
+      "shrink": 32,
+      "equal": 0,
+      "grow": 32,
+      "max_growth_bytes": 6522,
+      "max_growth_percent": 2.9661903419168745
+    },
+    "archive-org-melee-slippi-matches-2025": {
+      "files": 64,
+      "baseline_bytes": 9106882,
+      "candidate_bytes": 9143511,
+      "aggregate_change_percent": 0.40221230493597826,
+      "mean_file_change_percent": 0.30371556957055346,
+      "shrink": 21,
+      "equal": 0,
+      "grow": 43,
+      "max_growth_bytes": 6905,
+      "max_growth_percent": 3.0103017277082866
+    },
+    "full-bloom-2025": {
+      "files": 64,
+      "baseline_bytes": 10779116,
+      "candidate_bytes": 10783416,
+      "aggregate_change_percent": 0.03989195403408807,
+      "mean_file_change_percent": -0.07644724307632605,
+      "shrink": 44,
+      "equal": 0,
+      "grow": 20,
+      "max_growth_bytes": 6407,
+      "max_growth_percent": 1.66201896263245
+    },
+    "tipped-off-16": {
+      "files": 64,
+      "baseline_bytes": 10821528,
+      "candidate_bytes": 10832753,
+      "aggregate_change_percent": 0.1037284198682542,
+      "mean_file_change_percent": -0.07825760113028372,
+      "shrink": 39,
+      "equal": 0,
+      "grow": 25,
+      "max_growth_bytes": 5565,
+      "max_growth_percent": 2.660669025571538
+    },
+    "tbh-9": {
+      "files": 64,
+      "baseline_bytes": 5979259,
+      "candidate_bytes": 5952615,
+      "aggregate_change_percent": -0.4456070559913816,
+      "mean_file_change_percent": -0.6573300299627084,
+      "shrink": 62,
+      "equal": 0,
+      "grow": 2,
+      "max_growth_bytes": 199,
+      "max_growth_percent": 0.18105393405634107
+    },
+    "slippi-gcs-mainstage-2019": {
+      "files": 64,
+      "baseline_bytes": 5685336,
+      "candidate_bytes": 5667104,
+      "aggregate_change_percent": -0.32068465258693335,
+      "mean_file_change_percent": -0.49343884406544813,
+      "shrink": 58,
+      "equal": 0,
+      "grow": 6,
+      "max_growth_bytes": 579,
+      "max_growth_percent": 0.4248138229575593
+    }
+  },
+  "interval_note": "Paired bootstrap of timing repeats only; descriptive, not a confidence interval for unseen source collections."
+}

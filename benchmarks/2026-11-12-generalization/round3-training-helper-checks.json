@@ -1,0 +1,22 @@
+{
+  "completed": true,
+  "valid_reference_counts": [
+    64,
+    400
+  ],
+  "rejected_cases": [
+    "unknown scheme",
+    "mutated frozen64 reference",
+    "wrong count",
+    "duplicate",
+    "holdout overlap",
+    "outside development"
+  ],
+  "canonical_benchmarks_launched": 0,
+  "artifacts": {
+    "benchmarks/2026-11-12-generalization/round3_training.py": "970e14de2da91a2c63cb514fa96290ffc8bc5d375dc3c0d4a3a75e8cf4faeac3",
+    "benchmarks/2026-11-12-generalization/declare_round3_protocol.py": "8216babffd10b83db660a5e73842a9cfb1ee113c9ae71fe3527250e840380ba3",
+    "build/goal-2026-11-12/freeze_candidate_round3.py": "65372351e824791a25339f2b35d7659865ebbda87958468af58615a8a34f7537",
+    "build/goal-2026-11-12/check_round3_training.py": "47c791f1e4c71bc92709ea6c43acc9e981240f3dec63d17496ccf82b18454258"
+  }
+}

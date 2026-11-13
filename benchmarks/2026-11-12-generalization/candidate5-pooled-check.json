@@ -1,0 +1,66 @@
+{
+  "completed": true,
+  "files": 1417,
+  "binary_sha256": {
+    "baseline": "22ac3fbc28c68e683c3193c5c2a4ee8c83340cee087c441df98ca44217e102f4",
+    "candidate": "447e4c9333f0640b59d604ae416925694585be5265c3c10662070f694146ecb9"
+  },
+  "rows": [
+    {
+      "variant": "baseline",
+      "level": 1,
+      "bytes": 159829708,
+      "archive_sha256": "bf064252ced951044534d9e63bc190decec3ccbfeeb0a4bbe8b6f4fb69044ca2",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 1,
+      "bytes": 158916967,
+      "archive_sha256": "98a74801971d4dca0e0adb8965bd3fc9cdff1cc8d3d9f6c28916d3b002ef7340",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 3,
+      "bytes": 158573438,
+      "archive_sha256": "07ce27188678b602e52fc2b6ce94cff1c1a9e0d4d287567d2d2f467b9c4ba902",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 3,
+      "bytes": 158308367,
+      "archive_sha256": "57be5b2ea1ee1605eea7fd06efede188f415397c5e34a8bbb678e4a76fcee94a",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 7,
+      "bytes": 156877841,
+      "archive_sha256": "287cf303701d4c50ad0355f6d1ca48acc15b9baddc36faf7a8a4491a0dfc08e0",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 7,
+      "bytes": 155934795,
+      "archive_sha256": "831af5ec359bfe59e2e6fad19527cc27d4e427df95001069abfe3200db7556c4",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 9,
+      "bytes": 156436855,
+      "archive_sha256": "114f24e873864cccc603a1be94b0d8106f473c4118c1dab74b13c726880d5de5",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 9,
+      "bytes": 155506035,
+      "archive_sha256": "54a84612047b6dc8cb0b7d5feb74800a58c839ff880607a142fe300fe51cc925",
+      "reconstructed_member_hashes_match": true
+    }
+  ]
+}

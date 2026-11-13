@@ -6,7 +6,215 @@
 #include <random>
 
 using namespace slippack_custom;
+static size_t check_presence_histograms() {
+  std::mt19937 rng(894257);
+  size_t checks = 0;
+  // Every bit count through two full four-symbol groups exercises their short
+  // tails, reference boundaries, and state rotations between planes.
+  for (unsigned count :
+       {0u,  1u,   2u,   3u,   4u,   5u,   6u,   7u,    8u,    9u,    10u,  11u, 12u, 13u,
+        14u, 15u,  16u,  17u,  18u,  19u,  20u,  21u,   22u,   23u,   24u,  25u, 26u, 27u,
+        28u, 29u,  30u,  31u,  32u,  33u,  60u,  63u,   64u,   65u,   67u,  68u, 71u, 72u,
+        73u, 127u, 128u, 129u, 191u, 192u, 193u, 1023u, 1024u, 1025u, 4097u}) {
+    for (unsigned planes : {1u, 2u, 5u, 17u}) {
+      for (unsigned pattern = 0; pattern < 10; ++pattern) {
+        size_t width = (count + 7) / 8;
+        Bytes masks(width * planes), profiles(planes), refs(planes);
+        for (unsigned j = 0; j < planes; ++j) {
+          profiles[j] = rng() % ProfileCount;
+          refs[j] = j && pattern % 2 ? 1 + rng() % std::min(j, 8u) : 0;
+          for (size_t k = 0; k < width; ++k) {
+            unsigned value = pattern < 2   ? 0
+                             : pattern < 4 ? 255
+                             : pattern < 6 ? ((k / 8) & 1 ? 0 : 255)
+                             : pattern < 8 ? (rng() % 20 ? 0 : rng())
+                                           : rng();
+            masks[j * width + k] = uint8_t(value);
+          }
+          if (count % 8) {
+            masks[j * width + width - 1] &= (1u << (count % 8)) - 1;
+          }
+        }
+        // Independent bit-by-bit counting includes the final nibble's zero padding.
+        std::array<std::array<uint32_t, 2>, 256> hist{};
+        auto bit = [&](unsigned plane, int64_t position) -> unsigned {
+          return position >= 0 && uint64_t(position) < count
+                     ? (masks[plane * width + size_t(position) / 8] >> (position % 8)) & 1
+                     : 0;
+        };
+        for (unsigned j = 0; j < planes; ++j) {
+          unsigned history = 0, cls = profiles[j] == FloatLow ? 128 : 0;
+          for (unsigned i = 0; i < (count + 3) / 4 * 4; ++i) {
+            unsigned above = refs[j]
+                                 ? bit(j - refs[j], int64_t(i) - 1) | (bit(j - refs[j], i) << 1) |
+                                       (bit(j - refs[j], int64_t(i) + 1) << 2)
+                                 : 0;
+            unsigned value = bit(j, i);
+            ++hist[cls + history + above * 16][value];
+            history = (history * 2 + value) & 15;
+          }
+        }
+        auto packed = encode_presence4(masks, count, profiles, refs);
+        Reader header{packed};
+        unsigned mode = header.byte(), split = mode & 1, coding = mode >> 1, nc = 128u << split;
+        require(mode <= 5, "presence header mode");
+        View tags = coding ? header.take(nc / (coding == 1 ? 4 : 8)) : View{};
+        for (unsigned c = 0; c < nc; ++c) {
+          unsigned actual;
+          if (!coding) {
+            actual = header.var();
+          } else if (coding == 2) {
+            actual = (tags[c / 8] >> (c % 8)) & 1 ? header.var() : 4096;
+          } else {
+            unsigned tag = (tags[c / 4] >> (2 * (c % 4))) & 3;
+            actual = tag == 0 ? 4096 : tag == 1 ? 0 : tag == 2 ? 4095 : header.var();
+          }
+          uint32_t zero = hist[c][0] + (split ? 0 : hist[c + 128][0]);
+          uint32_t one = hist[c][1] + (split ? 0 : hist[c + 128][1]);
+          unsigned expected = zero + one ? uint64_t(zero) * 4096 / (zero + one) : 4096;
+          if (zero && one) {
+            expected = std::clamp(expected, 1u, 4095u);
+          }
+          require(actual == expected, "presence bit-count oracle");
+        }
+        Reader r{packed};
+        require(decode_presence4(r, count, profiles, refs) == masks,
+                "uniform presence reconstruction");
+        r.done();
+        ++checks;
+      }
+    }
+  }
+  return checks;
+}
+
+struct ScratchRelocationProbe {
+  static inline unsigned relocations = 0;
+  ScratchRelocationProbe() = default;
+  ScratchRelocationProbe(const ScratchRelocationProbe &) { ++relocations; }
+  ScratchRelocationProbe(ScratchRelocationProbe &&) noexcept { ++relocations; }
+};
+
+static void check_scratch_leases() {
+  {
+    Scratch<ScratchRelocationProbe> first(4);
+  }
+  const size_t larger = Scratch<ScratchRelocationProbe>::cache().capacity() + 1;
+  {
+    Scratch<ScratchRelocationProbe> grown(larger);
+  }
+  require(ScratchRelocationProbe::relocations == 0, "relocated stale scratch entries");
+
+  uint32_t *outer_pointer;
+  {
+    Scratch<uint32_t> outer(64);
+    outer_pointer = outer.data.data();
+    std::fill(outer.data.begin(), outer.data.end(), 4321);
+    {
+      Scratch<uint32_t> inner(32);
+      require(inner.data.data() != outer_pointer, "nested scratch alias");
+      std::fill(inner.data.begin(), inner.data.end(), 1234);
+    }
+    for (auto v : outer.data) {
+      require(v == 4321, "nested scratch overwrite");
+    }
+  }
+  {
+    Scratch<uint32_t> reused(32);
+    require(reused.data.data() == outer_pointer, "scratch not retained");
+  }
+  try {
+    Scratch<uint32_t> temporary(64);
+    throw Error("scratch unwind");
+  } catch (const Error &) {
+  }
+  require(Scratch<uint32_t>::cache().capacity() == 64, "scratch lost during unwind");
+  {
+    Scratch<uint32_t> large((1u << 20) / sizeof(uint32_t) + 1);
+  }
+  require(Scratch<uint32_t>::cache().capacity() * sizeof(uint32_t) <= (1u << 20),
+          "scratch retention cap");
+}
+
+static size_t check_constant_values() {
+
+  unsigned cases = 0;
+  for (unsigned count : {0u, 1u, 2u, 3u, 15u, 16u, 17u, 1024u, 4097u}) {
+    for (unsigned planes : {1u, 2u}) {
+      Bytes input(size_t(count) * planes), profiles(planes);
+      for (unsigned j = 0; j < planes; ++j) {
+        profiles[j] = j ? FloatLow : Generic;
+        for (unsigned i = 0; i < count; ++i) {
+          input[size_t(j) * count + i] = i % 2;
+        }
+      }
+      auto packed = masked_encode(input, count, profiles, LzOptions{2, false, true, 1, false});
+      Reader r{packed};
+      require(masked_decode(r, count, profiles) == input, "constant exceptions roundtrip");
+      r.done();
+      if (count >= 2) {
+        Reader shape{packed};
+        shape.take(profiles.size() * 2);
+        shape.byte();
+        shape.take(shape.var());
+        require(shape.byte() == 1 && shape.var() == 2, "constant exception channel selection");
+        require(shape.var() == size_t(count / 2) * planes && shape.byte() == 3 && shape.byte() == 1,
+                "constant exception framing");
+        shape.done();
+      }
+      ++cases;
+    }
+  }
+  try {
+    Bytes input{0, 1}, labels{ProfileCount};
+    (void)masked_encode(input, 2, labels, LzOptions{2, false, true, 1, false});
+    throw std::logic_error("accepted invalid constant profile");
+  } catch (const Error &) {
+    ++cases;
+  }
+  return cases;
+}
+
+static size_t check_mask_boundaries() {
+  size_t checks = 0;
+  std::mt19937 random(193560);
+  for (unsigned count : {0u, 1u, 7u, 1023u, 1024u, 1025u}) {
+    for (unsigned planes : {3u, 4u}) {
+      for (auto profile : {FloatLow, Controller}) {
+        for (unsigned pattern = 0; pattern < 2; ++pattern) {
+          Bytes input(size_t(count) * planes), profiles(planes, profile);
+          for (unsigned j = 0; j < planes; ++j) {
+            for (unsigned i = 0; i < count; ++i) {
+              if ((i + j % 2) % 7 == 0) {
+                input[size_t(j) * count + i] = pattern ? uint8_t(1 + random() % 255) : 1;
+              }
+            }
+          }
+          auto packed = masked_encode(input, count, profiles, LzOptions{2, false, true, 2, false});
+          Reader reader{packed};
+          require(masked_decode(reader, count, profiles) == input, "mask boundary roundtrip");
+          reader.done();
+          ++checks;
+          if (count == 1024 && planes == 4 && profile == FloatLow && pattern) {
+            for (size_t cut :
+                 {size_t(0), size_t(1), size_t(2), packed.size() / 2, packed.size() - 1}) {
+              try {
+                Reader truncated{View(packed).first(cut)};
+                (void)masked_decode(truncated, count, profiles);
+                throw std::logic_error("accepted truncated mask packet");
+              } catch (const Error &) {
+              }
+              ++checks;
+            }
+          }
+        }
+      }
+    }
+  }
+  return checks;
+}
 int main(int argc, char **argv) {
+  check_scratch_leases();
   std::mt19937 random(716018);
   size_t checks = 0;
   std::array<size_t, 6> packet_modes{};
@@ -98,6 +306,7 @@ int main(int argc, char **argv) {
         ++checks;
         for (LzOptions options :
              {LzOptions{2, false, false}, LzOptions{2, false, true}, LzOptions{2, true, true},
+              LzOptions{2, false, true, 1, false}, LzOptions{2, false, true, 2, false},
               LzOptions{4, true, true}, LzOptions{24, true, false}}) {
           auto fast_packed = encode_planes(planes, n, profiles, options);
           require(decode_planes(fast_packed, narrow(planes.size())) == planes,
@@ -115,6 +324,28 @@ int main(int argc, char **argv) {
       }
     }
   }
+  // Force the tree's leaf limit with occupied and empty history buckets.
+  // Terminal leaves must remain complete when further splitting stops.
+  for (unsigned pattern = 0; pattern < 3; ++pattern) {
+    Bytes input;
+    input.reserve(262144);
+    for (unsigned repeat = 0; repeat < 512; ++repeat) {
+      for (unsigned previous = 0; previous < 256; ++previous) {
+        input.push_back(uint8_t(previous));
+        input.push_back(uint8_t(pattern == 0   ? previous ^ 90
+                                : pattern == 1 ? previous * 37
+                                               : previous));
+      }
+    }
+    auto encoded = context_encode(input, {});
+    Reader shape{encoded};
+    require(shape.byte() == 1 && shape.byte() == 16, "full context tree fixture");
+    Reader reader{encoded};
+    require(context_decode_precision<10>(reader, input.size(), {}, true) == input,
+            "terminal context leaf reconstruction");
+    reader.done();
+    ++checks;
+  }
   // Deliberately different field distributions must select and correctly
   // decode semantic probability tables rather than merely accepting labels.
   Bytes field_data, field_contexts, profiles;
@@ -130,7 +361,7 @@ int main(int argc, char **argv) {
   Reader framing{encoded_channel};
   unsigned packed_size = framing.var();
   require(framing.var() == field_data.size(), "semantic channel size");
-  require(framing.take(packed_size)[0] == 5, "context model did not win");
+  require(framing.take(packed_size)[0] == 8, "context model did not win");
   Reader decode_channel{encoded_channel};
   require(unchannel(decode_channel, field_data.size(), field_contexts) == field_data,
           "semantic model roundtrip");
@@ -266,5 +497,8 @@ int main(int argc, char **argv) {
     }
     ++checks;
   }
+  checks += check_constant_values();
+  checks += check_mask_boundaries();
+  checks += check_presence_histograms();
   std::printf("custom codec: %zu checks passed\n", checks);
 }

@@ -1,0 +1,18 @@
+{
+  "completed": true,
+  "files": 1929,
+  "workers": 8,
+  "level": 3,
+  "purpose": "Correctness-only preflight; timing values deliberately excluded from qualification",
+  "all_packets_identical_to_candidate7": true,
+  "all_roundtrips_match": true,
+  "bytes": 237274426,
+  "manifest_sha256": "48db92475884e5c0cfd8bd8574f56cbc1e666bce1c60894c08e19272b885008b",
+  "reference_sha256": "7ff026936ba8745c54493f5542e694b114951dbac51833ca5ee3a7adae2e1b00",
+  "runner_sha256": "5cf42f54a3504f375dc188861ff762448f3e20a52af808bdcf13beb24b638d69",
+  "library_sha256": "3f2c8445f98886ff9b3f240abbd9a22c7bf6026d95197e014eb81fc71b3140ab",
+  "candidate": "candidate8",
+  "executed_driver": "build/goal-2026-11-12/check_candidate8_fingerprints_executed.py",
+  "executed_driver_sha256": "aafe29d605d79e2258cdf054820490ab81bfc710db0224237c11368c142422ac",
+  "console_label_note": "The inherited final console label said Frozen7; the executed driver, runner, library hash, and verified report identify candidate8. Only that console label was corrected afterward."
+}

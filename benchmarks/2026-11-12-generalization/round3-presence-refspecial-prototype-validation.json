@@ -1,0 +1,98 @@
+{
+  "recorded_utc": "2026-11-13T08:35:17.347749+00:00",
+  "parent": "candidate6",
+  "matched_compiler_profile_control": "candidate6",
+  "training": "Same64 inputs as frozen candidate6; evaluate on full cohorts outside original521 and full development. No new heldout inputs.",
+  "variants": {
+    "presence_refspecial6": {
+      "training_inputs": 64,
+      "only_core_source_change": "mask_codec.h",
+      "normal_scalar_asan_ubsan_each": {
+        "custom_codec_checks": 6289,
+        "exact_presence_packets": 1080
+      },
+      "sha256": {
+        "build/goal-2026-11-12/presence_refspecial6/record_codec.cpp": "6a2976c1f64e6cfc5474fd315f9272064c9469a81b4122d59dd08525ebd6f9e4",
+        "build/goal-2026-11-12/presence_refspecial6/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+        "build/goal-2026-11-12/presence_refspecial6/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+        "build/goal-2026-11-12/presence_refspecial6/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+        "build/goal-2026-11-12/presence_refspecial6/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+        "build/goal-2026-11-12/presence_refspecial6/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+        "build/goal-2026-11-12/presence_refspecial6/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+        "build/goal-2026-11-12/presence_refspecial6/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+        "build/goal-2026-11-12/presence_refspecial6/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+        "build/goal-2026-11-12/presence_refspecial6/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+        "build/goal-2026-11-12/presence_refspecial6/mask_codec.h": "6954c35cb822c42e1c99da441ae3d2e309d964526fa3b1af6dc35cd3b36b81ac",
+        "build/goal-2026-11-12/presence_refspecial6/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+        "build/goal-2026-11-12/presence_refspecial6/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+        "build/goal-2026-11-12/presence_refspecial6/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+        "build/goal-2026-11-12/presence_refspecial6/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+        "build/goal-2026-11-12/presence_refspecial6/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+        "build/goal-2026-11-12/presence_refspecial6/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+        "build/goal-2026-11-12/presence_refspecial6/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+        "build/goal-2026-11-12/presence_refspecial6/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+        "build/goal-2026-11-12/presence_refspecial6/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+        "build/goal-2026-11-12/presence_refspecial6/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+        "build/goal-2026-11-12/presence_refspecial6/profiles/level3.json": "d47eb4dd8d32802b84987734a2aeed6eca21eb10103b8a8239abc596e80551e7",
+        "build/goal-2026-11-12/presence_refspecial6/profiles/level3.proftext": "57ab59defc2b3eb63b8acd78d39c2f0767a68bda3e03a6005587dbdc9b8ca627",
+        "build/goal-2026-11-12/presence_refspecial6/build/release/libslippack.a": "36eaee73194ff369fb975778c2df11bcddd034ce9f25b35598b95653bab938e9",
+        "build/goal-2026-11-12/presence_refspecial6/runner": "a9318f52a19326fed824b264fd247fb78be4ccb31df7e32c356751826c73e77b"
+      }
+    },
+    "presence_refspecial_all6": {
+      "training_inputs": 64,
+      "only_core_source_change": "mask_codec.h",
+      "normal_scalar_asan_ubsan_each": {
+        "custom_codec_checks": 6289,
+        "exact_presence_packets": 1080
+      },
+      "sha256": {
+        "build/goal-2026-11-12/presence_refspecial_all6/record_codec.cpp": "6a2976c1f64e6cfc5474fd315f9272064c9469a81b4122d59dd08525ebd6f9e4",
+        "build/goal-2026-11-12/presence_refspecial_all6/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+        "build/goal-2026-11-12/presence_refspecial_all6/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+        "build/goal-2026-11-12/presence_refspecial_all6/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+        "build/goal-2026-11-12/presence_refspecial_all6/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+        "build/goal-2026-11-12/presence_refspecial_all6/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+        "build/goal-2026-11-12/presence_refspecial_all6/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+        "build/goal-2026-11-12/presence_refspecial_all6/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+        "build/goal-2026-11-12/presence_refspecial_all6/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+        "build/goal-2026-11-12/presence_refspecial_all6/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+        "build/goal-2026-11-12/presence_refspecial_all6/mask_codec.h": "61ac8f5b5f543707115be2577848dc3201a7c3ac3cda8973ad82b7041201a412",
+        "build/goal-2026-11-12/presence_refspecial_all6/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+        "build/goal-2026-11-12/presence_refspecial_all6/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+        "build/goal-2026-11-12/presence_refspecial_all6/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+        "build/goal-2026-11-12/presence_refspecial_all6/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+        "build/goal-2026-11-12/presence_refspecial_all6/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+        "build/goal-2026-11-12/presence_refspecial_all6/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+        "build/goal-2026-11-12/presence_refspecial_all6/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+        "build/goal-2026-11-12/presence_refspecial_all6/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+        "build/goal-2026-11-12/presence_refspecial_all6/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+        "build/goal-2026-11-12/presence_refspecial_all6/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+        "build/goal-2026-11-12/presence_refspecial_all6/profiles/level3.json": "ba07b690ba90b7dfbcda19e442461bef9f9fb8d1cdfc8b745813bace4be61da5",
+        "build/goal-2026-11-12/presence_refspecial_all6/profiles/level3.proftext": "517fa01f0eb44ddbdbcbb0f01019453ca87ca35066721e86e734d27c664111d9",
+        "build/goal-2026-11-12/presence_refspecial_all6/build/release/libslippack.a": "0c5197c031f2ba42a824fa88d3fedd591178e9b32d4c6a7817a61c6eb704a6d1",
+        "build/goal-2026-11-12/presence_refspecial_all6/runner": "4ab72374ca5e71c067e37a123dc1a888eecc016ae15c1385d97d38e9b3cfbd17"
+      }
+    }
+  },
+  "test_artifacts": {
+    "build/goal-2026-11-12/presence_refspecial6-custom-normal": "618bcade06cbb58b1b0eac51ff18b42ca60de0461ce33e83af75c8d9a0207b50",
+    "build/goal-2026-11-12/presence_refspecial6-oracle-normal": "19d71efaeff791db22487dd3a81703177c65f8e1a73812ddf6b2fe15f22ca9df",
+    "build/goal-2026-11-12/presence_refspecial6-custom-scalar": "75f84270b22f291da1c2de1f5eae37fd1a2ffd56d9e25f7252e17453c8176625",
+    "build/goal-2026-11-12/presence_refspecial6-oracle-scalar": "8b9fbb2c76775416f0dc20d1b85c8703e529acfc3646f953ef98dae652ee4988",
+    "build/goal-2026-11-12/presence_refspecial6-custom-sanitizers": "d42bdc76da725d862a58825b89bf30ec3e016301b38c1ee5c91e398b694a8d66",
+    "build/goal-2026-11-12/presence_refspecial6-oracle-sanitizers": "85d887bae8b9165afd8f32b33bd6935d0812f3307f167a75751cbbdbe16689c6",
+    "build/goal-2026-11-12/presence_refspecial_all6-custom-normal": "652aece18dd8cd07cc0093b3ccd9e1cf5c39c984acb1d3644c227ca9f00a50df",
+    "build/goal-2026-11-12/presence_refspecial_all6-oracle-normal": "1f1d986380543ffe8f6dd0194ddc8464de2ff742455e899eea5970ef60ea7b44",
+    "build/goal-2026-11-12/presence_refspecial_all6-custom-scalar": "ba8f6b56534b530e910065a966a0dfe6f35f430ecd992d34c9a568ecc5d1da72",
+    "build/goal-2026-11-12/presence_refspecial_all6-oracle-scalar": "f33281016ada628b658bb5a00a83f3f0d639feabe34af7cbc95cdd7b6c56fa24",
+    "build/goal-2026-11-12/presence_refspecial_all6-custom-sanitizers": "048c6d0dc97f8552c41f8c4c993060cdb525ecc742bdfbcb02df7906fffb1e22",
+    "build/goal-2026-11-12/presence_refspecial_all6-oracle-sanitizers": "71dea5e2d8d3dd37aab91b43209a2a057a35fe469d9b1c1bb8b8fad6b6ff6b07",
+    "build/goal-2026-11-12/presence_round3_check.cpp": "fb0169487fa91c9af6071157e661f88e2008da21fa00953d895a9e64a6040e44",
+    "build/goal-2026-11-12/check_presence_refspecial.py": "860ac68adf48923e3fe73b911a93a896f1745efaf20b2bf0381ce033a9212283",
+    "build/goal-2026-11-12/presence-refspecial-check.log": "11356220d1fbf829ac5946226816ebece5a3d2d65fdc50a5a25d0d2ff103b851",
+    "build/goal-2026-11-12/build-presence-refspecial.log": "803838ba8008a85af0f716ef64cb1ee213000a464154ad11aec4c42cbe0c8039",
+    "build/goal-2026-11-12/prepare_presence_refspecial.py": "6f28365d51caa10bc9297750785331cf3fc27d12f45a9a6c95997dc77b859822"
+  },
+  "change": "Instantiate per-plane loops with a compile-time has_reference flag. Reference-present loops retain the old calculation; reference-absent loops fold it to zero. First variant specializes encoding/decoding only; second also specializes histogram construction. State order, table construction and format unchanged."
+}

@@ -1,0 +1,15 @@
+{
+  "started_utc": "2026-11-13T05:40:58.093700+00:00",
+  "dataset": "holdout",
+  "candidate": "candidate6",
+  "protocol_sha256": "4e9ecefead4247cbc8a21ec43eb981567365d4b70bde7a891de689cccc9fa3ec",
+  "development_summary_sha256": "4c6a81e164a081cc862f334f6a45da7cf9ff57a9d314131d54ab07b1342504a7",
+  "completed_launches": [
+    1,
+    2,
+    3
+  ],
+  "completed": true,
+  "status": "All three launches and pooled summary complete; all samples retained.",
+  "finished_utc": "2026-11-13T05:48:21.473296+00:00"
+}

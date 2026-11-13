@@ -1,0 +1,733 @@
+{
+  "candidate": "candidate8",
+  "run_id": "candidate8-awake1",
+  "dataset": "development",
+  "completed": true,
+  "launches": 3,
+  "repetitions_per_launch": 9,
+  "files": 1929,
+  "raw_bytes": 5914472893,
+  "protocol_sha256": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+  "report_sha256": {
+    "candidate8-awake1-development-round3-1929-launch1.json": "74a0a9b99cd776ebb257f6c86d5aa885c1ab344d85746156f8fc9d4a2c8ba38a",
+    "candidate8-awake1-development-round3-1929-launch2.json": "7cd225fecc1a30240b506b69559cbf3614304af710923d1f50ae5ae510e421ac",
+    "candidate8-awake1-development-round3-1929-launch3.json": "4a31fdc065530bfa66f25f3fcb8cadf3ddfcdc6359c881e5184b7c00f044b207"
+  },
+  "timings": {
+    "1": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 15.430818505555555,
+        "candidate_seconds": 13.746810088518519,
+        "baseline_MB_s": 383.28964149702193,
+        "candidate_MB_s": 430.2432968023491,
+        "throughput_gain_percent": 12.250175904034188,
+        "time_reduction_percent": 10.913279917269092,
+        "baseline_samples_by_launch": [
+          [
+            15.27280188,
+            15.63898804,
+            15.94017108,
+            15.62297054,
+            15.42359871,
+            15.44587354,
+            15.61325242,
+            15.24978012,
+            15.57191042
+          ],
+          [
+            15.52044629,
+            15.33403671,
+            15.49324975,
+            15.51208708,
+            15.22375004,
+            15.45492146,
+            15.58313633,
+            15.27244033,
+            15.28589996
+          ],
+          [
+            15.13788525,
+            15.54840337,
+            15.34624146,
+            15.3186005,
+            15.20186429,
+            15.45492254,
+            15.578354,
+            15.43506129,
+            15.15145225
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            13.8651405,
+            13.71723033,
+            13.74215479,
+            13.85135329,
+            13.4990895,
+            13.64279554,
+            13.51547854,
+            13.63810775,
+            13.66966854
+          ],
+          [
+            13.87342562,
+            13.93629446,
+            13.7238395,
+            13.84609383,
+            13.82691604,
+            13.74728025,
+            13.91390583,
+            13.63432379,
+            13.62983696
+          ],
+          [
+            13.79912358,
+            13.70965279,
+            13.85781788,
+            13.90106904,
+            13.78500921,
+            13.75518192,
+            13.62995062,
+            13.740748,
+            13.71238429
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          13.511604934603906,
+          11.719831696776883,
+          11.527758145826583
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          11.260355774564502,
+          13.480181605709118
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 6.098999612592593,
+        "candidate_seconds": 6.045452270074074,
+        "baseline_MB_s": 969.7447563020662,
+        "candidate_MB_s": 978.3342302241898,
+        "throughput_gain_percent": 0.88574584871981,
+        "time_reduction_percent": 0.8779692723370425,
+        "baseline_samples_by_launch": [
+          [
+            6.155948542,
+            6.124452333,
+            6.118139417,
+            6.112658584,
+            6.097278,
+            6.094672292,
+            6.086751417,
+            6.064996041,
+            6.071178541
+          ],
+          [
+            6.145928917,
+            6.132376792,
+            6.117570083,
+            6.086623291,
+            6.084606291,
+            6.084668208,
+            6.0878235,
+            6.070082458,
+            6.058505916
+          ],
+          [
+            6.167667875,
+            6.128151792,
+            6.103832083,
+            6.106458958,
+            6.0896545,
+            6.086118208,
+            6.074770625,
+            6.064976084,
+            6.057098792
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            6.090787917,
+            6.072740875,
+            6.035110792,
+            6.055175791,
+            6.015965,
+            6.022019375,
+            5.998905791,
+            5.999221667,
+            5.999151292
+          ],
+          [
+            6.120313083,
+            6.097909375,
+            6.072295708,
+            6.041927625,
+            6.068410667,
+            6.040573125,
+            6.008928167,
+            6.012090666,
+            6.014482208
+          ],
+          [
+            6.104303542,
+            6.098867042,
+            6.06803675,
+            6.042177625,
+            6.045398959,
+            6.032169,
+            6.0364875,
+            6.024367833,
+            6.009393917
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          1.1733421980997472,
+          0.718202783303723,
+          0.7666498945653633
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.6753540059188268,
+          1.1509999674433224
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 2.063692834962963,
+        "candidate_seconds": 1.8472682254444444,
+        "baseline_MB_s": 2865.965706134822,
+        "candidate_MB_s": 3201.7401758626606,
+        "throughput_gain_percent": 11.715927689193473,
+        "time_reduction_percent": 10.487249160915102,
+        "baseline_samples_by_launch": [
+          [
+            2.095063792,
+            2.055551208,
+            2.078387167,
+            2.058957541,
+            2.099170792,
+            2.132626875,
+            2.093193292,
+            2.095284125,
+            2.094054917
+          ],
+          [
+            2.0214015,
+            2.049253375,
+            2.032284375,
+            1.994907209,
+            2.080978959,
+            2.072896083,
+            2.039337916,
+            2.052938625,
+            2.024332209
+          ],
+          [
+            2.06980875,
+            1.9795815,
+            2.064971667,
+            2.024704792,
+            2.078164167,
+            2.054245917,
+            2.06973625,
+            2.076709541,
+            2.131164
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            1.843283542,
+            1.863414334,
+            1.815064334,
+            1.809674167,
+            1.812809833,
+            1.848189167,
+            1.844291834,
+            1.859893375,
+            1.859537084
+          ],
+          [
+            1.862011125,
+            1.825075959,
+            1.843846083,
+            1.863861792,
+            1.855340792,
+            1.872127209,
+            1.842367333,
+            1.900120584,
+            1.876959958
+          ],
+          [
+            1.818835333,
+            1.82775325,
+            1.837722041,
+            1.844114125,
+            1.819930583,
+            1.825016542,
+            1.843906375,
+            1.890363541,
+            1.870731792
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          13.566747090540353,
+          9.71596888771613,
+          11.887251739457149
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          9.78893036702928,
+          13.517747153884363
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 0.8194098487777778,
+        "candidate_seconds": 0.8116555307407407,
+        "baseline_MB_s": 7217.966566818741,
+        "candidate_MB_s": 7286.924894853212,
+        "throughput_gain_percent": 0.9553705658803535,
+        "time_reduction_percent": 0.9463296113176201,
+        "baseline_samples_by_launch": [
+          [
+            0.820919625,
+            0.815398959,
+            0.814700208,
+            0.819061667,
+            0.820917833,
+            0.824215042,
+            0.823456208,
+            0.825737625,
+            0.82829625
+          ],
+          [
+            0.817276917,
+            0.814267375,
+            0.813093042,
+            0.815909,
+            0.81938825,
+            0.815073666,
+            0.821343459,
+            0.823071791,
+            0.826546041
+          ],
+          [
+            0.810479917,
+            0.815176083,
+            0.818799917,
+            0.817135083,
+            0.822892667,
+            0.814884,
+            0.82196875,
+            0.821140209,
+            0.822916333
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            0.807262584,
+            0.80441125,
+            0.810455667,
+            0.809450291,
+            0.812529792,
+            0.813477625,
+            0.811902375,
+            0.814045666,
+            0.816553958
+          ],
+          [
+            0.807950333,
+            0.806756334,
+            0.810115833,
+            0.812188,
+            0.812786083,
+            0.811919583,
+            0.812983083,
+            0.817119666,
+            0.8151485
+          ],
+          [
+            0.806319291,
+            0.810403791,
+            0.810151125,
+            0.811834291,
+            0.812414625,
+            0.814558667,
+            0.81489775,
+            0.812129834,
+            0.814933333
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          1.2686722909975634,
+          0.8074776121059335,
+          0.7902719702576722
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.7015518248347563,
+          1.2488087850576424
+        ]
+      }
+    }
+  },
+  "guard_report_sha256": {
+    "candidate8-awake1-development-round3-1929-launch1-guard.json": "bc763d7184a8dfc1524564521fdd3df0512637b2a4bf80f73b01ecb496745807",
+    "candidate8-awake1-development-round3-1929-launch2-guard.json": "1a82eefd097c8dcd8e92c26ee493b692845f83425cad924687c637062737fe33",
+    "candidate8-awake1-development-round3-1929-launch3-guard.json": "c4a11c6fb8608cf07af11d2038e53a9170c8e90427479d46234e00e6e5b6e733"
+  },
+  "power": [
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    }
+  ],
+  "interval_note": "Hierarchical bootstrap of three process launches and paired repeats; descriptive only, not a confidence interval over unseen source families.",
+  "sizes": {
+    "files": 1929,
+    "baseline_bytes": 237710581,
+    "candidate_bytes": 237274426,
+    "aggregate_change_percent": -0.1834815253764388,
+    "mean_file_change_percent": -0.41410300554102847,
+    "shrink": 1618,
+    "equal": 3,
+    "grow": 308,
+    "max_growth_bytes": 7282,
+    "max_growth_percent": 2.4466058357565323
+  },
+  "source_sizes": {
+    "summit-11": {
+      "files": 419,
+      "baseline_bytes": 41208147,
+      "candidate_bytes": 41077843,
+      "aggregate_change_percent": -0.31620931657033724,
+      "mean_file_change_percent": -0.6056411599129875,
+      "shrink": 386,
+      "equal": 0,
+      "grow": 33,
+      "max_growth_bytes": 3305,
+      "max_growth_percent": 1.3014219166538776
+    },
+    "bair-necessities-2026-top8": {
+      "files": 51,
+      "baseline_bytes": 8079743,
+      "candidate_bytes": 8085488,
+      "aggregate_change_percent": 0.07110374674046405,
+      "mean_file_change_percent": -0.1479627943114349,
+      "shrink": 30,
+      "equal": 0,
+      "grow": 21,
+      "max_growth_bytes": 3397,
+      "max_growth_percent": 1.4680143992463313
+    },
+    "slippi-gcs-goml-2019": {
+      "files": 51,
+      "baseline_bytes": 4496974,
+      "candidate_bytes": 4481417,
+      "aggregate_change_percent": -0.3459437390565312,
+      "mean_file_change_percent": -0.45882973312409414,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 375,
+      "max_growth_percent": 0.25922495195698225
+    },
+    "gmus-cuckdaddy-2020-08": {
+      "files": 64,
+      "baseline_bytes": 12595857,
+      "candidate_bytes": 12600970,
+      "aggregate_change_percent": 0.04059271234977402,
+      "mean_file_change_percent": -0.06583130713153154,
+      "shrink": 43,
+      "equal": 0,
+      "grow": 21,
+      "max_growth_bytes": 5147,
+      "max_growth_percent": 2.340843558700745
+    },
+    "archive-org-melee-slippi-matches-2025": {
+      "files": 64,
+      "baseline_bytes": 9106882,
+      "candidate_bytes": 9124029,
+      "aggregate_change_percent": 0.1882861774205491,
+      "mean_file_change_percent": 0.11382343554255189,
+      "shrink": 35,
+      "equal": 0,
+      "grow": 29,
+      "max_growth_bytes": 5612,
+      "max_growth_percent": 2.4466058357565323
+    },
+    "full-bloom-2025": {
+      "files": 64,
+      "baseline_bytes": 10779116,
+      "candidate_bytes": 10769263,
+      "aggregate_change_percent": -0.0914082379297132,
+      "mean_file_change_percent": -0.202289607595817,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 4374,
+      "max_growth_percent": 1.134645066732376
+    },
+    "tipped-off-16": {
+      "files": 64,
+      "baseline_bytes": 10821528,
+      "candidate_bytes": 10818033,
+      "aggregate_change_percent": -0.032296732956749175,
+      "mean_file_change_percent": -0.2177739615761223,
+      "shrink": 46,
+      "equal": 0,
+      "grow": 18,
+      "max_growth_bytes": 4162,
+      "max_growth_percent": 2.375843810384204
+    },
+    "tbh-9": {
+      "files": 64,
+      "baseline_bytes": 5979259,
+      "candidate_bytes": 5949352,
+      "aggregate_change_percent": -0.5001790355627644,
+      "mean_file_change_percent": -0.7076131978558698,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 123,
+      "max_growth_percent": 0.11190770798457095
+    },
+    "slippi-gcs-mainstage-2019": {
+      "files": 64,
+      "baseline_bytes": 5685336,
+      "candidate_bytes": 5662686,
+      "aggregate_change_percent": -0.3983933403408302,
+      "mean_file_change_percent": -0.5620748060046098,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 415,
+      "max_growth_percent": 0.2770249522715984
+    },
+    "archive-org-foofs-slippi-replay-collection": {
+      "files": 64,
+      "baseline_bytes": 4123986,
+      "candidate_bytes": 4102815,
+      "aggregate_change_percent": -0.5133625574868628,
+      "mean_file_change_percent": -0.7055934457528024,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 172,
+      "max_growth_percent": 0.19591539188774654
+    },
+    "slippi-gcs-genesis-7": {
+      "files": 64,
+      "baseline_bytes": 5944625,
+      "candidate_bytes": 5925016,
+      "aggregate_change_percent": -0.32986100889459413,
+      "mean_file_change_percent": -0.4667197065176494,
+      "shrink": 60,
+      "equal": 0,
+      "grow": 4,
+      "max_growth_bytes": 271,
+      "max_growth_percent": 0.18817353627373912
+    },
+    "fight-pitt-9": {
+      "files": 64,
+      "baseline_bytes": 5029993,
+      "candidate_bytes": 5005379,
+      "aggregate_change_percent": -0.4893446173781957,
+      "mean_file_change_percent": -0.6949115932317423,
+      "shrink": 63,
+      "equal": 0,
+      "grow": 1,
+      "max_growth_bytes": 132,
+      "max_growth_percent": 0.11094488056615504
+    },
+    "combo-breaker-2024": {
+      "files": 64,
+      "baseline_bytes": 10492225,
+      "candidate_bytes": 10475380,
+      "aggregate_change_percent": -0.16054745299495243,
+      "mean_file_change_percent": -0.27830129911543355,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2725,
+      "max_growth_percent": 0.9779012265931808
+    },
+    "collision-2025": {
+      "files": 64,
+      "baseline_bytes": 11174103,
+      "candidate_bytes": 11176055,
+      "aggregate_change_percent": 0.01746896372800677,
+      "mean_file_change_percent": -0.04633552260252475,
+      "shrink": 37,
+      "equal": 0,
+      "grow": 27,
+      "max_growth_bytes": 1969,
+      "max_growth_percent": 0.9802213338776289
+    },
+    "supernova-2025-main-stream": {
+      "files": 64,
+      "baseline_bytes": 10218746,
+      "candidate_bytes": 10206621,
+      "aggregate_change_percent": -0.11865448069655615,
+      "mean_file_change_percent": -0.16607808757044368,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2111,
+      "max_growth_percent": 1.920260522318129
+    },
+    "slippi-gcs-summit-10-online": {
+      "files": 64,
+      "baseline_bytes": 14401515,
+      "candidate_bytes": 14395406,
+      "aggregate_change_percent": -0.042419148263217465,
+      "mean_file_change_percent": -0.1530267101289803,
+      "shrink": 51,
+      "equal": 0,
+      "grow": 13,
+      "max_growth_bytes": 7282,
+      "max_growth_percent": 1.9309247596950518
+    },
+    "personal-pre-slippi-online": {
+      "files": 64,
+      "baseline_bytes": 4178368,
+      "candidate_bytes": 4153615,
+      "aggregate_change_percent": -0.5924083278447512,
+      "mean_file_change_percent": -0.8179729367246942,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 38,
+      "max_growth_percent": 0.043712326876188534
+    },
+    "shine-2022": {
+      "files": 64,
+      "baseline_bytes": 7975313,
+      "candidate_bytes": 7966869,
+      "aggregate_change_percent": -0.10587672233052237,
+      "mean_file_change_percent": -0.3073214804995646,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 3147,
+      "max_growth_percent": 1.7937960989067303
+    },
+    "fall-2019-purdue-weeklies": {
+      "files": 64,
+      "baseline_bytes": 5495187,
+      "candidate_bytes": 5469933,
+      "aggregate_change_percent": -0.4595657982157886,
+      "mean_file_change_percent": -0.6093591357930729,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 286,
+      "max_growth_percent": 0.21881001017542978
+    },
+    "htl-3": {
+      "files": 64,
+      "baseline_bytes": 5542239,
+      "candidate_bytes": 5517421,
+      "aggregate_change_percent": -0.4477973613191355,
+      "mean_file_change_percent": -0.5840237943040403,
+      "shrink": 62,
+      "equal": 0,
+      "grow": 2,
+      "max_growth_bytes": 555,
+      "max_growth_percent": 0.4892238529683901
+    },
+    "archive-org-abbey-52": {
+      "files": 64,
+      "baseline_bytes": 8737913,
+      "candidate_bytes": 8721437,
+      "aggregate_change_percent": -0.18855761095355472,
+      "mean_file_change_percent": -0.34745180016349153,
+      "shrink": 55,
+      "equal": 0,
+      "grow": 9,
+      "max_growth_bytes": 3191,
+      "max_growth_percent": 1.864468179587253
+    },
+    "full-house-2025": {
+      "files": 64,
+      "baseline_bytes": 11493704,
+      "candidate_bytes": 11493310,
+      "aggregate_change_percent": -0.00342796369212639,
+      "mean_file_change_percent": -0.12626725412837064,
+      "shrink": 43,
+      "equal": 1,
+      "grow": 20,
+      "max_growth_bytes": 4000,
+      "max_growth_percent": 1.6499131733192618
+    },
+    "bobc-8": {
+      "files": 64,
+      "baseline_bytes": 9251197,
+      "candidate_bytes": 9236358,
+      "aggregate_change_percent": -0.16040086488267047,
+      "mean_file_change_percent": -0.26580229964956564,
+      "shrink": 49,
+      "equal": 0,
+      "grow": 15,
+      "max_growth_bytes": 2374,
+      "max_growth_percent": 1.0990210044554916
+    },
+    "mango-bday": {
+      "files": 64,
+      "baseline_bytes": 6174689,
+      "candidate_bytes": 6151663,
+      "aggregate_change_percent": -0.3729094696105384,
+      "mean_file_change_percent": -0.5223876104066454,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 976,
+      "max_growth_percent": 0.47689781877882087
+    },
+    "lacs5": {
+      "files": 64,
+      "baseline_bytes": 8723936,
+      "candidate_bytes": 8708067,
+      "aggregate_change_percent": -0.18190183880303357,
+      "mean_file_change_percent": -0.2994165160691146,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 1677,
+      "max_growth_percent": 0.8743163701012024
+    }
+  },
+  "qualifies_on_pooled_means": true
+}

@@ -93,7 +93,8 @@ inline Bytes context_encode(View input, View contexts) {
     }
     return out;
   }();
-  std::vector<std::array<uint32_t, 256>> h(active * bins);
+  Scratch<std::array<uint32_t, 256>> h(active * bins);
+  std::fill(h.data.begin(), h.data.end(), std::array<uint32_t, 256>{});
   std::vector<uint32_t> prior_counts(active * bins, 0);
   uint8_t previous = 0, pc = 255;
   for (size_t i = 0; i < input.size(); ++i) {
@@ -110,20 +111,28 @@ inline Bytes context_encode(View input, View contexts) {
   std::vector<uint16_t> map(nc * 256);
   Bytes out{uint8_t(nc)};
   for (unsigned c = 0; c < nc; ++c) {
+    // Unused semantic classes need only the implicit constant-zero tree.
+    if (nc > 1 && !counts[c]) {
+      out.push_back(0);
+      continue;
+    }
     ContextTree root;
     root.end = bins;
     if (counts[c]) {
-      for (unsigned p = 0; p < bins; ++p) {
-        if (prior_counts[ids[c] * bins + p]) {
-          for (unsigned b = 0; b < 256; ++b) {
-            root.hist[b] += h[ids[c] * bins + p][b];
-          }
+      for (unsigned b = 0; b < 256; ++b) {
+        uint32_t total = 0;
+        for (unsigned p = 0; p < bins; ++p) {
+          total += h[ids[c] * bins + p][b];
         }
+        root.hist[b] = total;
       }
     }
     root.cost = context_cost(root.hist);
     std::vector<ContextTree> leaves{root};
-    for (size_t k = 0; counts[c] && k < leaves.size(); ++k) {
+    for (size_t k = 0; counts[c] && k < leaves.size() && leaves.size() < 16; ++k) {
+      if (leaves[k].end == leaves[k].begin + 1) {
+        continue;
+      }
       auto cur = leaves[k];
       double saving = 0;
       unsigned split = 0;
@@ -184,11 +193,11 @@ inline Bytes context_encode(View input, View contexts) {
       out.push_back(uint8_t(edges[leaf.end] - 1));
       Model m;
       m.hist = leaf.hist;
-      m.normalize();
+      m.normalize(EncoderBits);
       for (unsigned p = edges[leaf.begin]; p < edges[leaf.end]; ++p) {
         map[c * 256 + p] = uint16_t(models.size());
       }
-      write_compact_model(out, m.freq);
+      write_compact_model(out, m.freq, 1u << EncoderBits);
       models.push_back(m);
     }
   }
@@ -199,11 +208,11 @@ inline Bytes context_encode(View input, View contexts) {
              prev = i && (contexts.empty() || contexts[i - 1] == c) ? input[i - 1] : 0;
     auto &m = models[map[c * 256 + prev]];
     uint32_t f = m.freq[input[i]], &x = state[i & 3];
-    while (x >= ((1u << 23 >> 12) << 8) * f) {
+    while (x >= ((1u << 23 >> EncoderBits) << 8) * f) {
       bytes.push_back(uint8_t(x));
       x >>= 8;
     }
-    x = x / f * 4096 + x % f + m.start[input[i]];
+    x = x / f * (1u << EncoderBits) + x % f + m.start[input[i]];
   }
   for (auto x : state) {
     u32(out, x);
@@ -211,18 +220,34 @@ inline Bytes context_encode(View input, View contexts) {
   out.insert(out.end(), bytes.rbegin(), bytes.rend());
   return out;
 }
-inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_models = false) {
+template <unsigned precision>
+inline Bytes context_decode_precision(Reader &r, uint32_t n, View contexts,
+                                      bool compact_models = false) {
+  const unsigned scale = 1u << precision;
   unsigned nc = r.byte();
   require(nc == 1 || nc == ProfileCount, "context class count");
   require(nc == 1 || contexts.size() == n, "context dimensions");
-  unsigned model_count = 0;
+  unsigned model_count = 0, zero_model = UINT32_MAX;
   std::vector<uint16_t> map(nc * 256);
   // One load supplies the symbol, frequency-minus-one, and CDF offset.
   // Each occupies 8/12/12 bits respectively.
   std::vector<uint32_t, slippack::OutputAllocator<uint32_t>> lookup;
   for (unsigned c = 0; c < nc; ++c) {
     unsigned count = r.byte();
-    require(count && count <= 16, "context tree size");
+    if (!count) {
+      require(precision == 10 && nc == ProfileCount, "context tree size");
+      if (zero_model == UINT32_MAX) {
+        zero_model = model_count++;
+        size_t begin = lookup.size();
+        lookup.resize(begin + scale);
+        for (unsigned slot = 0; slot < scale; ++slot) {
+          lookup[begin + slot] = ((scale - 1) << 20) | (slot << 8);
+        }
+      }
+      std::fill_n(map.data() + c * 256, 256, uint16_t(zero_model));
+      continue;
+    }
+    require(count <= 16, "context tree size");
     unsigned begin = 0;
     for (unsigned j = 0; j < count; ++j) {
       unsigned end = unsigned(r.byte()) + 1;
@@ -233,29 +258,29 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_m
       begin = end;
       std::array<uint16_t, 256> freq{};
       if (compact_models) {
-        read_compact_model(r, freq);
+        read_compact_model(r, freq, scale);
       } else {
         unsigned used = r.var();
         require(used && used <= 256, "context alphabet");
         for (unsigned k = 0; k < used; ++k) {
           unsigned b = r.byte(), f = r.var();
-          require(f && f <= 4096 && !freq[b], "context frequency");
+          require(f && f <= scale && !freq[b], "context frequency");
           freq[b] = uint16_t(f);
         }
       }
       unsigned sum = 0;
       size_t model_begin = lookup.size();
-      lookup.resize(model_begin + 4096);
+      lookup.resize(model_begin + scale);
       for (unsigned b = 0; b < 256; ++b) {
         size_t at = model_begin + sum;
         sum += freq[b];
-        require(sum <= 4096, "context sum");
+        require(sum <= scale, "context sum");
         uint32_t base = b | ((uint32_t(freq[b]) - 1) << 20);
         for (unsigned j = 0; j < freq[b]; ++j) {
           lookup[at + j] = base | (j << 8);
         }
       }
-      require(sum == 4096, "context sum");
+      require(sum == scale, "context sum");
       ++model_count;
     }
     require(begin == 256, "context tree coverage");
@@ -270,16 +295,16 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_m
     uint32_t &x = state[i & 3];
     uint8_t symbol = uint8_t(entry);
     out[i] = symbol;
-    x = ((entry >> 20) + 1) * (x >> 12) + ((entry >> 8) & 4095);
+    x = ((entry >> 20) + 1) * (x >> precision) + ((entry >> 8) & (scale - 1));
     while (x < (1u << 23)) {
       x = (x << 8) | r.byte();
     }
     return symbol;
   };
   // A single model has no dependency on the previous decoded symbol.
-  if (model_count == 1) {
+  if (model_count == 1 && nc == 1) {
     for (size_t i = 0; i < n; ++i) {
-      emit(i, lookup[state[i & 3] & 4095]);
+      emit(i, lookup[state[i & 3] & (scale - 1)]);
     }
   } else if (nc == 1) {
     // Fetch the next model alongside the coding entry instead of following
@@ -292,11 +317,11 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_m
       std::memset(next_model.data() + at, map[uint8_t(entry)], frequency);
       at += frequency;
     }
-    unsigned base = unsigned(map[0]) * 4096;
+    unsigned base = unsigned(map[0]) * scale;
     for (size_t i = 0; i < n; ++i) {
-      size_t at = base + (state[i & 3] & 4095);
+      size_t at = base + (state[i & 3] & (scale - 1));
       uint32_t entry = lookup[at];
-      base = unsigned(next_model[at]) * 4096;
+      base = unsigned(next_model[at]) * scale;
       emit(i, entry);
     }
   } else {
@@ -309,7 +334,7 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_m
         pc = c;
       }
       unsigned model = map[c * 256 + previous];
-      uint32_t entry = lookup[model * 4096 + (state[i & 3] & 4095)];
+      uint32_t entry = lookup[model * scale + (state[i & 3] & (scale - 1))];
       previous = emit(i, entry);
     }
   }
@@ -317,6 +342,10 @@ inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_m
     require(x == (1u << 23), "context terminal state");
   }
   return out;
+}
+
+inline Bytes context_decode(Reader &r, uint32_t n, View contexts, bool compact_models = false) {
+  return context_decode_precision<12>(r, n, contexts, compact_models);
 }
 
 } // namespace slippack_custom

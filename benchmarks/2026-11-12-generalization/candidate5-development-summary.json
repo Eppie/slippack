@@ -1,0 +1,252 @@
+{
+  "report": "benchmarks/2026-11-12-generalization/candidate5-development-1417.json",
+  "timings": {
+    "1": {
+      "encode": {
+        "baseline_seconds": 11.547371704444444,
+        "candidate_seconds": 10.580977253333334,
+        "baseline_MB_s": 369.1963982036819,
+        "candidate_MB_s": 402.9162845669048,
+        "throughput_gain_percent": 9.133319427623432,
+        "time_reduction_percent": 8.368955948124167,
+        "descriptive_95_percent_interval": [
+          6.6792759723843576,
+          11.511590715137011
+        ]
+      },
+      "decode": {
+        "baseline_seconds": 4.508700263888889,
+        "candidate_seconds": 4.482910384111111,
+        "baseline_MB_s": 945.560315052485,
+        "candidate_MB_s": 951.0000594949063,
+        "throughput_gain_percent": 0.5752932262305555,
+        "time_reduction_percent": 0.5720025343963098,
+        "descriptive_95_percent_interval": [
+          -0.007890397491416845,
+          1.0448953947270745
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "baseline_seconds": 1.506452374888889,
+        "candidate_seconds": 1.3665691806666667,
+        "baseline_MB_s": 2829.9919154858403,
+        "candidate_MB_s": 3119.6723168601084,
+        "throughput_gain_percent": 10.236085827281837,
+        "time_reduction_percent": 9.285603484978378,
+        "descriptive_95_percent_interval": [
+          9.483369815233411,
+          10.915593303086801
+        ]
+      },
+      "decode": {
+        "baseline_seconds": 0.5912947867777778,
+        "candidate_seconds": 0.5878338563333333,
+        "baseline_MB_s": 7210.021358774852,
+        "candidate_MB_s": 7252.471078464915,
+        "throughput_gain_percent": 0.5887599714028635,
+        "time_reduction_percent": 0.5853138775845812,
+        "descriptive_95_percent_interval": [
+          0.45478333301571805,
+          0.7326100530052004
+        ]
+      }
+    }
+  },
+  "sizes": {
+    "files": 1417,
+    "baseline_bytes": 174316403,
+    "candidate_bytes": 174009368,
+    "aggregate_change_percent": -0.17613660832594968,
+    "mean_file_change_percent": -0.42543033497795096,
+    "shrink": 1191,
+    "equal": 2,
+    "grow": 224,
+    "max_growth_bytes": 7282,
+    "max_growth_percent": 2.4466058357565323
+  },
+  "source_sizes": {
+    "original-521": {
+      "files": 521,
+      "baseline_bytes": 53784864,
+      "candidate_bytes": 53644748,
+      "aggregate_change_percent": -0.2605119536976064,
+      "mean_file_change_percent": -0.5464684547077806,
+      "shrink": 464,
+      "equal": 0,
+      "grow": 57,
+      "max_growth_bytes": 3397,
+      "max_growth_percent": 1.4680143992463313
+    },
+    "gmus-cuckdaddy-2020-08": {
+      "files": 64,
+      "baseline_bytes": 12595857,
+      "candidate_bytes": 12600970,
+      "aggregate_change_percent": 0.04059271234977402,
+      "mean_file_change_percent": -0.06583130713153154,
+      "shrink": 43,
+      "equal": 0,
+      "grow": 21,
+      "max_growth_bytes": 5147,
+      "max_growth_percent": 2.340843558700745
+    },
+    "archive-org-melee-slippi-matches-2025": {
+      "files": 64,
+      "baseline_bytes": 9106882,
+      "candidate_bytes": 9124029,
+      "aggregate_change_percent": 0.1882861774205491,
+      "mean_file_change_percent": 0.11382343554255189,
+      "shrink": 35,
+      "equal": 0,
+      "grow": 29,
+      "max_growth_bytes": 5612,
+      "max_growth_percent": 2.4466058357565323
+    },
+    "full-bloom-2025": {
+      "files": 64,
+      "baseline_bytes": 10779116,
+      "candidate_bytes": 10769263,
+      "aggregate_change_percent": -0.0914082379297132,
+      "mean_file_change_percent": -0.202289607595817,
+      "shrink": 48,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 4374,
+      "max_growth_percent": 1.134645066732376
+    },
+    "tipped-off-16": {
+      "files": 64,
+      "baseline_bytes": 10821528,
+      "candidate_bytes": 10818033,
+      "aggregate_change_percent": -0.032296732956749175,
+      "mean_file_change_percent": -0.2177739615761223,
+      "shrink": 46,
+      "equal": 0,
+      "grow": 18,
+      "max_growth_bytes": 4162,
+      "max_growth_percent": 2.375843810384204
+    },
+    "tbh-9": {
+      "files": 64,
+      "baseline_bytes": 5979259,
+      "candidate_bytes": 5949352,
+      "aggregate_change_percent": -0.5001790355627644,
+      "mean_file_change_percent": -0.7076131978558698,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 123,
+      "max_growth_percent": 0.11190770798457095
+    },
+    "slippi-gcs-mainstage-2019": {
+      "files": 64,
+      "baseline_bytes": 5685336,
+      "candidate_bytes": 5662686,
+      "aggregate_change_percent": -0.3983933403408302,
+      "mean_file_change_percent": -0.5620748060046098,
+      "shrink": 61,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 415,
+      "max_growth_percent": 0.2770249522715984
+    },
+    "archive-org-foofs-slippi-replay-collection": {
+      "files": 64,
+      "baseline_bytes": 4123986,
+      "candidate_bytes": 4102815,
+      "aggregate_change_percent": -0.5133625574868628,
+      "mean_file_change_percent": -0.7055934457528024,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 172,
+      "max_growth_percent": 0.19591539188774654
+    },
+    "slippi-gcs-genesis-7": {
+      "files": 64,
+      "baseline_bytes": 5944625,
+      "candidate_bytes": 5925016,
+      "aggregate_change_percent": -0.32986100889459413,
+      "mean_file_change_percent": -0.4667197065176494,
+      "shrink": 60,
+      "equal": 0,
+      "grow": 4,
+      "max_growth_bytes": 271,
+      "max_growth_percent": 0.18817353627373912
+    },
+    "fight-pitt-9": {
+      "files": 64,
+      "baseline_bytes": 5029993,
+      "candidate_bytes": 5005379,
+      "aggregate_change_percent": -0.4893446173781957,
+      "mean_file_change_percent": -0.6949115932317423,
+      "shrink": 63,
+      "equal": 0,
+      "grow": 1,
+      "max_growth_bytes": 132,
+      "max_growth_percent": 0.11094488056615504
+    },
+    "combo-breaker-2024": {
+      "files": 64,
+      "baseline_bytes": 10492225,
+      "candidate_bytes": 10475380,
+      "aggregate_change_percent": -0.16054745299495243,
+      "mean_file_change_percent": -0.27830129911543355,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2725,
+      "max_growth_percent": 0.9779012265931808
+    },
+    "collision-2025": {
+      "files": 64,
+      "baseline_bytes": 11174103,
+      "candidate_bytes": 11176055,
+      "aggregate_change_percent": 0.01746896372800677,
+      "mean_file_change_percent": -0.04633552260252475,
+      "shrink": 37,
+      "equal": 0,
+      "grow": 27,
+      "max_growth_bytes": 1969,
+      "max_growth_percent": 0.9802213338776289
+    },
+    "supernova-2025-main-stream": {
+      "files": 64,
+      "baseline_bytes": 10218746,
+      "candidate_bytes": 10206621,
+      "aggregate_change_percent": -0.11865448069655615,
+      "mean_file_change_percent": -0.16607808757044368,
+      "shrink": 50,
+      "equal": 0,
+      "grow": 14,
+      "max_growth_bytes": 2111,
+      "max_growth_percent": 1.920260522318129
+    },
+    "slippi-gcs-summit-10-online": {
+      "files": 64,
+      "baseline_bytes": 14401515,
+      "candidate_bytes": 14395406,
+      "aggregate_change_percent": -0.042419148263217465,
+      "mean_file_change_percent": -0.1530267101289803,
+      "shrink": 51,
+      "equal": 0,
+      "grow": 13,
+      "max_growth_bytes": 7282,
+      "max_growth_percent": 1.9309247596950518
+    },
+    "personal-pre-slippi-online": {
+      "files": 64,
+      "baseline_bytes": 4178368,
+      "candidate_bytes": 4153615,
+      "aggregate_change_percent": -0.5924083278447512,
+      "mean_file_change_percent": -0.8179729367246942,
+      "shrink": 61,
+      "equal": 1,
+      "grow": 2,
+      "max_growth_bytes": 38,
+      "max_growth_percent": 0.043712326876188534
+    }
+  },
+  "interval_note": "Paired bootstrap of timing repeats only; descriptive, not a confidence interval for unseen source collections."
+}

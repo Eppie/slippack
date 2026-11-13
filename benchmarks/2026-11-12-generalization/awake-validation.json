@@ -1,0 +1,56 @@
+{
+  "completed": true,
+  "recorded_utc": "2026-11-13T11:42:19.076029+00:00",
+  "scope": "Environmental guard and replacement-protocol checks only. No replay encoding or holdout use.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "benchmarks/2026-11-12-generalization/test_awake_guard.py"
+      ],
+      "exit_code": 0,
+      "tests": 9,
+      "observed": "All9 unittest cases passed; includes process-group termination, new sleep, clock gap/skew, lost assertion, failure evidence and immutable output."
+    },
+    {
+      "command": [
+        "python3",
+        "benchmarks/2026-11-12-generalization/test_awake_protocol.py"
+      ],
+      "exit_code": 0,
+      "tests": 10,
+      "observed": "All10 unittest cases passed; required three guards, fixed cohort names, wrong command/code, missing assertion, altered power evidence and false valid flag rejection."
+    },
+    {
+      "command": [
+        "python3",
+        "-c",
+        "import time; time.sleep(0.2); print(\"Guard smoke check completed\")"
+      ],
+      "exit_code": 0,
+      "guard_report": "benchmarks/2026-11-12-generalization/awake-guard-smoke.json",
+      "observed": "Live macOS scoped assertions and power-log snapshots verified around synthetic smoke command."
+    },
+    {
+      "command": [
+        "compile()",
+        "eight new Python helper/test/wrapper sources"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "artifact_sha256": {
+    "benchmarks/2026-11-12-generalization/awake_guard.py": "13ef9bad53da855f667e809abb978a1ab95e6aab8506ef0399f69b51d5cd268b",
+    "benchmarks/2026-11-12-generalization/awake_protocol.py": "e174b34cab89b2b5be58c5720f9128f9be68186d27c1a820dce58ca0ec34065a",
+    "benchmarks/2026-11-12-generalization/declare_awake_protocol.py": "7e13b1448c14e57523f7f73eede0f02f82f086e7327c1f455ecc3d3983dfba2c",
+    "benchmarks/2026-11-12-generalization/replicate_awake_round3.py": "ef4f0e43af668f84fcfec387c0fb133744279b06e47fff63251f7220b8e77ab9",
+    "benchmarks/2026-11-12-generalization/summarize_awake_round3.py": "3ad45ce67f50d68de66e3d4cca6f3538b75c971d9f0092a1da2f7a0b36e63fb7",
+    "benchmarks/2026-11-12-generalization/test_awake_guard.py": "484fcfc4bded2858f9a3ac8e3fc24800c6b7389794a2a9ae6c5e2cd1d638accc",
+    "benchmarks/2026-11-12-generalization/test_awake_protocol.py": "7570fdafa8c3fd8964d35fad1db4fc3064554a7ab20127226f4f359ef421aac7",
+    "build/goal-2026-11-12/qualify_candidate8_awake1.py": "bdcd4ccc00e7824654e052ee31bc5a552040631150ce134f24e85a0e3f573cb7",
+    "benchmarks/2026-11-12-generalization/awake-guard-smoke.json": "30762a8df90a3e8452500f61d8d3ec08bf0202a95eeb38cacefce772b54ebb8b",
+    "build/goal-2026-11-12/awake-guard-smoke.log": "187657f8fb52986fd3df881c491b348944587b1c12502e42b8ceae0619c54025",
+    "build/goal-2026-11-12/awake-guard-smoke.log.before-power.log": "29c2e0c8254eb750182a2cb2fd219a022ae3b728c8a31bb72c7d084ca170af66",
+    "build/goal-2026-11-12/awake-guard-smoke.log.after-power.log": "9177459fac15e0732226b6ab8f5dd6e50157706c22b8651715a792ac548263eb"
+  }
+}

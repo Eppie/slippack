@@ -1,0 +1,29 @@
+{
+  "declared_utc": "2026-11-13T04:23:01.139805+00:00",
+  "candidate": "candidate5",
+  "status_at_declaration": "One completed nine-repeat development run: target not met; one-worker throughput gain9.1333%, eight-worker10.2361%. No round2 holdout candidate encoding has occurred.",
+  "reason": "Exploratory and canonical measurements differ near the target; assess process-launch/timing variation without changing or selecting code between launches.",
+  "development_launches_total": 3,
+  "additional_launches": 2,
+  "repetitions_per_launch": 9,
+  "workers": [
+    1,
+    8
+  ],
+  "levels": [
+    3
+  ],
+  "reports": [
+    "candidate5-development-1417.json",
+    "candidate5-development-1417-launch2.json",
+    "candidate5-development-1417-launch3.json"
+  ],
+  "preexisting_report_sha256": "53ecea86342ef6f32760a1781e39fe6187828783cd7d206e0d1ef67c5989db34",
+  "candidate_build_info_sha256": "cfb86aa85739c07e0a20e37c077e2b799def4aa946cd629682f47179025acd00",
+  "holdout_inventory_sha256": "4250cf5f0ef3bce162b5956160554d7bae446b1b478df195d5271144be86ffe5",
+  "fixed_artifacts": "Frozen candidate5 and original3d39721 baseline; original shared driver; identical inputs, compiler profile, and benchmark method. No source, binary, training, or input changes between launches.",
+  "aggregation": "Pool all27 measured repetitions, including all samples from the preexisting nonqualifying run. Throughput is total raw bytes divided by total elapsed time. No sample or completed launch may be dropped, and no fourth launch may be added to obtain a pass. Each launch is also reported separately.",
+  "gate_to_reserved_holdout": "Require pooled compression throughput gain at least10% with both one and eight workers, no aggregate compressed-size increase, and no average decoding slowdown. Otherwise return to development without using the reserved holdout.",
+  "reserved_holdout_if_gate_passes": "Same frozen candidate; three independent nine-repeat launches of all512 reserved files, one/eight workers. Complete all three without code changes or choosing a favorable launch. Report all samples, pooled mean throughput and elapsed reductions, packed sizes, decoding, source sizes, and power/source/input guards. Do not tune between these final validation launches.",
+  "uncertainty": "Report launch-level results and a descriptive hierarchical bootstrap of launches/repeats; this does not establish uncertainty over unseen source families. The replication plan was declared after observing the first development run, which remains included."
+}

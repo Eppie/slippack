@@ -1,0 +1,94 @@
+{
+  "declared_utc": "2026-11-13T10:44:01.088155+00:00",
+  "candidate": "candidate8",
+  "baseline_commit": "3d39721ef0e696d7a7d23c86c4805b37b45685e8",
+  "reason": "Four-symbol presence groups with independent scalar main-loop states and separate short-tail temporaries. All normal/scalar/sanitizer/release checks,1929 per-file comparisons and four-level pooled comparisons pass. Outside-original and full-development screens both improve encoding against candidate7; all fixed qualification cohorts are declared before canonical timing.",
+  "status_at_declaration": "No canonical timing for this frozen candidate has begun. New round3 holdout has never been candidate encoded, trained, profiled, or timed.",
+  "development_launches_total": 3,
+  "repetitions_per_launch": 9,
+  "workers": [
+    1,
+    8
+  ],
+  "levels": [
+    3
+  ],
+  "datasets": {
+    "outside521": {
+      "inventory": "development-outside521-round3-inventory.json",
+      "inventory_sha256": "f76f9b89b5ffa6a8a37ca6d4e200744fed3c59b7a4de0818400dbfbd3c6b8ed3",
+      "manifest": "build/goal-2026-11-12/development-outside-original521.txt",
+      "manifest_sha256": "9f36223cf22b6493f9720248fd3aa8aa06d9d816b6bb2e9c053ff6cdcaeec27f",
+      "files": 1408,
+      "reports": [
+        "candidate8-outside521-round3-1408-launch1.json",
+        "candidate8-outside521-round3-1408-launch2.json",
+        "candidate8-outside521-round3-1408-launch3.json"
+      ]
+    },
+    "development": {
+      "inventory": "development-round3-inventory.json",
+      "inventory_sha256": "be126447eb601f474a29f626fe6365409ced09d60799008ecd35b194125efeb9",
+      "manifest": "build/goal-2026-11-12/development-round3.txt",
+      "manifest_sha256": "48db92475884e5c0cfd8bd8574f56cbc1e666bce1c60894c08e19272b885008b",
+      "files": 1929,
+      "reports": [
+        "candidate8-development-round3-1929-launch1.json",
+        "candidate8-development-round3-1929-launch2.json",
+        "candidate8-development-round3-1929-launch3.json"
+      ]
+    },
+    "holdout": {
+      "inventory": "holdout-round3-inventory.json",
+      "inventory_sha256": "5ec5502cc8b6c69a66d089c83b55d79fc11b9687a32a5dee08f704b011ff3039",
+      "manifest": "build/goal-2026-11-12/holdout-round3.txt",
+      "manifest_sha256": "8bf14db94a0ff6c9eb89ff31420d6b46ec0373d7a2190a8fceb033505f22c761",
+      "files": 512,
+      "reports": [
+        "candidate8-holdout-round3-512-launch1.json",
+        "candidate8-holdout-round3-512-launch2.json",
+        "candidate8-holdout-round3-512-launch3.json"
+      ]
+    }
+  },
+  "candidate_build_info_sha256": "4ace4e03e448bc19117a229d1fb68ba2649fc3332ad03a72b0b25d88db90de5c",
+  "holdout_inventory_sha256": "5ec5502cc8b6c69a66d089c83b55d79fc11b9687a32a5dee08f704b011ff3039",
+  "artifact_sha256": {
+    "benchmarks/2026-11-10-encode-speed/benchmark.py": "97f8bc8b3534b295841e0f4c04fc2ac6078545d741cfffaa35eaff45d9b0ae04",
+    "benchmarks/2026-11-10-single-file/cpp_runner.cpp": "3881cb74a3a83fa13477fcd6fdf629a1b7b3f081e80604ddc10b625c56a19eed",
+    "benchmarks/2026-11-12-generalization/candidate6-build-info.json": "57ea4ba978419e88476502f8bd0ac4291a31d69377e149cef0c50d3597ed1436",
+    "benchmarks/2026-11-12-generalization/candidate8-fingerprint-audit.json": "0aa5109f4cf7807a805f95e1bdf434a29243863f2172a146d4508f6350635345",
+    "benchmarks/2026-11-12-generalization/candidate8-leakage-audit.json": "4c164c23548d35fa7cffedaa86917cfac56f556c6862f2c0c7b3085331eb956d",
+    "benchmarks/2026-11-12-generalization/candidate8-pooled-check.json": "9e76344569ca25aad17bc88fa5db91ea73ec9f676760242121b5ef8241023f51",
+    "benchmarks/2026-11-12-generalization/declare_round3_protocol.py": "8216babffd10b83db660a5e73842a9cfb1ee113c9ae71fe3527250e840380ba3",
+    "benchmarks/2026-11-12-generalization/development-outside521-round3-inventory.json": "f76f9b89b5ffa6a8a37ca6d4e200744fed3c59b7a4de0818400dbfbd3c6b8ed3",
+    "benchmarks/2026-11-12-generalization/development-round2-inventory.json": "7ee114262071ab2d4c4fac1f57e4f2e9924a4ad60f17a197caab0e71b0cf7974",
+    "benchmarks/2026-11-12-generalization/development-round3-inventory.json": "be126447eb601f474a29f626fe6365409ced09d60799008ecd35b194125efeb9",
+    "benchmarks/2026-11-12-generalization/holdout-round3-inventory.json": "5ec5502cc8b6c69a66d089c83b55d79fc11b9687a32a5dee08f704b011ff3039",
+    "benchmarks/2026-11-12-generalization/holdout-round3-protocol.json": "ab38d4b7c661535c3779f85ba86a171ba189290d024b28422a80984bd2b94a46",
+    "benchmarks/2026-11-12-generalization/replicate_round3.py": "2fbae4d8b376b4ab8147f2f579284e9a97e3a42a6e22d99d95ad45fd2c22b7d1",
+    "benchmarks/2026-11-12-generalization/round3-gameplay-overlap-audit.json": "d0e33ba75fb3464d27c275b83b3b8f6fba3761ad84d97c283897ee375331410b",
+    "benchmarks/2026-11-12-generalization/round3_cohorts.py": "1f3a77f3d47bae0f1ea9f36ad2b1908dbf226f97eccd61f7c5f9ae6c854b0549",
+    "benchmarks/2026-11-12-generalization/round3_training.py": "970e14de2da91a2c63cb514fa96290ffc8bc5d375dc3c0d4a3a75e8cf4faeac3",
+    "benchmarks/2026-11-12-generalization/summarize.py": "8c2a494262480fc971fec4f03c819f0250ffeab28826c735cc5f012901142003",
+    "benchmarks/2026-11-12-generalization/summarize_replicates.py": "60cbe78a48aa93e2709f07e514a0c28a782d996276048f81b44a8643133b7b64",
+    "benchmarks/2026-11-12-generalization/summarize_replicates_round3.py": "077bda0894f3616348ba21cb18d97ff19c83cae027a6519826bc821b60bd7791",
+    "build/goal-2026-11-12/baseline/library.a": "067db4886ae55e9d1392f2d0f7fde3f13ad9591c432546a1c5b128e12e756450",
+    "build/goal-2026-11-12/baseline/runner": "0cd39ab3d16bb19017d11ead523c8416e9cdf756b9786ee51911df456e247e5d",
+    "build/goal-2026-11-12/baseline/runner-common.o": "d43e46d89d8752f1b748aba57462a7d9d419baa78dbf2da86d6c70ef6acf7b29",
+    "build/goal-2026-11-12/baseline/slippack": "22ac3fbc28c68e683c3193c5c2a4ee8c83340cee087c441df98ca44217e102f4",
+    "build/goal-2026-11-12/candidate6/level3.json": "c3067e8e428dc4296909e15a3bded75c0b34b69904edfed1596fdda5c649be93",
+    "build/goal-2026-11-12/development-outside-original521.txt": "9f36223cf22b6493f9720248fd3aa8aa06d9d816b6bb2e9c053ff6cdcaeec27f",
+    "build/goal-2026-11-12/development-round3.txt": "48db92475884e5c0cfd8bd8574f56cbc1e666bce1c60894c08e19272b885008b",
+    "build/goal-2026-11-12/holdout-round3.txt": "8bf14db94a0ff6c9eb89ff31420d6b46ec0373d7a2190a8fceb033505f22c761"
+  },
+  "aggregation": "Retain all27 measured repetitions from exactly3 process launches per cohort. Ratio of pooled elapsed means; no dropped samples, favorable-launch selection, or fourth qualification launch.",
+  "cohort_order": [
+    "outside521",
+    "development",
+    "holdout"
+  ],
+  "acceptance": "Each cohort must independently show at least10% compression throughput gain at BOTH one and eight workers, no aggregate size growth and no average decoding slowdown. Any failed development gate returns to development without consuming the new holdout. Holdout must pass the identical rule.",
+  "fixed_artifacts": "Same frozen candidate and original3d39721 baseline, original shared driver, level3, stable AC power, source/binary/profile/input fingerprints; no changes between qualification launches or cohorts.",
+  "uncertainty": "Development cohorts overlap and have influenced tuning; neither is independent validation. Final512 are32 per16 new source families with full-file and parsed-gameplay duplicate audits. Bootstrap intervals describe repeated timing only, not unseen-source uncertainty."
+}

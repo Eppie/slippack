@@ -379,6 +379,46 @@ struct U32Set {
   }
 };
 
+// Two varying bytes identify a value exactly; avoid hash collisions and
+// the dependent key comparison. Clear only touched entries before reuse.
+struct U16Lookup {
+  U32Set &set;
+  uint16_t *slots = nullptr;
+  unsigned lo, hi;
+  unsigned index(uint32_t value) const {
+    return ((value >> lo) & 255) | (((value >> hi) & 255) << 8);
+  }
+  U16Lookup(U32Set &s, unsigned changing) : set(s), lo(0), hi(0) {
+    if (std::popcount(changing) == 2) {
+      lo = std::countr_zero(changing) * 8;
+      hi = (31 - std::countl_zero(changing)) * 8;
+      static thread_local std::array<uint16_t, 65536> table{};
+      slots = table.data();
+    }
+  }
+  U16Lookup(const U16Lookup &) = delete;
+  U16Lookup &operator=(const U16Lookup &) = delete;
+  ~U16Lookup() {
+    if (slots) {
+      for (unsigned i = 0; i < set.n; ++i) {
+        slots[index(set.values[i])] = 0;
+      }
+    }
+  }
+  int find_or_insert(uint32_t value) {
+    auto &slot = slots[index(value)];
+    if (slot) {
+      return slot - 1;
+    }
+    if (set.n == 256) {
+      return -1;
+    }
+    set.values[set.n] = value;
+    slot = ++set.n;
+    return slot - 1;
+  }
+};
+
 void sort_dictionaries(std::vector<DictField> &fields) {
   for (auto &f : fields) {
     if (f.vals.size() < 2) {
@@ -524,10 +564,11 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       if (!free) {
         continue;
       }
-      unsigned changing = 0, changingOffset = 0;
+      unsigned changing = 0, changingOffset = 0, changingMask = 0;
       for (unsigned b = 0; b < width; ++b) {
         if (!constant[w + b]) {
           ++changing;
+          changingMask |= 1u << b;
           changingOffset = w + b;
         }
       }
@@ -553,7 +594,8 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
         }
       }
       U32Set set;
-      idxPlane.clear();
+      // A successful varying-field scan writes every index. Retain the size
+      // between trials so resize does not zero the same storage repeatedly.
       if (changing) {
         idxPlane.resize(count);
       }
@@ -574,7 +616,16 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
           idxPlane[i] = uint8_t(ids[b]);
         }
       } else {
-        auto gather = [&]<unsigned Width>() {
+        auto gather = [&]<unsigned Width, bool Direct>() {
+          // No allocations or callbacks while the shared table contains entries.
+          U16Lookup direct(set, Direct ? changingMask : 0);
+          auto lookup = [&](uint32_t value) {
+            if constexpr (Direct) {
+              return direct.find_or_insert(value);
+            } else {
+              return set.find_or_insert(value);
+            }
+          };
           uint32_t lastKey = 0;
           int lastId = -1;
           const uint8_t *column = planes.data() + size_t(w) * count;
@@ -615,7 +666,7 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
             for (unsigned k = 0; k < 16; ++k) {
               uint32_t value = little_word(packed + k * Width, Width);
               if (lastId < 0 || lastKey != value) {
-                lastId = set.find_or_insert(value);
+                lastId = lookup(value);
                 lastKey = value;
               }
               if (lastId < 0) {
@@ -632,7 +683,7 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
                        uint32_t(column[size_t(count) * 3 + i]) << 24;
             }
             if (lastId < 0 || lastKey != value) {
-              lastId = set.find_or_insert(value);
+              lastId = lookup(value);
               lastKey = value;
             }
             if (lastId < 0) {
@@ -642,7 +693,11 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
           }
           return true;
         };
-        ok = width == 4 ? gather.operator()<4>() : gather.operator()<2>();
+        if (changing == 2) {
+          ok = width == 4 ? gather.operator()<4, true>() : gather.operator()<2, true>();
+        } else {
+          ok = width == 4 ? gather.operator()<4, false>() : gather.operator()<2, false>();
+        }
       }
       // The field count ships as one byte, so 255 is a hard ceiling. Records
       // wide enough to exceed it exist (cmd 0x10 is 516 bytes = up to 258
@@ -653,7 +708,10 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       if (ok && fields.size() < 255 && set.n * width <= (size_t)count * (width / 2)) {
         DictField f{(uint16_t)w, uint8_t(width), {}, {}};
         f.vals.assign(set.values, set.values + set.n);
-        f.idx = idxPlane;
+        // Constant dictionaries have an implicit zero index plane.
+        if (changing) {
+          f.idx = idxPlane;
+        }
         fields.push_back(std::move(f));
         widthAt[w] = width;
         for (uint32_t b = 0; b < width; b++) {

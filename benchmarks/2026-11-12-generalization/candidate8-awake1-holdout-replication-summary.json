@@ -1,0 +1,625 @@
+{
+  "candidate": "candidate8",
+  "run_id": "candidate8-awake1",
+  "dataset": "holdout",
+  "completed": true,
+  "launches": 3,
+  "repetitions_per_launch": 9,
+  "files": 512,
+  "raw_bytes": 1639993008,
+  "protocol_sha256": "601cf26e1dca056a24b9c05b3aa336243da4f5bd86f3787acd77223d9c92b123",
+  "report_sha256": {
+    "candidate8-awake1-holdout-round3-512-launch1.json": "a619dae9bbb0c4a8426a3ca677e3c84ef2d12fd96abd321651a670d9dd4c1a49",
+    "candidate8-awake1-holdout-round3-512-launch2.json": "422716b90286e387691fb9e620c8f3ec044f836799625b3ebe83fc23db52b7b8",
+    "candidate8-awake1-holdout-round3-512-launch3.json": "5fe95e1f6894c7c083537dd0936db444e035acb5423e825a1720c68f21d0d926"
+  },
+  "timings": {
+    "1": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 4.463316319370371,
+        "candidate_seconds": 3.961344347222222,
+        "baseline_MB_s": 367.43822096645613,
+        "candidate_MB_s": 413.99910339781434,
+        "throughput_gain_percent": 12.671758073749428,
+        "time_reduction_percent": 11.246614316122693,
+        "baseline_samples_by_launch": [
+          [
+            4.187140042,
+            4.440470666,
+            4.380428166,
+            4.71453475,
+            4.5990615,
+            4.530338834,
+            4.5551905,
+            4.475677417,
+            4.440064791
+          ],
+          [
+            4.41446875,
+            4.473833625,
+            4.438973708,
+            4.325918333,
+            4.459787083,
+            4.519529666,
+            4.455501708,
+            4.381202,
+            4.423369875
+          ],
+          [
+            4.368143667,
+            4.434986,
+            4.480574167,
+            4.209932791,
+            4.449122875,
+            4.427195667,
+            4.651083458,
+            4.680439167,
+            4.592571417
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            3.879481125,
+            3.94841075,
+            3.961623458,
+            3.882065667,
+            3.877650667,
+            3.922675208,
+            3.941301416,
+            3.931002542,
+            3.90620575
+          ],
+          [
+            4.084334875,
+            4.169155042,
+            4.056114541,
+            3.758379583,
+            3.814123583,
+            4.179417583,
+            3.875628417,
+            3.909704084,
+            3.941706375
+          ],
+          [
+            4.020799167,
+            4.09828,
+            4.105702583,
+            3.726916,
+            3.889557625,
+            4.143745625,
+            3.950602084,
+            3.970363583,
+            4.011350042
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          14.38987272974892,
+          11.467408011905844,
+          12.185577601634435
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          10.787956592284509,
+          14.717815638665787
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 1.6773991866666667,
+        "candidate_seconds": 1.665412996925926,
+        "baseline_MB_s": 977.699894596348,
+        "candidate_MB_s": 984.7365254307208,
+        "throughput_gain_percent": 0.7197127537052594,
+        "time_reduction_percent": 0.7145699029793673,
+        "baseline_samples_by_launch": [
+          [
+            1.69646875,
+            1.690127375,
+            1.693226084,
+            1.683261417,
+            1.666854625,
+            1.687334125,
+            1.672066334,
+            1.672555458,
+            1.673480958
+          ],
+          [
+            1.676720666,
+            1.682984125,
+            1.679839917,
+            1.684492458,
+            1.682533208,
+            1.675277084,
+            1.677724417,
+            1.672840291,
+            1.667654958
+          ],
+          [
+            1.673110041,
+            1.675518291,
+            1.665897709,
+            1.667384042,
+            1.668828,
+            1.6727555,
+            1.677502,
+            1.683817291,
+            1.669522916
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            1.66179975,
+            1.664420209,
+            1.66362575,
+            1.66678725,
+            1.660957,
+            1.660053667,
+            1.66226775,
+            1.662135708,
+            1.655707333
+          ],
+          [
+            1.665214583,
+            1.671157416,
+            1.661756917,
+            1.662807208,
+            1.669487334,
+            1.674667667,
+            1.674752291,
+            1.679091791,
+            1.665387959
+          ],
+          [
+            1.6724565,
+            1.674113667,
+            1.660700834,
+            1.65283475,
+            1.650713541,
+            1.661962167,
+            1.671643375,
+            1.672666792,
+            1.666981708
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          1.18748245256739,
+          0.5041422309885357,
+          0.4689142560492465
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.3724553597592051,
+          1.1604930568963834
+        ]
+      }
+    },
+    "8": {
+      "encode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 0.6263813472962962,
+        "candidate_seconds": 0.554862537037037,
+        "baseline_MB_s": 2618.2021783995374,
+        "candidate_MB_s": 2955.6744211954797,
+        "throughput_gain_percent": 12.889464594450594,
+        "time_reduction_percent": 11.417774582203322,
+        "baseline_samples_by_launch": [
+          [
+            0.648814084,
+            0.648831917,
+            0.62360775,
+            0.628378916,
+            0.659554708,
+            0.668111167,
+            0.642428459,
+            0.62725775,
+            0.642396584
+          ],
+          [
+            0.61506725,
+            0.630986125,
+            0.600458541,
+            0.605102292,
+            0.606057792,
+            0.616701916,
+            0.604552334,
+            0.59730925,
+            0.598440167
+          ],
+          [
+            0.649418875,
+            0.617345208,
+            0.636684417,
+            0.616907541,
+            0.624766958,
+            0.633686792,
+            0.630836875,
+            0.630679209,
+            0.6079135
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            0.537924916,
+            0.537689208,
+            0.542921958,
+            0.535959459,
+            0.543329958,
+            0.522684084,
+            0.533953333,
+            0.539003917,
+            0.532536458
+          ],
+          [
+            0.56087175,
+            0.56677475,
+            0.584633042,
+            0.559206333,
+            0.574202,
+            0.566992375,
+            0.5469765,
+            0.561290875,
+            0.59524725
+          ],
+          [
+            0.567234,
+            0.537972708,
+            0.55860675,
+            0.556996542,
+            0.55390425,
+            0.577898667,
+            0.560545666,
+            0.565855084,
+            0.560076667
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          19.962233465455782,
+          7.00678533086565,
+          12.08847233576902
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          7.298437125869572,
+          19.528785505897297
+        ]
+      },
+      "decode": {
+        "measured_repetitions": 27,
+        "baseline_seconds": 0.22480529166666666,
+        "candidate_seconds": 0.22296966974074073,
+        "baseline_MB_s": 7295.170838023349,
+        "candidate_MB_s": 7355.229121103831,
+        "throughput_gain_percent": 0.8232608175185119,
+        "time_reduction_percent": 0.8165385753675758,
+        "baseline_samples_by_launch": [
+          [
+            0.2247505,
+            0.224747208,
+            0.228184958,
+            0.22529,
+            0.225428167,
+            0.224979667,
+            0.223904833,
+            0.224575666,
+            0.225841667
+          ],
+          [
+            0.224051333,
+            0.223744625,
+            0.224171375,
+            0.224319917,
+            0.225530125,
+            0.224488667,
+            0.224163958,
+            0.224670792,
+            0.223935
+          ],
+          [
+            0.226699667,
+            0.223463375,
+            0.22389125,
+            0.225508542,
+            0.226496625,
+            0.223213833,
+            0.226128084,
+            0.224879958,
+            0.222683083
+          ]
+        ],
+        "candidate_samples_by_launch": [
+          [
+            0.222090875,
+            0.223317,
+            0.222073625,
+            0.221348292,
+            0.222599042,
+            0.222825584,
+            0.221526667,
+            0.222229083,
+            0.221206875
+          ],
+          [
+            0.224307542,
+            0.224507916,
+            0.222887208,
+            0.223799209,
+            0.224802625,
+            0.225575,
+            0.224316875,
+            0.223532416,
+            0.224333792
+          ],
+          [
+            0.222623584,
+            0.221542833,
+            0.223422792,
+            0.221111166,
+            0.223449791,
+            0.222185458,
+            0.223609917,
+            0.221588041,
+            0.223367875
+          ]
+        ],
+        "launch_throughput_gains_percent": [
+          1.4248389438124676,
+          0.05020701580493725,
+          1.0016948127867797
+        ],
+        "descriptive_hierarchical_95_percent_interval": [
+          0.09090686876993548,
+          1.4578091136935756
+        ]
+      }
+    }
+  },
+  "guard_report_sha256": {
+    "candidate8-awake1-holdout-round3-512-launch1-guard.json": "2d19ee6178ea3ad537f6de3e2ad75ee5e5be12302e6a2077fed2ad77d5e766ac",
+    "candidate8-awake1-holdout-round3-512-launch2-guard.json": "80fba948aab18c84c7f3105c90536d20ae9fa88c342f2e5e165b6d00ebb57315",
+    "candidate8-awake1-holdout-round3-512-launch3-guard.json": "526008ac278c8fd3f7a41443de544d6fd676274e2b3665b44879cb6fe664afe8"
+  },
+  "power": [
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    },
+    {
+      "initial": {
+        "mode": 2,
+        "source": "AC Power"
+      },
+      "changes": [],
+      "poll_interval_seconds": 1,
+      "final": {
+        "mode": 2,
+        "source": "AC Power"
+      }
+    }
+  ],
+  "interval_note": "Hierarchical bootstrap of three process launches and paired repeats; descriptive only, not a confidence interval over unseen source families.",
+  "sizes": {
+    "files": 512,
+    "baseline_bytes": 64217482,
+    "candidate_bytes": 64132365,
+    "aggregate_change_percent": -0.13254490420536724,
+    "mean_file_change_percent": -0.3515904872346933,
+    "shrink": 406,
+    "equal": 1,
+    "grow": 105,
+    "max_growth_bytes": 4772,
+    "max_growth_percent": 3.3430945341945684
+  },
+  "source_sizes": {
+    "smash-camp-2022": {
+      "files": 32,
+      "baseline_bytes": 5102588,
+      "candidate_bytes": 5111955,
+      "aggregate_change_percent": 0.18357351210798178,
+      "mean_file_change_percent": 0.06531772299582933,
+      "shrink": 19,
+      "equal": 0,
+      "grow": 13,
+      "max_growth_bytes": 3669,
+      "max_growth_percent": 1.4295454988213718
+    },
+    "ceo-2024": {
+      "files": 32,
+      "baseline_bytes": 5360626,
+      "candidate_bytes": 5361945,
+      "aggregate_change_percent": 0.024605335272420703,
+      "mean_file_change_percent": -0.07709584677698458,
+      "shrink": 20,
+      "equal": 1,
+      "grow": 11,
+      "max_growth_bytes": 3980,
+      "max_growth_percent": 2.837101879045356
+    },
+    "pound-2019": {
+      "files": 32,
+      "baseline_bytes": 2725799,
+      "candidate_bytes": 2712393,
+      "aggregate_change_percent": -0.49181909597882933,
+      "mean_file_change_percent": -0.7101250950761819,
+      "shrink": 31,
+      "equal": 0,
+      "grow": 1,
+      "max_growth_bytes": 167,
+      "max_growth_percent": 0.1524529404246744
+    },
+    "lras-6": {
+      "files": 32,
+      "baseline_bytes": 2541269,
+      "candidate_bytes": 2529834,
+      "aggregate_change_percent": -0.4499720415272801,
+      "mean_file_change_percent": -0.535805784669273,
+      "shrink": 32,
+      "equal": 0,
+      "grow": 0,
+      "max_growth_bytes": -13,
+      "max_growth_percent": -0.013523635153134261
+    },
+    "kill-roy-vol-7": {
+      "files": 32,
+      "baseline_bytes": 4571244,
+      "candidate_bytes": 4564100,
+      "aggregate_change_percent": -0.15628130985788635,
+      "mean_file_change_percent": -0.29187797719317266,
+      "shrink": 25,
+      "equal": 0,
+      "grow": 7,
+      "max_growth_bytes": 1725,
+      "max_growth_percent": 1.0003711521956005
+    },
+    "pats-house-4": {
+      "files": 32,
+      "baseline_bytes": 4977842,
+      "candidate_bytes": 4969564,
+      "aggregate_change_percent": -0.16629696161509777,
+      "mean_file_change_percent": -0.35499016507378256,
+      "shrink": 23,
+      "equal": 0,
+      "grow": 9,
+      "max_growth_bytes": 1547,
+      "max_growth_percent": 1.3274981765134974
+    },
+    "riptide-2024": {
+      "files": 32,
+      "baseline_bytes": 5313377,
+      "candidate_bytes": 5304606,
+      "aggregate_change_percent": -0.1650739256785272,
+      "mean_file_change_percent": -0.21799362485744878,
+      "shrink": 25,
+      "equal": 0,
+      "grow": 7,
+      "max_growth_bytes": 1217,
+      "max_growth_percent": 0.8350429872170384
+    },
+    "2024-04-06-ct-gamercon-7": {
+      "files": 32,
+      "baseline_bytes": 4829642,
+      "candidate_bytes": 4833680,
+      "aggregate_change_percent": 0.083608681554459,
+      "mean_file_change_percent": -0.05351276850342861,
+      "shrink": 21,
+      "equal": 0,
+      "grow": 11,
+      "max_growth_bytes": 4230,
+      "max_growth_percent": 1.9048219464308236
+    },
+    "gang-2": {
+      "files": 32,
+      "baseline_bytes": 2575801,
+      "candidate_bytes": 2563732,
+      "aggregate_change_percent": -0.4685532772135681,
+      "mean_file_change_percent": -0.7227576710096741,
+      "shrink": 31,
+      "equal": 0,
+      "grow": 1,
+      "max_growth_bytes": 65,
+      "max_growth_percent": 0.06617998920757096
+    },
+    "wnss-2": {
+      "files": 32,
+      "baseline_bytes": 2694710,
+      "candidate_bytes": 2682552,
+      "aggregate_change_percent": -0.4511802754285199,
+      "mean_file_change_percent": -0.6094690059596786,
+      "shrink": 29,
+      "equal": 0,
+      "grow": 3,
+      "max_growth_bytes": 347,
+      "max_growth_percent": 0.14644872395470632
+    },
+    "double-down-2022": {
+      "files": 32,
+      "baseline_bytes": 4342316,
+      "candidate_bytes": 4336016,
+      "aggregate_change_percent": -0.14508386768720127,
+      "mean_file_change_percent": -0.46956936056742093,
+      "shrink": 26,
+      "equal": 0,
+      "grow": 6,
+      "max_growth_bytes": 2346,
+      "max_growth_percent": 1.2830258847464249
+    },
+    "nightclub-season-1": {
+      "files": 32,
+      "baseline_bytes": 2412720,
+      "candidate_bytes": 2401296,
+      "aggregate_change_percent": -0.47349050034815043,
+      "mean_file_change_percent": -0.6769400719847493,
+      "shrink": 30,
+      "equal": 0,
+      "grow": 2,
+      "max_growth_bytes": 66,
+      "max_growth_percent": 0.059136605558851585
+    },
+    "lmmm-2024": {
+      "files": 32,
+      "baseline_bytes": 5135786,
+      "candidate_bytes": 5133283,
+      "aggregate_change_percent": -0.04873645436160867,
+      "mean_file_change_percent": -0.15148299074596133,
+      "shrink": 25,
+      "equal": 0,
+      "grow": 7,
+      "max_growth_bytes": 2223,
+      "max_growth_percent": 1.274473358116479
+    },
+    "major-upset-2023": {
+      "files": 32,
+      "baseline_bytes": 4448918,
+      "candidate_bytes": 4451776,
+      "aggregate_change_percent": 0.06424033888690062,
+      "mean_file_change_percent": -0.07070317426234284,
+      "shrink": 21,
+      "equal": 0,
+      "grow": 11,
+      "max_growth_bytes": 4772,
+      "max_growth_percent": 3.3430945341945684
+    },
+    "bopme-19": {
+      "files": 32,
+      "baseline_bytes": 2597665,
+      "candidate_bytes": 2585354,
+      "aggregate_change_percent": -0.47392562166407304,
+      "mean_file_change_percent": -0.6049457713759328,
+      "shrink": 32,
+      "equal": 0,
+      "grow": 0,
+      "max_growth_bytes": -63,
+      "max_growth_percent": -0.06161128171024988
+    },
+    "scuffed-world-tour": {
+      "files": 32,
+      "baseline_bytes": 4587179,
+      "candidate_bytes": 4590279,
+      "aggregate_change_percent": 0.06757966061494702,
+      "mean_file_change_percent": -0.14349621069489094,
+      "shrink": 16,
+      "equal": 0,
+      "grow": 16,
+      "max_growth_bytes": 3501,
+      "max_growth_percent": 0.979635008310531
+    }
+  },
+  "qualifies_on_pooled_means": true
+}

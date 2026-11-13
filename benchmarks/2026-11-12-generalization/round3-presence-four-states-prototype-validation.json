@@ -1,0 +1,219 @@
+{
+  "completed": true,
+  "scope": "Prototype correctness only; no performance qualification",
+  "checks": [
+    {
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "normal",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-oracle-normal"
+      ],
+      "exit_code": 0,
+      "output": "Uniform masks: 13400 cases passed\n"
+    },
+    {
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "normal",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-custom-normal"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "scalar",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-oracle-scalar"
+      ],
+      "exit_code": 0,
+      "output": "Uniform masks: 13400 cases passed\n"
+    },
+    {
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O3",
+        "-DSLIPPACK_CUSTOM_SCALAR",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "scalar",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-custom-scalar"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    },
+    {
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7_oracle.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "sanitizers",
+      "test": "oracle",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-oracle-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "Uniform masks: 13400 cases passed\n"
+    },
+    {
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "c++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-DEXACT",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7/tests/custom_codec_test.cpp",
+        "-o",
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "mode": "sanitizers",
+      "test": "custom",
+      "command": [
+        "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/presence_four_states7-custom-sanitizers"
+      ],
+      "exit_code": 0,
+      "output": "custom codec: 6289 checks passed\n"
+    }
+  ],
+  "artifact_sha256": {
+    "build/goal-2026-11-12/presence_four_states7/mask_codec.h": "17bdef9870670134894dd08eb110ba6c1bb3ed5c08ad7cea17248eed36d6fd72",
+    "build/goal-2026-11-12/presence_four_states7/tests/custom_codec_test.cpp": "3df93eb553f7269651dc6c7f6c9a9fa98bbb4d63b9dcf8d497c338f9307a5d95",
+    "build/goal-2026-11-12/presence_four_states7_oracle.cpp": "a2804bcbf2dd44bae8205dfdbc2d74021720bd2be66509a49f06568d1c47fad6",
+    "build/goal-2026-11-12/presence_round3_check.cpp": "fb0169487fa91c9af6071157e661f88e2008da21fa00953d895a9e64a6040e44",
+    "build/goal-2026-11-12/check_presence_four_states7.py": "686ad7a1e68b5ed808cbc6f089391cc77f6e48444d8bf95496421b706606f37e",
+    "build/goal-2026-11-12/prepare_presence_four_states7.py": "9a1a4df3ba9180e7b50f13c6d62a9fe25b8d79e56444168ba974db5f5d584b78",
+    "build/goal-2026-11-12/presence_four_states7/record_codec.cpp": "f72bb265c6d12d9373d574ac980757f496463dcf5c074d91d673baaec27907ec",
+    "build/goal-2026-11-12/presence_four_states7/slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "build/goal-2026-11-12/presence_four_states7/frames.cpp": "fed0f8c05c11985c8a45a6175137a8384ca2b1daf18ffeced2d12348d296de3d",
+    "build/goal-2026-11-12/presence_four_states7/file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "build/goal-2026-11-12/presence_four_states7/platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "build/goal-2026-11-12/presence_four_states7/slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "build/goal-2026-11-12/presence_four_states7/archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "build/goal-2026-11-12/presence_four_states7/codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "build/goal-2026-11-12/presence_four_states7/archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "build/goal-2026-11-12/presence_four_states7/file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "build/goal-2026-11-12/presence_four_states7/slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "build/goal-2026-11-12/presence_four_states7/static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f",
+    "build/goal-2026-11-12/presence_four_states7/custom_codec.h": "c1a341ecb137c41bcc8d200c8713f6176c9c293fa67ce28cc810a5173766ad3c",
+    "build/goal-2026-11-12/presence_four_states7/binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "build/goal-2026-11-12/presence_four_states7/record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "build/goal-2026-11-12/presence_four_states7/format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "build/goal-2026-11-12/presence_four_states7/parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "build/goal-2026-11-12/presence_four_states7/frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "build/goal-2026-11-12/presence_four_states7/platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "build/goal-2026-11-12/presence_four_states7/Makefile": "680f5eae763dd2425ce257d2617217da89b3bb7ef054c81ec565ea4ab6078349",
+    "build/goal-2026-11-12/presence_four_states7/profiles/level3.json": "bac3417cdecdc61cc1cb81c691468267e6e52b49e4bcee0e52d57dcf3bdede19",
+    "build/goal-2026-11-12/presence_four_states7/profiles/level3.proftext": "303899af6cd5a58809bf607327f34b19152c7d50e90a77a2701a4a0a20a167c9",
+    "build/goal-2026-11-12/presence_four_states7/build/release/libslippack.a": "6dcb61a3c0b3f66fadc590f0d5181b01313b6492472da9cafb2a93ba0f2300ed",
+    "build/goal-2026-11-12/presence_four_states7/runner": "f2e4664e940a73479b18b784cf0285cd3c1d53919d33d030b7f752f91d0d3c91",
+    "build/goal-2026-11-12/presence-four-states7.asm": "d833828a5591a3ba68997aaeee53c0cfcef0f2184f89f25ec849e547fc3b84fb"
+  },
+  "training": {
+    "inputs": 64,
+    "exact_match_to_candidate7": true,
+    "holdout_round3_overlap": 0,
+    "profile_sha256": "303899af6cd5a58809bf607327f34b19152c7d50e90a77a2701a4a0a20a167c9"
+  },
+  "exact_reference_packets_per_build_mode": 13400,
+  "custom_checks_per_build_mode": 6289,
+  "mechanism": "Four-symbol groups with state phase(j*ceil(count/4)+local_symbol)&3; 16-bit mask/reference windows; unchanged histogram, table representation, format and decoder.",
+  "assembly_observation": "First version: x3 register w28; x2/x1/x0 spill at stack offsets0xec/0xf0/0xf4 because their addresses reach outlined tail emit."
+}
