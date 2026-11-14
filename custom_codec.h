@@ -628,16 +628,23 @@ inline Bytes lz_decode(Reader &r, uint32_t n, View profiles = {}, uint32_t strid
   return output;
 }
 
+// Whole-word comparisons let scans skip stretches of one repeated byte.
+inline uint64_t repeated(uint8_t byte) {
+  return uint64_t(byte) * 0x0101010101010101ULL;
+}
+inline uint64_t load64(const uint8_t *p) {
+  uint64_t value;
+  std::memcpy(&value, p, 8);
+  return value;
+}
 inline bool is_constant(View input) {
   if (input.empty()) {
     return false;
   }
-  const uint64_t word = uint64_t(input[0]) * 0x0101010101010101ULL;
+  const uint64_t word = repeated(input[0]);
   size_t i = 0;
   for (; i + 8 <= input.size(); i += 8) {
-    uint64_t value;
-    std::memcpy(&value, input.data() + i, 8);
-    if (value != word) {
+    if (load64(input.data() + i) != word) {
       return false;
     }
   }
@@ -660,6 +667,12 @@ inline uint32_t histogram_runs(View input, std::array<uint32_t, 256> &hist) {
     i = 1;
   }
   for (; input.size() - i >= 8; i += 8) {
+    // A word repeating the previous byte adds eight counts and no runs.
+    uint8_t previous = input[i - 1];
+    if (load64(input.data() + i) == repeated(previous)) {
+      lanes[0][previous] += 8;
+      continue;
+    }
     for (unsigned k = 0; k < 8; ++k) {
       ++lanes[k][input[i + k]];
       runs += input[i + k] != input[i + k - 1];
@@ -705,11 +718,18 @@ inline Bytes encode(View input, Profile profile = Generic, LzOptions options = {
   if (input.size() - hist[base] <= input.size() / 16) {
     Bytes gaps, values;
     size_t previous = 0;
-    for (size_t i = 0; i < input.size(); ++i) {
-      if (input[i] != base) {
-        varint(gaps, narrow(i - previous));
-        values.push_back(input[i]);
-        previous = i + 1;
+    const uint64_t fill = repeated(base);
+    for (size_t i = 0; i < input.size();) {
+      if (input.size() - i >= 8 && load64(input.data() + i) == fill) {
+        i += 8;
+        continue;
+      }
+      for (size_t end = std::min(i + 8, input.size()); i < end; ++i) {
+        if (input[i] != base) {
+          varint(gaps, narrow(i - previous));
+          values.push_back(input[i]);
+          previous = i + 1;
+        }
       }
     }
     Bytes b{2, base};
@@ -722,6 +742,10 @@ inline Bytes encode(View input, Profile profile = Generic, LzOptions options = {
     Bytes lengths, values;
     for (size_t i = 0; i < input.size();) {
       size_t j = i + 1;
+      const uint64_t fill = repeated(input[i]);
+      while (input.size() - j >= 8 && load64(input.data() + j) == fill) {
+        j += 8;
+      }
       while (j < input.size() && input[j] == input[i]) {
         ++j;
       }

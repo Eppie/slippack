@@ -3,6 +3,7 @@
 #include "../parallel.h"
 #include <atomic>
 #include <cfenv>
+#include <chrono>
 #include <cstdio>
 #include <future>
 #include <mutex>
@@ -187,6 +188,28 @@ int main() {
   rejects([&] { decode_archive(tiny, decode); }, "threads");
   encode.admission_files = 0;
   rejects([&] { encode_archive(inputs, encode); }, "admission");
+  encode.admission_files = 64;
+  encode.concurrent_loads = 0;
+  rejects([&] { encode_archive(inputs, encode); }, "load limit");
+  // Loaders never overlap beyond the limit, and the output does not depend on it.
+  for (size_t limit : {size_t(1), size_t(2), size_t(64)}) {
+    std::atomic<unsigned> active{0}, peak{0};
+    std::vector<ArchiveInput> gated;
+    for (unsigned i = 0; i < 80; ++i) {
+      gated.push_back({"folder/file-" + std::to_string(i), [&] {
+                         unsigned now = ++active, seen = peak.load();
+                         while (now > seen && !peak.compare_exchange_weak(seen, now)) {
+                         }
+                         std::this_thread::sleep_for(std::chrono::microseconds(200));
+                         --active;
+                         return payload;
+                       }});
+    }
+    encode.threads = 8;
+    encode.concurrent_loads = limit;
+    check(encode_archive(gated, encode).bytes == packed.bytes, "load limit changes output");
+    check(peak >= 1 && peak <= std::min<size_t>(limit, 8), "concurrent loads exceed limit");
+  }
   check(decode_archive(tiny).entries.size() == 1, "healthy after errors");
   std::printf("archive API: %zu checks passed\n", checks);
 }

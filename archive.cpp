@@ -5,9 +5,9 @@
 #include "platform.h"
 #include <algorithm>
 #include <chrono>
+#include <condition_variable>
 #include <mutex>
 #include <set>
-#include <thread>
 #include <variant>
 
 namespace slippack {
@@ -217,8 +217,7 @@ static void plan_blob(FilePlan &fp, std::span<const uint8_t> data, int level,
 
 static void plan_compress(FilePlan &fp, int level) {
   auto *stats = fp.stats;
-  fp.data = fp.input->load();
-  fp.origSize = fp.data.size();
+  fp.origSize = fp.data.size(); // loaded by the caller, under the load limit
   if (!parse_slp(fp.data, fp.slp)) {
     fp.live().put_u8(kModeRaw);
     fp.tasks.push_back(
@@ -433,6 +432,7 @@ static void run_pack_task(PackTask &t, int level) {
 EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOptions &options) {
   validate_threads(options.threads);
   require(options.admission_files > 0, "admission window must be positive");
+  require(options.concurrent_loads > 0, "load limit must be positive");
   require(options.level >= 1 && options.level <= 12, "level must be between 1 and 12");
   narrow(inputs.size());
   RoundingGuard rounding;
@@ -455,32 +455,60 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
   // files whenever no pack work is ready — no barrier between the phases.
   // A sliding admission window bounds memory: a file's parse/group buffers
   // are freed as soon as its last task retires.
+  // Loading is limited separately: a worker that finds neither pack work nor
+  // a free load slot sleeps until one of them, or the window, changes.
   const size_t kWindow = options.admission_files;
+  const size_t kLoads = options.concurrent_loads;
+  // Queued tasks below which workers plan. Eight per worker measured best at
+  // 4, 8, and 16 threads; the admission window still bounds planned files.
+  const size_t kReadAhead = size_t(threads) * 8;
   {
+    // Guards every scheduling variable below; each change is followed by a wake.
     std::mutex m;
+    std::condition_variable wake;
     std::vector<PackTask *> ready;
     auto heapCmp = [](PackTask *a, PackTask *b) { return a->est < b->est; };
-    size_t nextFile = 0;
-    std::atomic<size_t> planned{0}, retired{0};
+    size_t nextFile = 0, loading = 0, planned = 0, retired = 0;
+    bool aborted = false;
     auto retire = [&](FilePlan &p) {
       p.data = {};
       p.data.shrink_to_fit();
       p.slp = ParsedSlp();
       p.grouped.clear();
-      retired.fetch_add(1);
+      {
+        std::lock_guard<std::mutex> g(m);
+        ++retired;
+      }
+      wake.notify_all(); // the admission window moved
     };
-    auto worker = [&](FailureState &failure) {
-      while (!failure.stopped()) {
+    auto work = [&] {
+      for (;;) {
         PackTask *t = nullptr;
         size_t fi = SIZE_MAX;
         {
-          std::lock_guard<std::mutex> g(m);
-          if (!ready.empty()) {
-            std::pop_heap(ready.begin(), ready.end(), heapCmp);
-            t = ready.back();
-            ready.pop_back();
-          } else if (nextFile < plans.size() && nextFile - retired.load() < kWindow) {
-            fi = nextFile++;
+          std::unique_lock<std::mutex> g(m);
+          for (;;) {
+            if (aborted) {
+              return;
+            }
+            // Plan ahead while the queue is short: with few load slots, waiting
+            // for it to empty would leave the other workers idle during a refill.
+            if (ready.size() < kReadAhead && nextFile < plans.size() &&
+                nextFile - retired < kWindow && loading < kLoads) {
+              fi = nextFile++;
+              ++loading;
+              break;
+            }
+            if (!ready.empty()) {
+              std::pop_heap(ready.begin(), ready.end(), heapCmp);
+              t = ready.back();
+              ready.pop_back();
+              break;
+            }
+            if (planned == plans.size()) {
+              return; // nothing left to plan, and every task has an owner
+            }
+            wake.wait(g); // loaders, planners, or the window are in flight
           }
         }
         if (t) {
@@ -488,24 +516,42 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
           if (t->fp->pending.fetch_sub(1) == 1) {
             retire(*t->fp);
           }
-        } else if (fi != SIZE_MAX) {
-          plan_compress(plans[fi], level);
-          plans[fi].pending.store((uint32_t)plans[fi].tasks.size());
-          if (plans[fi].tasks.empty()) {
-            retire(plans[fi]);
-          } else {
-            std::lock_guard<std::mutex> g(m);
-            for (auto &tk : plans[fi].tasks) {
-              ready.push_back(&tk);
-              std::push_heap(ready.begin(), ready.end(), heapCmp);
-            }
-          }
-          planned.fetch_add(1);
-        } else if (planned.load() < plans.size()) {
-          std::this_thread::yield(); // planners/window in flight
-        } else {
-          return;
+          continue;
         }
+        auto &plan = plans[fi];
+        plan.data = plan.input->load();
+        {
+          std::lock_guard<std::mutex> g(m);
+          --loading;
+        }
+        wake.notify_one(); // a load slot is free
+        plan_compress(plan, level);
+        plan.pending.store((uint32_t)plan.tasks.size());
+        if (plan.tasks.empty()) {
+          retire(plan);
+        }
+        {
+          std::lock_guard<std::mutex> g(m);
+          for (auto &tk : plan.tasks) {
+            ready.push_back(&tk);
+            std::push_heap(ready.begin(), ready.end(), heapCmp);
+          }
+          ++planned;
+        }
+        wake.notify_all(); // new tasks, or the last file is planned
+      }
+    };
+    auto worker = [&](FailureState &) {
+      try {
+        work();
+      } catch (...) {
+        // Sleeping workers cannot observe FailureState; release them first.
+        {
+          std::lock_guard<std::mutex> g(m);
+          aborted = true;
+        }
+        wake.notify_all();
+        throw;
       }
     };
     run_workers(threads, worker);
@@ -522,19 +568,32 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
     Buf packed;
   };
   std::vector<Pool> pools;
+  auto pool_for = [&](const PooledStream &ps) -> Pool & {
+    for (auto &q : pools) {
+      if (q.cmd == ps.cmd && q.recSize == ps.recSize) {
+        return q;
+      }
+    }
+    pools.push_back({ps.cmd, ps.recSize, 0, {}, {}});
+    return pools.back();
+  };
+  // Size each pool first, so concatenation never regrows a large buffer.
+  {
+    std::vector<size_t> bytes;
+    for (auto &p : plans) {
+      for (auto &ps : p.pooled) {
+        size_t index = size_t(&pool_for(ps) - pools.data());
+        bytes.resize(pools.size());
+        bytes[index] += ps.records.size();
+      }
+    }
+    for (size_t i = 0; i < pools.size(); ++i) {
+      pools[i].records.reserve(bytes[i]);
+    }
+  }
   for (auto &p : plans) {
     for (auto &ps : p.pooled) {
-      Pool *pl = nullptr;
-      for (auto &q : pools) {
-        if (q.cmd == ps.cmd && q.recSize == ps.recSize) {
-          pl = &q;
-          break;
-        }
-      }
-      if (!pl) {
-        pools.push_back({ps.cmd, ps.recSize, 0, {}, {}});
-        pl = &pools.back();
-      }
+      Pool *pl = &pool_for(ps);
       require(ps.count <= UINT32_MAX - pl->total, "too many pooled records");
       pl->total += ps.count;
       pl->records.put_bytes(ps.records.data(), ps.records.size());
@@ -550,6 +609,19 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
   lap("pools");
 
   Buf out;
+  {
+    size_t total = 14; // magic, version, backend, pool count, file count
+    for (auto &pl : pools) {
+      total += 9 + pl.packed.size();
+    }
+    for (auto &p : plans) {
+      total += 20 + p.storedName.size();
+      for (auto &piece : p.pieces) {
+        total += piece.size();
+      }
+    }
+    out.reserve(total);
+  }
   out.put_u32(kMagic);
   out.put_u8(kVersion);
   out.put_u8(1); // custom payload backend

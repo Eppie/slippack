@@ -22,6 +22,10 @@ struct EncodeOptions {
   int level = 3, threads = 1;
   bool collect_stats = false;
   size_t admission_files = 64;
+  // Loaders in flight at once. Concurrent file reads contend in the kernel
+  // (16 readers cost ~10x the CPU of one on macOS), so workers beyond this
+  // limit pack or wait instead of loading.
+  size_t concurrent_loads = 2;
   PhaseObserver on_phase;
 };
 struct DecodeOptions {
@@ -37,7 +41,8 @@ struct Statistics {
   uint64_t seeds = 0, seed_hits = 0, seed_misses = 0;
 };
 // Names are relative archive paths, independent of filesystem source paths.
-// Each load callback runs once, possibly concurrently with other inputs. It
+// Each load callback runs once, concurrently with at most
+// EncodeOptions::concurrent_loads - 1 other inputs. It
 // returns owned bytes; everything it captures must outlive encode_archive.
 struct ArchiveInput {
   std::string name;
