@@ -6,6 +6,52 @@ malformed input. The compressor uses Slippi event structure, replay predictors,
 field dictionaries, and a self-contained rANS/LZ codec. It requires no zstd,
 LZMA, or Brotli libraries.
 
+## Size and speed
+
+**26.5:1 compression: 5.91 GB of replay data occupies 223.11 MB (3.77% of the
+original size).** This level-3 measurement uses 1,929 development replays, each
+in its own archive, with exact byte-for-byte reconstruction.
+
+| Workers | Encode MB/s | Decode MB/s |
+|---|---:|---:|
+| 1 | **415** | **978** |
+| 8 | **3,107** | **7,285** |
+
+These are medians from the [2026-11-13 dictionary study](benchmarks/2026-11-13-gecko-dictionary/README.md)
+on an Apple M4 Max in high-power mode on battery power: one warmup, three
+measured runs, and inputs in RAM. Rates use original decimal MB/s and exclude
+file I/O. Eight workers process eight independent replays. The corpus is
+development data; results depend on replay contents and archive grouping.
+
+### Compared with other codecs
+
+**Slippack produces 71% smaller files than slpz fast on the matched 120-replay
+set.** Slpz fast has higher throughput; Slippack encodes about 3.5 times faster
+than slpz small while producing smaller files.
+
+The [matched comparison](benchmarks/2026-11-13-competitors/README.md) measures
+Slippack `64bff11` on an Apple M4 Max with one worker, RAM inputs, and three-run
+medians on AC power. Packed size is a percentage of the original bytes; encode
+and decode rates are original MB/s. Compare rows within the same matched set.
+
+| Matched replays | Codec / setting | Packed size | Encode MB/s | Decode MB/s |
+|---|---|---:|---:|---:|
+| 120 | **Slippack level 3** | **3.90%** | **410.4** | **977.8** |
+| 120 | slpz fast | 13.45% | 577.0 | 1,071.1 |
+| 120 | slpz small | 12.20% | 118.3 | 1,220.1 |
+| 98 | **Slippack level 3** | **3.81%** | **434.5** | **942.0** |
+| 98 | slippc level 6 | 5.33% | 7.1 | 352.7 |
+| 28 | **Slippack level 3** | **4.19%** | **375.1** | **907.2** |
+| 28 | Peppi 2.1.2, internal Zstd | 17.69% | 260.1 | 868.1 |
+| 28 | Peppi 2.1.2 + whole-file Zstd 3 | 11.36% | 391.0 | 1,102.9 |
+| 28 | Peppi 2.1.2 + whole-file Zstd 12 | 10.07% | 130.3 | 1,078.0 |
+
+The slippc subset contains the 98 replays within its supported version range.
+Peppi rows use the 28 replays with verified exact reconstruction in this corpus;
+Peppi also provides an Arrow representation for analysis. All reported outputs
+reconstruct the original replay bytes exactly. The study records pinned tool
+versions, input and binary hashes, coverage limits, and every timing sample.
+
 ## Build
 
 A C++20 compiler is required. macOS uses the system CommonCrypto implementation
@@ -215,8 +261,8 @@ grouping documented in each study:
 - [Encoding generalization study, 2026-11-12](benchmarks/2026-11-12-generalization/README.md):
   frozen-build comparisons against `3d39721`, including a 512-file independent
   validation from 16 source families, all timing repetitions, and limitations.
-- [Single-replay codec comparison, 2026-11-10](EXPERIMENTS.md#2026-11-10-single-replay-comparison-with-slpz-slippc-and-peppi):
-  Slippack at `9bffdb5` compared with slpz, slippc, and Peppi on matched input
+- [Matched codec comparison, 2026-11-13](benchmarks/2026-11-13-competitors/README.md):
+  Slippack at `64bff11` compared with slpz, slippc, and Peppi on matched input
   subsets, with version coverage, exact reconstruction checks, and raw results.
 
 [EXPERIMENTS.md](EXPERIMENTS.md) and [benchmarks/](benchmarks/) contain experiment

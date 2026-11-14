@@ -1,0 +1,2576 @@
+{
+  "completed": true,
+  "date": "2026-11-13",
+  "machine": "Apple M4 Max",
+  "repeats": 3,
+  "method": "Fixed previously published matched sets; one replay per archive; one worker; RAM inputs; one warmup and randomly interleaved measured repeats. Full reconstruction and byte equality outside timers.",
+  "versions": {
+    "ours_base_commit": "64bff11545ca90d34c6a9a833c459207077aa3c6",
+    "slpz_commit": "9f4d952f444037edbbc49af11e5e963ecd4d399f",
+    "slippc_commit": "8d79a665392e491edd62150687a956e45a7a0fe7",
+    "peppi": "2.1.2"
+  },
+  "binary_sha256": {
+    "ours": "b053f9ccc49c56bf634fa2c69565c0380618e9d1f84316100671fb4a60f9c52a",
+    "slippc": "c5b2482f3a8dc228d41ec86ea4422eae3736e01ecdd324a3f27a7b7deed5bdc6",
+    "rust": "b4e9474a36dcea16f20d24d4e7fdfb4953a9aec16fdf3b24e50b254a73547913"
+  },
+  "source_sha256": {
+    "archive.cpp": "aec147a3ad791254e64b2396868d18e90185b9c476e8108ede8628e3c049eaeb",
+    "archive.h": "42ded6a4f9d73d39b4dbcca3c3c063ee3cdb45499f62e8faf2ba0d240b2e8f18",
+    "benchmarks/2026-11-13-competitors/benchmark.py": "cd2315b7a805a07d23b9e02432d611132ddf779db1e59d72e60cc701b7888772",
+    "binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "codec_types.h": "b6b584be13b3c1dafc5565684258d50a74a8f5ddc4eec356bb7f2038829654c8",
+    "custom_codec.h": "a72f472b642815f380e651dfa61fc4f59eceee719dc6142f817299a4675fcebb",
+    "file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "frames.cpp": "39bda5b09c986520f4ad677a5bca87ed77583cf5056821794e63e4ecbe70587a",
+    "frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "gecko_dictionary.cpp": "0beec3e966e57cbd8b879647b2969b60ce93600fe9bd138d706f722ddf0ec1b5",
+    "gecko_dictionary.h": "4005e1fcecea8c2ee288cc660a22da4adbdecd25f5e7b1fbc8545dc206d3ff8f",
+    "gecko_dictionary_data.h": "c2ee00e48b3dd508518229914884f528dffd1aa30347fa002d3eb25aba700c79",
+    "mask_codec.h": "e15af9d5937d16bf3f470ff8d9b3f02f973c12e9ba3315ebc109e0b3e408cced",
+    "parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "record_codec.cpp": "40334e2379ea521333c50b82a5a951e47f8f3f809232b696d2a8ef30499cfe7d",
+    "record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "static_context.h": "3a8e96d4ede4dacf0d50fce287da9e4b0745180fac7e34904cbe2e56d288625f"
+  },
+  "inputs": [
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T030831.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3933602,
+      "sha256": "46710b1bfd56969fbc747d66e4ee8cb940fb2af9095a957eea579c3b73a360eb"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T010420.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2511442,
+      "sha256": "7bceabf92ec01bcd025ea2732c415f6e07848db573606893497b9e797c6d7d3c"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T015949.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1559314,
+      "sha256": "5ca33ac6197e6034d56f8acd686ad466864f58b42e53ff5119e4ca9f6c9c9aa3"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T043219.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2181306,
+      "sha256": "903adcb8428c8f312ba429b347f58bcbc38754c8ddfff0004afe18a5135aa72b"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T071402.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1299242,
+      "sha256": "36f96c24de7287bc2b3a461686a98dc4771accde79f914d2b4358579b39da50c"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T060936.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2141170,
+      "sha256": "ff85bb93e8143231d46585e32d0db69f23585b02c065ea4e3bb61556c97ab2f6"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T062008.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1754426,
+      "sha256": "14d868e56c892e71aee389c15759614656dec7ed195c6fb9f64c6dbb0d0e9289"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T041139.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1269082,
+      "sha256": "0dbc7950c5ebaa989b26e6ed740b845fcace8db51298614dcba6d70377ae8eea"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T093151.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2629762,
+      "sha256": "49597b0da0cd5da5974d391114829eb1dae4ba2c71eba949448e4ecf8bc12d06"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T012609.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2289882,
+      "sha256": "5f4e7fa82779f3af1e3f92a1438b09912bed823ab57ba8458a24900e193d5636"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T215318.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1083714,
+      "sha256": "8b1a12994d095a03f0d1db937354f15c4b3935a08e9d8e6129daa907bbd370ee"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T233827.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2792394,
+      "sha256": "a876713390f75c11734de44ea9b7ff410bd39487fd22941e4c0aee5275c3fd26"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T010908.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2534410,
+      "sha256": "8cbcff67f7ecef5ada041e949cd8c940b233a9de46117921729a71fed420ae70"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210716T225015.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3605322,
+      "sha256": "97fbac096845f29153f39b75a4c91ef60a85d2e4676d6e56b2be582d5ea1ad1d"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T211724.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 117898,
+      "sha256": "9ad756ab966ecd85cf3654c1767bda89da774ab5799f103d44fd2d0df41420b2"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T011445.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1924946,
+      "sha256": "fca1a4a51a93ff902a19813469dfca1e17dd7223ad329664d7d7dd24fcc4ee91"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T064540.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2754578,
+      "sha256": "f3227561403b40a472bae3a605d63cb7bbd4f642d28505ef4d16c605e7d6478d"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T074602.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2359482,
+      "sha256": "61effbcf6c327dd73ab6c8b52f4409f457ee1b6b286add6599e7c84353cc1340"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T001526.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1608266,
+      "sha256": "33185e5508425ed10fbbdabfd94d7a9e14e2cacd2efb6c3aa684c92bf4837666"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_001AE992EB29_20210715T010042.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 7800218,
+      "sha256": "56702ded56288829ee7e4cbd56822f04fc5480954d6653fa27e36bcba5466757"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T023325.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2003362,
+      "sha256": "6baf3a77e24075549d46cd4e9f786c7cabe6fcfe19b8cd5f53f53cffbe681eff"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T075915.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 860298,
+      "sha256": "88f4551aac3e2f0b93e615b73212300485f4678af58f96d11ee77bab51677ca3"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T065751.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3465426,
+      "sha256": "e3ecda13753ca9f2873bb60aacfd74da4e360f9c19629de2127648272c7e4f44"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T080319.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3203730,
+      "sha256": "187330935e0e5ab355f91ba0593ea5a281bb709237c3cfa43e78c53a73d5f76b"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T053422.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2997018,
+      "sha256": "cd7f60a6240dd1035bbd48594fa66c295a69203df0a6c6b4f445c4064fc1c3e0"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T072457.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1538202,
+      "sha256": "17cb95c0e8323ab66c9e9e6881e610e7825cfd1843a8e48b21da83af8b458cc3"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T035423.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1943042,
+      "sha256": "b2448235b1c8ed71f27d526c85b1f7f38a8edbcb82ab2692d4b29c6ecef346b0"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T042252.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2504250,
+      "sha256": "8d13ee94a640816d275b1ce2ed18614e1d5dbfdf72d8c03929256d736101cf77"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T001113.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3357778,
+      "sha256": "471aaebc3a526c60b2cac112a08e5daee405d71e7e937baa857b212d5cce3957"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T083221.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2302642,
+      "sha256": "fbdb551b83a7431df6a1c64e10fdcf1667a39d228fc2fc9b5862908f6272dc34"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T015850.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2480818,
+      "sha256": "77dea9c305d1052a6ed017b862ac6e7b9087dda7455a1858841e7779ebd14b89"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T063653.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2236290,
+      "sha256": "874f8dfd2b0577881f87825c7f38833b1aaa4fd04079e0cd20701b524d991ade"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T032934.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 420890,
+      "sha256": "d7372d0137f12205de81753d29d22c2af151750658dd798a2c6a515a308f455f"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210716T005511.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2864314,
+      "sha256": "dfe8665821691a1d558f432f253e0726de76ec64959af36ef388a7ed2115b478"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T011839.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 455458,
+      "sha256": "838c7b32c7da2fb772ced3054c9ff3b2dd1708bd4e343da27cfa6d1e888d0f00"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T105034.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 852410,
+      "sha256": "61f17b322ec5b372d52e1a634be1dc51643a44016debf38f0ca41e9814952d7c"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T021659.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2504946,
+      "sha256": "ac206915e3862fa13375af10e5235c3f98c066269d4b5326a7575d0d6b59fcfe"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 3/Game_20210718T044345.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2774530,
+      "sha256": "7323184a28d11cd5d19b867694d96696dd3f4dade3fad93ae057bbc837a37e82"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 2/Game_20210717T043458.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2583362,
+      "sha256": "f77eebd6ddc2a814bd8507a46eb374059c7b0c899deacdabdfa0c86ab8e16884"
+    },
+    {
+      "dataset": "sample",
+      "name": "Day 1/Game_20210715T235739.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2914658,
+      "sha256": "185f1b0fce7ac69eb99c4c136afa4477793502f643d39ffa4b0c0c90ca430a4d"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T144723.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2029470,
+      "sha256": "582692c2630c05892a8789be4267563083fe96cb24e50c24c94a57d8bdba40ae"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T132920.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 870399,
+      "sha256": "3a04ee4db3d8428ddbd907dc3caca7e4493f91ccf99a98df91101397180cb471"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T192440.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4225554,
+      "sha256": "8c515424478b979ac29b2f0d70e9599fb16b8f5215ee748e0977ae607c12450b"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T184836.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2677388,
+      "sha256": "b23a8e2b360fc960b147fb9ab093559ab16faaffb9fa2cf2123c77910bbac271"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T135844.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2197901,
+      "sha256": "a2a8a394306dd22d2697d153cdbc62f59cf730c8fedf6930ef7d2f28df924fa8"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T193359.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3344941,
+      "sha256": "96a7fd41163122cac82674a16ab0edfd02cef9d1101aa092b3f31ccad6f03233"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T192035.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4422043,
+      "sha256": "d80f12f3c601b5ef38df230a58b737b0d78d0a0eedea8ef6eb0d3baa96d5ab6b"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T173046.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 779576,
+      "sha256": "d09c0518fadf9270630c24163f51e81f44324bff5bbe887e59bc8c31e3de94cf"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T170924.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2601191,
+      "sha256": "f4e4de7f09e38ddf426f857f0b6845a2e202a55a5d656a1e1533d6ebfc5dc890"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T175400.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 5728716,
+      "sha256": "0abec6d528bf3bbf1e03fc2827e515c08c7e987e6bc7649fdba05d9f648ba74d"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T190543.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3280710,
+      "sha256": "a0df3f0d67e3a8c4bd7afb6f193efa44ec479f8abff1e5c08ad7940d1af25712"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T185117.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2867882,
+      "sha256": "ca19c5ffce5194aecce4d3d6f3502f796aff43b2b7e4550ed4d7f96a9f257858"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T164026.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1487751,
+      "sha256": "981680da0d96d3af8ee2b5d676e05448094f1937d536fc97c5de42a5c3d43701"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T183804.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3463791,
+      "sha256": "d902456d2c1fd718620405ea49cdfae8337097ae2480bcd2742034f9b0766dd5"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T200536.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4181646,
+      "sha256": "b2afe016a40e08821588d449fcc4ac075866f9de6d5565b254560f574aa0b8f0"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T134047.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3089247,
+      "sha256": "ab2b4e8ffdad5dbfb53e6b7633095c2dded4726ba4d1aa82f1a26bbbd2695708"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T190345.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2037610,
+      "sha256": "e70a4f2b579f5ac257be9aba03a7f32dddce6519e0e2a2df2851b4d1a9ac354e"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T161202.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1714182,
+      "sha256": "1eb515cf8d69db93ef6dfa35a3144bf998109156f411838ec39ba5d1126197d0"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T151452.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2844022,
+      "sha256": "c10371550da9bea9ee9fb616499500fd088f1a393fb542091441bd42119cb7bc"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T192831.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 908345,
+      "sha256": "b482bb0e203b79e65ad89bc403e5c344bd56e8dec5fb0e7d5114fc8d654ce3c1"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T175121.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 2934226,
+      "sha256": "36c2407a1ec4afcab547fc5ce7f61613e63ebceaef0d966c5c4c2c88ecd45562"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T175859.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3505026,
+      "sha256": "338d462e4cd3b17b74d7af9a411fcec462a1e95062a89e46d01c5896126ff908"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T140421.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2137581,
+      "sha256": "042a9f6eb4a9f54c24acf1a2fb7eca15749390b10319f748597488558abc1a90"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T151835.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2824070,
+      "sha256": "9e37a3531b04c729b3cc98a09b165d36c69aa1b890659baf6abbc9b60c1e9659"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T190827.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4643797,
+      "sha256": "5ddcda8d201b3d3c965b69731f9c907b88091bea0118cfe96886d04f70a0a22c"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T143028.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2205094,
+      "sha256": "ed912a57388dc175cb9658b31395d5406cd31244d5bc71dac8271443a83b3b81"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T185814.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 3458083,
+      "sha256": "83392f2312abde9cc675b3087ec95c86d0a2ee9cf0b59b794a433580f83cfca1"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T200116.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4867226,
+      "sha256": "98c3198e5d3ef5a72f3296f41273979f581776e2baaeefa540212d4c984452a8"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T194700.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4100059,
+      "sha256": "9cf223668730cd57034255d52f28e7165015b91133a5d31f2a51c0ad5e6a0989"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T161419.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2289774,
+      "sha256": "c3ff2b7c7e308b10c90e3181c806b34ae138d6c4ca5ab319583371f27df2ae42"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T150827.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2137118,
+      "sha256": "8ac2f3480965c9415e0a2b48d62532106730a31ea78a65d7990693f306b3f345"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T184526.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 532793,
+      "sha256": "d67e49bdb187432d767de36715ac7573e333046df984a4ddcb1d4c4b2ebb1cef"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T153555.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1591918,
+      "sha256": "e5dce7a36f502d4e8b7307e4015a118f8e0be2ca0687dedb78fad3fcdeb6060e"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T141730.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3911222,
+      "sha256": "eb45d3f60389d66d56702c9d149ce6315d7acd8862cf1c84268354557d8a7c54"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T144214.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 881766,
+      "sha256": "21669a9749e0a23abfe1f122b93fc5881180cf926a945c1eea6b5e3622d0cec7"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T184438.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 515440,
+      "sha256": "5bfa0d55c6545e38ab9bbf89cf1c7216fa6f803836f9f8c62c3b08190b501784"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T162734.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2887871,
+      "sha256": "b5c188ae887c01718b6643a5991035ddf49822c37d0d2f70622ea890203d1b67"
+    },
+    {
+      "dataset": "mixed",
+      "name": "bair-necessities-2026-top8/Game_20260118T171512.slp",
+      "slp_version": [
+        3,
+        17,
+        0
+      ],
+      "bytes": 4994576,
+      "sha256": "86b509c3e44709c1b3b084c54eb176ea97291013fe942e050d4485fb144fbf2d"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T141409.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2579310,
+      "sha256": "24d55a157bb5e3e6518197d571ec00107d30d7809ffa5c62f4a52f18fce250d5"
+    },
+    {
+      "dataset": "mixed",
+      "name": "slippi-gcs-goml-2019/EvenMatchupGaming-Game_20190519T140138.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1575213,
+      "sha256": "72640a4223bf835cf3da62146fb561a0a90d635db1c10deeb972b8cf3a1f6ff8"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T091908.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2372706,
+      "sha256": "173ffe74008365149ed58cd7dd53bd57aeae6ae9bb5bdffde979f063ac1af299"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T071240.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2900738,
+      "sha256": "75526e8e2931c10ee92c4275cfb2fe08e0cfaa4655da9ce415e6b4086ac70bd2"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T001535.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 6556033,
+      "sha256": "3b25fd945a196210a4086cba493ecf607fe8fd66dd6790ce4d9f729d14ebf16d"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T034732.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2433490,
+      "sha256": "a53ee504f364e12b21995ca0262c3d8611c5b25c1084384edb946a138974dd7f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T002115.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2089898,
+      "sha256": "03be79c0cfb69db73d8db0746c04c7ebb9343c29153e6f5dfc004310a3210629"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T010555.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 6902108,
+      "sha256": "01589990bcfef1acebf434028688887ae41cd93fd21ff91c06d87d9237c94848"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T011935.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2634402,
+      "sha256": "fb10fb627a33e534a8e2a06e35d8aa4ddf7254882e68a7067cf642652f3ea9ff"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T004333.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2023082,
+      "sha256": "65166736156e11fdd761fb5cce3fcae818df2e672741ecdb7762d52f0958418e"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T030646.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1964154,
+      "sha256": "b24fe32fa1e42db81a812bc57af74eb0a66e6415b2f08eb7cf13279ac68d6a30"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T004807.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2854106,
+      "sha256": "486b8bd472839abf0b0f00e0976ec0d21c7ad35bf4156d88c3a7fb61e6da5a3a"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T042737.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3252682,
+      "sha256": "473043033813aeb776291b94aa2451ba322b2032cba4829e548cb73f05ad5656"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T074220.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2190586,
+      "sha256": "b98cc5932d96f2f8643cb28f338795b104b5299952238f3d9da200de7b39ba45"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210714T233320.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 2451013,
+      "sha256": "4ba00a85184a48439089bffdd788feaa38b64dc7e94fc396079960a8bb002068"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T012938.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1657682,
+      "sha256": "9d1a9c6821ea4e327540b6197a818af971d051f4501b858e099519c1929d1651"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T060641.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2611666,
+      "sha256": "b1411eb7cbda49d2d8cdb6386c8fd9ca866c295f9867849184d8b9633774a11b"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T055427.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2799818,
+      "sha256": "f96b750058cc6a2f6cc542f0834144a94d1d1cd4d7e3101ac3688680d4f5175f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T040656.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3472618,
+      "sha256": "a67f064ce0225afc341a45219ab10e7d0f2c85846c517600bef5a78bb4b4b01c"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T102856.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 4357002,
+      "sha256": "33e8e121847dbc155603547bc700753bd712f15ac9897cba205b1e124286c571"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T000934.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2480586,
+      "sha256": "033e6b8811ee5c369e718d68e4477f1af78a3fda1baad0760f5ac18f938bfef7"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T105325.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 33450,
+      "sha256": "b7159bb79d76a140381e1c2292c899902f55617f5811575b06764f1c30a6c675"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T053047.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2352754,
+      "sha256": "92f0c30b6686fddbfd71fe3378120cde0be0b699664474bc9fe60e33e91fa344"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T044229.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2442074,
+      "sha256": "50a3835ee69507e2b7e71ab9b97ecb0ae7c4f08670291130ee4755d39815f703"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T034754.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 4282066,
+      "sha256": "074a710abbe7fcd8719cd19f79217c7545da0431b5a1c941596836eb220e4d98"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210716T001914.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1386242,
+      "sha256": "02f98ecb90aa4df5339b562498d08a574fc04bcf8acbd0edad4cdaf8cefc737f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T031351.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3403482,
+      "sha256": "6314ce634f5483c7ab426a51df647328b3ce571d292bd45700546e27c385e38f"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T021221.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 5673370,
+      "sha256": "2d7860e72076bc7a3c810a8413a709718ab212c25b1e4fb3d1b3b886549437ff"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T003304.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 6053726,
+      "sha256": "f14fd3b6d95694fd174f40b0f406db4c1fc147cb9e81cb8ef422aa57abc238ba"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T211710.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 102586,
+      "sha256": "6ba2d2a3eded4025f497a3b25d2440502de5f55480910449882d341f14d05248"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T010157.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1524514,
+      "sha256": "57aab0c4389e5fe139e1e4533da98399b70a7e39cd554e8175a9093d40853d40"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T041946.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2153930,
+      "sha256": "f3fcd2c530b5c392e88de96e75e3c7d9296cf0256d7c0a520ecae7bb25c5efba"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210716T230541.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3779786,
+      "sha256": "a09a2cb32001a63fb7a2447faa0b93ce060dd33dc80a75b389f59128268af9f3"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_001AE992EB29_20210715T004208.slp",
+      "slp_version": [
+        3,
+        9,
+        0
+      ],
+      "bytes": 5273129,
+      "sha256": "f9a9f8f5aa96cad1810618e60e9ecd8927d5b14f300964cc3392c1afc098c721"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T215448.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 957042,
+      "sha256": "5ce090e7b81f9531dfae9ab6f9e01d4fdf9cbbe9e4d3d7ac692e65c24830d537"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T031531.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1376498,
+      "sha256": "cd4f2732bb0c56c10115cced45d7dfbf3cdcc3916c9adbea8f189d07c8e4603b"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T040112.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 3035762,
+      "sha256": "2fbee21ee48b4cb01a30a37f127686c26f886484a3c78524cc8232ac84582b3d"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T225042.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2173882,
+      "sha256": "14ca7dedb547c170aacd9e66d01e68ffabdbf93fd35675246264d1a5a322a061"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T235348.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2911410,
+      "sha256": "b0ad28b2bab7e4a2fd1af2efb3262bf55f56ccbb8bcbea8e549bc03fa7d74110"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 1/Game_20210715T211655.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 68250,
+      "sha256": "583fe9b99108571e816158dfcdedee7103a87d5adedaa489aa2691939015b6fa"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 3/Game_20210718T042920.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 1929586,
+      "sha256": "37bd050a923bbc7992feeb268a6ac0f2887573fe30ae9954c7f9848525f13446"
+    },
+    {
+      "dataset": "holdout",
+      "name": "Day 2/Game_20210717T030001.slp",
+      "slp_version": [
+        2,
+        0,
+        1
+      ],
+      "bytes": 2351362,
+      "sha256": "6e478deaaadee7354b95597fa97f6e39fcc65fe086293c08aa737b12c89b809d"
+    }
+  ],
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "AC Power"
+    },
+    "changes": [],
+    "final": {
+      "mode": 2,
+      "source": "AC Power"
+    }
+  },
+  "scopes": {
+    "all": {
+      "files": 120,
+      "raw_bytes": 313007679,
+      "input_indexes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "results": {
+        "ours-l3-t1": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 1,
+          "bytes": 12192510,
+          "file_bytes": [
+            137768,
+            99247,
+            59426,
+            84087,
+            51902,
+            85790,
+            73521,
+            54706,
+            99089,
+            91712,
+            37249,
+            101958,
+            103118,
+            134188,
+            7883,
+            79026,
+            104766,
+            91394,
+            64186,
+            295890,
+            69024,
+            31814,
+            118440,
+            124725,
+            113660,
+            63102,
+            65791,
+            97873,
+            119620,
+            90264,
+            94582,
+            88254,
+            21311,
+            101057,
+            25761,
+            26870,
+            97270,
+            106322,
+            95257,
+            104663,
+            79770,
+            39368,
+            170863,
+            127868,
+            80907,
+            159051,
+            177930,
+            44445,
+            75185,
+            232198,
+            130429,
+            146678,
+            64613,
+            137856,
+            166524,
+            121894,
+            80158,
+            70650,
+            118260,
+            24503,
+            120051,
+            149628,
+            84889,
+            115526,
+            179351,
+            87224,
+            156641,
+            199131,
+            161561,
+            95544,
+            86054,
+            33323,
+            61505,
+            144129,
+            41531,
+            28963,
+            112983,
+            226008,
+            105262,
+            59403,
+            91575,
+            107187,
+            277419,
+            102906,
+            85368,
+            270419,
+            101256,
+            73669,
+            69233,
+            99253,
+            111132,
+            86950,
+            98293,
+            59548,
+            52465,
+            108258,
+            112665,
+            106375,
+            90924,
+            4418,
+            92072,
+            90567,
+            157632,
+            53930,
+            124197,
+            206834,
+            259079,
+            8713,
+            63155,
+            84182,
+            129502,
+            226938,
+            35706,
+            59022,
+            122856,
+            80604,
+            105658,
+            6694,
+            83187,
+            82246
+          ],
+          "encode_seconds": [
+            0.7259735,
+            0.762776083,
+            0.783666084
+          ],
+          "decode_seconds": [
+            0.319812667,
+            0.320120917,
+            0.323812833
+          ],
+          "encode_median_seconds": 0.762776083,
+          "encode_MBps": 410.3532949918148,
+          "decode_median_seconds": 0.320120917,
+          "decode_MBps": 977.7795276026902,
+          "packed_percent": 3.895275042118056
+        },
+        "slpz-l3-t1": {
+          "mode": "slpz",
+          "level": 3,
+          "threads": 1,
+          "bytes": 42111709,
+          "file_bytes": [
+            489572,
+            324005,
+            180929,
+            267563,
+            163521,
+            280817,
+            227012,
+            161090,
+            333699,
+            295028,
+            118549,
+            327764,
+            326758,
+            453806,
+            14140,
+            252441,
+            350044,
+            297540,
+            205413,
+            1492875,
+            220711,
+            100481,
+            409186,
+            425784,
+            370379,
+            195677,
+            216874,
+            307847,
+            417446,
+            288813,
+            302183,
+            286677,
+            54360,
+            343009,
+            65938,
+            90036,
+            307538,
+            355351,
+            316906,
+            345365,
+            250521,
+            115460,
+            576740,
+            386723,
+            259200,
+            459921,
+            596257,
+            118912,
+            256468,
+            956577,
+            421856,
+            375468,
+            201231,
+            484261,
+            583126,
+            400929,
+            286639,
+            208664,
+            376971,
+            74983,
+            416886,
+            485226,
+            266245,
+            368820,
+            592972,
+            290725,
+            465433,
+            707890,
+            582125,
+            300949,
+            277129,
+            85702,
+            191380,
+            482576,
+            117604,
+            80126,
+            374391,
+            602955,
+            340535,
+            181677,
+            293265,
+            349505,
+            1237082,
+            318227,
+            271247,
+            1272361,
+            330356,
+            240900,
+            229187,
+            335622,
+            368805,
+            282316,
+            368452,
+            195954,
+            202896,
+            366626,
+            388920,
+            649882,
+            295499,
+            3706,
+            287874,
+            294588,
+            683736,
+            168144,
+            424909,
+            956663,
+            1135476,
+            13484,
+            186689,
+            257998,
+            453320,
+            840725,
+            110311,
+            174432,
+            387604,
+            258096,
+            357936,
+            8434,
+            252063,
+            273039
+          ],
+          "encode_seconds": [
+            0.542514667,
+            0.537055708,
+            0.548080042
+          ],
+          "decode_seconds": [
+            0.29224275,
+            0.3060405,
+            0.290157458
+          ],
+          "encode_median_seconds": 0.542514667,
+          "encode_MBps": 576.957081604579,
+          "decode_median_seconds": 0.29224275,
+          "decode_MBps": 1071.0537010755613,
+          "packed_percent": 13.45389005616057
+        },
+        "slpz-l12-t1": {
+          "mode": "slpz",
+          "level": 12,
+          "threads": 1,
+          "bytes": 38187718,
+          "file_bytes": [
+            445282,
+            305450,
+            172120,
+            252154,
+            154915,
+            264382,
+            215892,
+            153396,
+            315793,
+            278769,
+            113079,
+            309331,
+            308819,
+            430409,
+            13583,
+            240002,
+            329678,
+            281577,
+            195068,
+            1133598,
+            206597,
+            95396,
+            385764,
+            402513,
+            350644,
+            185878,
+            203926,
+            289535,
+            395083,
+            273756,
+            287639,
+            270128,
+            51929,
+            323676,
+            62828,
+            85204,
+            290569,
+            336028,
+            301287,
+            325483,
+            236301,
+            109373,
+            544878,
+            369091,
+            245077,
+            438548,
+            563248,
+            113462,
+            240085,
+            738116,
+            402624,
+            358167,
+            191441,
+            458934,
+            552377,
+            379621,
+            273567,
+            198088,
+            355622,
+            72662,
+            395158,
+            457691,
+            252790,
+            347997,
+            564398,
+            270236,
+            443536,
+            672519,
+            552559,
+            285531,
+            261757,
+            82420,
+            182414,
+            452728,
+            110461,
+            77401,
+            353804,
+            572573,
+            321052,
+            172477,
+            277207,
+            331466,
+            967512,
+            301381,
+            256434,
+            988484,
+            311248,
+            229413,
+            216326,
+            317676,
+            346064,
+            268107,
+            350162,
+            184699,
+            193804,
+            346080,
+            367947,
+            421553,
+            278247,
+            3582,
+            273597,
+            278991,
+            483829,
+            158717,
+            400044,
+            667942,
+            875677,
+            12897,
+            175838,
+            244974,
+            429070,
+            793275,
+            104490,
+            166144,
+            368055,
+            244582,
+            339106,
+            8212,
+            238775,
+            258167
+          ],
+          "encode_seconds": [
+            2.64574625,
+            2.6423055,
+            2.693743333
+          ],
+          "decode_seconds": [
+            0.248912625,
+            0.257169084,
+            0.256538167
+          ],
+          "encode_median_seconds": 2.64574625,
+          "encode_MBps": 118.30600874894937,
+          "decode_median_seconds": 0.256538167,
+          "decode_MBps": 1220.1212890088204,
+          "packed_percent": 12.200249566401213
+        }
+      }
+    },
+    "slippc": {
+      "files": 98,
+      "raw_bytes": 242937060,
+      "input_indexes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        44,
+        52,
+        55,
+        57,
+        58,
+        62,
+        63,
+        65,
+        69,
+        70,
+        72,
+        73,
+        74,
+        76,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119
+      ],
+      "results": {
+        "ours-l3-t1": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 1,
+          "bytes": 9264165,
+          "file_bytes": [
+            137768,
+            99247,
+            59426,
+            84087,
+            51902,
+            85790,
+            73521,
+            54706,
+            99089,
+            91712,
+            37249,
+            101958,
+            103118,
+            134188,
+            7883,
+            79026,
+            104766,
+            91394,
+            64186,
+            295890,
+            69024,
+            31814,
+            118440,
+            124725,
+            113660,
+            63102,
+            65791,
+            97873,
+            119620,
+            90264,
+            94582,
+            88254,
+            21311,
+            101057,
+            25761,
+            26870,
+            97270,
+            106322,
+            95257,
+            104663,
+            79770,
+            39368,
+            80907,
+            64613,
+            121894,
+            70650,
+            118260,
+            84889,
+            115526,
+            87224,
+            95544,
+            86054,
+            61505,
+            144129,
+            41531,
+            112983,
+            105262,
+            59403,
+            91575,
+            107187,
+            277419,
+            102906,
+            85368,
+            270419,
+            101256,
+            73669,
+            69233,
+            99253,
+            111132,
+            86950,
+            98293,
+            59548,
+            52465,
+            108258,
+            112665,
+            106375,
+            90924,
+            4418,
+            92072,
+            90567,
+            157632,
+            53930,
+            124197,
+            206834,
+            259079,
+            8713,
+            63155,
+            84182,
+            129502,
+            226938,
+            35706,
+            59022,
+            122856,
+            80604,
+            105658,
+            6694,
+            83187,
+            82246
+          ],
+          "encode_seconds": [
+            0.549701667,
+            0.559083292,
+            0.564427875
+          ],
+          "decode_seconds": [
+            0.255581,
+            0.259860916,
+            0.257890292
+          ],
+          "encode_median_seconds": 0.559083292,
+          "encode_MBps": 434.5274907625035,
+          "decode_median_seconds": 0.257890292,
+          "decode_MBps": 942.0170806584684,
+          "packed_percent": 3.8134012982621917
+        },
+        "slippc-l6-t1": {
+          "mode": "slippc",
+          "level": 6,
+          "threads": 1,
+          "bytes": 12952996,
+          "file_bytes": [
+            207360,
+            143336,
+            80856,
+            119128,
+            72832,
+            121868,
+            102344,
+            77568,
+            144988,
+            129596,
+            50152,
+            150432,
+            146952,
+            198524,
+            5380,
+            111644,
+            151804,
+            129088,
+            88352,
+            373668,
+            99468,
+            42056,
+            178820,
+            189152,
+            167668,
+            84332,
+            100272,
+            142568,
+            180032,
+            127852,
+            137728,
+            128400,
+            22520,
+            149268,
+            29068,
+            36996,
+            142308,
+            155228,
+            137932,
+            158556,
+            112132,
+            50376,
+            115356,
+            84860,
+            174808,
+            94820,
+            165696,
+            117644,
+            166564,
+            121928,
+            131724,
+            120440,
+            83412,
+            218200,
+            53720,
+            162080,
+            150044,
+            80788,
+            132996,
+            158616,
+            286000,
+            143076,
+            120492,
+            339464,
+            143792,
+            102024,
+            99932,
+            146720,
+            172772,
+            122708,
+            119780,
+            89556,
+            83400,
+            158432,
+            176928,
+            157028,
+            132416,
+            1736,
+            131784,
+            132308,
+            240856,
+            75504,
+            184824,
+            326136,
+            275556,
+            6196,
+            88356,
+            121708,
+            196056,
+            245424,
+            47424,
+            77892,
+            181036,
+            115660,
+            158916,
+            3892,
+            115336,
+            119576
+          ],
+          "encode_seconds": [
+            33.97185371,
+            34.28678746,
+            34.46444754
+          ],
+          "decode_seconds": [
+            0.66597575,
+            0.69149925,
+            0.688702042
+          ],
+          "encode_median_seconds": 34.28678746,
+          "encode_MBps": 7.085442469155726,
+          "decode_median_seconds": 0.688702042,
+          "decode_MBps": 352.7462461044947,
+          "packed_percent": 5.3318320391298055
+        }
+      }
+    },
+    "peppi": {
+      "files": 28,
+      "raw_bytes": 74297116,
+      "input_indexes": [
+        41,
+        43,
+        45,
+        47,
+        49,
+        51,
+        52,
+        53,
+        54,
+        55,
+        57,
+        58,
+        59,
+        60,
+        61,
+        63,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        75,
+        76,
+        78
+      ],
+      "results": {
+        "peppi-zstd-l3-t1": {
+          "mode": "peppi-zstd",
+          "level": 3,
+          "threads": 1,
+          "bytes": 13139456,
+          "file_bytes": [
+            152064,
+            510464,
+            604672,
+            182272,
+            999424,
+            467968,
+            272384,
+            630272,
+            759808,
+            514560,
+            279040,
+            473600,
+            141312,
+            546304,
+            631808,
+            463872,
+            379392,
+            624640,
+            904704,
+            762880,
+            388096,
+            356864,
+            140800,
+            265216,
+            628224,
+            142336,
+            477696,
+            438784
+          ],
+          "encode_seconds": [
+            0.226688875,
+            0.285643083,
+            0.306981875
+          ],
+          "decode_seconds": [
+            0.085581875,
+            0.081558542,
+            0.108668708
+          ],
+          "encode_median_seconds": 0.285643083,
+          "encode_MBps": 260.1047265688558,
+          "decode_median_seconds": 0.085581875,
+          "decode_MBps": 868.140783314224,
+          "packed_percent": 17.685014853066438
+        },
+        "ours-l3-t1": {
+          "mode": "ours",
+          "level": 3,
+          "threads": 1,
+          "bytes": 3111433,
+          "file_bytes": [
+            39368,
+            127868,
+            159051,
+            44445,
+            232198,
+            146678,
+            64613,
+            137856,
+            166524,
+            121894,
+            70650,
+            118260,
+            24503,
+            120051,
+            149628,
+            115526,
+            87224,
+            156641,
+            199131,
+            161561,
+            95544,
+            86054,
+            33323,
+            61505,
+            144129,
+            28963,
+            112983,
+            105262
+          ],
+          "encode_seconds": [
+            0.19806725,
+            0.195832458,
+            0.200441292
+          ],
+          "decode_seconds": [
+            0.082525959,
+            0.081896208,
+            0.081513
+          ],
+          "encode_median_seconds": 0.19806725,
+          "encode_MBps": 375.1105546222306,
+          "decode_median_seconds": 0.081896208,
+          "decode_MBps": 907.2106977163095,
+          "packed_percent": 4.187824733331507
+        },
+        "peppi-none-l3-t1": {
+          "mode": "peppi-none",
+          "level": 3,
+          "threads": 1,
+          "bytes": 68106240,
+          "file_bytes": [
+            809984,
+            2474496,
+            3071488,
+            751104,
+            5240832,
+            2632704,
+            1363456,
+            3187712,
+            3841024,
+            2801152,
+            1565696,
+            2577408,
+            871424,
+            2710016,
+            3225088,
+            2561536,
+            2004992,
+            3169792,
+            4465152,
+            3764224,
+            2082304,
+            1944064,
+            530432,
+            1456640,
+            3535872,
+            509440,
+            2617344,
+            2340864
+          ],
+          "encode_seconds": [
+            0.107226042,
+            0.106752,
+            0.1132915
+          ],
+          "decode_seconds": [
+            0.039461125,
+            0.037591334,
+            0.038592459
+          ],
+          "encode_median_seconds": 0.107226042,
+          "encode_MBps": 692.9017859299516,
+          "decode_median_seconds": 0.038592459,
+          "decode_MBps": 1925.1718580565182,
+          "packed_percent": 91.66740738631093
+        },
+        "peppi-outer-l3-t1": {
+          "mode": "peppi-outer",
+          "level": 3,
+          "threads": 1,
+          "bytes": 8439293,
+          "file_bytes": [
+            87778,
+            318362,
+            393894,
+            87938,
+            769501,
+            301212,
+            165956,
+            384838,
+            504861,
+            327677,
+            171004,
+            303952,
+            55866,
+            330749,
+            400530,
+            294903,
+            237646,
+            407242,
+            674271,
+            492710,
+            242780,
+            222108,
+            62134,
+            160438,
+            398503,
+            62130,
+            304244,
+            276066
+          ],
+          "encode_seconds": [
+            0.190008959,
+            0.185038417,
+            0.196177292
+          ],
+          "decode_seconds": [
+            0.066103709,
+            0.067364792,
+            0.070057625
+          ],
+          "encode_median_seconds": 0.190008959,
+          "encode_MBps": 391.01901505602166,
+          "decode_median_seconds": 0.067364792,
+          "decode_MBps": 1102.9072278587307,
+          "packed_percent": 11.358843323070575
+        },
+        "peppi-outer-l12-t1": {
+          "mode": "peppi-outer",
+          "level": 12,
+          "threads": 1,
+          "bytes": 7479929,
+          "file_bytes": [
+            81095,
+            281275,
+            353230,
+            82209,
+            599357,
+            282470,
+            155801,
+            336650,
+            429244,
+            304461,
+            160315,
+            279747,
+            53987,
+            289260,
+            349618,
+            276197,
+            222260,
+            366176,
+            546165,
+            417001,
+            227677,
+            207412,
+            58210,
+            150750,
+            370635,
+            59409,
+            282122,
+            257196
+          ],
+          "encode_seconds": [
+            0.569727625,
+            0.570227792,
+            0.573723209
+          ],
+          "decode_seconds": [
+            0.068921625,
+            0.069487917,
+            0.0625265
+          ],
+          "encode_median_seconds": 0.570227792,
+          "encode_MBps": 130.293747590612,
+          "decode_median_seconds": 0.068921625,
+          "decode_MBps": 1077.994257970557,
+          "packed_percent": 10.06758997213297
+        }
+      }
+    }
+  },
+  "all_reconstructed_bytes_match": true
+}
