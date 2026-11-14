@@ -75,6 +75,19 @@ int main() {
     input.push_back(0x3d);
     input.push_back(i % 7 == 0);
   }
+  for (uint8_t command : {0x10, 0x3d}) {
+    Buf prefixed{{71, 93}};
+    std::atomic<uint64_t> packed_bytes{0};
+    pack_records(input, 80, 516, 3, prefixed, &packed_bytes, command);
+    check(prefixed[0] == 71 && prefixed[1] == 93, "code fast path preserves output prefix");
+    check(packed_bytes == prefixed.size() - 2, "code fast path statistics");
+    check(prefixed.size() - 2 <= input.size() / 4, "strong dictionary fast-path fixture");
+    Reader r{View(prefixed).subspan(2)};
+    Bytes restored;
+    unpack_records(r, 80, 516, restored);
+    r.done();
+    check(restored == input, "code fast path reconstructs exact records");
+  }
   for (int level : {1, 3, 7, 12}) {
     Buf packed, legacy;
     pack_records(input, 80, 516, level, legacy, nullptr);

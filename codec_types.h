@@ -19,6 +19,7 @@
 #endif
 
 #include "binary_io.h"
+#include "simd_x86.h"
 
 namespace slippack_custom {
 using Bytes = std::vector<uint8_t>;

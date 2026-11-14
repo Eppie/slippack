@@ -1,0 +1,63 @@
+{
+  "optimized_make_check": "passed",
+  "checks": {
+    "custom_codec": 10209,
+    "entropy_model_and_cdf": 19133656,
+    "record_codec": 111329,
+    "gecko_dictionary": 16705,
+    "predictor": 2463583,
+    "archive_api": 99
+  },
+  "integration": "selftest, frozen v1 fixture, levels 1/3/7/9, archive API and extraction tests passed",
+  "arm_hardware_tested": false,
+  "arm_tokens_before_this_round": {
+    "codec_types.h": {
+      "arm_tokens_identical": true,
+      "token_sha256": "2fb2f60ee44e8d349067ece3699956b3f04229b1f158cff47e3d0d297417cff2"
+    },
+    "custom_codec.h": {
+      "arm_tokens_identical": true,
+      "token_sha256": "92a2c28f7570f7c3dcc5ed5941f6791968b281bfbd87b19472479146661809fe"
+    },
+    "static_context.h": {
+      "arm_tokens_identical": true,
+      "token_sha256": "1c0f60342ddf7a755f23f460bc55708cf4cd84951d5ec2d716f540a34639b4b8"
+    },
+    "record_codec.cpp": {
+      "arm_tokens_identical": true,
+      "token_sha256": "6520e92eff90840a6cdbe162137bf2f61ed2dce9f2d9b59ef12e4fbc535d06f2"
+    }
+  },
+  "decode_only_and_old_reader_new_packets": true,
+  "development_checks": "ASan/UBSan and generic x86-64 record/Gecko tests passed during development; final profile build passes the full native suite.",
+  "full_corpus": {
+    "files": 1518,
+    "raw_bytes": 5987689510,
+    "all_replay_bytes_identical": true,
+    "layouts": [
+      "separate",
+      "grouped"
+    ],
+    "builds": [
+      "baseline",
+      "candidate",
+      "pgo_thin"
+    ],
+    "warmup_passes_per_layout_per_build": 1,
+    "measured_passes_per_layout_per_build": 3
+  },
+  "documented_build_make_check": "passed",
+  "documented_build_library_matches_benchmarked_library": true,
+  "documented_build_cli_matches_benchmarked_cli": true,
+  "format_check": "passed (clang-format 18.1.8)",
+  "diff_whitespace_check": "passed",
+  "secondary_corpus": {
+    "files": 66,
+    "raw_bytes": 79682602,
+    "all_replay_bytes_identical": true,
+    "size_delta_pct": {
+      "separate": -8.720271508394307,
+      "grouped": -0.009425060706924615
+    }
+  }
+}

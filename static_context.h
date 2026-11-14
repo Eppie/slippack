@@ -202,14 +202,29 @@ inline Bytes context_encode(View input, View contexts) {
     }
   }
   uint32_t state[4] = {1u << 23, 1u << 23, 1u << 23, 1u << 23};
+#if SLIPPACK_SSE2
+  // A state is below 2^31; even frequency one needs at most two emitted
+  // bytes. Fill reusable, uninitialized storage backward in final order,
+  // avoiding per-byte vector growth checks and the final reverse copy.
+  require(input.size() <= std::numeric_limits<size_t>::max() / 2, "context scratch size");
+  const size_t capacity = input.size() * 2;
+  Scratch<uint8_t> bytes(capacity);
+  auto *end = capacity ? bytes.data.data() + capacity : bytes.data.data();
+  auto *write = end;
+#else
   Bytes bytes;
+#endif
   for (size_t i = input.size(); i-- > 0;) {
     unsigned c = contexts.empty() ? 0 : contexts[i],
              prev = i && (contexts.empty() || contexts[i - 1] == c) ? input[i - 1] : 0;
     auto &m = models[map[c * 256 + prev]];
     uint32_t f = m.freq[input[i]], &x = state[i & 3];
     while (x >= ((1u << 23 >> EncoderBits) << 8) * f) {
+#if SLIPPACK_SSE2
+      *--write = uint8_t(x);
+#else
       bytes.push_back(uint8_t(x));
+#endif
       x >>= 8;
     }
     x = x / f * (1u << EncoderBits) + x % f + m.start[input[i]];
@@ -217,7 +232,13 @@ inline Bytes context_encode(View input, View contexts) {
   for (auto x : state) {
     u32(out, x);
   }
+#if SLIPPACK_SSE2
+  if (write != end) {
+    out.insert(out.end(), write, end);
+  }
+#else
   out.insert(out.end(), bytes.rbegin(), bytes.rend());
+#endif
   return out;
 }
 template <unsigned precision>

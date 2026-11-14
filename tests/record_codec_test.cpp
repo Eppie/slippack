@@ -29,6 +29,53 @@ template <class F> static void rejects(F fn) {
 
 int main() {
   std::mt19937 random(718091);
+  for (unsigned size : {1u, 2u, 6u, 63u, 760u, 4097u}) {
+    for (unsigned pattern : {0u, 1u}) {
+      Bytes input(size);
+      for (auto &byte : input) {
+        byte = pattern ? uint8_t(random()) : 0;
+      }
+      Buf packet{{71, 93}};
+      std::atomic<uint64_t> packed_bytes{0};
+      pack_records(input, 1, size, 3, packet, &packed_bytes, 0x36);
+      check(packet[0] == 71 && packet[1] == 93, "singleton preserves prefix");
+      check(packed_bytes == packet.size() - 2, "singleton statistics");
+#if SLIPPACK_SSE2
+      check(packet[2] == 1 && packet[3] == 0 && packet[4] == 1, "singleton contiguous packet");
+      check(packet.size() - 2 == size + 13, "singleton bounded raw size");
+#endif
+      Reader r{View(packet).subspan(2)};
+      check(skip_packed(r, size, 1).size() == packet.size() - 2, "singleton scanner");
+      r.done();
+      r = Reader{View(packet).subspan(2)};
+      Bytes restored;
+      unpack_records(r, 1, size, restored);
+      r.done();
+      check(restored == input, "singleton exact reconstruction");
+    }
+  }
+  // A rejected trial may stop as soon as its alphabet exceeds count/2.
+  // Exercise either side of that boundary, including a full 256-value table.
+  for (unsigned count : {64u, 65u, 127u, 128u, 255u, 256u, 511u, 512u}) {
+    for (int delta : {-1, 0, 1}) {
+      unsigned distinct = count / 2 + delta;
+      Bytes input(size_t(count) * 4, 83);
+      for (unsigned i = 0; i < count; ++i) {
+        unsigned value = i % distinct;
+        input[size_t(i) * 4] = uint8_t(value);
+        input[size_t(i) * 4 + 2] = uint8_t(value * 73 + value / 256);
+      }
+      Buf packet;
+      pack_records(input, count, 4, 3, packet, nullptr, 0x45);
+      bool four_byte_field = packet[0] && (packet[1] & 15) == 4;
+      check(four_byte_field == (distinct <= count / 2), "dictionary acceptance boundary");
+      Reader r{packet};
+      Bytes restored;
+      unpack_records(r, count, 4, restored);
+      r.done();
+      check(restored == input, "dictionary early rejection reconstruction");
+    }
+  }
   // A high-cardinality trial stops partway through its index scan. Later
   // trials alternate implicit constants, single-byte and multi-byte fields;
   // their accepted index planes must be complete despite scratch reuse.

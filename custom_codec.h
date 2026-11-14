@@ -830,7 +830,13 @@ inline Bytes decode(View packed, uint32_t n, Profile profile = Generic) {
 
 inline uint8_t dominant_byte(View input) {
   size_t zeros = 0, i = 0;
-#if defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
+#if SLIPPACK_AVX512BW
+  const auto zero = _mm512_setzero_si512();
+  for (; i + 64 <= input.size(); i += 64) {
+    auto block = _mm512_loadu_si512(input.data() + i);
+    zeros += std::popcount(uint64_t(_mm512_cmpeq_epi8_mask(block, zero)));
+  }
+#elif defined(__aarch64__) && !defined(SLIPPACK_CUSTOM_SCALAR)
   for (; i + 16 <= input.size(); i += 16) {
     zeros += vaddvq_u8(vshrq_n_u8(vceqq_u8(vld1q_u8(input.data() + i), vdupq_n_u8(0)), 7));
   }
@@ -845,6 +851,21 @@ inline uint8_t dominant_byte(View input) {
   for (auto b : input) {
     ++h[b];
   }
+#if SLIPPACK_AVX512BW
+  // Find the maximum in parallel, then select its first occurrence to retain
+  // max_element's tie-breaking and therefore identical compressed bytes.
+  auto maximum = _mm512_loadu_si512(h.data());
+  for (unsigned j = 16; j < 256; j += 16) {
+    maximum = _mm512_max_epu32(maximum, _mm512_loadu_si512(h.data() + j));
+  }
+  auto value = _mm512_set1_epi32(_mm512_reduce_max_epu32(maximum));
+  for (unsigned j = 0; j < 256; j += 16) {
+    unsigned bits = _mm512_cmpeq_epi32_mask(value, _mm512_loadu_si512(h.data() + j));
+    if (bits) {
+      return uint8_t(j + std::countr_zero(bits));
+    }
+  }
+#endif
   return uint8_t(std::max_element(h.begin(), h.end()) - h.begin());
 }
 inline void restore_exceptions(View masks, View values, uint32_t count, View bases, Bytes &out,
@@ -881,6 +902,15 @@ inline void restore_exceptions(View masks, View values, uint32_t count, View bas
       vst1_u8(destination + i, merged);
       v += table.counts[bits];
     }
+#elif SLIPPACK_AVX512VBMI2
+    auto constant = _mm512_set1_epi8(char(base));
+    for (; i + 64 <= count; i += 64) {
+      uint64_t bits;
+      std::memcpy(&bits, masks.data() + j * width + i / 8, sizeof(bits));
+      auto expanded = _mm512_mask_expandloadu_epi8(constant, bits, values.data() + v);
+      _mm512_storeu_si512(destination + i, expanded);
+      v += std::popcount(bits);
+    }
 #endif
     for (; i < count; ++i) {
       destination[i] = (masks[j * width + i / 8] >> (i % 8)) & 1 ? values[v++] : base;
@@ -916,6 +946,15 @@ inline void extract_exceptions(View plane, uint8_t base, Bytes &mask, Bytes &val
     auto packed = vtbl1_u8(v, vld1_u8(table.indexes[bits].data()));
     vst1_u8(values.data() + used, packed);
     used += table.counts[bits];
+  }
+#elif SLIPPACK_AVX512VBMI2
+  auto constant = _mm512_set1_epi8(char(base));
+  for (; i + 64 <= plane.size(); i += 64) {
+    auto block = _mm512_loadu_si512(plane.data() + i);
+    uint64_t bits = _mm512_cmpneq_epi8_mask(block, constant);
+    std::memcpy(mask.data() + i / 8, &bits, sizeof(bits));
+    _mm512_mask_compressstoreu_epi8(values.data() + used, bits, block);
+    used += std::popcount(bits);
   }
 #endif
   for (; i < plane.size(); ++i) {

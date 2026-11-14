@@ -91,6 +91,22 @@ symbols; its [provenance](profiles/level3.json) records compiler, source, and in
 hashes. Plain `make` needs no profile. Use `make clean && make` to replace a
 release executable with a default build.
 
+For the measured Linux x86 build, use Clang 20, LLD 20, and the separate x86
+profile. This builds into its own directory:
+
+```sh
+python3 tools/profile_build.py check --cxx clang++ \
+  --profile profiles/linux-x86-level3.proftext
+make -j4 CXX=clang++ BUILD_DIR=build/linux-x86 PROGRAM=build/linux-x86/slippack \
+  'CXXFLAGS=-std=c++20 -O3 -Wall -Wextra -march=native -flto=thin' \
+  PROFILE=profiles/linux-x86-level3.proftext LLVM_PROFDATA=llvm-profdata-20 \
+  LDFLAGS=--ld-path=/usr/bin/ld.lld-20 check
+```
+
+`-march=native` targets the build machine. See the
+[Linux x86 measurements](benchmarks/2026-11-14-linux-x86/README.md) for the
+baseline, training corpus, source changes, and archive grouping results.
+
 ## Use
 
 ```sh

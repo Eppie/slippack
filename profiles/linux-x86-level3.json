@@ -1,0 +1,684 @@
+{
+  "schema": 1,
+  "date": "2026-11-14",
+  "compiler": {
+    "version": "Ubuntu clang version 20.1.8 (++20250708082409+6fb913d3e2ec-1~exp1~20250708202428.132)",
+    "target": "Target: x86_64-pc-linux-gnu"
+  },
+  "instrumentation": "Clang IR -fprofile-generate",
+  "build_flags": "-std=c++20 -O3 -Wall -Wextra -march=native",
+  "training": "RAM benchmark driver, level 3, one worker, one separate and one grouped encode/decode pass; exact raw replay verification outside timers",
+  "source_sha256": {
+    "archive.cpp": "d67372de89b9e58a059105614f70e00453fa23547be6eea92155eaae86c79570",
+    "archive.h": "250a484280e017ed1e5548306219ce4fe5791026c5194a1e2c900dffaff77899",
+    "binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
+    "codec_types.h": "a737729fde047752197cea993d7c70647b63699dc1f5518f4a308942b49d93a3",
+    "custom_codec.h": "e35c1f42108d4647bdcc33088368c1ab0501b6cd64d0cf1266e92efbd6e90bd0",
+    "file_io.cpp": "7f05241d3b37e03590f5c4116827ad26f052653f85f2407e078c073956ca7795",
+    "file_io.h": "e054fda767370473356ea2d1b7fd15a814677b7bafcdf4bef44d1d9384ce5f88",
+    "format.h": "2c03dc7d93f4d9b71e57e7a9a554dd0138b077185656b263c290d1bc2f2b7517",
+    "frames.cpp": "39bda5b09c986520f4ad677a5bca87ed77583cf5056821794e63e4ecbe70587a",
+    "frames.h": "0dfc365898df16d6b01357d3ad682e736a3535c7f4303ca5d5fca1937cac925b",
+    "gecko_dictionary.cpp": "0beec3e966e57cbd8b879647b2969b60ce93600fe9bd138d706f722ddf0ec1b5",
+    "gecko_dictionary.h": "4005e1fcecea8c2ee288cc660a22da4adbdecd25f5e7b1fbc8545dc206d3ff8f",
+    "gecko_dictionary_data.h": "c2ee00e48b3dd508518229914884f528dffd1aa30347fa002d3eb25aba700c79",
+    "mask_codec.h": "e15af9d5937d16bf3f470ff8d9b3f02f973c12e9ba3315ebc109e0b3e408cced",
+    "parallel.h": "7f81dbb764a6a89e90a16b4243b4ae3a455981eb94eca4fc64d78ceb0192e542",
+    "platform.cpp": "db1b67c3b5bbe6c9736b6d6c165d3224c268b0323ce32421b6f79182518027f1",
+    "platform.h": "f59979725eaf21dfa768a9d9851105e35513c42439d9f27838288b44f31bf865",
+    "record_codec.cpp": "201bb6cd49816c161239686c610e00aad6d86d8e9794169f9ab798a899d2e54e",
+    "record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
+    "simd_x86.h": "b44f124e5e2f12ba8d781c617579ef7ade40f11c23cd38df603fed6507f8c53e",
+    "slippack.cpp": "15fc6f09c3a273e8d9d3d612888ee341287a0e1ffc6bc0079d7f4b1b69e97da7",
+    "slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
+    "slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
+    "static_context.h": "eb4a28a0b996ac55722b894e11a4bd74c100ff4d4b5b4355104dd17b12b37fd9"
+  },
+  "profile_sha256": "133d476f18b78ccd842fb8e40f58f15d9672fa6fa0d779537634cf2367a973e4",
+  "training_manifest_sha256": "5a091fa5445936ee8f044e1fc49ef3acf98d7e62835ffa14c8e435d27c1774dc",
+  "files": 128,
+  "raw_bytes": 482035301,
+  "evaluation_overlap": "Training inputs are disjoint from the 112-file screening sample; all 128 are included in the 1518-file full-corpus measurement. This is development data.",
+  "inputs": [
+    {
+      "path": "BotMatches/x_pilot/auto-cptfalcon_vs_auto-falco/Game_20260924T011634.slp",
+      "bytes": 1533298,
+      "sha256": "8371da5b92b488a7b4475bdd604bc3c681b83e2aea9387d7624a62e5b5e35963"
+    },
+    {
+      "path": "BotMatches/x_pilot/auto-cptfalcon_vs_auto-falco/Game_20260924T013407.slp",
+      "bytes": 2585758,
+      "sha256": "e7457ac0818facb3bcf87aa0bd100cc322dbcef3b5f9dc91fd3d6d57d13c6505"
+    },
+    {
+      "path": "BotMatches/x_pilot/auto-dk_vs_gm-marth/Game_20260912T085606.slp",
+      "bytes": 5401655,
+      "sha256": "beab968bf23b22d34638ba5ccc725bad2b1b004a9aadad4f2c36073407182c34"
+    },
+    {
+      "path": "BotMatches/x_pilot/auto-fox_vs_auto-marth/Game_20261014T083238.slp",
+      "bytes": 3257339,
+      "sha256": "36749d264098943f2ec7868fd2536fef3be2f0f231da494e03f4d08f2d215d89"
+    },
+    {
+      "path": "BotMatches/x_pilot/auto-peach_vs_auto-pikachu/Game_20260930T154804.slp",
+      "bytes": 3491516,
+      "sha256": "cf1936fa311750ffc1824f6b585ee95aaa573493cd4620ae85f5b492f4ce0666"
+    },
+    {
+      "path": "BotMatches/x_pilot/auto-peach_vs_auto-pikachu/Game_20260930T162156.slp",
+      "bytes": 4663621,
+      "sha256": "370af9386749e03db3de8452c2c43d34dcc8a28e8165e99e0243cbea69ec0db7"
+    },
+    {
+      "path": "BotMatches/x_pilot/auto-peach_vs_auto-pikachu/Game_20260930T165047.slp",
+      "bytes": 3495101,
+      "sha256": "4b0f05968956e8dc888f2d2332a44a836da8e124feddeda0232f988292c4ac81"
+    },
+    {
+      "path": "BotMatches/x_pilot/bronze-falco_vs_bronze-falco/Game_20260930T011318.slp",
+      "bytes": 3758076,
+      "sha256": "6b6adf098d4f16408f6d0b9d86f5a24853891ebf013102a539a204e45b65856e"
+    },
+    {
+      "path": "BotMatches/x_pilot/bronze-falco_vs_bronze-falco/Game_20260930T014451.slp",
+      "bytes": 5169482,
+      "sha256": "648cd911677ee03fbf0c3ae216786e66cb6ec809cb76f9af207d5dfbcdbd8dd7"
+    },
+    {
+      "path": "BotMatches/x_pilot/falco_d18_vs_fox_v4_vs_gm-fox/Game_20260925T035227.slp",
+      "bytes": 2584788,
+      "sha256": "3923dcb3ed49fe690dea2c257112444b506591d9348fbabaa4a28f632537aa0f"
+    },
+    {
+      "path": "BotMatches/x_pilot/falco_d18_vs_fox_v4_vs_gm-fox/Game_20260925T035440.slp",
+      "bytes": 3440831,
+      "sha256": "c375b59afdd2b9124c271ceaa018494180f37c2d928020d66fd68d1020704d8c"
+    },
+    {
+      "path": "BotMatches/x_pilot/falco_d18_vs_fox_v4_vs_gm-fox/Game_20260925T041446.slp",
+      "bytes": 1795594,
+      "sha256": "bacc6e0d3bd417033b46a6e891459796703d8ca147aeba7b891934783525a614"
+    },
+    {
+      "path": "BotMatches/x_pilot/falco_d18_vs_fox_v4_vs_gm-fox/Game_20260925T041940.slp",
+      "bytes": 3383821,
+      "sha256": "aee652fe7bdb3e5f38d7d951cf293cdc2cad9f512f7d97ca3145919d81c77965"
+    },
+    {
+      "path": "BotMatches/x_pilot/falco_d18_vs_fox_v4_vs_gm-fox/Game_20260925T042232.slp",
+      "bytes": 4566278,
+      "sha256": "2ef46dd9277c8020185f23b1bac8d33ed3efc5b4e46a76c8f62443a603aa49ff"
+    },
+    {
+      "path": "BotMatches/x_pilot/gm-fox_vs_gm-jigglypuff/Game_20260911T212931.slp",
+      "bytes": 2526419,
+      "sha256": "e6c35b07d99d140452267edcc7ecf5ec870bdf04a94074e779642319453dcc1f"
+    },
+    {
+      "path": "BotMatches/x_pilot/gm-fox_vs_gm-jigglypuff/Game_20260911T220230.slp",
+      "bytes": 2783380,
+      "sha256": "f472d0b097024fdbd6f6226fcaf5ea03327ba1143236ca92960b8f74eb41f974"
+    },
+    {
+      "path": "BotMatches/x_pilot/master-link_vs_master-marth/Game_20260930T183502.slp",
+      "bytes": 3521754,
+      "sha256": "8cf062f259a8edfac951e54f90b7ba93a6a79a0e67129e9e4e6f21b9177b3d0e"
+    },
+    {
+      "path": "BotMatches/x_pilot/master-link_vs_master-marth/Game_20260930T190323.slp",
+      "bytes": 3193626,
+      "sha256": "0b94e06fd04b2ef4e84d0363a698de1f6f892212dc2914b2a3b5ca2bba803603"
+    },
+    {
+      "path": "BotMatches/x_pilot/master-link_vs_master-sheik/Game_20261001T132125.slp",
+      "bytes": 5975511,
+      "sha256": "ebaf76bdddd0a03eb069d77f595f1e15b870f4187af82770a82fd1cd351a27e2"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-cptfalcon/Game_20261002T204911.slp",
+      "bytes": 1796590,
+      "sha256": "4e6e34b64ba838afc084d44a32fd2c88ffc45427fc831cd9374fc14b8e410b5b"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-cptfalcon/Game_20261002T210310.slp",
+      "bytes": 3834416,
+      "sha256": "4a1490e6b0a2a02b45bb4cd7df654cb3cfe0e0f863241f3b72b0b2392d4645c5"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-cptfalcon/Game_20261002T212324.slp",
+      "bytes": 2998226,
+      "sha256": "561b96cc2d94d98c3cfee6c78dd75b0e1e54947293c4d5586be89d5ede33b583"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261002T011033.slp",
+      "bytes": 3698334,
+      "sha256": "e5a7147196b57a9f7ca9f2c71168ced52dacd1647e7e68c2a017ce0fbcad0f3e"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261002T012917.slp",
+      "bytes": 3127616,
+      "sha256": "7a3f45b5ac4071c1e4e1180d493d7300a726c8d361e1d56a1d4b08df6f1c53c8"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261003T022945.slp",
+      "bytes": 3461146,
+      "sha256": "104166f29b50c4932e0127241bc83649915efd843f4603d1a987584a3c44fd52"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261003T023920.slp",
+      "bytes": 2974884,
+      "sha256": "2f7a8475d15c4be59f6a6141c2e5be18482cf612a6eeda9ba438a6b1e9b2d5ca"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261003T091556.slp",
+      "bytes": 2619115,
+      "sha256": "a57d5c201747bc05b5aa5d6d0713be2dbe5f3b208f60accea7b82af075d4cbcb"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261003T093018.slp",
+      "bytes": 3342871,
+      "sha256": "c4f773efe8ac973f1dfaa8434753ef7c709450373a7f660b25958099d33e14a4"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261003T094313.slp",
+      "bytes": 2627041,
+      "sha256": "d42a19e6f761d03757db52639f9014014ade0f0d247fa058a6d664ef24e4938c"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-falco/Game_20261003T095321.slp",
+      "bytes": 3562407,
+      "sha256": "41a147d89dfb570cd07038e19864e719d374b0dd41c000edfa28f5ba65a6985b"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-jigglypuff/Game_20261002T003946.slp",
+      "bytes": 5057459,
+      "sha256": "60650dc6737d35533d1da6d615f968da33a88343b916cf1c072b72cefde22e3a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-jigglypuff/Game_20261002T013503.slp",
+      "bytes": 3365629,
+      "sha256": "6478ff314e9d6553496c4ddde9753d869c8008a47ef09c191593a9ef84105bcf"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-jigglypuff/Game_20261002T183333.slp",
+      "bytes": 4360907,
+      "sha256": "13a97d79bf338aa58eedf33b6af3a8a4f0ff1831139027ede4cb8dadfbe3b26a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-jigglypuff/Game_20261002T190412.slp",
+      "bytes": 4280059,
+      "sha256": "887f652619f8d62710979af004db0d82013c9dedf0de6c860c7162b0e01213ca"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-jigglypuff/Game_20261002T191527.slp",
+      "bytes": 4186823,
+      "sha256": "55713264bdf2bc146b33bdf117230e86ff9bd565ca67c04198075948d75f18a9"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-jigglypuff/Game_20261002T193532.slp",
+      "bytes": 3295635,
+      "sha256": "e9bb02541f4980aa7092dbb669a78f0fb556f9c0783f645e3f213a91c5632acd"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-luigi/Game_20261001T202216.slp",
+      "bytes": 1945010,
+      "sha256": "aa3788b0ff5d8ed0e769726f44565274139127842d6d7f4e3e018b15f5d82789"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-luigi/Game_20261001T202559.slp",
+      "bytes": 4821255,
+      "sha256": "d65fe44226eaf58a731b01d3f13e92579b8cd9fac24b64ad2d3dfbde3fdd6fe0"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-luigi/Game_20261001T211107.slp",
+      "bytes": 3651367,
+      "sha256": "33b48442863d9225cbe1091fcbd1f49e941047e7d060495c3da15f9046aa05d8"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-luigi/Game_20261001T211340.slp",
+      "bytes": 3474481,
+      "sha256": "9fefd8cd6dc117a3c398ec5ba17bdd7a4c130c683fac6051fab20003e6a2a997"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-luigi/Game_20261001T212458.slp",
+      "bytes": 4009056,
+      "sha256": "aca08582b63b2bde97c776d9aae6e662b6967a967f160029bdf74893a20c1164"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-luigi/Game_20261001T213142.slp",
+      "bytes": 3959299,
+      "sha256": "9bc401a8a5e1cf90235b1f050a8ed2a2ba0337b67e42ae87fde77151cbecaac1"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-peach/Game_20260930T154403.slp",
+      "bytes": 2670898,
+      "sha256": "479c1e86d9f40e680d349a0aa34f2c62a6f5c24c1f165bd9af9dd9e95176f2d5"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-peach/Game_20260930T161714.slp",
+      "bytes": 5095895,
+      "sha256": "8f5b8959e81f11af503fab729be941285caa4282cc1e1a22fb3a6fbe5a7a7f12"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-peach/Game_20260930T164207.slp",
+      "bytes": 3202599,
+      "sha256": "3098d65108d2e5ee22bd252c580d17e85f1a2b052050e61d9b809eeb5dcaae7c"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-peach/Game_20261004T000851.slp",
+      "bytes": 4240080,
+      "sha256": "30a034790bd08c04408b97ecdf3dc389739f9db6f4dda04d1050735d1f708605"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-peach/Game_20261004T002704.slp",
+      "bytes": 4604338,
+      "sha256": "7c653ff1ac68bb597904033513bdf3909b50eae54cdb616aadc425ea473f80e5"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-peach/Game_20261004T004950.slp",
+      "bytes": 4371176,
+      "sha256": "8461aa36b3b9c8509f4d0f64157d24f75d5ff2cf3377be746cc8babbc362a3c3"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-sheik/Game_20261110T061252.slp",
+      "bytes": 3466294,
+      "sha256": "41b1a10624d2da85f23ea55b4e77a4437789a5305b9c36cbb34e0b8ab8c8d8ba"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-sheik/Game_20261110T062110.slp",
+      "bytes": 2748813,
+      "sha256": "1713f315b6669fa1e78d8b36d914fa2553317c27ab23ad7051aacf8342299087"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-sheik/Game_20261110T063304.slp",
+      "bytes": 3383687,
+      "sha256": "1a3e4c1c2d2017b65de1029c3b030371b09ae97e65a8a1247f990911bb5dece0"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-sheik/Game_20261110T064338.slp",
+      "bytes": 3246105,
+      "sha256": "abe7247f2cc6d2da5473d74a137a4658f8cca06be8e8df10ce6c704192c138ab"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-cptfalcon_vs_auto-sheik/Game_20261110T064956.slp",
+      "bytes": 2453619,
+      "sha256": "416206022a4028977528b0ff24e579c805b4b79b51e689965cf4bb5e4cb14998"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-dk_vs_gm-marth/Game_20260912T115559.slp",
+      "bytes": 4141861,
+      "sha256": "5f7af105ad3936f2a3458b50eabde94cae87205e83801bd9232eaeef71eb4699"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-dk_vs_gm-marth/Game_20260912T122427.slp",
+      "bytes": 4842409,
+      "sha256": "c8ee763b068ce1ab5724245f3ec854a60028ca17080890bcaa14617081317e1d"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-falco_vs_auto-fox/Game_20261005T114050.slp",
+      "bytes": 1734913,
+      "sha256": "0885d2b0b73a3077fb9e9c21464bc1751dc77c1ba74f041fdcac43eda142ef63"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-falco_vs_auto-fox/Game_20261005T114220.slp",
+      "bytes": 2563762,
+      "sha256": "3073d70f79000a2307e4ccfc7fa839112c2eb9b3c5cb5042590bf522014b481a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-falco_vs_auto-fox/Game_20261005T123205.slp",
+      "bytes": 2390619,
+      "sha256": "3cc4d46747aee4d9765a00bf13fcc3e6a375360c81bd6546e358fb5891f3443e"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_auto-popo/Game_20260929T211025.slp",
+      "bytes": 7269862,
+      "sha256": "db7a4b82442047ec5c52676584b453901843ae60312901b5555328e440b140c6"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_auto-popo/Game_20260929T211744.slp",
+      "bytes": 5595237,
+      "sha256": "68e3076c748a8af5c492ad0d30703524f1f7e2b79035b0f39f17cfa09ad83de4"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_auto-popo/Game_20260929T215148.slp",
+      "bytes": 4939330,
+      "sha256": "951b0b09c25d1a138744df0cd057283af3df0c2c3b6009a72bf96d8cac35c542"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-fox/Game_20260911T231704.slp",
+      "bytes": 2221761,
+      "sha256": "5ef21c1fc10c3f1bfefaed48a8245dac8184b9826c9c846dbf893419bb31ab36"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-fox/Game_20260911T233403.slp",
+      "bytes": 3128820,
+      "sha256": "26b9cb67e9d8086e141aacec4746aa86ccafac01d6dcaba0f59fe9d4d9fa3001"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-fox/Game_20260911T233917.slp",
+      "bytes": 2319169,
+      "sha256": "0df025bfdf2f234b41f81a5d5b9fa56798330d7b6490a2ddd853e19fe53d9bd8"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-marth/Game_20260912T194708.slp",
+      "bytes": 2962076,
+      "sha256": "6a5e791ae7af799198e6f8c7ffa4edebbe008fbc021e01d519f1d3786b0356bb"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-marth/Game_20260912T195224.slp",
+      "bytes": 4297812,
+      "sha256": "7c3e79dacae7226e1d4e2370055b99efb19f5b16420ec2139c21a9526106217a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-marth/Game_20260912T195945.slp",
+      "bytes": 3060157,
+      "sha256": "2c7ed63663d2025900028418379742542719ac8604c560c10c5dd8395c5a6b68"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_gm-marth/Game_20260912T202526.slp",
+      "bytes": 1738017,
+      "sha256": "47ebae4bcf2ea40c7aab66af5b0433e97be99ce42c18259679f4066ad6007deb"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_marth_d21_vs_fox_v6.5/Game_20260925T023759.slp",
+      "bytes": 3259355,
+      "sha256": "412452c944e34f8fb53c8a7d585466a3ed5d63d2a5841eb4e8fe564e3eb62870"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-fox_vs_marth_d21_vs_fox_v6.5/Game_20260925T031033.slp",
+      "bytes": 2256352,
+      "sha256": "bcd52b8d8c1eee3e234f37104d523be5373625909792eb5b2e8b271446f07722"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-jigglypuff_vs_auto-marth/Game_20260912T210810.slp",
+      "bytes": 4513150,
+      "sha256": "398deeae5ead7ed3c6ef2f90381667a4920f16376f4294b07dcf952baa5c4771"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-jigglypuff_vs_auto-marth/Game_20260929T234602.slp",
+      "bytes": 3852244,
+      "sha256": "a729cab553a9d61d0a1b11cf1561b9b863047c02be573bbf6789a545834b799f"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-jigglypuff_vs_auto-marth/Game_20260930T000841.slp",
+      "bytes": 2802954,
+      "sha256": "580634d313852405fd171ec974417a70896f67f8510fc801a3e0ceee19b75e01"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-marth_vs_auto-pikachu/Game_20260926T134013.slp",
+      "bytes": 6080131,
+      "sha256": "17b948ca76cbcbc391e5536245a35a92397672fdd4cbc7b0ad4534ae0b6e5656"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-marth_vs_auto-pikachu/Game_20260926T140957.slp",
+      "bytes": 4056395,
+      "sha256": "ef1d5481057152e85ffc5fb0d83a8439e91a94cd5ecf1049fb31218f74b8a61a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-marth_vs_auto-pikachu/Game_20260926T142456.slp",
+      "bytes": 4982323,
+      "sha256": "2cbe6df96e07390c925c68500261482b87c9806c216b8b06a77d109888ebfac4"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-peach_vs_auto-yoshi/Game_20261004T133605.slp",
+      "bytes": 4750155,
+      "sha256": "7fe66cf88ab83ad0bb19cb1c84e0a61f6dcfcc20c1bef78725f9a97ac7735127"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-samus_vs_gm-falco/Game_20260912T123411.slp",
+      "bytes": 3892967,
+      "sha256": "f700f361666531d2d4f5b5797e0fd8b8565141fa79bad893fdbb518c754c7eb7"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-samus_vs_gm-falco/Game_20260912T130405.slp",
+      "bytes": 3593748,
+      "sha256": "bc45abbe2c48c57c6545e0a0849836e0b789ce64e7225c25bc382b0f2ab50d1a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-yoshi_vs_gm-yoshi/Game_20260912T141805.slp",
+      "bytes": 4620602,
+      "sha256": "1fa750568989f19d291c2d262b6a3b3068b9d97aac75875717b2d79b3c07db11"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-yoshi_vs_gm-yoshi/Game_20260912T142345.slp",
+      "bytes": 3746895,
+      "sha256": "d5c221796e56af02bd462afc9e5fdf80920a3b370741da9a9cb3fda531338f8f"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/auto-yoshi_vs_gm-yoshi/Game_20260912T143715.slp",
+      "bytes": 5232939,
+      "sha256": "71a8136749e267ffc62a3b09bb5f96d5094900d367a4392e5b28b5beadafef42"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/diamond-fox_vs_diamond-marth/Game_20261028T130353.slp",
+      "bytes": 4212018,
+      "sha256": "d5d8c63dadbfc86296b646eb01914651bafe3bf5c09f9b05f127800619ca1d0f"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/diamond-fox_vs_diamond-marth/Game_20261028T132906.slp",
+      "bytes": 5662026,
+      "sha256": "5932399da079c1a3de078788c20ef256e8f8774dd0c424f01cd7f95d6e67af27"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/diamond-fox_vs_diamond-marth/Game_20261028T134648.slp",
+      "bytes": 5745337,
+      "sha256": "2a0996ed725e3a92060a516aaa748ebdbae9eee22fe370453295efe658b8b4e1"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/diamond-fox_vs_diamond-marth/Game_20261028T135335.slp",
+      "bytes": 4358001,
+      "sha256": "dcbbf7c23aac1a71cbab9055cbc0a5ba69957abb792f4faa01ba1864ff2225ac"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falco_d21_ditto_v6.2_vs_falco_d21_ditto_v6.2/Game_20261020T031915.slp",
+      "bytes": 2676663,
+      "sha256": "3d8ff66697a7bada867869f8cccc7aa649d9a0dcf1c1988a4cc3c4087fab9ccc"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falco_d21_ditto_v6.2_vs_falco_d21_ditto_v6.2/Game_20261020T033655.slp",
+      "bytes": 3420325,
+      "sha256": "27363590f67f6e41055e5d1c263b53584e3721cc301432d907d77697ef01575c"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falco_d21_ditto_v6.2_vs_falco_d21_ditto_v6.2/Game_20261020T035045.slp",
+      "bytes": 2757109,
+      "sha256": "b218698e39fb05f72d70191287cd3b43117408ade1eba07f9c3c5dcede64eded"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falco_d21_ditto_v6.2_vs_falco_d21_ditto_v6.2/Game_20261020T040229.slp",
+      "bytes": 3113693,
+      "sha256": "478ed480f6733fc7f842ddc62547041af77c890708477bc524d584abe20beba9"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falco_d21_vs_ganon_v6.1_vs_ganon_d21_vs_falco_v6.3/Game_20261016T112623.slp",
+      "bytes": 4706739,
+      "sha256": "a99900be28c255815a4c15638fd855e24c23fdb9c38f469c7c707ee063da197b"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falco_d21_vs_ganon_v6.1_vs_ganon_d21_vs_falco_v6.3/Game_20261016T113824.slp",
+      "bytes": 4214095,
+      "sha256": "e597d6e31eb32e6be624ff4b2da2c73cc86641f5001c398c1b4e52b132a68480"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falcon_d21_vs_fox_v6.1_vs_fox_d18_vs_falco_v4/Game_20260930T234405.slp",
+      "bytes": 2955599,
+      "sha256": "731ae8e759419916008c3dcc30a527f8948ea5c69d1c133e8dd1c88eab61f316"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falcon_d21_vs_fox_v6.1_vs_fox_d18_vs_falco_v4/Game_20260930T234912.slp",
+      "bytes": 2212108,
+      "sha256": "8e4238ca831d017530d5be733a0348d2175d617c4c44d34e8cf8ecdfe4f9b728"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falcon_d21_vs_fox_v6.1_vs_fox_d18_vs_falco_v4/Game_20261001T001820.slp",
+      "bytes": 3168824,
+      "sha256": "1d2463676d0be44c0877215c91b75cc376e5fc97413b38faf9374e668a09aab3"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falcon_d21_vs_fox_v6.1_vs_fox_d21_vs_falcon_v6.1/Game_20260930T191101.slp",
+      "bytes": 2904016,
+      "sha256": "00e36131c7260286bc022fb648fae7b9888c5b66c143de7f20f02035e4330006"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/falcon_d21_vs_fox_v6.1_vs_fox_d21_vs_falcon_v6.1/Game_20260930T194835.slp",
+      "bytes": 2521133,
+      "sha256": "d647c7f650a1ad447fd43e7fe1fea9c4333fc6a97fe291bdf24074f7170fe016"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/fox_d18_vs_ics_vs_ics_d18_vs_fox/Game_20260922T060611.slp",
+      "bytes": 5991626,
+      "sha256": "c175d29387920ad0eb6acdad1836cf51b8e19f54d6743c72f3dd2d7fe78b660f"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/fox_d21_vs_marth_v6.1_vs_marth_d21_vs_fox_v6.5/Game_20260925T011323.slp",
+      "bytes": 4088395,
+      "sha256": "f2a5024400d7a301ecf560be122004ce62c6eb9f96fa6728bf92c235d843edbf"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/fox_d21_vs_marth_v6.1_vs_marth_d21_vs_fox_v6.5/Game_20260925T020020.slp",
+      "bytes": 4669968,
+      "sha256": "349b368d86d5b7981c601f779eda891be69a59fbbd5f918232c758ca9f3caae0"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/fox_d21_vs_marth_v6.2_vs_marth_d21_vs_fox_v6.5/Game_20261110T141846.slp",
+      "bytes": 2445248,
+      "sha256": "369fcb5938cd684158a93ec752777047ede3e7f8e9db73aead693ab43d49d547"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/fox_d21_vs_marth_v6.2_vs_marth_d21_vs_fox_v6.5/Game_20261110T144259.slp",
+      "bytes": 4436512,
+      "sha256": "73fd62ee90e016f1dbedeb3487b593927760441a6f813e39479e3392d1cabcd3"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gm-fox_vs_gm-mario/Game_20260922T113807.slp",
+      "bytes": 3403950,
+      "sha256": "44b090885f6f4e866232b50d96dee7e114df5e30da4916f7a4453c45ef475cc3"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gm-fox_vs_gm-mario/Game_20260922T114802.slp",
+      "bytes": 3487221,
+      "sha256": "a5ec1b4996e278d12f78c392499f2abe93552af7e56f65908bd1c2adb58ee68b"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gm-fox_vs_gm-mario/Game_20260922T124526.slp",
+      "bytes": 4100606,
+      "sha256": "72a66e9c29577f87db31bbbda5c2e777103a684547dc534dc4d588b1c049171d"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gm-v2-falco_vs_gm-v2-fox/Game_20260923T151834.slp",
+      "bytes": 3130962,
+      "sha256": "144dda28db60186cfe48682c033dc542b8b9d8c56e8c763daf625bbc07b3eeae"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gm-v2-falco_vs_gm-v2-fox/Game_20260923T152726.slp",
+      "bytes": 2970365,
+      "sha256": "3155e01386408fb5b814cf7ee502ba9397aac01bebc70c4232ece1d5caeed988"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gm-v2-fox_vs_marth_d21_vs_fox_v6.5/Game_20260929T005505.slp",
+      "bytes": 3263167,
+      "sha256": "71df52d0fb9e8ae7b739a00cec752e992d6d19ad51bfad7523776757693d0bd0"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gold-fox_vs_plat-falco/Game_20261020T150103.slp",
+      "bytes": 3260248,
+      "sha256": "42d4eccdf9e5bda9c10b0fc9ec6d2ee6c5bb43cfa5603a8451f9aeb4b9912ed8"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gold-fox_vs_plat-falco/Game_20261020T165105.slp",
+      "bytes": 4333839,
+      "sha256": "cdcf04823818a5f5e30ce55eb54c024b73274dab736fa0496d9a0920e703660c"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gold-fox_vs_plat-falco/Game_20261020T172507.slp",
+      "bytes": 3785555,
+      "sha256": "f6a6a585baeaf27ba90cbac8da72a3a48c4ecda4b3e3141d68b001969f1aa912"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/gold-fox_vs_plat-falco/Game_20261020T172820.slp",
+      "bytes": 4077409,
+      "sha256": "0b2df715593e4ac9ff66b35df1901749c1576e3e728e23f363fbf02d183654e3"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/luigi_d21_vs_marth_v6_vs_marth_d21_vs_luigi_v6/Game_20260930T042838.slp",
+      "bytes": 4917716,
+      "sha256": "b4df925aa3b1a589b2838b8d3e8341b9a66a0d346ed6562d11ee3ff6fa4a66b8"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/luigi_d21_vs_marth_v6_vs_marth_d21_vs_luigi_v6/Game_20260930T045023.slp",
+      "bytes": 4531472,
+      "sha256": "9afba506c38f994cb455e7ca4d97183ccc0d56885c1108484f8929d816a1fd98"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/luigi_d21_vs_marth_v6_vs_marth_d21_vs_luigi_v6/Game_20260930T050605.slp",
+      "bytes": 5423272,
+      "sha256": "2f4fd1c49c3a83d80f976680743d6b4d4c9c31b676e27f9969a58f225e067d27"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/marth_d21_ditto_v6.2_vs_marth_d21_ditto_v6.3/Game_20260930T121507.slp",
+      "bytes": 3652510,
+      "sha256": "4bdcbc800cd3e89fea19a4d1748dd43a81cf4ba92c6492d15bf01a1922713c87"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/marth_d21_ditto_v6.2_vs_marth_d21_ditto_v6.3/Game_20260930T130126.slp",
+      "bytes": 3543626,
+      "sha256": "468f506872f621b482e7548e63e4251b47bbc4db5d9d216e9b7e3d912a2fa1d5"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/marth_d21_ditto_v6.2_vs_marth_d21_ditto_v6.3/Game_20260930T130432.slp",
+      "bytes": 3797580,
+      "sha256": "3b3f5ecfaf2682ee6190a42194ce9bfc929b80077b7ef42e39506ea87870b174"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/master-link_vs_master-sheik/Game_20261001T122151.slp",
+      "bytes": 4992128,
+      "sha256": "ecdf7595e26e06ef1e3dc26eaf3ef2445a8699192181bff6c1de78a76032485e"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/master-link_vs_master-sheik/Game_20261001T124948.slp",
+      "bytes": 4818200,
+      "sha256": "920798a3df81d1f2362782a564de516fbf8c62fa92d0dc2ea169fab55a298cd8"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/master-link_vs_master-sheik/Game_20261001T132500.slp",
+      "bytes": 5011567,
+      "sha256": "9472be75e3c1e42ac9d136a2320d3ef206f00ad2e9007c85576ef17784ae64d0"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/master-link_vs_master-sheik/Game_20261001T133345.slp",
+      "bytes": 5593757,
+      "sha256": "412e5121a90588a18842d8e57297925d73679fd514e203912fa7d4f97878006b"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/sheik_d21_ditto_v6.1_vs_sheik_d21_ditto_v6.1/Game_20261001T124906.slp",
+      "bytes": 3566238,
+      "sha256": "0debe5eb56cbb0baf06c8f698960017869302d911010aa7cfc3e84d11f16a039"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/sheik_d21_ditto_v6.1_vs_sheik_d21_ditto_v6.1/Game_20261001T131601.slp",
+      "bytes": 4787646,
+      "sha256": "722799889091c388e54f7be712ec2e9cfda07e733e707477bd04dfff0147ed8a"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/sheik_d21_ditto_v6.1_vs_sheik_d21_ditto_v6.1/Game_20261001T133933.slp",
+      "bytes": 4456421,
+      "sha256": "bba1e0a876946ce67da9353f7d59164b1a206ba6323d8a11484662b4d0a21306"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/super-gm-fox_vs_super-gm-ness/Game_20261002T103544.slp",
+      "bytes": 4739248,
+      "sha256": "fa5bbd9cd2ce06848b6d48aa4ffba75247b8ab3ac7aabd84acae424fcc62a011"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/super-gm-fox_vs_super-gm-ness/Game_20261002T104936.slp",
+      "bytes": 4077673,
+      "sha256": "9bbd02d6f8b9c89cc18e640ca29c7f23a3232b4bdd0fc747eb23a69ea3051593"
+    },
+    {
+      "path": "BotMatches/x_pilot_bot/super-gm-fox_vs_super-gm-ness/Game_20261002T112751.slp",
+      "bytes": 4146497,
+      "sha256": "7f9ecc9b2e9607f987b8341a3a9e1cf8e0963b436e5e78b775adaec547bf317a"
+    }
+  ]
+}

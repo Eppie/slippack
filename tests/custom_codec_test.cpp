@@ -96,13 +96,9 @@ struct ScratchRelocationProbe {
 };
 
 static void check_scratch_leases() {
-  {
-    Scratch<ScratchRelocationProbe> first(4);
-  }
+  { Scratch<ScratchRelocationProbe> first(4); }
   const size_t larger = Scratch<ScratchRelocationProbe>::cache().capacity() + 1;
-  {
-    Scratch<ScratchRelocationProbe> grown(larger);
-  }
+  { Scratch<ScratchRelocationProbe> grown(larger); }
   require(ScratchRelocationProbe::relocations == 0, "relocated stale scratch entries");
 
   uint32_t *outer_pointer;
@@ -129,9 +125,7 @@ static void check_scratch_leases() {
   } catch (const Error &) {
   }
   require(Scratch<uint32_t>::cache().capacity() == 64, "scratch lost during unwind");
-  {
-    Scratch<uint32_t> large((1u << 20) / sizeof(uint32_t) + 1);
-  }
+  { Scratch<uint32_t> large((1u << 20) / sizeof(uint32_t) + 1); }
   require(Scratch<uint32_t>::cache().capacity() * sizeof(uint32_t) <= (1u << 20),
           "scratch retention cap");
 }
@@ -207,6 +201,65 @@ static size_t check_mask_boundaries() {
               ++checks;
             }
           }
+        }
+      }
+    }
+  }
+  return checks;
+}
+
+// The packet layout depends on the dominant-byte tie break, exact bit order,
+// and stable exception order. Check each against an independent byte oracle,
+// including unaligned inputs and every side of the SIMD block boundaries.
+static size_t check_exception_oracles() {
+  std::mt19937 random(495710);
+  size_t checks = 0;
+  for (unsigned count : {0u,  1u,  7u,  8u,   15u,  16u,  17u,  31u,  32u,  33u,
+                         63u, 64u, 65u, 127u, 128u, 129u, 255u, 256u, 257u, 1025u}) {
+    for (unsigned offset = 0; offset < 8; ++offset) {
+      for (uint8_t base : {0u, 93u, 255u}) {
+        for (unsigned pattern = 0; pattern < 6; ++pattern) {
+          Bytes storage(count + offset + 1, base);
+          auto plane = View(storage).subspan(offset, count);
+          for (unsigned i = 0; i < count; ++i) {
+            auto &byte = storage[offset + i];
+            if (pattern == 1 || (pattern == 2 && i % 17 == 0) || (pattern == 3 && ((i / 8) & 1)) ||
+                (pattern == 4 && i % 64 >= 31)) {
+              byte = uint8_t(base + 1 + i % 254);
+            } else if (pattern == 5) {
+              byte = uint8_t(random());
+            }
+          }
+          Bytes expected_mask((count + 7) / 8, 0), mask(expected_mask.size(), 0);
+          Bytes prefix{19, 71, 231}, expected_values = prefix, values = prefix;
+          std::array<uint32_t, 256> histogram{};
+          for (unsigned i = 0; i < count; ++i) {
+            ++histogram[plane[i]];
+            if (plane[i] != base) {
+              expected_mask[i / 8] |= 1u << (i % 8);
+              expected_values.push_back(plane[i]);
+            }
+          }
+          extract_exceptions(plane, base, mask, values);
+          require(mask == expected_mask && values == expected_values, "exception byte oracle");
+          unsigned expected_base = 0;
+          if (histogram[0] * 2 < count) {
+            for (unsigned b = 1; b < 256; ++b) {
+              if (histogram[b] > histogram[expected_base]) {
+                expected_base = b;
+              }
+            }
+          }
+          require(dominant_byte(plane) == expected_base, "dominant-byte tie oracle");
+          Bytes restored(count + 8, 197), bases{base, 0};
+          values.resize(values.size() + 8); // NEON's documented padded input.
+          restore_exceptions(mask, View(values).subspan(prefix.size()), count, bases, restored);
+          require(std::equal(plane.begin(), plane.end(), restored.begin()),
+                  "exception restore oracle");
+          require(std::all_of(restored.begin() + count, restored.end(),
+                              [](uint8_t b) { return b == 197; }),
+                  "exception output overrun");
+          ++checks;
         }
       }
     }
@@ -499,6 +552,7 @@ int main(int argc, char **argv) {
   }
   checks += check_constant_values();
   checks += check_mask_boundaries();
+  checks += check_exception_oracles();
   checks += check_presence_histograms();
   std::printf("custom codec: %zu checks passed\n", checks);
 }

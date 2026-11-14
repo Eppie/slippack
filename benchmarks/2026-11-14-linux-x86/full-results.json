@@ -1,0 +1,202 @@
+{
+  "completed": true,
+  "files": 1518,
+  "raw_bytes": 5987689510,
+  "repetitions": 3,
+  "method": "Level 3, one worker, RAM inputs, one warmup and randomly interleaved measured repetitions. Identical driver object, one codec library per executable. Both variants load reference packets through the same path before timing. Archive comparisons, exact replay verification, fingerprints and final result-buffer disposal outside timers.",
+  "manifest": "/home/eppie/slippack/build/x86-study/pcloud-20261114-114318/inputs.txt",
+  "references": "/home/eppie/slippack/build/x86-study/pcloud-20261114-114318/references",
+  "binary_sha256": {
+    "baseline": "edf2835a917b0a0387485abcd385ddec2ae58af18267f30d0764b53f717e64a2",
+    "candidate": "0bf2c59a3eebb276577e074ce64660f75f2dceca4b516baa98c7ca814392b5cc",
+    "pgo_thin": "c748a6dc06d2ad55fc056a575b24896dbe699e45e2043321d3d3280c38ea1049"
+  },
+  "driver_sha256": "ac83896e3e17f442ea4998e5dad68423a9037261d0a400cb7e68042cd67f1be9",
+  "settings": {
+    "separate": {
+      "baseline": {
+        "compressed_bytes": 202231885,
+        "samples": [
+          {
+            "encode_seconds": 19.510359835,
+            "decode_seconds": 8.321192862
+          },
+          {
+            "encode_seconds": 19.484161721,
+            "decode_seconds": 8.270679632
+          },
+          {
+            "encode_seconds": 19.556873168,
+            "decode_seconds": 8.209246481
+          }
+        ],
+        "archive_bytes_identical_to_reference": true,
+        "warmup": {
+          "encode_seconds": 19.89315122,
+          "decode_seconds": 11.048084482
+        },
+        "encode_median_seconds": 19.510359835,
+        "encode_mbps": 306.89795373525465,
+        "decode_median_seconds": 8.270679632,
+        "decode_mbps": 723.9658379261957,
+        "ratio": 29.608038860934318,
+        "size_delta_pct": 0.0,
+        "encode_gain_pct": 0.0,
+        "decode_gain_pct": 0.0
+      },
+      "candidate": {
+        "compressed_bytes": 197572639,
+        "samples": [
+          {
+            "encode_seconds": 14.426715583,
+            "decode_seconds": 8.243272245
+          },
+          {
+            "encode_seconds": 14.400800582,
+            "decode_seconds": 8.252089181
+          },
+          {
+            "encode_seconds": 14.404349517,
+            "decode_seconds": 8.299813198
+          }
+        ],
+        "archive_bytes_identical_to_reference": false,
+        "warmup": {
+          "encode_seconds": 14.600782422,
+          "decode_seconds": 10.965144379
+        },
+        "encode_median_seconds": 14.404349517,
+        "encode_mbps": 415.68621359356314,
+        "decode_median_seconds": 8.252089181,
+        "decode_mbps": 725.5968008424265,
+        "ratio": 30.306268825006686,
+        "size_delta_pct": -2.3039126594700976,
+        "encode_gain_pct": 35.447698016310206,
+        "decode_gain_pct": 0.2252817509874161
+      },
+      "pgo_thin": {
+        "compressed_bytes": 197572639,
+        "samples": [
+          {
+            "encode_seconds": 13.797713151,
+            "decode_seconds": 8.115541272
+          },
+          {
+            "encode_seconds": 13.879078451,
+            "decode_seconds": 8.100818744
+          },
+          {
+            "encode_seconds": 13.860814372,
+            "decode_seconds": 8.120639875
+          }
+        ],
+        "archive_bytes_identical_to_reference": false,
+        "warmup": {
+          "encode_seconds": 14.045713404,
+          "decode_seconds": 10.875573116
+        },
+        "encode_median_seconds": 13.860814372,
+        "encode_mbps": 431.986847908131,
+        "decode_median_seconds": 8.115541272,
+        "decode_mbps": 737.8053181318354,
+        "ratio": 30.306268825006686,
+        "size_delta_pct": -2.3039126594700976,
+        "encode_gain_pct": 40.75911639371314,
+        "decode_gain_pct": 1.9116206153156234
+      }
+    },
+    "grouped": {
+      "baseline": {
+        "compressed_bytes": 183762508,
+        "samples": [
+          {
+            "encode_seconds": 14.31627732,
+            "decode_seconds": 10.338762129
+          },
+          {
+            "encode_seconds": 14.254004766,
+            "decode_seconds": 10.241885167
+          },
+          {
+            "encode_seconds": 14.042586101,
+            "decode_seconds": 10.303133273
+          }
+        ],
+        "archive_bytes_identical_to_reference": true,
+        "warmup": {
+          "encode_seconds": 13.922001612,
+          "decode_seconds": 10.61576944
+        },
+        "encode_median_seconds": 14.254004766,
+        "encode_mbps": 420.0706824711048,
+        "decode_median_seconds": 10.303133273,
+        "decode_mbps": 581.1522913802456,
+        "ratio": 32.58384735367238,
+        "size_delta_pct": 0.0,
+        "encode_gain_pct": 0.0,
+        "decode_gain_pct": 0.0
+      },
+      "candidate": {
+        "compressed_bytes": 183761796,
+        "samples": [
+          {
+            "encode_seconds": 14.11184283,
+            "decode_seconds": 10.521575629
+          },
+          {
+            "encode_seconds": 13.992654814,
+            "decode_seconds": 10.196881741
+          },
+          {
+            "encode_seconds": 14.165067939,
+            "decode_seconds": 10.176790802
+          }
+        ],
+        "archive_bytes_identical_to_reference": false,
+        "warmup": {
+          "encode_seconds": 13.880902672,
+          "decode_seconds": 10.563791693
+        },
+        "encode_median_seconds": 14.11184283,
+        "encode_mbps": 424.30245164514776,
+        "decode_median_seconds": 10.196881741,
+        "decode_mbps": 587.2078996390118,
+        "ratio": 32.58397360243475,
+        "size_delta_pct": -0.0003874566187334061,
+        "encode_gain_pct": 1.0073945530188366,
+        "decode_gain_pct": 1.0420002379039062
+      },
+      "pgo_thin": {
+        "compressed_bytes": 183761796,
+        "samples": [
+          {
+            "encode_seconds": 13.480276099,
+            "decode_seconds": 10.344039511
+          },
+          {
+            "encode_seconds": 13.367423577,
+            "decode_seconds": 10.079115182
+          },
+          {
+            "encode_seconds": 13.652035494,
+            "decode_seconds": 9.906934942
+          }
+        ],
+        "archive_bytes_identical_to_reference": false,
+        "warmup": {
+          "encode_seconds": 13.195214403,
+          "decode_seconds": 10.441643852
+        },
+        "encode_median_seconds": 13.480276099,
+        "encode_mbps": 444.1815186889371,
+        "decode_median_seconds": 10.079115182,
+        "decode_mbps": 594.0689635825614,
+        "ratio": 32.58397360243475,
+        "size_delta_pct": -0.0003874566187334061,
+        "encode_gain_pct": 5.739709345103083,
+        "decode_gain_pct": 2.2225967950050496
+      }
+    }
+  },
+  "all_replay_bytes_identical": true
+}

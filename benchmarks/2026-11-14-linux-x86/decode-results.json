@@ -1,0 +1,100 @@
+{
+  "completed": true,
+  "files": 112,
+  "raw_bytes": 442344345,
+  "repetitions": 3,
+  "method": "RAM inputs and archives; one worker; warmup then interleaved measured decode-only runs. No encoder initialization or execution in these processes. Exact reconstruction checked outside timers. Old reader also checks new archives.",
+  "binary_sha256": {
+    "baseline": "e294c80049c4ea3082929a807cd22b9e65fdc89d68a47e8421e792a3441910d0",
+    "candidate": "a088f7e2f9542a380fe36311ff9f0d9615e4c13d28abd6e269dc095ded5a958f",
+    "old_reader_new_archive": "e294c80049c4ea3082929a807cd22b9e65fdc89d68a47e8421e792a3441910d0",
+    "optimized": "a035ed424cbadaa9e85a83e8c77ad9f1a30311f98bc1d39452561c57c9a0842e"
+  },
+  "settings": {
+    "separate": {
+      "baseline": {
+        "samples": [
+          0.68047289,
+          0.680634867,
+          0.667876545
+        ],
+        "warmup_seconds": 0.988169875,
+        "decode_median_seconds": 0.68047289,
+        "decode_mbps": 650.0543247211509
+      },
+      "candidate": {
+        "samples": [
+          0.666069833,
+          0.727305317,
+          0.668649829
+        ],
+        "warmup_seconds": 0.946102215,
+        "decode_median_seconds": 0.668649829,
+        "decode_mbps": 661.548580161231
+      },
+      "old_reader_new_archive": {
+        "samples": [
+          0.663059183,
+          0.664158794,
+          0.677910189
+        ],
+        "warmup_seconds": 0.857269952,
+        "decode_median_seconds": 0.664158794,
+        "decode_mbps": 666.0219649218407
+      },
+      "optimized": {
+        "samples": [
+          0.71345839,
+          0.663088355,
+          0.673815588
+        ],
+        "warmup_seconds": 0.89223096,
+        "decode_median_seconds": 0.673815588,
+        "decode_mbps": 656.4768652992337
+      }
+    },
+    "grouped": {
+      "baseline": {
+        "samples": [
+          0.565412333,
+          0.559422622,
+          0.560397143
+        ],
+        "warmup_seconds": 0.779764952,
+        "decode_median_seconds": 0.560397143,
+        "decode_mbps": 789.3408282418742
+      },
+      "candidate": {
+        "samples": [
+          0.570908288,
+          0.564596469,
+          0.56436053
+        ],
+        "warmup_seconds": 0.872003726,
+        "decode_median_seconds": 0.564596469,
+        "decode_mbps": 783.469910436156
+      },
+      "old_reader_new_archive": {
+        "samples": [
+          0.596392522,
+          0.597473959,
+          0.604447522
+        ],
+        "warmup_seconds": 0.875418009,
+        "decode_median_seconds": 0.597473959,
+        "decode_mbps": 740.357530795748
+      },
+      "optimized": {
+        "samples": [
+          0.577715852,
+          0.557799106,
+          0.572008367
+        ],
+        "warmup_seconds": 0.869259212,
+        "decode_median_seconds": 0.572008367,
+        "decode_mbps": 773.3179626723886
+      }
+    }
+  },
+  "all_replay_bytes_identical": true
+}

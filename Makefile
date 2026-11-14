@@ -46,7 +46,7 @@ $(BUILD_DIR)/libslippack.a: $(OBJECTS)
 
 $(BUILD_DIR)/custom_codec_test: tests/custom_codec_test.cpp $(HEADERS)
 	mkdir -p $(BUILD_DIR)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(LDFLAGS)
 
 $(BUILD_DIR)/%_test: tests/%_test.cpp $(BUILD_DIR)/libslippack.a $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(BUILD_DIR)/libslippack.a $(LDFLAGS) $(PLATFORM_LIBS) -pthread
