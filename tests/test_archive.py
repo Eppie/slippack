@@ -108,6 +108,42 @@ def verify(archive, work, expected, fixtures, label):
     assert all((output / name).read_bytes() == data for name, data in fixtures.items()), label
 
 
+def check_selection(archive, work, fixtures, label):
+    # Listing reports stored names and sizes in archive order without decoding.
+    listed = run([binary, 'l', archive], text=True).stdout.splitlines()
+    assert listed == [f'{len(data)}  {name}' for name, data in fixtures.items()], label
+    full = run([binary, 'hash', archive], text=True).stdout.splitlines()
+    names = list(fixtures)
+    # Single files, pooled and unpooled neighbours, a nested path, and an
+    # equivalent spelling. Each selection yields exactly the named files.
+    selections = [[name] for name in names] + [
+        ['valid.slp', 'old-format.slp'], ['./nested//another.slp', 'tiny.slp'],
+        names[::3], list(reversed(names)), ['valid.slp', 'valid.slp']]
+    for index, selection in enumerate(selections):
+        wanted = {os.path.normpath(name) for name in selection}
+        for threads in (1, 4):
+            hashed = run([binary, 'hash', archive, '-T', threads, *selection], text=True)
+            assert hashed.stdout.splitlines() == [
+                line for line in full if line.split('  ', 1)[1] in wanted], (label, selection)
+            run([binary, 't', archive, '-T', threads, *selection])
+        output = work / f'{label}-selection-{index}'
+        run([binary, 'x', archive, '-d', output, *selection])
+        extracted = {str(path.relative_to(output)) for path in output.rglob('*') if path.is_file()}
+        assert extracted == wanted, (label, selection)
+        assert all((output / name).read_bytes() == fixtures[name] for name in wanted), label
+    (work / 'members.txt').write_text('valid.slp\nchunked.slp\n')
+    hashed = run([binary, 'hash', archive, '@members.txt'], cwd=work, text=True)
+    assert len(hashed.stdout.splitlines()) == 2, label
+    output = work / f'{label}-missing'
+    result = subprocess.run([str(binary), 'x', str(archive), '-d', str(output), 'valid.slp',
+                             'absent.slp'], capture_output=True, text=True)
+    assert result.returncode == 1 and 'member not found: absent.slp' in result.stderr, label
+    assert not output.exists(), 'a missing member must fail before any output'
+    result = subprocess.run([str(binary), 'hash', str(archive), '../valid.slp'],
+                            capture_output=True, text=True)
+    assert result.returncode == 1 and 'unsafe' in result.stderr, label
+
+
 def main():
     fixtures = make_fixtures()
     expected = sorted(hashlib.sha1(data).hexdigest() + '  ' + name for name, data in fixtures.items())
@@ -119,11 +155,14 @@ def main():
             target.write_bytes(data)
         (work / 'list.txt').write_text('\n'.join(fixtures) + '\n')
         verify(golden, work, expected, fixtures, 'golden-v1')
+        check_selection(golden, work, fixtures, 'golden-v1')
         for level in (1, 3, 7, 9):
             archive = work / f'custom-{level}.slpc'
             run([binary, 'c', '-l', level, '-T', 2, '-o', archive, '@list.txt'], cwd=work)
             assert archive.read_bytes()[:6] == b'SLPC\x01\x01', 'new archives must use v1'
             verify(archive, work, expected, fixtures, f'out-{level}')
+            if level == 3:
+                check_selection(archive, work, fixtures, 'out-3')
         declaration = work / 'declaration.slpc'
         run([binary, 'c', '-o', declaration, 'declared-only.slp'], cwd=work)
         assert declaration.stat().st_size < 512, 'unused declarations expanded into empty planes'
@@ -140,7 +179,8 @@ def main():
             assert result.returncode == 1 and 'requires v1' in result.stderr
             assert not output.exists()
     print(f'archive integration: frozen v1 fixture, 4 levels, {len(fixtures)} fixtures, '
-          'group partition boundaries, exact hashes/extraction, and unsupported-format rejection passed')
+          'group partition boundaries, exact hashes/extraction, listing, member selection, '
+          'and unsupported-format rejection passed')
 
 
 if __name__ == '__main__':

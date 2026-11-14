@@ -210,6 +210,68 @@ int main() {
     check(encode_archive(gated, encode).bytes == packed.bytes, "load limit changes output");
     check(peak >= 1 && peak <= std::min<size_t>(limit, 8), "concurrent loads exceed limit");
   }
+  // Listing reads the directory alone and agrees with a complete decode.
+  decode.threads = 4;
+  auto listed = list_archive(packed.bytes);
+  check(listed.entries.size() == inputs.size() && listed.original_bytes == 240, "listing totals");
+  for (size_t i = 0; i < inputs.size(); ++i) {
+    check(listed.entries[i].name == result.entries[i].name && listed.entries[i].size == 3 &&
+              listed.entries[i].sha1.empty(),
+          "listing entry");
+  }
+  check(list_archive(raw_archive("./one", payload, 3)).entries[0].name == "./one",
+        "listing preserves stored name");
+  for (size_t length = 0; length < tiny.size(); ++length) {
+    rejects([&] { list_archive(View(tiny).first(length)); });
+  }
+  rejects([&] { list_archive(trailing); }, "trailing");
+  rejects([&] { list_archive(raw_archive("../escape", payload, 3)); }, "unsafe");
+  auto listLimits = decode.limits;
+  listLimits.files = 0;
+  rejects([&] { list_archive(tiny, listLimits); }, "file count");
+  listLimits = decode.limits;
+  listLimits.archive_bytes = 1;
+  rejects([&] { list_archive(tiny, listLimits); }, "input limit");
+  // A corrupt payload does not affect listing, which never reads it.
+  auto damaged = tiny;
+  damaged.back() ^= 255;
+  check(list_archive(damaged).entries.size() == 1, "listing ignores payload bytes");
+
+  // A selection decodes exactly the named files, in archive order, whatever
+  // the order, spelling, or repetition of the request.
+  auto select = decode;
+  select.members = {"folder/file-7", "./folder/file-3", "folder//file-7"};
+  std::vector<std::string> selected;
+  auto subset = decode_archive(packed.bytes, select, [&](DecodedFile file) {
+    if (!std::equal(file.bytes.begin(), file.bytes.end(), payload.begin(), payload.end())) {
+      std::abort();
+    }
+    std::lock_guard lock(mutex);
+    selected.push_back(file.name);
+  });
+  std::sort(selected.begin(), selected.end());
+  check(selected == std::vector<std::string>{"folder/file-3", "folder/file-7"}, "selected sink");
+  check(subset.entries.size() == 2 && subset.original_bytes == 6 &&
+            subset.entries[0].name == "folder/file-3" && subset.entries[1].name == "folder/file-7",
+        "selected entries in archive order");
+  check(subset.entries[0].sha1 == "a9993e364706816aba3e25717850c26c9cd0d89d" &&
+            subset.entries[1].sha1 == subset.entries[0].sha1,
+        "selected SHA1");
+  select.members = {"folder/file-7", "folder/absent"};
+  bool delivered = false;
+  rejects([&] { decode_archive(packed.bytes, select, [&](DecodedFile) { delivered = true; }); },
+          "member not found: folder/absent");
+  check(!delivered, "missing member precedes output");
+  select.members = {"../escape"};
+  rejects([&] { decode_archive(packed.bytes, select); }, "unsafe");
+  // The output limit counts the selected files, not the whole archive.
+  select.members = {"folder/file-0"};
+  select.limits.total_bytes = 3;
+  check(decode_archive(packed.bytes, select).entries.size() == 1, "limit covers selection");
+  select.members = {"folder/file-0", "folder/file-1"};
+  rejects([&] { decode_archive(packed.bytes, select); }, "size limit");
+  select.members.clear();
+  rejects([&] { decode_archive(packed.bytes, select); }, "size limit");
   check(decode_archive(tiny).entries.size() == 1, "healthy after errors");
   std::printf("archive API: %zu checks passed\n", checks);
 }

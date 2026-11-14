@@ -17,10 +17,13 @@ namespace {
   fail("usage:\n"
        "  slippack c [-o out.slpc] [-l level] [-T threads] [-v] [--overwrite] "
        "<file.slp...|@listfile>\n"
-       "  slippack x archive.slpc -d outdir [-T threads] [--overwrite]\n"
-       "  slippack t archive.slpc [-T threads]\n"
-       "  slippack hash archive.slpc [-T threads]   (sha1 per file, shasum format)\n"
+       "  slippack l archive.slpc                    (original size and name per file)\n"
+       "  slippack x archive.slpc -d outdir [-T threads] [--overwrite] [member...|@listfile]\n"
+       "  slippack t archive.slpc [-T threads] [member...|@listfile]\n"
+       "  slippack hash archive.slpc [-T threads] [member...|@listfile]\n"
+       "                                             (sha1 per file, shasum format)\n"
        "  slippack selftest\n"
+       "  Members are stored names as printed by l; without any, every file is processed.\n"
        "  Default output: <input-stem>.slpc beside one input; archive.slpc for multiple inputs.\n"
        "  Decode limits: --max-archive-mib N --max-file-mib N --max-output-mib N\n"
        "                 --max-frame-mib N --max-pool-mib N --max-metadata-mib N --wave-mib N");
@@ -165,11 +168,36 @@ int run(int argc, char **argv) {
     if (encode.collect_stats) {
       print_stats(result.statistics);
     }
-  } else if (mode == "x" || mode == "t" || mode == "hash") {
-    if (paths.size() != 1 || (mode == "x" && directory.empty())) {
+  } else if (mode == "l") {
+    if (paths.size() != 1) {
       usage();
     }
-    auto bytes = read_file(paths.front(), decode.limits.archive_bytes);
+    MappedFile archive(paths.front(), decode.limits.archive_bytes);
+    auto result = list_archive(archive.bytes(), decode.limits);
+    for (const auto &entry : result.entries) {
+      printf("%llu  %s\n", (unsigned long long)entry.size, entry.name.c_str());
+    }
+    fprintf(stderr, "slippack: listed %zu files, %.1f MB\n", result.entries.size(),
+            result.original_bytes / 1e6);
+  } else if (mode == "x" || mode == "t" || mode == "hash") {
+    if (paths.empty() || (mode == "x" && directory.empty())) {
+      usage();
+    }
+    for (size_t i = 1; i < paths.size(); ++i) {
+      decode.members.push_back(paths[i].string());
+    }
+    // A selection touches a small part of the archive, so map it instead of
+    // reading it whole.
+    std::unique_ptr<MappedFile> mapped;
+    Bytes loaded;
+    View bytes;
+    if (decode.members.empty()) {
+      loaded = read_file(paths.front(), decode.limits.archive_bytes);
+      bytes = loaded;
+    } else {
+      mapped = std::make_unique<MappedFile>(paths.front(), decode.limits.archive_bytes);
+      bytes = mapped->bytes();
+    }
     std::once_flag initialize;
     std::unique_ptr<ExtractionWriter> writer;
     FileSink sink;

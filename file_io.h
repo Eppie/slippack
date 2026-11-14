@@ -6,6 +6,20 @@
 namespace slippack {
 enum class Overwrite { Refuse, Replace };
 Bytes read_file(const std::filesystem::path &path, uint64_t limit = UINT32_MAX);
+// Read-only view of a file's bytes, paged in on access. Reading a few entries
+// of a large archive costs time proportional to the bytes touched. The file
+// must not be truncated while mapped.
+class MappedFile {
+  const uint8_t *data_ = nullptr;
+  size_t size_ = 0;
+
+public:
+  explicit MappedFile(const std::filesystem::path &path, uint64_t limit = UINT32_MAX);
+  ~MappedFile();
+  MappedFile(const MappedFile &) = delete;
+  MappedFile &operator=(const MappedFile &) = delete;
+  View bytes() const { return {data_, size_}; }
+};
 // Writes a complete sibling temporary file, then atomically installs it.
 void write_file(const std::filesystem::path &path, View data, Overwrite policy);
 // Maps a CLI source path to a safe stored name. Outside/absolute sources use

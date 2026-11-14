@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <mutex>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
@@ -144,6 +145,33 @@ Bytes read_file(const fs::path &path, uint64_t limit) {
     fail("short read on " + path.string());
   }
   return bytes;
+}
+MappedFile::MappedFile(const fs::path &path, uint64_t limit) {
+  int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+  if (fd < 0) {
+    fail("cannot open " + path.string());
+  }
+  struct stat status;
+  bool sized = ::fstat(fd, &status) == 0 && S_ISREG(status.st_mode) && status.st_size >= 0 &&
+               uint64_t(status.st_size) <= limit && uint64_t(status.st_size) <= SIZE_MAX;
+  void *mapping = MAP_FAILED;
+  if (sized && status.st_size > 0) {
+    mapping = ::mmap(nullptr, size_t(status.st_size), PROT_READ, MAP_PRIVATE, fd, 0);
+  }
+  ::close(fd);
+  require(sized, "input exceeds size limit or cannot be sized");
+  if (status.st_size > 0) {
+    if (mapping == MAP_FAILED) {
+      fail("cannot map " + path.string());
+    }
+    data_ = static_cast<const uint8_t *>(mapping);
+    size_ = size_t(status.st_size);
+  }
+}
+MappedFile::~MappedFile() {
+  if (data_) {
+    ::munmap(const_cast<uint8_t *>(data_), size_);
+  }
 }
 void write_file(const fs::path &path, View data, Overwrite policy) {
   auto parent = open_directory(path.parent_path(), false);

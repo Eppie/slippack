@@ -113,9 +113,11 @@ baseline, training corpus, encoder heuristics, and archive grouping results.
 ./slippack c replay.slp                          # creates replay.slpc beside the input
 ./slippack c first.slp second.slp                # creates archive.slpc
 ./slippack c -o out.slpc -l 3 -T 16 @replays.txt # one input path per line
+./slippack l out.slpc                            # original size and stored name per file
 ./slippack x out.slpc -d outdir                  # extract stored paths
-./slippack t out.slpc                           # decode in memory without writing files
-./slippack hash out.slpc                        # SHA-1 per file, in shasum format
+./slippack x out.slpc -d outdir game.slp         # extract only the named files
+./slippack t out.slpc                            # decode in memory without writing files
+./slippack hash out.slpc                         # SHA-1 per file, in shasum format
 ./slippack selftest
 ```
 
@@ -123,6 +125,24 @@ Without `-o`, one input produces a sibling file with its extension replaced by
 `.slpc`; multiple inputs produce `archive.slpc` in the working directory. This
 rule also applies after expanding `@listfile` entries. List-file paths are
 resolved from the working directory.
+
+### Listing and selecting files
+
+`l` prints one `size  name` line per file in archive order, where the size is
+the original byte count. It reads only the archive directory, so its cost
+depends on the number of files, not on the amount of replay data.
+
+`x`, `t`, and `hash` accept stored names after the archive path, either as
+arguments or in an `@listfile`, and then process only those files. Names match
+in canonical form: `nested/game.slp` selects a file stored as
+`./nested/game.slp`. Output follows archive order regardless of the order of
+the request. A name that is not in the archive is an error, reported before
+any file is written. Put `--` before names that begin with a dash.
+
+A selection decodes the chosen files and the shared record pools they refer
+to; other files are scanned for their record counts and not decoded. Each pool
+is one compressed packet, so the pools a file uses are decoded whole. The
+`--max-output-mib` limit applies to the selected files.
 
 `-T` accepts 1–256 threads and defaults to the available hardware thread count,
 capped at 256. `-v` reports compressed bytes by section. Use `--` before filenames
@@ -235,7 +255,10 @@ with round-to-nearest; fast-math builds are unsupported.
 [archive.h](archive.h) exposes the in-memory API. `encode_archive` accepts named
 input loaders and returns owned archive bytes and statistics. `decode_archive`
 borrows archive bytes, returns ordered entry information, and optionally sends
-owned decoded files to a sink. Library calls default to one worker; callers can
+owned decoded files to a sink. `DecodeOptions::members` restricts decoding to
+named files. `list_archive` returns names and original sizes from the archive
+directory without decoding payloads; it suits memory-mapped archives because it
+touches only the first bytes of each entry. Library calls default to one worker; callers can
 set options independently for each operation.
 
 Loaders and sinks can run concurrently. Their captures must remain alive for
@@ -249,7 +272,7 @@ caller's floating-point mode.
 |---|---|
 | `slippack.cpp` | CLI parsing, reporting, loaders, and sinks |
 | `archive.h/.cpp` | Container, validation, scheduling, options, and statistics |
-| `file_io.h/.cpp` | Bounded writer queue, directory traversal, and atomic output |
+| `file_io.h/.cpp` | Bounded writer queue, mapped input, directory traversal, and atomic output |
 | `slp.h/.cpp` | Slippi parsing, RNG folding, replay predictors, and PPC transform |
 | `record_codec.h/.cpp` | Transpose/delta kernels, field dictionaries, and packet parsing |
 | `gecko_dictionary.h/.cpp`, `gecko_dictionary_data.h` | Built-in code dictionary and byte-range references |
@@ -263,6 +286,7 @@ caller's floating-point mode.
 `make check` covers codec packets, field and built-in dictionaries, scalar
 predictor oracles, concurrent and repeated library calls, exception propagation,
 path and symlink confinement, atomic overwrites, decode limits, exact extraction,
+listing, member selection,
 unsupported-format rejection, and a frozen v1 fixture with independently
 generated expected contents. [fuzz/README.md](fuzz/README.md) describes the
 sanitizer-backed fuzzing harnesses.

@@ -1150,15 +1150,18 @@ static void assemble_decompress(DecPlan &dp, std::vector<DecPool> &pools) {
   }
 }
 
-DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sink) {
-  validate_threads(options.threads);
-  require(options.wave_bytes > 0, "wave budget must be positive");
-  require(arc.size() <= options.limits.archive_bytes, "archive exceeds input limit");
-  RoundingGuard rounding;
-  const int threads = options.threads;
-  DecodeResult result;
+struct Directory {
+  std::vector<DecPool> pools;
+  std::vector<DecPlan> plans;
+  std::vector<std::string> names; // canonical, unique, and conflict-free
+};
+
+// Walks pool and file headers, skipping every payload by its stored length.
+static void read_directory(View arc, const DecodeLimits &limits, MetadataBudget &metadata,
+                           Directory &directory) {
+  require(arc.size() <= limits.archive_bytes, "archive exceeds input limit");
   Reader r(arc);
-  r.output_limit = options.limits.frame_bytes;
+  r.output_limit = limits.frame_bytes;
   if (r.u32() != kMagic) {
     fail("not a slippack archive");
   }
@@ -1166,12 +1169,12 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   if (version != kVersion || flags != 1) {
     fail("unsupported slippack format (requires v1 with flags=1)");
   }
-  MetadataBudget metadata(options.limits.metadata_bytes);
   uint32_t nPools = r.u32();
-  require(nPools <= options.limits.pools && nPools <= r.remaining() / 19,
+  require(nPools <= limits.pools && nPools <= r.remaining() / 19,
           "pool count exceeds limit or directory");
   metadata.claim(uint64_t(nPools) * (sizeof(DecPool) + 64));
-  std::vector<DecPool> pools(nPools);
+  auto &pools = directory.pools;
+  pools = std::vector<DecPool>(nPools);
   uint64_t poolBytes = 0;
   std::set<std::pair<uint8_t, uint32_t>> poolKeys;
   for (auto &pl : pools) {
@@ -1181,37 +1184,89 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
     require(pl.recSize <= UINT16_MAX, "pool record shape exceeds limit");
     require(poolKeys.emplace(pl.cmd, pl.recSize).second, "corrupt duplicate pool");
     auto bytes = uint64_t(pl.recSize) * pl.total;
-    require(bytes <= options.limits.pool_bytes - poolBytes, "pools exceed output limit");
+    require(bytes <= limits.pool_bytes - poolBytes, "pools exceed output limit");
     poolBytes += bytes;
     pl.span = skip_packed(r, pl.recSize, pl.total);
   }
   uint32_t n = r.u32();
-  require(n <= options.limits.files && n <= r.remaining() / 21,
-          "file count exceeds limit or directory");
+  require(n <= limits.files && n <= r.remaining() / 21, "file count exceeds limit or directory");
   metadata.claim(uint64_t(n) * (sizeof(DecPlan) + sizeof(EntryInfo) + sizeof(std::string) + 192));
-  std::vector<DecPlan> plans(n);
-  result.entries.reserve(n);
-  std::vector<std::string> names;
-  for (auto &dp : plans) {
+  directory.plans = std::vector<DecPlan>(n);
+  directory.names.reserve(n);
+  for (auto &dp : directory.plans) {
     uint32_t nameLen = r.u32();
-    require(nameLen <= options.limits.name_bytes, "archive name exceeds limit");
+    require(nameLen <= limits.name_bytes, "archive name exceeds limit");
     metadata.claim(uint64_t(nameLen) * 4);
     auto name = r.bytes(nameLen);
     dp.origSize = r.u64();
-    require(dp.origSize <= options.limits.file_bytes &&
-                dp.origSize <= options.limits.total_bytes - result.original_bytes,
-            "archive exceeds decoded size limit");
+    require(dp.origSize <= limits.file_bytes, "archive exceeds decoded size limit");
     uint64_t blobLen = r.u64();
-    auto blob = r.bytes(blobLen);
+    dp.blob = r.bytes(blobLen);
     dp.storedName.assign(reinterpret_cast<const char *>(name.data()), name.size());
-    names.push_back(archive_name(dp.storedName));
-    result.entries.push_back({dp.storedName, dp.origSize, {}});
-    result.original_bytes += dp.origSize;
-    dp.blob = blob;
+    directory.names.push_back(archive_name(dp.storedName));
   }
-
   r.done();
-  validate_names(names);
+  validate_names(directory.names);
+}
+
+DecodeResult list_archive(View arc, const DecodeLimits &limits) {
+  MetadataBudget metadata(limits.metadata_bytes);
+  Directory directory;
+  read_directory(arc, limits, metadata, directory);
+  DecodeResult result;
+  result.entries.reserve(directory.plans.size());
+  for (auto &dp : directory.plans) {
+    require(dp.origSize <= UINT64_MAX - result.original_bytes, "archive size overflow");
+    result.original_bytes += dp.origSize;
+    result.entries.push_back({std::move(dp.storedName), dp.origSize, {}});
+  }
+  return result;
+}
+
+DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sink) {
+  validate_threads(options.threads);
+  require(options.wave_bytes > 0, "wave budget must be positive");
+  RoundingGuard rounding;
+  const int threads = options.threads;
+  DecodeResult result;
+  MetadataBudget metadata(options.limits.metadata_bytes);
+  Directory directory;
+  read_directory(arc, options.limits, metadata, directory);
+  auto &pools = directory.pools;
+  auto &plans = directory.plans;
+
+  // Selected files in archive order. Every file is still scanned below: a
+  // pooled stream's slice starts where the preceding files' slices end.
+  std::vector<uint32_t> chosen;
+  if (options.members.empty()) {
+    chosen.resize(plans.size());
+    for (uint32_t i = 0; i < chosen.size(); ++i) {
+      chosen[i] = i;
+    }
+  } else {
+    std::set<std::string> wanted;
+    for (const auto &member : options.members) {
+      wanted.insert(archive_name(member));
+    }
+    for (uint32_t i = 0; i < plans.size(); ++i) {
+      if (wanted.erase(directory.names[i])) {
+        chosen.push_back(i);
+      }
+    }
+    if (!wanted.empty()) {
+      fail("archive member not found: " + *wanted.begin());
+    }
+  }
+  std::vector<uint32_t> entryOf(plans.size(), UINT32_MAX);
+  result.entries.reserve(chosen.size());
+  for (auto index : chosen) {
+    auto &dp = plans[index];
+    require(dp.origSize <= options.limits.total_bytes - result.original_bytes,
+            "archive exceeds decoded size limit");
+    result.original_bytes += dp.origSize;
+    entryOf[index] = narrow(result.entries.size());
+    result.entries.push_back({dp.storedName, dp.origSize, {}});
+  }
   PhaseTimer lap(options.on_phase);
   parallel_for(plans.size(), threads,
                [&](size_t i) { scan_decompress(plans[i], options.limits, metadata); });
@@ -1243,12 +1298,31 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   }
 
   // decode pools up front: they are small, live for the whole run, and every
-  // wave below may reference them — no per-file dependency accounting needed
+  // wave below may reference them — no per-file dependency accounting needed.
+  // A pool is one packet, so a selected file needs each pool it references whole.
   for (const auto &pool : pools) {
     require(pool.cursor == pool.total, "corrupt unused pool records");
   }
+  std::vector<uint8_t> poolNeeded(pools.size(), 0);
+  for (auto index : chosen) {
+    for (const auto &st : plans[index].streams) {
+      if (st.poolIdx >= 0) {
+        poolNeeded[size_t(st.poolIdx)] = 1;
+      }
+    }
+  }
+  if (chosen.size() != plans.size()) {
+    for (uint32_t i = 0; i < plans.size(); ++i) {
+      if (entryOf[i] == UINT32_MAX) {
+        plans[i].release();
+      }
+    }
+  }
   parallel_for(pools.size(), threads, [&](size_t i) {
     auto &pool = pools[i];
+    if (!poolNeeded[i]) {
+      return;
+    }
     Reader r(pool.span);
     unpack_records(r, pool.total, pool.recSize, pool.records);
   });
@@ -1256,7 +1330,7 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
 
   auto finish = [&](DecPlan &dp) {
     assemble_decompress(dp, pools);
-    auto &entry = result.entries[size_t(&dp - plans.data())];
+    auto &entry = result.entries[entryOf[size_t(&dp - plans.data())]];
     if (options.compute_hashes) {
       entry.sha1 = sha1(dp.outData);
     }
@@ -1270,17 +1344,17 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
   // so peak memory stays bounded instead of scaling with archive raw size
   const uint64_t kDecBudget = options.wave_bytes;
   size_t next = 0;
-  while (next < plans.size()) {
+  while (next < chosen.size()) {
     size_t first = next;
     uint64_t bytes = 0;
-    while (next < plans.size() && (next == first || bytes < kDecBudget)) {
-      bytes += plans[next++].origSize;
+    while (next < chosen.size() && (next == first || bytes < kDecBudget)) {
+      bytes += plans[chosen[next++]].origSize;
     }
     parallel_for(next - first, threads,
-                 [&](size_t i) { prepare_file(plans[first + i], metadata); });
+                 [&](size_t i) { prepare_file(plans[chosen[first + i]], metadata); });
     std::vector<DecTask> tasks;
     for (size_t index = first; index < next; ++index) {
-      auto &dp = plans[index];
+      auto &dp = plans[chosen[index]];
       size_t before = tasks.size();
       if (dp.raw) {
         tasks.push_back(DecTask::raw(dp));
@@ -1314,7 +1388,7 @@ DecodeResult decode_archive(View arc, const DecodeOptions &options, FileSink sin
         finish(*t.owner);
       }
     });
-    if (next < plans.size()) {
+    if (next < chosen.size()) {
       release_unused_memory();
     }
   }

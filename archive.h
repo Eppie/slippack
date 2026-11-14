@@ -34,6 +34,11 @@ struct DecodeOptions {
   uint64_t wave_bytes = 2ull << 30;
   DecodeLimits limits;
   PhaseObserver on_phase;
+  // Files to decode; empty selects every file. Names are compared in canonical
+  // form, so "a/b" selects a file stored as "./a/b". A name absent from the
+  // archive is an error. Only the selected files and the shared pools they
+  // reference are decoded; the output limit applies to the selected files.
+  std::vector<std::string> members;
 };
 struct Statistics {
   std::array<uint64_t, 256> by_command{};
@@ -74,6 +79,9 @@ using FileSink = std::function<void(DecodedFile)>;
 EncodeResult encode_archive(std::span<const ArchiveInput> inputs,
                             const EncodeOptions &options = {});
 DecodeResult decode_archive(View archive, const DecodeOptions &options = {}, FileSink sink = {});
+// Stored names and original sizes in archive order, without decoding payloads.
+// Entries carry no SHA-1. Only the leading bytes of each file entry are read.
+DecodeResult list_archive(View archive, const DecodeLimits &limits = {});
 // Canonical, portable relative paths; throws on traversal or ambiguous names.
 std::string archive_name(std::string_view name);
 } // namespace slippack
