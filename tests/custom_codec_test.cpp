@@ -96,9 +96,13 @@ struct ScratchRelocationProbe {
 };
 
 static void check_scratch_leases() {
-  { Scratch<ScratchRelocationProbe> first(4); }
+  {
+    Scratch<ScratchRelocationProbe> first(4);
+  }
   const size_t larger = Scratch<ScratchRelocationProbe>::cache().capacity() + 1;
-  { Scratch<ScratchRelocationProbe> grown(larger); }
+  {
+    Scratch<ScratchRelocationProbe> grown(larger);
+  }
   require(ScratchRelocationProbe::relocations == 0, "relocated stale scratch entries");
 
   uint32_t *outer_pointer;
@@ -125,7 +129,9 @@ static void check_scratch_leases() {
   } catch (const Error &) {
   }
   require(Scratch<uint32_t>::cache().capacity() == 64, "scratch lost during unwind");
-  { Scratch<uint32_t> large((1u << 20) / sizeof(uint32_t) + 1); }
+  {
+    Scratch<uint32_t> large((1u << 20) / sizeof(uint32_t) + 1);
+  }
   require(Scratch<uint32_t>::cache().capacity() * sizeof(uint32_t) <= (1u << 20),
           "scratch retention cap");
 }

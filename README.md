@@ -8,17 +8,17 @@ LZMA, or Brotli libraries.
 
 ## Size and speed
 
-**26.5:1 compression: 5.91 GB of replay data occupies 223.11 MB (3.77% of the
+**27.0:1 compression: 5.91 GB of replay data occupies 218.85 MB (3.70% of the
 original size).** This level-3 measurement uses 1,929 development replays, each
 in its own archive, with exact byte-for-byte reconstruction.
 
 | Workers | Encode MB/s | Decode MB/s |
 |---|---:|---:|
-| 1 | **415** | **978** |
-| 8 | **3,107** | **7,285** |
+| 1 | **443** | **952** |
+| 8 | **3,363** | **7,311** |
 
-These are medians from the [2026-11-13 dictionary study](benchmarks/2026-11-13-gecko-dictionary/README.md)
-on an Apple M4 Max in high-power mode on battery power: one warmup, three
+These are medians from the [2026-11-14 arm64 study](benchmarks/2026-11-14-encoder-parity/README.md)
+on an Apple M4 Max in high-power mode on AC power: one warmup, three
 measured runs, and inputs in RAM. Rates use original decimal MB/s and exclude
 file I/O. Eight workers process eight independent replays. The corpus is
 development data; results depend on replay contents and archive grouping.
@@ -105,7 +105,7 @@ make -j4 CXX=clang++ BUILD_DIR=build/linux-x86 PROGRAM=build/linux-x86/slippack 
 
 `-march=native` targets the build machine. See the
 [Linux x86 measurements](benchmarks/2026-11-14-linux-x86/README.md) for the
-baseline, training corpus, source changes, and archive grouping results.
+baseline, training corpus, encoder heuristics, and archive grouping results.
 
 ## Use
 
@@ -188,8 +188,14 @@ contain a 136,904-byte dictionary of recurring Gecko code entries. Archives can
 refer to byte ranges in that dictionary and store differing bytes as literals.
 The dictionary itself is not stored in the archive. For code payloads, the
 encoder compares dictionary references, contiguous-byte compression, and record
-plane compression, then stores the smallest packet. Split-message padding and
-framing bytes are preserved exactly.
+plane compression, then stores the smallest packet. At level 3, a dictionary
+packet at most one quarter of the original size is stored without evaluating
+the other two. Split-message padding and framing bytes are preserved exactly.
+
+Archive bytes depend on the inputs, their stored names and grouping, and the
+level. They do not depend on the CPU architecture, SIMD instruction set, or
+worker count: arm64 and x86-64 builds write identical archives, and each
+decodes the other's.
 
 Decoding dictionary references requires support for the built-in dictionary
 record extension and its dictionary ID. Decoders without that extension reject
@@ -219,8 +225,9 @@ provenance, and reproduction.
    can use a reversible PowerPC branch transform.
 
 Encoding pipelines file planning into a shared task queue; decoding assembles
-files as their dependencies complete. NEON accelerates transforms on ARM64,
-with scalar alternatives. Float predictors require IEEE binary32 arithmetic
+files as their dependencies complete. NEON accelerates transforms on ARM64;
+SSE2 and, where the build enables them, AVX-512 kernels do so on x86-64. Scalar
+alternatives produce the same bytes. Float predictors require IEEE binary32 arithmetic
 with round-to-nearest; fast-math builds are unsupported.
 
 ## Library API and code structure
@@ -267,6 +274,13 @@ Use `make format` to format C++ code and insert control-flow braces, or
 Performance measurements are tied to the builds, corpora, hardware, and archive
 grouping documented in each study:
 
+- [Architecture-independent encoder study, 2026-11-14](benchmarks/2026-11-14-encoder-parity/README.md):
+  arm64 sizes and speed for the headline figures above, and byte-identical
+  arm64 and x86-64 archives with exact decoding in both directions. The x86-64
+  build ran under Rosetta 2, which does not exercise the AVX-512 kernels.
+- [Linux x86 study, 2026-11-14](benchmarks/2026-11-14-linux-x86/README.md):
+  level-3 encoding on an AMD Ryzen 9 7950X with the x86 SIMD kernels, a separate
+  profile, and ThinLTO, for separate and pooled archives.
 - [Gecko dictionary study, 2026-11-13](benchmarks/2026-11-13-gecko-dictionary/README.md):
   1,929 development replays compressed individually at level 3 occupy 5.97% less
   space than the `60f7ab8` build, with roughly unchanged speed. The 854 files from

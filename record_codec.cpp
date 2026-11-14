@@ -405,19 +405,13 @@ struct U32Set {
   uint32_t values[256];
   uint16_t slots[N] = {};
   uint32_t n = 0;
-#if SLIPPACK_SSE2
   uint32_t limit = 256;
-#endif
   int find_or_insert(uint32_t key) {
     uint32_t h = (key * 2654435761u) >> 22;
     for (;; h = (h + 1) & (N - 1)) {
       unsigned slot = slots[h];
       if (!slot) {
-#if SLIPPACK_SSE2
         if (n >= limit) {
-#else
-        if (n >= 256) {
-#endif
           return -1;
         }
         values[n] = key;
@@ -462,11 +456,7 @@ struct U16Lookup {
     if (slot) {
       return slot - 1;
     }
-#if SLIPPACK_SSE2
     if (set.n == set.limit) {
-#else
-    if (set.n == 256) {
-#endif
       return -1;
     }
     set.values[set.n] = value;
@@ -586,7 +576,6 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
   require(size <= UINT16_MAX && recs.size() == uint64_t(count) * size,
           "invalid record input shape");
   size_t blobAt = blob.size();
-#if SLIPPACK_SSE2
   if (level == 3 && count == 1 && !recs.empty() && cmd != 0x10 && cmd != 0x3d) {
     // One record becomes one constant packet per byte after transposition.
     // A contiguous packet is always smaller, even with an uncompressed frame.
@@ -622,7 +611,6 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       }
     }
   }
-#endif
   Buf planes;
   transpose_fwd(recs, count, size, planes);
 
@@ -650,11 +638,9 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
       }
     }
     for (auto [width, w] : trials) {
-#if SLIPPACK_SSE2
       if (fields.size() == 255) {
         break;
       }
-#endif
       bool free = true;
       for (uint32_t b = 0; b < width; b++) {
         free = free && !covered[w + b];
@@ -687,20 +673,14 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
           }
           alphabets[changingOffset] = distinct;
         }
-        if (alphabets[changingOffset] >= limit
-#if SLIPPACK_SSE2
-            || alphabets[changingOffset] > count / 2
-#endif
-        ) {
+        if (alphabets[changingOffset] >= limit || alphabets[changingOffset] > count / 2) {
           continue;
         }
       }
       U32Set set;
-#if SLIPPACK_SSE2
       // A dictionary is accepted only if it has at most count/2 values.
       // Abort at the first additional value rather than scanning the rest.
       set.limit = std::min(256u, count / 2);
-#endif
       // A successful varying-field scan writes every index. Retain the size
       // between trials so resize does not zero the same storage repeatedly.
       if (changing) {
@@ -982,22 +962,9 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
     // unknown data always retains the original size option.
     Buf candidate{{1, 0, 1}}; // one field with reserved width zero: extended packet
     custom_frame(recs, candidate, slippack_custom::Generic, level);
-#if SLIPPACK_SSE2
     if (!geckoCandidate.empty() && geckoCandidate.size() < candidate.size()) {
       candidate = std::move(geckoCandidate);
     }
-#else
-    auto tokens = gecko_dictionary_encode(recs);
-    if (tokens.size() < recs.size()) {
-      Buf dictionary{{1, 0, 2}};
-      dictionary.put_u32(kGeckoDictionaryV1);
-      dictionary.put_u32(narrow(recs.size()));
-      custom_frame(tokens, dictionary, slippack_custom::Generic, level);
-      if (dictionary.size() < candidate.size()) {
-        candidate = std::move(dictionary);
-      }
-    }
-#endif
     if (candidate.size() < blob.size() - blobAt) {
       blob.resize(blobAt);
       append(blob, candidate);

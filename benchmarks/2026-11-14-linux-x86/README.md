@@ -68,7 +68,7 @@ The frozen older decoder also reconstructs every new archive in this sample
 exactly. The encoder uses existing v1 record extensions and custom raw frames;
 it introduces no new archive format or dictionary ID.
 
-## Retained changes
+## Encoder rules and build
 
 - Reject a record dictionary trial as soon as it exceeds the maximum distinct
   value count that the existing acceptance rule permits. Stop trials when the
@@ -83,11 +83,14 @@ it introduces no new archive format or dictionary ID.
   avoids generating a separate constant-plane packet for every byte, including
   the 760-byte game-start record.
 - Use a separate Linux x86 PGO profile and ThinLTO for the fastest build. The
-  default flags and the existing Apple profile are unchanged.
+  default flags are the same as on other platforms.
 
-All new encoder branches are guarded by `SLIPPACK_SSE2`. An ARM preprocessor
-token comparison against the source snapshot before this round is identical
-for the four touched codec files. No ARM hardware tests were performed.
+These three selection rules apply on every architecture, so arm64 and x86-64
+builds write the same archive bytes. The SIMD kernels and the backward-filled
+context-coder buffer are compiled under `SLIPPACK_SSE2` and its AVX-512
+refinements; they change speed, not output. The
+[arm64 study](../2026-11-14-encoder-parity/README.md) measures the rules on
+Apple hardware and compares archives across architectures.
 
 The optimized build passes `make check`, including codec, model, predictor,
 archive API, frozen v1 fixture, all four compression levels, and extraction

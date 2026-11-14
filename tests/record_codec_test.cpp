@@ -40,10 +40,8 @@ int main() {
       pack_records(input, 1, size, 3, packet, &packed_bytes, 0x36);
       check(packet[0] == 71 && packet[1] == 93, "singleton preserves prefix");
       check(packed_bytes == packet.size() - 2, "singleton statistics");
-#if SLIPPACK_SSE2
       check(packet[2] == 1 && packet[3] == 0 && packet[4] == 1, "singleton contiguous packet");
       check(packet.size() - 2 == size + 13, "singleton bounded raw size");
-#endif
       Reader r{View(packet).subspan(2)};
       check(skip_packed(r, size, 1).size() == packet.size() - 2, "singleton scanner");
       r.done();
