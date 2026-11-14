@@ -7,11 +7,84 @@ using namespace slippack;
 
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <string>
 
+namespace {
+// Input-derived choices that leave the meaning of the input bytes unchanged.
+[[maybe_unused]] uint64_t choice_bits(const uint8_t *data, size_t size) {
+  uint64_t hash = 1469598103934665603ull;
+  for (size_t i = 0; i < size; ++i) {
+    hash = (hash ^ data[i]) * 1099511628211ull;
+  }
+  return hash ^ hash >> 29;
+}
+
+// A listing and a selective decode must agree with a successful full decode:
+// same names and sizes, and identical bytes for every selected file.
+[[maybe_unused]] void
+check_listing_and_selection(View archive, const DecodeOptions &base,
+                            const std::vector<std::pair<std::string, Bytes>> &full, uint64_t bits) {
+  auto listing = list_archive(archive, base.limits);
+  if (listing.entries.size() != full.size()) {
+    std::abort();
+  }
+  // The sink receives files in completion order, so match the listing by name.
+  std::map<std::string, const Bytes *> byName;
+  uint64_t total = 0;
+  for (auto &file : full) {
+    byName[file.first] = &file.second;
+    total += file.second.size();
+  }
+  if (byName.size() != full.size()) {
+    std::abort();
+  }
+  for (auto &entry : listing.entries) {
+    auto found = byName.find(entry.name);
+    if (found == byName.end() || found->second->size() != entry.size) {
+      std::abort();
+    }
+  }
+  if (listing.original_bytes != total) {
+    std::abort();
+  }
+  auto options = base;
+  for (size_t i = 0; i < full.size(); ++i) {
+    if (bits >> (i % 61) & 1) {
+      options.members.push_back(full[i].first);
+    }
+  }
+  if (options.members.empty() && !full.empty()) {
+    options.members.push_back(full[bits % full.size()].first);
+  }
+  size_t expected = options.members.size(), seen = 0;
+  if (expected) {
+    decode_archive(archive, options, [&](DecodedFile file) {
+      auto found = byName.find(file.name);
+      if (found == byName.end() || file.bytes.size() != found->second->size() ||
+          !std::equal(file.bytes.begin(), file.bytes.end(), found->second->begin())) {
+        std::abort();
+      }
+      ++seen;
+    });
+    if (seen != expected) {
+      std::abort();
+    }
+  }
+  // A name the archive does not hold is an error, never a silent success.
+  options.members = {"fuzz-absent-member"};
+  if (!byName.count(options.members[0])) {
+    try {
+      decode_archive(archive, options, [](DecodedFile) { std::abort(); });
+      std::abort();
+    } catch (const Error &) {
+    }
+  }
+}
+} // namespace
+
 #ifndef FUZZ_TARGET
-#error                                                                                             \
-    "define FUZZ_TARGET=1 (parse), 2 (roundtrip), 3 (dictionary records), or 4 (predictor records)"
+#error "define FUZZ_TARGET=1 (parse), 2 (roundtrip), 3 (dictionary), 4 (predictors), or 5 (archive)"
 #endif
 
 // ── Target 1: parse_slp ─────────────────────────────────────────────────────
@@ -75,7 +148,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   if (const char *level = std::getenv("SLIPPACK_FUZZ_LEVEL")) {
     encode.level = std::atoi(level);
   }
+  // Vary the shared-pool budget: default, no pooling, and two small budgets
+  // that put some side streams in pools and others in per-file packets.
+  uint64_t bits = choice_bits(data, size);
+  const uint64_t budgets[] = {encode.pool_bytes, 0, 256, 65536};
+  encode.pool_bytes = budgets[bits & 3];
   auto packed = encode_archive(inputs, encode);
+  std::vector<std::pair<std::string, Bytes>> full(files.size());
   size_t decoded = 0;
   decode_archive(packed.bytes, {}, [&](DecodedFile file) {
     auto index = size_t(std::stoul(file.name.substr(5)));
@@ -83,11 +162,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         !std::equal(file.bytes.begin(), file.bytes.end(), files[index].begin())) {
       std::abort();
     }
+    full[index] = {file.name, Bytes(file.bytes.begin(), file.bytes.end())};
     ++decoded;
   });
   if (decoded != files.size()) {
     std::abort();
   }
+  check_listing_and_selection(packed.bytes, {}, full, bits >> 2);
   return 0;
 }
 #endif
@@ -188,10 +269,34 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   options.limits.records = 65536;
   options.limits.files = 256;
   options.limits.pools = 256;
+  std::vector<std::pair<std::string, Bytes>> full;
+  bool decoded = false;
   try {
-    decode_archive({data, size}, options);
+    decode_archive({data, size}, options, [&](DecodedFile file) {
+      full.emplace_back(file.name, Bytes(file.bytes.begin(), file.bytes.end()));
+    });
+    decoded = true;
   } catch (const Error &) {
   } // Expected validation failures, never crashes/exits.
+  uint64_t bits = choice_bits(data, size);
+  if (decoded) {
+    // Valid archives: listing and selection must agree with the full decode.
+    check_listing_and_selection({data, size}, options, full, bits);
+    return 0;
+  }
+  // Invalid archives: listing and selection may only fail with Error.
+  try {
+    auto listing = list_archive({data, size}, options.limits);
+    for (size_t i = 0; i < listing.entries.size() && i < 64; ++i) {
+      if (bits >> i & 1) {
+        options.members.push_back(listing.entries[i].name);
+      }
+    }
+    if (!options.members.empty()) {
+      decode_archive({data, size}, options);
+    }
+  } catch (const Error &) {
+  }
   return 0;
 }
 #endif

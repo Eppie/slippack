@@ -7,10 +7,10 @@ replacement or inclusion of `.cpp` files is needed.
 | Target | Coverage |
 |---|---|
 | `parse` | Arbitrary Slippi declarations, malformed/truncated event streams |
-| `roundtrip` | 1–4 arbitrary files through encoding and decoding, exact byte equality |
+| `roundtrip` | 1–4 arbitrary files through encoding and decoding with varied shared-pool budgets, exact byte equality, and listing and member selection that agree with the full decode |
 | `dictionary` | All four dictionary transforms, index boundaries, record packet framing |
 | `predictors` | Motion/controller transforms composed with record coding, old/new record lengths |
-| `archive` | Hostile container metadata, frames, paths, counts, and limits; expected `Error` exceptions are caught |
+| `archive` | Hostile container metadata, frames, paths, counts, and limits through full decoding, listing, and member selection; expected `Error` exceptions are caught, and an archive that decodes must list and select consistently |
 | `gecko` | Built-in dictionary references, malformed tokens/record extensions, exact byte reconstruction |
 
 ## Build and run
