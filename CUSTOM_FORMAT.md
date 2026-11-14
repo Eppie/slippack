@@ -511,8 +511,7 @@ Record-codec tests force dictionary transforms and cover vector boundaries,
 malformed metadata, field resets, and arithmetic wraparound.
 No tests require external compression libraries. See `fuzz/README.md`.
 
-Historical benchmark scripts compare the backends available at their recorded
-commits. They warm inputs, retain timing samples, and verify decoded hashes.
-Decode timings use `slippack t`, including reconstruction and excluding writes.
-Results depend on hardware, level, and dataset. Earlier prototypes and negative
-results are retained under `benchmarks/` and in Git history.
+The benchmark drivers under `benchmarks/harness/` warm inputs, retain every
+timing sample, and verify decoded bytes. Results depend on hardware, level, and
+dataset; each study under `benchmarks/` records its own. `EXPERIMENTS.md` lists
+the approaches that were measured and rejected.

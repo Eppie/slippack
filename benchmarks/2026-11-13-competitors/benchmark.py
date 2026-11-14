@@ -26,9 +26,9 @@ def main():
     parser.add_argument('--repeats', type=int, default=3)
     args = parser.parse_args()
     assert args.repeats > 0
-    previous = json.loads((ROOT / 'benchmarks/2026-11-10-single-file/results.json').read_text())
+    previous = json.loads((Path(__file__).with_name('coverage.json')).read_text())
     spec = importlib.util.spec_from_file_location(
-        'speed_benchmark', ROOT / 'benchmarks/2026-11-10-encode-speed/benchmark.py')
+        'speed_benchmark', ROOT / 'benchmarks/harness/benchmark.py')
     speed = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(speed)
     executables = {'ours': args.ours.resolve(),

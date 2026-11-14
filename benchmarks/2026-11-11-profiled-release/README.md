@@ -116,12 +116,12 @@ In the current checkout:
 ```sh
 make release-check
 c++ -std=c++20 -O3 -pthread -c \
-  benchmarks/2026-11-10-single-file/cpp_runner.cpp -o /tmp/runner-common.o
+  benchmarks/harness/cpp_runner.cpp -o /tmp/runner-common.o
 c++ -std=c++20 -O3 -pthread /tmp/runner-common.o \
   /path/to/baseline/build/libslippack.a -o /tmp/baseline-runner
 c++ -std=c++20 -O3 -pthread -Wl,-no_deduplicate /tmp/runner-common.o \
   build/release/libslippack.a -o /tmp/candidate-runner
-python3 benchmarks/2026-11-10-encode-speed/benchmark.py \
+python3 benchmarks/harness/benchmark.py \
   --baseline /tmp/baseline-runner --candidate /tmp/candidate-runner \
   --baseline-commit f11d8d5567ffb7207141eb4a9ac8cdc8f1e7ba4f \
   --manifest /path/to/replays.txt --levels 3 --threads 1,8 \

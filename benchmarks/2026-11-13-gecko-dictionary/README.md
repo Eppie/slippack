@@ -94,9 +94,9 @@ must keep them available for decoding. See [the format](../../CUSTOM_FORMAT.md).
 python3 tools/profile_build.py train --manifest build/frontier/all-521.txt --limit 64 --jobs 3
 make release-check
 c++ -std=c++20 -O3 -pthread -Wl,-no_deduplicate \
-  benchmarks/2026-11-10-single-file/cpp_runner.cpp build/release/libslippack.a \
+  benchmarks/harness/cpp_runner.cpp build/release/libslippack.a \
   -o build/gecko-dictionary-v1/release-runner
-python3 benchmarks/2026-11-10-encode-speed/benchmark.py \
+python3 benchmarks/harness/benchmark.py \
   --baseline build/gecko-dictionary-v1/baseline-runner \
   --candidate build/gecko-dictionary-v1/release-runner \
   --baseline-commit 60f7ab839a81565dceccaeda689a4904c60c0273 \

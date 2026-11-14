@@ -336,11 +336,12 @@ grouping documented in each study:
   holdout for the whole compressor. Savings for individual archives do not
   predict savings for collections that already pool records.
 - [Encoding generalization study, 2026-11-12](benchmarks/2026-11-12-generalization/README.md):
-  frozen-build comparisons against `3d39721`, including a 512-file independent
-  validation from 16 source families, all timing repetitions, and limitations.
+  a frozen build compared against `3d39721` on 512 held-out files from 16
+  source families, with the data separation, method, and limitations.
 - [Matched codec comparison, 2026-11-13](benchmarks/2026-11-13-competitors/README.md):
   Slippack at `64bff11` compared with slpz, slippc, and Peppi on matched input
   subsets, with version coverage, exact reconstruction checks, and raw results.
 
-[EXPERIMENTS.md](EXPERIMENTS.md) and [benchmarks/](benchmarks/) contain experiment
-history, rejected approaches, build provenance, and reproduction instructions.
+[EXPERIMENTS.md](EXPERIMENTS.md) lists what was measured to help and what was
+rejected. Each study records its build provenance and reproduction commands, and
+[benchmarks/harness/](benchmarks/harness/README.md) holds the shared drivers.

@@ -3,9 +3,11 @@
 This study compares Slippack commit `64bff11545ca90d34c6a9a833c459207077aa3c6`
 with slpz `9f4d952f444037edbbc49af11e5e963ecd4d399f`, slippc
 `8d79a665392e491edd62150687a956e45a7a0fe7`, and Peppi 2.1.2. The inputs and
-matched subsets are those of the [2026-11-10 coverage study](../../EXPERIMENTS.md#2026-11-10-single-replay-comparison-with-slpz-slippc-and-peppi).
-The upstream executables match the hashes recorded for that study's Peppi scope;
-no upstream source or executable is changed. The Slippack runner links the
+matched subsets come from a coverage run with Slippack `9bffdb5`, recorded in
+[coverage.json](coverage.json): 120 replays, 40 from each of three development
+lists, chosen by sorting file names by SHA-256 before any codec ran. The
+upstream executables match the hashes recorded for that run's Peppi scope; no
+upstream source or executable is changed. The Slippack runner links the
 profile-guided library measured in the [dictionary study](../2026-11-13-gecko-dictionary/README.md).
 
 ## Method and coverage
@@ -25,7 +27,7 @@ The fixed sets are:
 - **slippc:** 98 files / 242,937,060 bytes, within its supported replay versions
   through 3.12.0. The 22 newer replays are not submitted to its fixed-layout codec.
 - **Peppi:** 28 files / 74,297,116 bytes, with verified exact reconstruction in
-  the coverage study. That study records 74 reconstruction panics and 18 byte
+  the coverage run. That run records 74 reconstruction panics and 18 byte
   mismatches among the other files. This refresh retains that fixed subset and
   the same upstream executable; it does not claim broader Peppi coverage.
 
@@ -74,7 +76,7 @@ Build the Slippack benchmark runner from the release library:
 ```sh
 make release-check
 c++ -std=c++20 -O3 -pthread -Wl,-no_deduplicate \
-  benchmarks/2026-11-10-single-file/cpp_runner.cpp build/release/libslippack.a \
+  benchmarks/harness/cpp_runner.cpp build/release/libslippack.a \
   -o build/gecko-dictionary-v1/release-runner
 python3 benchmarks/2026-11-13-competitors/benchmark.py \
   --ours build/gecko-dictionary-v1/release-runner \
@@ -83,8 +85,9 @@ python3 benchmarks/2026-11-13-competitors/benchmark.py \
 ```
 
 The upstream work directory contains the pinned slippc/Rust executables and
-`all.txt`, `slippc.txt`, and `peppi.txt` manifests from the coverage study. The
-driver verifies their input hashes and upstream executable hashes before running.
-The [original build script](../2026-11-10-single-file/build.sh) and locked Rust
-dependencies document their toolchains; a different build requires a separate
+`all.txt`, `slippc.txt`, and `peppi.txt` manifests, which list the files that
+`coverage.json` selects for each scope. The driver verifies their input hashes
+and upstream executable hashes before running. The
+[build script](../harness/build_competitors.sh) and locked Rust dependencies
+document their toolchains; a different build requires a separate
 provenance record. The linker flag above applies to the measured macOS build.

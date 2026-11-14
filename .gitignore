@@ -32,4 +32,4 @@ __pycache__/
 *.slpc
 !/tests/fixtures/v1-custom.slpc
 /fuzz/slippack_fuzz_*
-/benchmarks/2026-11-10-single-file/rust/target/
+/benchmarks/harness/rust/target/

@@ -21,8 +21,8 @@ fingerprints are outside timers. Every run reconstructs all original bytes
 exactly. Rates are original decimal MB divided by median seconds.
 
 Each executable links the same compiled
-[benchmark driver](../2026-11-10-single-file/cpp_runner.cpp) through
-[`benchmark.py`](../2026-11-10-encode-speed/benchmark.py). Profile-guided builds
+[benchmark driver](../harness/cpp_runner.cpp) through
+[`benchmark.py`](../harness/benchmark.py). Profile-guided builds
 use `-fprofile-use` and `-Wl,-no_deduplicate`. The candidate's profile is
 `profiles/level3.proftext`, trained on the candidate sources. The baseline's
 profile was trained on the same 64 inputs with earlier sources; the compiler
@@ -102,12 +102,12 @@ make -C /path/to/base BUILD_DIR=build/pgo PROFILE=profiles/level3.proftext \
   build/pgo/libslippack.a
 make release-check
 c++ -std=c++20 -O3 -pthread -I. -c \
-  benchmarks/2026-11-10-single-file/cpp_runner.cpp -o /tmp/runner.o
+  benchmarks/harness/cpp_runner.cpp -o /tmp/runner.o
 c++ -std=c++20 -O3 -pthread -Wl,-no_deduplicate /tmp/runner.o \
   /path/to/base/build/pgo/libslippack.a -o /tmp/baseline-runner
 c++ -std=c++20 -O3 -pthread -Wl,-no_deduplicate /tmp/runner.o \
   build/release/libslippack.a -o /tmp/candidate-runner
-python3 benchmarks/2026-11-10-encode-speed/benchmark.py --allow-byte-changes \
+python3 benchmarks/harness/benchmark.py --allow-byte-changes \
   --baseline /tmp/baseline-runner --candidate /tmp/candidate-runner \
   --baseline-commit 0e90b01 --manifest /path/to/replays.txt --levels 3 \
   --threads 1,8 --repeats 3 --power-mode 2 --output /tmp/result.json
