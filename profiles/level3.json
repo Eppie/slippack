@@ -8,8 +8,8 @@
   "training_flags": "-std=c++20 -O3 -Wall -Wextra -fprofile-generate -fprofile-update=atomic",
   "training": "CLI c and hash, level 3, one worker, exact per-file SHA-1 verification",
   "source_sha256": {
-    "archive.cpp": "ed36308b6277a813bc6b2ee13533c486655bf6e62fb1c21e3d4a73fd77602e7e",
-    "archive.h": "4570d74970d3451041321e5a3ec98d7dade042a968ddbd8a4346a87dfd8756b3",
+    "archive.cpp": "1d502427c0f56afe449c37dec09930a464f9e78a4d11670643ec2bc213ac6526",
+    "archive.h": "d449144962e813dc7645d988bd04ab351b365fe16540b700ac6b96094d5d5cf1",
     "binary_io.h": "a46bb4442dfff3a5bd91994f720969262d3948f6f1ca13b0af6119d0921f7dff",
     "codec_types.h": "a737729fde047752197cea993d7c70647b63699dc1f5518f4a308942b49d93a3",
     "custom_codec.h": "e35c1f42108d4647bdcc33088368c1ab0501b6cd64d0cf1266e92efbd6e90bd0",
@@ -28,12 +28,12 @@
     "record_codec.cpp": "fec2201449a033c975170bb38f58cc8e1cc47b119c48e4b2d94909a45694b4a8",
     "record_codec.h": "9b4655ab8013316ad61d367a3ac966605bf19c7a1d68c6ac5443643151d1e12f",
     "simd_x86.h": "b44f124e5e2f12ba8d781c617579ef7ade40f11c23cd38df603fed6507f8c53e",
-    "slippack.cpp": "41eba58a8c0e0be87fe2d27de14d38d0439e1c2db72f59bf153ded1cfe031d09",
+    "slippack.cpp": "f893b18e3c3cd9a8ef6a4e3bbb83aa945783794e5616a0209d1f0d156ac45aa9",
     "slp.cpp": "b219947da0a4beb786e88a03e33956915a670d3c5329b590f9079f29866bb8d4",
     "slp.h": "0662b108db38faad55e34c71c59994f8029382206c3ada6f41fc6648e046cceb",
     "static_context.h": "eb4a28a0b996ac55722b894e11a4bd74c100ff4d4b5b4355104dd17b12b37fd9"
   },
-  "profile_sha256": "d051be018a1ed6d1bd1dac643db58a5972129a67b09ff269c1e9c34460680ebe",
+  "profile_sha256": "fc1615d2d1c8d9778a39aac07c32198eee06b01cba5ee91cc791327eaca8841b",
   "inputs": [
     {
       "bytes": 299824,

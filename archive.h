@@ -8,12 +8,12 @@ namespace slippack {
 // All limits are per operation. Wave size is an admission target, not an RSS
 // limit: the input, pools, codec scratch, and sink-owned files also occupy RAM.
 struct DecodeLimits {
-  uint64_t archive_bytes = 8ull << 30;
+  uint64_t archive_bytes = 32ull << 30;
   uint64_t file_bytes = 16ull << 30;
   uint64_t total_bytes = 1ull << 40;
   uint64_t frame_bytes = UINT32_MAX;
   uint64_t pool_bytes = 2ull << 30;
-  uint64_t metadata_bytes = 512ull << 20;
+  uint64_t metadata_bytes = 2ull << 30;
   uint32_t files = 1000000, pools = 65536, name_bytes = 4096;
   uint32_t records = 32000000;
 };
@@ -27,6 +27,10 @@ struct EncodeOptions {
   // limit pack or wait instead of loading.
   size_t concurrent_loads = 2;
   PhaseObserver on_phase;
+  // Maximum raw bytes in shared side-stream pools, divided among inputs.
+  // Streams beyond an input's share use ordinary per-file packets. Zero
+  // disables pooling; the maximum is the default decoder's pool limit.
+  uint64_t pool_bytes = 512ull << 20;
 };
 struct DecodeOptions {
   int threads = 1;

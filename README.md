@@ -116,6 +116,7 @@ baseline, training corpus, encoder heuristics, and archive grouping results.
 ./slippack l out.slpc                            # original size and stored name per file
 ./slippack x out.slpc -d outdir                  # extract stored paths
 ./slippack x out.slpc -d outdir game.slp         # extract only the named files
+./slippack x out.slpc -d outdir --flatten        # extract without stored directories
 ./slippack t out.slpc                            # decode in memory without writing files
 ./slippack hash out.slpc                         # SHA-1 per file, in shasum format
 ./slippack selftest
@@ -145,8 +146,20 @@ is one compressed packet, so the pools a file uses are decoded whole. The
 `--max-output-mib` limit applies to the selected files.
 
 `-T` accepts 1–256 threads and defaults to the available hardware thread count,
-capped at 256. `-v` reports compressed bytes by section. Use `--` before filenames
-that begin with a dash. Set `SLIPPACK_TIMING=1` to report phase timings.
+capped at 256. Use `--` before filenames that begin with a dash. Set `SLIPPACK_TIMING=1` to report phase timings.
+
+`-v` or `--verbose` adds detail. For `c` it reports compressed bytes by
+section. For `x` and `t` it prints a `size  path` line on standard output as
+each file completes; files are decoded concurrently, so the lines follow
+completion order, and `x` shows the path written after any renaming.
+
+`c`, `x`, `t`, and `hash` report completed files and original megabytes on
+standard error while they run. On a terminal the report is one line redrawn in
+place and erased before the summary. `--progress` requests it when standard
+error is not a terminal, as one line per second; `--no-progress` turns it off.
+Verbose `x` and `t` leave it off unless `--progress` is given.
+Standard output is unaffected. For `c` the count is files read, which runs
+slightly ahead of compression.
 
 ### Compression levels
 
@@ -178,6 +191,12 @@ root once, including platform aliases such as macOS `/var`, and never follows
 symlinks beneath that root. Archive member names cannot contain absolute paths,
 parent traversal, backslashes, drive prefixes, NULs, or line breaks.
 
+`x --strip-components N` removes the first N directories of each stored path,
+and `x --flatten` removes all of them. Both apply to the selected files. The
+resulting paths are checked before extraction starts: two files mapping to the
+same path, a file mapping onto another's directory, or a path with fewer than
+N directories is an error and nothing is written.
+
 Atomicity applies to each file: a failed multi-file extraction can leave
 completed files in place. Atomic installation does not guarantee durability
 across power loss.
@@ -188,17 +207,19 @@ The decoder validates counts, sizes, and record shapes before allocating.
 
 | Resource | Default limit | CLI option |
 |---|---:|---|
-| Archive input | 8 GiB | `--max-archive-mib` |
+| Archive input | 32 GiB | `--max-archive-mib` |
 | One decoded file | 16 GiB | `--max-file-mib` |
 | Total decoded output | 1 TiB | `--max-output-mib` |
 | One frame or record packet | 4 GiB − 1 byte | `--max-frame-mib` |
 | Shared pool output | 2 GiB | `--max-pool-mib` |
-| Descriptors and admitted side-stream metadata | 512 MiB | `--max-metadata-mib` |
+| Descriptors and admitted side-stream metadata | 2 GiB | `--max-metadata-mib` |
 
 Each option takes a size in MiB. `--wave-mib` sets the decoded-output admission
 target, which defaults to 2 GiB. These limits govern validation and scheduling;
-process memory also includes input, pool buffers, record pointers, codec scratch,
-and queued writes. Additional count limits are defined in `DecodeLimits` in
+process memory also includes pool buffers, record pointers, codec scratch, and
+queued writes. The CLI memory-maps the archive, so its pages are file-backed
+and reclaimable; a library caller that loads the archive into memory holds
+those bytes as well. Additional count limits are defined in `DecodeLimits` in
 [archive.h](archive.h).
 
 ## Archive format and compatibility
@@ -232,7 +253,9 @@ provenance, and reproduction.
 1. Parse the UBJSON wrapper and self-described event payload sizes, preserving
    the original header, metadata, unparsed tail, and event order.
 2. Split events by command and player/follower or item group. Pool eligible
-   side-event records across files.
+   side-event records across files, within a 512 MiB archive-wide budget
+   divided equally among the inputs; records beyond a file's share stay in
+   that file's own packets.
 3. Predict pre-frame values from preceding post-frame state, fold RNG seeds
    into bounded LCG step counts, and predict positions and controller inputs.
    Predictors account for the fields available in each replay record size.
@@ -286,7 +309,7 @@ caller's floating-point mode.
 `make check` covers codec packets, field and built-in dictionaries, scalar
 predictor oracles, concurrent and repeated library calls, exception propagation,
 path and symlink confinement, atomic overwrites, decode limits, exact extraction,
-listing, member selection,
+listing, member selection, renamed extraction paths, verbose output, progress reporting,
 unsupported-format rejection, and a frozen v1 fixture with independently
 generated expected contents. [fuzz/README.md](fuzz/README.md) describes the
 sanitizer-backed fuzzing harnesses.

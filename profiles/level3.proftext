@@ -3221,7 +3221,7 @@ _ZN8slippack10MappedFileC1ERKNSt3__14__fs10filesystem4pathEy
 # Num Counters:
 1
 # Counter Values:
-0
+64
 
 _ZN8slippack10MappedFileC2ERKNSt3__14__fs10filesystem4pathEy
 # Func Hash:
@@ -3229,6 +3229,10 @@ _ZN8slippack10MappedFileC2ERKNSt3__14__fs10filesystem4pathEy
 # Num Counters:
 21
 # Counter Values:
+64
+64
+64
+64
 0
 0
 0
@@ -3243,13 +3247,9 @@ _ZN8slippack10MappedFileC2ERKNSt3__14__fs10filesystem4pathEy
 0
 0
 0
-0
-0
-0
-0
-0
-0
-0
+64
+64
+64
 
 _ZN8slippack10MappedFileD1Ev
 # Func Hash:
@@ -3257,8 +3257,8 @@ _ZN8slippack10MappedFileD1Ev
 # Num Counters:
 3
 # Counter Values:
-0
-0
+64
+64
 0
 
 _ZN8slippack10MappedFileD2Ev
@@ -4734,9 +4734,9 @@ _ZN8slippack14decode_archiveENSt3__14spanIKhLm18446744073709551615EEERKNS_13Deco
 
 _ZN8slippack14encode_archiveENSt3__14spanIKNS_12ArchiveInputELm18446744073709551615EEERKNS_13EncodeOptionsE
 # Func Hash:
-9031639946925927
+286294063316332486
 # Num Counters:
-147
+149
 # Counter Values:
 16320
 64
@@ -4806,6 +4806,8 @@ _ZN8slippack14encode_archiveENSt3__14spanIKNS_12ArchiveInputELm18446744073709551
 64
 64
 64
+0
+0
 0
 0
 0
@@ -6093,13 +6095,11 @@ _ZN8slippack9read_fileERKNSt3__14__fs10filesystem4pathEy
 # Num Counters:
 29
 # Counter Values:
-128
+64
 0
-128
-128
-128
-0
-0
+64
+64
+64
 0
 0
 0
@@ -6121,7 +6121,9 @@ _ZN8slippack9read_fileERKNSt3__14__fs10filesystem4pathEy
 0
 0
 0
-128
+0
+0
+64
 
 _ZNK15slippack_custom11MatcherImplILb0EE4findEjRKNSt3__15arrayIjLm4EEE
 # Func Hash:
@@ -6413,12 +6415,36 @@ _ZNKSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE20__throw_out_of
 # Counter Values:
 0
 
+_ZNKSt3__113__string_hashIcNS_9allocatorIcEEEclB8ne190102ERKNS_12basic_stringIcNS_11char_traitsIcEES2_EE
+# Func Hash:
+464058543399340037
+# Num Counters:
+5
+# Counter Values:
+0
+0
+0
+0
+0
+
 _ZNKSt3__114default_deleteINS_5tupleIJNS_10unique_ptrINS_15__thread_structENS0_IS3_EEEEZN8slippack16ExtractionWriter4ImplC1ERKNS_4__fs10filesystem4pathENS6_9OverwriteEEUlvE_EEEEclB8ne190102EPSG_
 # Func Hash:
 238984481799490044
 # Num Counters:
 3
 # Counter Values:
+0
+0
+0
+
+_ZNKSt3__121__murmur2_or_cityhashImLm64EEclB8ne190102EPKvm
+# Func Hash:
+287486627641171346
+# Num Counters:
+5
+# Counter Values:
+0
+0
 0
 0
 0
@@ -6774,6 +6800,26 @@ _ZNKSt3__16vectorIyNS_9allocatorIyEEE20__throw_length_errorB8ne190102Ev
 # Num Counters:
 1
 # Counter Values:
+0
+
+_ZNKSt3__18equal_toINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEEEclB8ne190102ERKS6_S9_
+# Func Hash:
+513255299607105282
+# Num Counters:
+6
+# Counter Values:
+0
+0
+0
+0
+0
+0
+# Num Value Kinds:
+1
+# ValueKind = IPVK_MemOPSize:
+1
+# NumValueSites:
+1
 0
 
 _ZNSt12length_errorC1B8ne190102EPKc
@@ -7259,6 +7305,126 @@ _ZNSt3__112__destroy_atB8ne190102IN8slippack9EntryInfoELi0EEEvPT_
 64
 64
 64
+
+_ZNSt3__112__destroy_atB8ne190102INS_4pairIKNS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EELi0EEEvPT_
+# Func Hash:
+238984482720105921
+# Num Counters:
+3
+# Counter Values:
+0
+0
+0
+
+_ZNSt3__112__hash_tableINS_17__hash_value_typeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EENS_22__unordered_map_hasherIS7_S8_NS_4hashIS7_EENS_8equal_toIS7_EELb1EEENS_21__unordered_map_equalIS7_S8_SD_SB_Lb1EEENS5_IS8_EEE11__do_rehashILb1EEEvm
+# Func Hash:
+640704451042743625
+# Num Counters:
+14
+# Counter Values:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+_ZNSt3__112__hash_tableINS_17__hash_value_typeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EENS_22__unordered_map_hasherIS7_S8_NS_4hashIS7_EENS_8equal_toIS7_EELb1EEENS_21__unordered_map_equalIS7_S8_SD_SB_Lb1EEENS5_IS8_EEE21__construct_node_hashIRKS7_JS7_EEENS_10unique_ptrINS_11__hash_nodeIS8_PvEENS_22__hash_node_destructorINS5_ISP_EEEEEEmOT_DpOT0_
+# Func Hash:
+1096621590611232657
+# Num Counters:
+5
+# Counter Values:
+0
+0
+0
+0
+0
+
+_ZNSt3__112__hash_tableINS_17__hash_value_typeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EENS_22__unordered_map_hasherIS7_S8_NS_4hashIS7_EENS_8equal_toIS7_EELb1EEENS_21__unordered_map_equalIS7_S8_SD_SB_Lb1EEENS5_IS8_EEE25__emplace_unique_key_argsIS7_JRKS7_S7_EEENS_4pairINS_15__hash_iteratorIPNS_11__hash_nodeIS8_PvEEEEbEERKT_DpOT0_
+# Func Hash:
+338375138268488161
+# Num Counters:
+25
+# Counter Values:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+_ZNSt3__112__hash_tableINS_17__hash_value_typeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EENS_22__unordered_map_hasherIS7_S8_NS_4hashIS7_EENS_8equal_toIS7_EELb1EEENS_21__unordered_map_equalIS7_S8_SD_SB_Lb1EEENS5_IS8_EEE4findIS7_EENS_15__hash_iteratorIPNS_11__hash_nodeIS8_PvEEEERKT_
+# Func Hash:
+5832819003231980
+# Num Counters:
+12
+# Counter Values:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+_ZNSt3__112__hash_tableINS_17__hash_value_typeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EENS_22__unordered_map_hasherIS7_S8_NS_4hashIS7_EENS_8equal_toIS7_EELb1EEENS_21__unordered_map_equalIS7_S8_SD_SB_Lb1EEENS5_IS8_EEE8__rehashILb1EEEvm
+# Func Hash:
+198238757146970717
+# Num Counters:
+9
+# Counter Values:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+_ZNSt3__112__hash_tableINS_17__hash_value_typeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_EENS_22__unordered_map_hasherIS7_S8_NS_4hashIS7_EENS_8equal_toIS7_EELb1EEENS_21__unordered_map_equalIS7_S8_SD_SB_Lb1EEENS5_IS8_EEED2Ev
+# Func Hash:
+1124680651873033115
+# Num Counters:
+3
+# Counter Values:
+0
+64
+0
 
 _ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE16__init_with_sizeB8ne190102IPKcS8_EEvT_T0_m
 # Func Hash:
@@ -7900,8 +8066,8 @@ _ZNSt3__114basic_ifstreamIcNS_11char_traitsIcEEEC1EPKcj
 # Num Counters:
 6
 # Counter Values:
-128
-128
+64
+64
 0
 0
 0
@@ -7953,6 +8119,25 @@ _ZNSt3__120__throw_out_of_rangeB8ne190102EPKc
 2
 # Counter Values:
 0
+0
+
+_ZNSt3__121__murmur2_or_cityhashImLm64EE18__hash_len_0_to_16B8ne190102EPKcm
+# Func Hash:
+844982798426149265
+# Num Counters:
+4
+# Counter Values:
+0
+0
+0
+0
+
+_ZNSt3__121__murmur2_or_cityhashImLm64EE19__hash_len_33_to_64B8ne190102EPKcm
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
 0
 
 _ZNSt3__125__throw_bad_function_callB8ne190102Ev
@@ -8361,6 +8546,16 @@ _ZNSt3__16__treeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_4l
 # Counter Values:
 0
 0
+0
+0
+0
+
+_ZNSt3__16__treeINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_4lessIS6_EENS4_IS6_EEE25__emplace_unique_key_argsIS6_JRKS6_EEENS_4pairINS_15__tree_iteratorIS6_PNS_11__tree_nodeIS6_PvEElEEbEERKT_DpOT0_
+# Func Hash:
+238984484622511769
+# Num Counters:
+3
+# Counter Values:
 0
 0
 0
@@ -10137,14 +10332,14 @@ _ZNSt3__16vectorIhNS_9allocatorIhEEE8__appendEm
 9
 # Counter Values:
 35977047
-296676637
+291176711
 0
 4326
-1278
-1278
+1214
+1214
 298
 0
-1278
+1214
 # Num Value Kinds:
 1
 # ValueKind = IPVK_MemOPSize:
@@ -10152,7 +10347,7 @@ _ZNSt3__16vectorIhNS_9allocatorIhEEE8__appendEm
 # NumValueSites:
 1
 9
-0:980
+0:916
 513:259
 257:16
 33:8
@@ -12149,9 +12344,9 @@ archive.cpp;_ZZN8slippack11run_workersIZNS_12parallel_forIZNS_14encode_archiveEN
 
 archive.cpp;_ZZN8slippack11run_workersIZNS_14encode_archiveENSt3__14spanIKNS_12ArchiveInputELm18446744073709551615EEERKNS_13EncodeOptionsEE3$_3EEviT_ENKUlvE_clEv
 # Func Hash:
-686834427753736730
+984722830501380482
 # Num Counters:
-233
+234
 # Counter Values:
 138
 0
@@ -12187,20 +12382,20 @@ archive.cpp;_ZZN8slippack11run_workersIZNS_14encode_archiveENSt3__14spanIKNS_12A
 2311999
 2311999
 0
-0
 64
 322
+0
 0
 0
 346
 113
 209
 346
+150
+150
+150
+150
 416
-150
-150
-150
-150
 0
 209
 145
@@ -12212,13 +12407,13 @@ archive.cpp;_ZZN8slippack11run_workersIZNS_14encode_archiveENSt3__14spanIKNS_12A
 138
 0
 197
-64
-268
 138
 138
 138
 75
 138
+64
+268
 16
 294
 294
@@ -12233,33 +12428,33 @@ archive.cpp;_ZZN8slippack11run_workersIZNS_14encode_archiveENSt3__14spanIKNS_12A
 156
 294
 156
-64
 2
 138
 0
 10
-196
-196
-196
+64
 196
 10
 10
+0
 322
 322
-0
-0
 450
+196
+196
+196
+196
+64
+64
+64
+64
+322
+64
+0
+0
 186
 10
 64
-64
-64
-64
-322
-64
-0
-0
-64
 0
 0
 64
@@ -12276,6 +12471,7 @@ archive.cpp;_ZZN8slippack11run_workersIZNS_14encode_archiveENSt3__14spanIKNS_12A
 64
 0
 64
+0
 0
 107
 0
@@ -12731,327 +12927,11 @@ gecko_dictionary.cpp;_ZN8slippack12_GLOBAL__N_115DictionaryIndexC1Ev
 
 main
 # Func Hash:
-1122800725773701630
+811594942928608156
 # Num Counters:
-319
+3
 # Counter Values:
-0
-0
-0
-64
-384
 128
-5499926
-0
-0
-64
-0
-0
-0
-0
-256
-0
-0
-0
-256
-0
-0
-192
-5499926
-192
-0
-0
-64
-128
-64
-64
-0
-0
-64
-64
-0
-0
-64
-0
-0
-0
-0
-64
-0
-0
-0
-0
-64
-0
-0
-0
-128
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-128
-0
-0
-128
-0
-64
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-64
-0
-0
-128
-0
-0
-64
-0
-64
-0
-0
-128
-0
-0
-0
-0
-64
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-64
-64
-0
-0
-0
-0
-0
-0
-0
-64
-64
-0
-0
-0
-0
-0
-64
-64
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-128
-0
-128
-0
-64
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-0
-128
-128
-0
-128
-128
-0
-0
-64
-0
-64
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
 0
 0
 # Num Value Kinds:
@@ -13059,34 +12939,7 @@ main
 # ValueKind = IPVK_IndirectCallTarget:
 0
 # NumValueSites:
-28
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
+1
 0
 
 record_codec.cpp;_ZN8slippackL13transpose_fwdENSt3__14spanIKhLm18446744073709551615EEEjjRNS_3BufE
@@ -13896,6 +13749,504 @@ record_codec.cpp;_ZNSt3__17__sort4B8ne190102INS_17_ClassicAlgPolicyERZN8slippack
 455
 235
 
+slippack.cpp;_ZN12_GLOBAL__N_13runEiPPc
+# Func Hash:
+1023291044756501827
+# Num Counters:
+456
+# Counter Values:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+64
+384
+0
+128
+0
+0
+0
+0
+64
+0
+256
+0
+0
+0
+256
+0
+0
+0
+0
+0
+192
+5499926
+0
+192
+64
+0
+0
+0
+128
+0
+0
+0
+64
+64
+0
+0
+0
+0
+0
+0
+64
+64
+0
+0
+64
+0
+0
+0
+64
+0
+0
+0
+0
+0
+0
+0
+0
+64
+0
+0
+0
+0
+128
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+64
+0
+0
+0
+64
+64
+0
+0
+0
+0
+0
+0
+0
+64
+0
+0
+0
+0
+64
+0
+0
+0
+0
+0
+64
+0
+0
+0
+0
+64
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+64
+0
+0
+0
+128
+0
+0
+0
+0
+128
+0
+0
+0
+0
+0
+64
+64
+0
+0
+0
+0
+128
+0
+0
+0
+0
+0
+128
+0
+64
+64
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+128
+0
+128
+0
+64
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+0
+128
+128
+0
+128
+128
+128
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+64
+0
+64
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+# Num Value Kinds:
+1
+# ValueKind = IPVK_IndirectCallTarget:
+0
+# NumValueSites:
+29
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
 slippack.cpp;_ZN12_GLOBAL__N_15usageEv
 # Func Hash:
 238984482446926629
@@ -13930,6 +14281,40 @@ slippack.cpp;_ZN12_GLOBAL__N_16numberERKNSt3__112basic_stringIcNS0_11char_traits
 0
 0
 0
+0
+
+slippack.cpp;_ZN12_GLOBAL__N_18Progress3addEy
+# Func Hash:
+219088260607706452
+# Num Counters:
+7
+# Counter Values:
+64
+0
+0
+0
+0
+0
+0
+
+slippack.cpp;_ZN12_GLOBAL__N_18Progress5clearEv
+# Func Hash:
+536873290063828438
+# Num Counters:
+4
+# Counter Values:
+256
+0
+0
+0
+
+slippack.cpp;_ZN12_GLOBAL__N_18ProgressD1Ev
+# Func Hash:
+784007058953177093
+# Num Counters:
+2
+# Counter Values:
+128
 0
 
 slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_0NS_9allocatorIS5_EEFvNS_17basic_string_viewIcNS_11char_traitsIcEEEEdEE11target_typeEv
@@ -14040,6 +14425,76 @@ slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_2NS_9all
 # Counter Values:
 0
 
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE11target_typeEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE6targetERKSt9type_info
+# Func Hash:
+134732432071261922
+# Num Counters:
+4
+# Counter Values:
+0
+0
+0
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE7__cloneEPNS0_6__baseISA_EE
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE7__cloneEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE11target_typeEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE6targetERKSt9type_info
+# Func Hash:
+134732432071261922
+# Num Counters:
+4
+# Counter Values:
+0
+0
+0
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE7__cloneEPNS0_6__baseISA_EE
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNKSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE7__cloneEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
 slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_0NS_9allocatorIS5_EEFvNS_17basic_string_viewIcNS_11char_traitsIcEEEEdEE18destroy_deallocateEv
 # Func Hash:
 742261418966908927
@@ -14118,11 +14573,14 @@ slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_1NS_9allo
 
 slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_1NS_9allocatorIS5_EEFNS_6vectorIhNS6_IhEEEEvEEclEv
 # Func Hash:
-742261418966908927
+798733565971490940
 # Num Counters:
-1
+4
 # Counter Values:
 64
+0
+0
+0
 
 slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_2NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE18destroy_deallocateEv
 # Func Hash:
@@ -14158,15 +14616,130 @@ slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_2NS_9allo
 
 slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_2NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEEclEOS9_
 # Func Hash:
-920543278429440519
+49140638586678188
 # Num Counters:
-13
+30
 # Counter Values:
 0
 0
 0
 0
 0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE18destroy_deallocateEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE7destroyEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEED0Ev
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEED1Ev
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_3NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEEclEOS9_
+# Func Hash:
+776814507381935502
+# Num Counters:
+12
+# Counter Values:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE18destroy_deallocateEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEE7destroyEv
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEED0Ev
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEED1Ev
+# Func Hash:
+742261418966908927
+# Num Counters:
+1
+# Counter Values:
+0
+
+slippack.cpp;_ZNSt3__110__function6__funcIZN12_GLOBAL__N_13runEiPPcE3$_4NS_9allocatorIS5_EEFvN8slippack11DecodedFileEEEclEOS9_
+# Func Hash:
+650973719322744650
+# Num Counters:
+8
+# Counter Values:
 0
 0
 0
@@ -14186,7 +14759,25 @@ slippack.cpp;_ZNSt3__117__call_once_proxyB8ne190102INS_5tupleIJOZZN12_GLOBAL__N_
 0
 0
 
-slippack.cpp;_ZZN12_GLOBAL__N_13runEiPPcENK3$_4clEv
+slippack.cpp;_ZNSt3__18functionIFvN8slippack11DecodedFileEEEaSIZN12_GLOBAL__N_13runEiPPcE3$_4vEERS4_OT_
+# Func Hash:
+1063614629245704913
+# Num Counters:
+3
+# Counter Values:
+0
+0
+0
+# Num Value Kinds:
+1
+# ValueKind = IPVK_IndirectCallTarget:
+0
+# NumValueSites:
+2
+0
+0
+
+slippack.cpp;_ZZN12_GLOBAL__N_13runEiPPcENK3$_6clEv
 # Func Hash:
 948827211310245717
 # Num Counters:

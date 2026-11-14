@@ -3,12 +3,17 @@
 #include "file_io.h"
 #include "record_codec.h"
 #include <algorithm>
+#include <atomic>
 #include <charconv>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <mutex>
+#include <set>
 #include <thread>
+#include <unistd.h>
+#include <unordered_map>
 
 namespace fs = std::filesystem;
 using namespace slippack;
@@ -18,12 +23,16 @@ namespace {
        "  slippack c [-o out.slpc] [-l level] [-T threads] [-v] [--overwrite] "
        "<file.slp...|@listfile>\n"
        "  slippack l archive.slpc                    (original size and name per file)\n"
-       "  slippack x archive.slpc -d outdir [-T threads] [--overwrite] [member...|@listfile]\n"
-       "  slippack t archive.slpc [-T threads] [member...|@listfile]\n"
+       "  slippack x archive.slpc -d outdir [-T threads] [-v] [--overwrite]\n"
+       "             [--strip-components N | --flatten] [member...|@listfile]\n"
+       "  slippack t archive.slpc [-T threads] [-v] [member...|@listfile]\n"
        "  slippack hash archive.slpc [-T threads] [member...|@listfile]\n"
        "                                             (sha1 per file, shasum format)\n"
        "  slippack selftest\n"
        "  Members are stored names as printed by l; without any, every file is processed.\n"
+       "  -v, --verbose: c reports compressed bytes by section; x and t print each file's\n"
+       "                 size and path as it completes.\n"
+       "  Progress is reported on a terminal; --progress and --no-progress override that.\n"
        "  Default output: <input-stem>.slpc beside one input; archive.slpc for multiple inputs.\n"
        "  Decode limits: --max-archive-mib N --max-file-mib N --max-output-mib N\n"
        "                 --max-frame-mib N --max-pool-mib N --max-metadata-mib N --wave-mib N");
@@ -33,6 +42,66 @@ uint64_t number(const std::string &value) {
   auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), result);
   require(error == std::errc{} && end == value.data() + value.size(), "invalid numeric option");
   return result;
+}
+// Completed files and original bytes on stderr. A terminal gets one line
+// redrawn in place; other destinations get a complete line once per second.
+class Progress {
+  const bool enabled_, terminal_;
+  const char *verb_;
+  const uint64_t total_;
+  const std::chrono::steady_clock::time_point start_ = std::chrono::steady_clock::now();
+  std::atomic<uint64_t> files_{0}, bytes_{0};
+  std::atomic<int64_t> due_{0};
+  std::mutex mutex_;
+  bool drawn_ = false;
+
+public:
+  Progress(bool enabled, const char *verb, uint64_t total)
+      : enabled_(enabled), terminal_(isatty(STDERR_FILENO)), verb_(verb), total_(total) {}
+  ~Progress() { clear(); }
+  void add(uint64_t bytes) {
+    uint64_t files = ++files_, done = bytes_ += bytes;
+    if (!enabled_) {
+      return;
+    }
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                       std::chrono::steady_clock::now() - start_)
+                       .count();
+    auto due = due_.load();
+    if (elapsed < due || !due_.compare_exchange_strong(due, elapsed + (terminal_ ? 100 : 1000))) {
+      return;
+    }
+    std::lock_guard lock(mutex_);
+    fprintf(stderr, "%sslippack: %s %llu/%llu files, %.1f MB%s", terminal_ ? "\r\033[K" : "", verb_,
+            (unsigned long long)files, (unsigned long long)total_, done / 1e6,
+            terminal_ ? "" : "\n");
+    fflush(stderr);
+    drawn_ = true;
+  }
+  // Erases the in-place line so the summary or an error starts a clean line.
+  void clear() {
+    std::lock_guard lock(mutex_);
+    if (drawn_ && terminal_) {
+      fputs("\r\033[K", stderr);
+      fflush(stderr);
+    }
+    drawn_ = false;
+  }
+};
+// The extraction path for a stored name after dropping leading directories.
+std::string output_name(const std::string &stored, uint64_t strip, bool flatten) {
+  auto name = archive_name(stored);
+  if (flatten) {
+    return name.substr(name.rfind('/') + 1);
+  }
+  for (uint64_t i = 0; i < strip; ++i) {
+    auto slash = name.find('/');
+    if (slash == name.npos) {
+      fail("too few path components for --strip-components: " + stored);
+    }
+    name = name.substr(slash + 1);
+  }
+  return name;
 }
 void print_stats(const Statistics &stats) {
   fprintf(stderr, "  compressed bytes by section:\n");
@@ -68,6 +137,8 @@ int run(int argc, char **argv) {
   DecodeOptions decode;
   encode.threads = decode.threads = int(std::clamp(std::thread::hardware_concurrency(), 1u, 256u));
   Overwrite overwrite = Overwrite::Refuse;
+  bool progress = isatty(STDERR_FILENO), progressChosen = false, flatten = false, verbose = false;
+  uint64_t strip = 0;
   std::vector<fs::path> paths;
   bool positional = false;
   for (int i = 2; i < argc; ++i) {
@@ -102,8 +173,18 @@ int run(int argc, char **argv) {
       encode.threads = decode.threads = int(n);
     } else if (argument == "--overwrite") {
       overwrite = Overwrite::Replace;
-    } else if (argument == "-v") {
-      encode.collect_stats = true;
+    } else if (argument == "-v" || argument == "--verbose") {
+      encode.collect_stats = verbose = true;
+    } else if (argument == "--progress") {
+      progress = progressChosen = true;
+    } else if (argument == "--no-progress") {
+      progress = false;
+      progressChosen = true;
+    } else if (argument == "--flatten") {
+      flatten = true;
+    } else if (argument == "--strip-components") {
+      strip = number(next());
+      require(strip >= 1 && strip <= 4096, "--strip-components must be between 1 and 4096");
     } else if (argument == "--max-archive-mib") {
       decode.limits.archive_bytes = mib();
     } else if (argument == "--max-file-mib") {
@@ -142,6 +223,13 @@ int run(int argc, char **argv) {
       fprintf(stderr, "  [%.*s] %.3fs\n", int(phase.size()), phase.data(), seconds);
     };
   }
+  // Per-file lines replace the in-place progress line unless it is requested.
+  if (verbose && !progressChosen && (mode == "x" || mode == "t")) {
+    progress = false;
+  }
+  require((!flatten && !strip) || mode == "x",
+          "--strip-components and --flatten apply to extraction");
+  require(!flatten || !strip, "--strip-components and --flatten are mutually exclusive");
   if (mode == "c") {
     if (paths.empty()) {
       usage();
@@ -156,10 +244,16 @@ int run(int argc, char **argv) {
       }
     }
     std::vector<ArchiveInput> inputs;
+    Progress report(progress, "read", paths.size());
     for (const auto &path : paths) {
-      inputs.push_back({source_name(path), [path] { return read_file(path); }});
+      inputs.push_back({source_name(path), [path, &report] {
+                          auto bytes = read_file(path);
+                          report.add(bytes.size());
+                          return bytes;
+                        }});
     }
     auto result = encode_archive(inputs, encode);
+    report.clear();
     write_file(out, result.bytes, overwrite);
     fprintf(stderr, "slippack: wrote %s: %zu files, %.1f MB -> %.1f MB (%.2f%%)\n",
             out.string().c_str(), inputs.size(), result.original_bytes / 1e6,
@@ -186,33 +280,81 @@ int run(int argc, char **argv) {
     for (size_t i = 1; i < paths.size(); ++i) {
       decode.members.push_back(paths[i].string());
     }
-    // A selection touches a small part of the archive, so map it instead of
-    // reading it whole.
-    std::unique_ptr<MappedFile> mapped;
-    Bytes loaded;
-    View bytes;
-    if (decode.members.empty()) {
-      loaded = read_file(paths.front(), decode.limits.archive_bytes);
-      bytes = loaded;
-    } else {
-      mapped = std::make_unique<MappedFile>(paths.front(), decode.limits.archive_bytes);
-      bytes = mapped->bytes();
+    // Mapping avoids a second in-memory copy of the archive, and a selection
+    // touches only a small part of it.
+    MappedFile archive(paths.front(), decode.limits.archive_bytes);
+    auto bytes = archive.bytes();
+    // The directory gives the selection's size for progress and lets renamed
+    // output paths be checked for collisions before any file is written.
+    std::unordered_map<std::string, std::string> renamed;
+    uint64_t selected = 0;
+    if (progress || flatten || strip) {
+      std::set<std::string> wanted, outputs;
+      for (const auto &member : decode.members) {
+        wanted.insert(archive_name(member));
+      }
+      for (const auto &entry : list_archive(bytes, decode.limits).entries) {
+        if (!wanted.empty() && !wanted.contains(archive_name(entry.name))) {
+          continue;
+        }
+        ++selected;
+        if (flatten || strip) {
+          auto name = output_name(entry.name, strip, flatten);
+          if (!outputs.insert(name).second) {
+            fail("extraction paths collide: " + name);
+          }
+          renamed.emplace(entry.name, std::move(name));
+        }
+      }
+      for (const auto &name : outputs) {
+        for (auto slash = name.find('/'); slash != name.npos; slash = name.find('/', slash + 1)) {
+          if (outputs.contains(name.substr(0, slash))) {
+            fail("extraction paths collide: " + name);
+          }
+        }
+      }
     }
+    Progress report(progress,
+                    mode == "x"   ? "extracted"
+                    : mode == "t" ? "tested"
+                                  : "hashed",
+                    selected);
     std::once_flag initialize;
     std::unique_ptr<ExtractionWriter> writer;
+    std::mutex printing;
+    // Files complete concurrently, so verbose lines follow completion order.
+    auto completed = [&](uint64_t size, const std::string &name) {
+      if (verbose) {
+        std::lock_guard lock(printing);
+        report.clear();
+        printf("%llu  %s\n", (unsigned long long)size, name.c_str());
+      }
+      report.add(size);
+    };
     FileSink sink;
     if (mode == "x") {
       sink = [&](DecodedFile file) {
         std::call_once(initialize,
                        [&] { writer = std::make_unique<ExtractionWriter>(directory, overwrite); });
+        auto size = file.bytes.size();
+        if (!renamed.empty()) {
+          file.name = renamed.at(file.name);
+        }
+        auto name = file.name;
         writer->submit(std::move(file));
+        completed(size, name);
       };
+    } else if (mode == "t" && (progress || verbose)) {
+      sink = [&](DecodedFile file) { completed(file.bytes.size(), file.name); };
+    } else if (progress) {
+      sink = [&](DecodedFile file) { report.add(file.bytes.size()); };
     }
     decode.compute_hashes = mode == "hash";
     auto result = decode_archive(bytes, decode, std::move(sink));
     if (writer) {
       writer->finish();
     }
+    report.clear();
     for (const auto &entry : result.entries) {
       if (decode.compute_hashes) {
         printf("%s  %s\n", entry.sha1.c_str(), entry.name.c_str());

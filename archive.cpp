@@ -148,6 +148,7 @@ struct FilePlan {
   Stats *stats = nullptr;
   std::string storedName;
   uint64_t origSize = 0;
+  uint64_t poolBudget = 0;
   std::vector<uint8_t> data;
   ParsedSlp slp;
   std::vector<Buf> pieces;
@@ -277,10 +278,12 @@ static void plan_compress(FilePlan &fp, int level) {
     Buf seedStream;
     uint32_t seedOff = seed_offset_for(st.cmd, st.recSize);
     // small side-event streams (game start, gecko lists, message splits...)
-    // are pooled across all files: identical/near-identical content between
-    // replays of the same setup becomes LZ matches in one shared buffer
+    // share a bounded archive-wide budget. Each file gets an equal share,
+    // keeping pool frames representable and independent of worker scheduling.
     if (!splittable(st.cmd, st.recSize) && !seedOff && st.count > 0 &&
-        st.records.size() < (128u << 10)) {
+        st.records.size() < (128u << 10) && fp.poolBudget > 0 &&
+        st.records.size() <= fp.poolBudget) {
+      fp.poolBudget -= st.records.size();
       Buf &b = fp.live();
       b.put_u8(st.cmd);
       b.put_u32(st.recSize);
@@ -433,6 +436,7 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
   validate_threads(options.threads);
   require(options.admission_files > 0, "admission window must be positive");
   require(options.concurrent_loads > 0, "load limit must be positive");
+  require(options.pool_bytes <= DecodeLimits{}.pool_bytes, "pool budget exceeds decoder limit");
   require(options.level >= 1 && options.level <= 12, "level must be between 1 and 12");
   narrow(inputs.size());
   RoundingGuard rounding;
@@ -444,6 +448,7 @@ EncodeResult encode_archive(std::span<const ArchiveInput> inputs, const EncodeOp
   for (size_t i = 0; i < inputs.size(); ++i) {
     require(bool(inputs[i].load), "missing input loader");
     plans[i].input = &inputs[i];
+    plans[i].poolBudget = options.pool_bytes / std::max<size_t>(1, inputs.size());
     plans[i].stats = stats;
     plans[i].storedName = inputs[i].name;
     narrow(plans[i].storedName.size());

@@ -44,7 +44,74 @@ static Bytes raw_archive(std::string_view name, View payload, uint64_t size) {
   out.put_bytes(body.data(), body.size());
   return out;
 }
+static Bytes side_event_replay() {
+  Bytes raw{0x35, 7, 0x3d, 0, 32, 0x40, 0, 16};
+  for (unsigned i = 0; i < 3; ++i) {
+    raw.push_back(0x3d);
+    for (unsigned j = 0; j < 32; ++j) {
+      raw.push_back(uint8_t(i * 37 + j));
+    }
+  }
+  for (unsigned i = 0; i < 2; ++i) {
+    raw.push_back(0x40);
+    for (unsigned j = 0; j < 16; ++j) {
+      raw.push_back(uint8_t(i * 23 + j));
+    }
+  }
+  Bytes result{'{', 'U', 3, 'r', 'a', 'w', '[', '$', 'U', '#', 'l'};
+  for (int shift = 24; shift >= 0; shift -= 8) {
+    result.push_back(uint8_t(raw.size() >> shift));
+  }
+  append(result, raw);
+  return result;
+}
+static void check_pool_budget() {
+  auto payload = side_event_replay();
+  std::vector<ArchiveInput> inputs;
+  for (unsigned i = 0; i < 3; ++i) {
+    inputs.push_back({"pooled-" + std::to_string(i) + ".slp", [&] { return payload; }});
+  }
+  // Reproduce pool exhaustion at byte-scale: each replay has side streams
+  // of 96 and 32 bytes. Exercise both pooled and inline packets and their
+  // exact boundaries without allocating a multi-gigabyte fixture.
+  for (uint64_t budget : {0u, 93u, 96u, 285u, 288u, 381u, 384u, 4096u}) {
+    EncodeOptions encode;
+    encode.pool_bytes = budget;
+    auto packed = encode_archive(inputs, encode);
+    encode.threads = 4;
+    check(encode_archive(inputs, encode).bytes == packed.bytes, "pool budget depends on threads");
+    Reader header(packed.bytes);
+    header.bytes(6);
+    auto pools = header.u32();
+    if (budget == 0) {
+      check(pools == 0, "zero budget must disable pooling");
+    }
+    if (budget == 288) {
+      check(pools == 1, "mixed pooled and inline streams");
+    }
+    if (budget == 384) {
+      check(pools == 2, "exact budget must retain both streams");
+    }
+    DecodeOptions decode;
+    decode.threads = 4;
+    decode.limits.pool_bytes = budget;
+    auto sink = [&](DecodedFile file) {
+      if (!std::equal(file.bytes.begin(), file.bytes.end(), payload.begin(), payload.end())) {
+        std::abort();
+      }
+    };
+    auto restored = decode_archive(packed.bytes, decode, sink);
+    check(restored.entries.size() == inputs.size(), "bounded pools round trip");
+    decode.members = {"pooled-1.slp"};
+    check(decode_archive(packed.bytes, decode, sink).entries.size() == 1,
+          "selected file with bounded pools");
+  }
+  EncodeOptions invalid;
+  invalid.pool_bytes = DecodeLimits{}.pool_bytes + 1;
+  rejects([&] { encode_archive(inputs, invalid); }, "pool budget");
+}
 int main() {
+  check_pool_budget();
   Bytes payload{'a', 'b', 'c'};
   std::vector<ArchiveInput> inputs;
   std::atomic<unsigned> loads{0};

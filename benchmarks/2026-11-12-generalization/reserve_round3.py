@@ -32,7 +32,7 @@ def main():
     public = Path(__file__).resolve().parent
     root = public.parent.parent
     work = root / 'build/goal-2026-11-12'
-    archives = root.parent / 'slpz_archives'
+    archives = root.parent / 'slippack_archives'
     development_path = public / 'development-round3-inventory.json'
     development = json.loads(development_path.read_text())
     seen = {r['sha256'] for r in development['inputs']}
