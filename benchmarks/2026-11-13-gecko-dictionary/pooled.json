@@ -1,0 +1,66 @@
+{
+  "completed": true,
+  "files": 16,
+  "binary_sha256": {
+    "baseline": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05",
+    "candidate": "a24053be65d4da10905e50d2fd10b98b10ac8f53a4cc152bc475c0050e01b20b"
+  },
+  "rows": [
+    {
+      "variant": "baseline",
+      "level": 1,
+      "bytes": 2061870,
+      "archive_sha256": "b746c5267df2e45cd45708e9a044c543b6efeb601a20626c04a84096bb92fc0e",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 1,
+      "bytes": 1923520,
+      "archive_sha256": "64f605e28a53cb015df740c91476a5a771028975ba5739afc8d6fd801695a0a9",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 3,
+      "bytes": 2065959,
+      "archive_sha256": "2e85c3bb0bec361a2ef3c6f1345a8ec99e039caf3d9b817f2fa6975a50fa6fec",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 3,
+      "bytes": 1927590,
+      "archive_sha256": "f703828a6a7c1b57097304de06d07629da247112eb7eeb47c84ab3e9820dcccf",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 7,
+      "bytes": 2029081,
+      "archive_sha256": "43bc266efbe05f4d62bd8276578bea881e6924d800972e05cddb2b2e0fbebe51",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 7,
+      "bytes": 1892335,
+      "archive_sha256": "f62aeb74c09bbefce0d88793ceb9a44602ccbdccc03d02b3424c580c7d171fc3",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "baseline",
+      "level": 9,
+      "bytes": 2022530,
+      "archive_sha256": "01b56f0505a4314996cbec7009fb4862444f74e28f012c70bd01e34750b9f6ab",
+      "reconstructed_member_hashes_match": true
+    },
+    {
+      "variant": "candidate",
+      "level": 9,
+      "bytes": 1886575,
+      "archive_sha256": "51f6dd45a969c1f466270f9eea83bfaf1b0038fd8a11f35baea5d08ad1257ba2",
+      "reconstructed_member_hashes_match": true
+    }
+  ]
+}

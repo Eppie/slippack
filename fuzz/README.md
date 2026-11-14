@@ -11,6 +11,7 @@ replacement or inclusion of `.cpp` files is needed.
 | `dictionary` | All four dictionary transforms, index boundaries, record packet framing |
 | `predictors` | Motion/controller transforms composed with record coding, old/new record lengths |
 | `archive` | Hostile container metadata, frames, paths, counts, and limits; expected `Error` exceptions are caught |
+| `gecko` | Built-in dictionary references, malformed tokens/record extensions, exact byte reconstruction |
 
 ## Build and run
 
@@ -25,7 +26,7 @@ cp tests/fixtures/v1-custom.slpc build/archive-corpus/
 ```
 
 `fuzz/build.sh` compiles the core once with ASan/UBSan coverage and links all
-five targets. `CXX`, `SAN`, and `FUZZER_LIB` can override the compiler,
+six targets. `CXX`, `SAN`, and `FUZZER_LIB` can override the compiler,
 sanitisers, and optional explicit libFuzzer runtime. On macOS, Apple's compiler
 may omit libFuzzer. One option is Homebrew LLVM; if its object files are
 incompatible with the installed Apple linker, use Apple's compiler with the

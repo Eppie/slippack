@@ -1,0 +1,26 @@
+{
+  "baseline-slippack": {
+    "bytes": 1047640,
+    "sha256": "817e7eeb7b83ca59c1f81d56f5cb7884a403fe1cee22274bc1b55c947e72ef05"
+  },
+  "baseline.a": {
+    "bytes": 1676200,
+    "sha256": "e5975fcb6ebbf7f34fc083559c1a9b4fc4e433b424f5f3513e6e33417a9884e5"
+  },
+  "baseline-runner": {
+    "bytes": 1020880,
+    "sha256": "04eb5b8e2a7920572a4c7a214d7e04bb4f6bc989326efa3eec2ca864ec04cad4"
+  },
+  "release-runner": {
+    "bytes": 1170560,
+    "sha256": "b053f9ccc49c56bf634fa2c69565c0380618e9d1f84316100671fb4a60f9c52a"
+  },
+  "slippack": {
+    "bytes": 1197352,
+    "sha256": "a24053be65d4da10905e50d2fd10b98b10ac8f53a4cc152bc475c0050e01b20b"
+  },
+  "build/release/libslippack.a": {
+    "bytes": 1832168,
+    "sha256": "a4d11579e4dc46f1c9fdf382550a77a0886ad5c7ef17a57d081116ad422ec5a9"
+  }
+}

@@ -9,10 +9,11 @@ LIBS="${FUZZER_LIB:-}"
 if [[ "$(uname -s)" != Darwin ]]; then LIBS="$LIBS -lcrypto"; fi
 mkdir -p ../build/fuzz
 OBJECTS=""
-for source in archive frames record_codec slp platform; do
+for source in archive frames record_codec gecko_dictionary slp platform; do
   $CXX $FLAGS -c "../$source.cpp" -o "../build/fuzz/$source.o"
   OBJECTS="$OBJECTS ../build/fuzz/$source.o"
 done
+$CXX $FLAGS gecko_dictionary_fuzz.cpp $OBJECTS $LIBS -o slippack_fuzz_gecko
 names=(parse roundtrip dictionary predictors archive)
 for target in 1 2 3 4 5; do
   name=${names[$((target - 1))]}

@@ -16,7 +16,7 @@ PLATFORM_LIBS := -lcrypto
 LLVM_PROFDATA ?= llvm-profdata
 endif
 
-CORE := archive frames record_codec slp platform
+CORE := archive frames record_codec gecko_dictionary slp platform
 OBJECTS := $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(CORE)))
 HEADERS := $(wildcard *.h)
 
@@ -51,11 +51,12 @@ $(BUILD_DIR)/custom_codec_test: tests/custom_codec_test.cpp $(HEADERS)
 $(BUILD_DIR)/%_test: tests/%_test.cpp $(BUILD_DIR)/libslippack.a $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(BUILD_DIR)/libslippack.a $(LDFLAGS) $(PLATFORM_LIBS) -pthread
 
-check: $(PROGRAM) $(addprefix $(BUILD_DIR)/,custom_codec_test entropy_model_test record_codec_test predictor_test archive_api_test)
+check: $(PROGRAM) $(addprefix $(BUILD_DIR)/,custom_codec_test entropy_model_test record_codec_test gecko_dictionary_test predictor_test archive_api_test)
 	$(abspath $(PROGRAM)) selftest
 	$(abspath $(BUILD_DIR))/custom_codec_test
 	$(abspath $(BUILD_DIR))/entropy_model_test
 	$(abspath $(BUILD_DIR))/record_codec_test
+	$(abspath $(BUILD_DIR))/gecko_dictionary_test
 	$(abspath $(BUILD_DIR))/predictor_test
 	$(abspath $(BUILD_DIR))/archive_api_test
 	SLIPPACK_BINARY="$(abspath $(PROGRAM))" python3 tests/test_archive.py

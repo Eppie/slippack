@@ -1,0 +1,398 @@
+{
+  "groups": {
+    "all_development": {
+      "files": 1929,
+      "original_bytes": 5914472893,
+      "baseline_bytes": 237274426,
+      "candidate_bytes": 223105405,
+      "saved_bytes": 14169021,
+      "reduction_percent": 5.971575293158649,
+      "smaller_files": 1298,
+      "larger_files": 0,
+      "unchanged_files": 631
+    },
+    "not_in_dictionary_training": {
+      "files": 1793,
+      "original_bytes": 5470678976,
+      "baseline_bytes": 218939312,
+      "candidate_bytes": 206022252,
+      "saved_bytes": 12917060,
+      "reduction_percent": 5.899835841267286,
+      "smaller_files": 1218,
+      "larger_files": 0,
+      "unchanged_files": 575
+    },
+    "sources_excluded_from_dictionary": {
+      "files": 854,
+      "original_bytes": 2436180267,
+      "baseline_bytes": 98640626,
+      "candidate_bytes": 94473080,
+      "saved_bytes": 4167546,
+      "reduction_percent": 4.224979269697659,
+      "smaller_files": 659,
+      "larger_files": 0,
+      "unchanged_files": 195
+    },
+    "dictionary_training": {
+      "files": 136,
+      "original_bytes": 443793917,
+      "baseline_bytes": 18335114,
+      "candidate_bytes": 17083153,
+      "saved_bytes": 1251961,
+      "reduction_percent": 6.828214975919977,
+      "smaller_files": 80,
+      "larger_files": 0,
+      "unchanged_files": 56
+    },
+    "outside_original_521": {
+      "files": 1408,
+      "original_bytes": 4604924536,
+      "baseline_bytes": 183629678,
+      "candidate_bytes": 171824522,
+      "saved_bytes": 11805156,
+      "reduction_percent": 6.428784349335947,
+      "smaller_files": 831,
+      "larger_files": 0,
+      "unchanged_files": 577
+    }
+  },
+  "per_source": {
+    "archive-org-abbey-52": {
+      "files": 64,
+      "original_bytes": 218668081,
+      "baseline_bytes": 8721437,
+      "candidate_bytes": 8067305,
+      "saved_bytes": 654132,
+      "reduction_percent": 7.500277763859331,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "archive-org-foofs-slippi-replay-collection": {
+      "files": 64,
+      "original_bytes": 139632012,
+      "baseline_bytes": 4102815,
+      "candidate_bytes": 4102815,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "archive-org-melee-slippi-matches-2025": {
+      "files": 64,
+      "original_bytes": 283838283,
+      "baseline_bytes": 9124029,
+      "candidate_bytes": 6326218,
+      "saved_bytes": 2797811,
+      "reduction_percent": 30.664205473261863,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "bair-necessities-2026-top8": {
+      "files": 51,
+      "original_bytes": 183171474,
+      "baseline_bytes": 8085488,
+      "candidate_bytes": 7637527,
+      "saved_bytes": 447961,
+      "reduction_percent": 5.5403087605844,
+      "smaller_files": 51,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "bobc-8": {
+      "files": 64,
+      "original_bytes": 220506931,
+      "baseline_bytes": 9236358,
+      "candidate_bytes": 8625334,
+      "saved_bytes": 611024,
+      "reduction_percent": 6.615421359804374,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "collision-2025": {
+      "files": 64,
+      "original_bytes": 261975265,
+      "baseline_bytes": 11176055,
+      "candidate_bytes": 10577043,
+      "saved_bytes": 599012,
+      "reduction_percent": 5.359780351832555,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "combo-breaker-2024": {
+      "files": 64,
+      "original_bytes": 243562045,
+      "baseline_bytes": 10475380,
+      "candidate_bytes": 9865884,
+      "saved_bytes": 609496,
+      "reduction_percent": 5.818366493626003,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "fall-2019-purdue-weeklies": {
+      "files": 64,
+      "original_bytes": 154056917,
+      "baseline_bytes": 5469933,
+      "candidate_bytes": 5469933,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "fight-pitt-9": {
+      "files": 64,
+      "original_bytes": 139179613,
+      "baseline_bytes": 5005379,
+      "candidate_bytes": 5005379,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "full-bloom-2025": {
+      "files": 64,
+      "original_bytes": 260530841,
+      "baseline_bytes": 10769263,
+      "candidate_bytes": 10137007,
+      "saved_bytes": 632256,
+      "reduction_percent": 5.870931000570789,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "full-house-2025": {
+      "files": 64,
+      "original_bytes": 311336746,
+      "baseline_bytes": 11493310,
+      "candidate_bytes": 10890245,
+      "saved_bytes": 603065,
+      "reduction_percent": 5.247095919278255,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "gmus-cuckdaddy-2020-08": {
+      "files": 64,
+      "original_bytes": 251898102,
+      "baseline_bytes": 12600970,
+      "candidate_bytes": 11006826,
+      "saved_bytes": 1594144,
+      "reduction_percent": 12.650962584626424,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "htl-3": {
+      "files": 64,
+      "original_bytes": 155297883,
+      "baseline_bytes": 5517421,
+      "candidate_bytes": 5517421,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "lacs5": {
+      "files": 64,
+      "original_bytes": 225537123,
+      "baseline_bytes": 8708067,
+      "candidate_bytes": 8153955,
+      "saved_bytes": 554112,
+      "reduction_percent": 6.363203222942593,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "mango-bday": {
+      "files": 64,
+      "original_bytes": 173451544,
+      "baseline_bytes": 6151663,
+      "candidate_bytes": 6151663,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "personal-pre-slippi-online": {
+      "files": 64,
+      "original_bytes": 123942086,
+      "baseline_bytes": 4153615,
+      "candidate_bytes": 4153615,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "shine-2022": {
+      "files": 64,
+      "original_bytes": 192369626,
+      "baseline_bytes": 7966869,
+      "candidate_bytes": 7534037,
+      "saved_bytes": 432832,
+      "reduction_percent": 5.4328996748911,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "slippi-gcs-genesis-7": {
+      "files": 64,
+      "original_bytes": 162298883,
+      "baseline_bytes": 5925016,
+      "candidate_bytes": 5925016,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "slippi-gcs-goml-2019": {
+      "files": 51,
+      "original_bytes": 114473328,
+      "baseline_bytes": 4481417,
+      "candidate_bytes": 4481417,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 51
+    },
+    "slippi-gcs-mainstage-2019": {
+      "files": 64,
+      "original_bytes": 152962029,
+      "baseline_bytes": 5662686,
+      "candidate_bytes": 5662686,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "slippi-gcs-summit-10-online": {
+      "files": 64,
+      "original_bytes": 275460384,
+      "baseline_bytes": 14395406,
+      "candidate_bytes": 12826798,
+      "saved_bytes": 1568608,
+      "reduction_percent": 10.896587425182725,
+      "smaller_files": 63,
+      "larger_files": 0,
+      "unchanged_files": 1
+    },
+    "summit-11": {
+      "files": 419,
+      "original_bytes": 1011903555,
+      "baseline_bytes": 41077843,
+      "candidate_bytes": 39161939,
+      "saved_bytes": 1915904,
+      "reduction_percent": 4.6640813150778175,
+      "smaller_files": 416,
+      "larger_files": 0,
+      "unchanged_files": 3
+    },
+    "supernova-2025-main-stream": {
+      "files": 64,
+      "original_bytes": 237354493,
+      "baseline_bytes": 10206621,
+      "candidate_bytes": 9644692,
+      "saved_bytes": 561929,
+      "reduction_percent": 5.505534103793996,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    },
+    "tbh-9": {
+      "files": 64,
+      "original_bytes": 163907432,
+      "baseline_bytes": 5949352,
+      "candidate_bytes": 5949352,
+      "saved_bytes": 0,
+      "reduction_percent": 0.0,
+      "smaller_files": 0,
+      "larger_files": 0,
+      "unchanged_files": 64
+    },
+    "tipped-off-16": {
+      "files": 64,
+      "original_bytes": 257158217,
+      "baseline_bytes": 10818033,
+      "candidate_bytes": 10231298,
+      "saved_bytes": 586735,
+      "reduction_percent": 5.423675450056398,
+      "smaller_files": 64,
+      "larger_files": 0,
+      "unchanged_files": 0
+    }
+  },
+  "speed": {
+    "1": {
+      "encode": {
+        "baseline_median_seconds": 14.48442142,
+        "candidate_median_seconds": 14.25670275,
+        "time_change_percent": -1.572162693951773
+      },
+      "decode": {
+        "baseline_median_seconds": 6.1329885,
+        "candidate_median_seconds": 6.044761083,
+        "time_change_percent": -1.438571375113451
+      }
+    },
+    "8": {
+      "encode": {
+        "baseline_median_seconds": 1.929448209,
+        "candidate_median_seconds": 1.903748791,
+        "time_change_percent": -1.3319568714062369
+      },
+      "decode": {
+        "baseline_median_seconds": 0.812954667,
+        "candidate_median_seconds": 0.811886667,
+        "time_change_percent": -0.13137263901087382
+      }
+    }
+  },
+  "comparison": [
+    {
+      "path": "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/development/tbh-9/01ffbfd6ad363aaee817a6ca6b9f8aed049c9481.slp",
+      "original_bytes": 2046146,
+      "baseline_bytes": 16110,
+      "candidate_bytes": 16110
+    },
+    {
+      "path": "/Users/eppie/Downloads/ALL_REPLAYS/slpz/build/goal-2026-11-12/development/archive-org-melee-slippi-matches-2025/0c9caeb8fab2376816d4f58700f6e4d53179d8e6.slp",
+      "original_bytes": 3378666,
+      "baseline_bytes": 112959,
+      "candidate_bytes": 69706
+    },
+    {
+      "path": "/private/var/folders/q7/jtrs4rhd4833hnh517xz_6_r0000gn/T/slpz-study-ojxzj8kf/summit/Day 1/Game_20210715T103147.slp",
+      "original_bytes": 13846612,
+      "baseline_bytes": 1817428,
+      "candidate_bytes": 1817428
+    }
+  ],
+  "power": {
+    "initial": {
+      "mode": 2,
+      "source": "Battery Power"
+    },
+    "changes": [],
+    "poll_interval_seconds": 1,
+    "final": {
+      "mode": 2,
+      "source": "Battery Power"
+    }
+  },
+  "repeats": 3,
+  "scope": "Existing development set; dictionary-training exclusions are not a fresh holdout for the whole codec. No final holdout files used.",
+  "exact_reconstruction": true,
+  "thread_independent_compressed_bytes": true
+}

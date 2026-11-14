@@ -40,6 +40,47 @@ a profile byte; record plane frames use their own plane-packet structure.
 Record packets contain dictionaries, one transform selector per output plane,
 `u8 layout=2`, and one plane frame. Layouts 0 and 1 are unsupported.
 
+### Built-in Gecko dictionary record extension
+
+A record packet beginning with `u8 field_count=1, u8 field_width=0` uses an
+extension rather than a field dictionary. Width zero was invalid in the original
+record format, so older decoders reject these packets. The new decoder continues
+to read original v1 archives. After these two bytes:
+
+| Extension byte | Payload |
+|---|---|
+| 1 | One generic custom frame of contiguous record bytes |
+| 2 | `u32 dictionary_id, u32 record_bytes`, then one generic custom frame of tokens |
+
+For extension 1, the frame's original size must equal `record_count * record_size`.
+For extension 2, `record_bytes` must equal that product, and the token frame's
+original size must not exceed `record_bytes`. Both obey the caller's output limit.
+The encoder compares these extensions with the original plane packet for commands
+0x10 and 0x3d and keeps the smallest. Other commands use the original record path.
+
+Dictionary ID **1** identifies the immutable 136,904 bytes in
+`gecko_dictionary_data.h`, SHA-256
+`4b96975e1533caf743a6fa167f258808cc46251b3dac5ddb20ad49c2ee3d7689`.
+These bytes ship in both encoder and decoder, never in the archive. Future
+dictionary revisions must use new IDs and retain all old decoding dictionaries.
+Unknown IDs are rejected during directory scanning.
+
+Each token contains a varint literal length, those literal bytes, a varint copy
+length, and (only when copy length is nonzero) a varint dictionary byte offset.
+All varints are unsigned 32-bit LEB128. Append literals, then the specified
+dictionary range, repeating until exactly `record_bytes` have been produced.
+Zero-progress tokens, out-of-bounds ranges, output overruns, overflowing varints,
+truncation, and trailing token bytes are invalid. Empty output has no tokens.
+Copies can reference any range, including partial entries: edits and insertions
+become literals without requiring a separate dictionary for each payload variant.
+
+Matching is byte based. Every original record byte, including split-message
+padding, lengths, inner command, and completion flag, is preserved. Pool boundaries
+need no special treatment. No embedded instruction is interpreted or executed.
+The dictionary's source selection and entry hashes are recorded in
+`dictionaries/gecko-v1.json`; `tools/build_gecko_dictionary.py` reproduces the
+header from the recorded development inventory and manifest.
+
 Opaque metadata/tail blobs use these modes:
 
 | Mode | Payload |

@@ -1,6 +1,7 @@
 #include "record_codec.h"
 #include "slp.h"
 #include "custom_codec.h"
+#include "gecko_dictionary.h"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -826,6 +827,27 @@ void pack_records(std::span<const uint8_t> recs, uint32_t count, uint32_t size, 
   }
   blob.put_u8(2);
   custom_planes_frame(out, count, profiles, level, blob);
+  if ((cmd == 0x10 || cmd == 0x3d) && !recs.empty()) {
+    // Code payloads lose instruction locality when transposed. Compare the
+    // ordinary packet with contiguous bytes and built-in dictionary references;
+    // unknown data always retains the original size option.
+    Buf candidate{{1, 0, 1}}; // one field with reserved width zero: extended packet
+    custom_frame(recs, candidate, slippack_custom::Generic, level);
+    auto tokens = gecko_dictionary_encode(recs);
+    if (tokens.size() < recs.size()) {
+      Buf dictionary{{1, 0, 2}};
+      dictionary.put_u32(kGeckoDictionaryV1);
+      dictionary.put_u32(narrow(recs.size()));
+      custom_frame(tokens, dictionary, slippack_custom::Generic, level);
+      if (dictionary.size() < candidate.size()) {
+        candidate = std::move(dictionary);
+      }
+    }
+    if (candidate.size() < blob.size() - blobAt) {
+      blob.resize(blobAt);
+      append(blob, candidate);
+    }
+  }
   if (stat) {
     *stat += blob.size() - blobAt;
   }
@@ -931,10 +953,34 @@ struct RecordPacket {
   uint32_t planes;
   uint8_t dictionary_transform;
   View dictionary_frame, selectors, plane_frame;
+  uint8_t extension = 0;
+  uint32_t builtin_id = 0, original_size = 0;
 };
 static RecordPacket read_record_packet(Reader &r, uint32_t size, uint64_t count) {
   require(size <= UINT16_MAX, "corrupt record width");
   uint8_t nFields = r.u8();
+  if (nFields == 1 && r.avail(1) && *r.p == 0) {
+    r.u8(); // width zero cannot occur in a legacy field descriptor
+    uint8_t extension = r.u8();
+    require(extension == 1 || extension == 2, "unsupported record packet extension");
+    uint32_t id = 0, original = 0;
+    if (extension == 2) {
+      id = r.u32();
+      gecko_dictionary(id); // reject unknown IDs while scanning, before allocation
+      original = r.u32();
+    }
+    auto frame = skip_frame(r);
+    if (extension == 1) {
+      original = frame_size(frame);
+    } else {
+      require(frame_size(frame) <= original, "Gecko token frame exceeds record size");
+    }
+    require(original <= r.output_limit, "records exceed output limit");
+    if (count != UINT64_MAX) {
+      require(original == count * size, "corrupt archive (stream size)");
+    }
+    return {{}, 0, 0, {}, {}, frame, extension, id, original};
+  }
   std::vector<DictField> fields(nFields);
   uint32_t nOut = size;
   uint8_t dictionaryTransform = 0;
@@ -998,6 +1044,15 @@ static RecordPacket read_record_packet(Reader &r, uint32_t size, uint64_t count)
 template <class RecordBuffer>
 void unpack_records(Reader &r, uint32_t count, uint32_t size, RecordBuffer &records) {
   auto packet = read_record_packet(r, size, count);
+  if (packet.extension) {
+    Reader frame(packet.plane_frame);
+    auto bytes = custom_unframe(frame);
+    if (packet.extension == 2) {
+      bytes = gecko_dictionary_decode(bytes, packet.builtin_id, packet.original_size);
+    }
+    records.assign(bytes.begin(), bytes.end());
+    return;
+  }
   auto &fields = packet.fields;
   auto nOut = packet.planes;
   if (packet.dictionary_transform) {
